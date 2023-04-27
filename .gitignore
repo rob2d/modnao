@@ -36,3 +36,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# TEMPORARY WHILE WIP /avoid 
+# distributing ROM files
+# for legal reasons
+# 
+# @TODO remove when possible to
+# load BIN files via client 
+STG*.BIN.json
+STG*.BIN

@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
 /** @TODO: flesh this out based on sample output */
@@ -10,27 +10,26 @@ export interface StageDataState {
 
 export const initialState: StageDataState = { models: [] };
 
+const loadStage = createAsyncThunk<{ models: StageModel[] }>(
+  'stageData/loadProcessedStage',
+  async () => {
+    return await (await fetch('/api/sample-stage')).json();
+  }
+);
+
 export const stageDataSlice = createSlice({
   name: 'stageData',
   initialState,
-
-  // @TODO: design interface/data-flow more concretely;
-  // + this should be async/thunk; look into approaches
-  // w redux-toolkit
-  reducers: {
-    loadStage(
-      state,
-      { payload: { models } }: { payload: { models: StageModel[] } }
-    ) {
-      state.models = models;
-    }
-  },
-  extraReducers: {
-    // @TODO: createSlice wrapper to reduce
-    // boilerplate with this nextSSR req in every
-    // slice
-    [HYDRATE]: (state, { payload: { stageData } }) => {
-      return { ...state, ...stageData };
-    }
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(
+      loadStage.fulfilled,
+      (state: StageDataState, { payload: { models } }) => {
+        state.models = models;
+      }
+    );
+    builder.addCase(HYDRATE, (state, { payload: { stageData } }: any) => {
+      Object.assign(state, stageData);
+    });
   }
 });
