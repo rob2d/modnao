@@ -4,10 +4,10 @@ import { HYDRATE } from 'next-redux-wrapper';
 export interface ModelViewerState {
   modelViewedIndex: number;
   objectIndex: number;
-  objectGroupType: 'mesh'; // TODO: enumerate other types
+  objectGroupType: 'mesh'; // @TODO: enumerate other types
 }
 
-export const initialState = {
+export const initialState: ModelViewerState = {
   modelViewedIndex: 0,
   objectIndex: -1,
   objectGroupType: 'mesh'
@@ -27,21 +27,15 @@ export const modelViewerSlice = createSlice({
     },
 
     setObjectType(state, { payload: { objectGroupType } }) {
-      Object.assign(state, {
-        objectGroupType,
-        objectIndex: -1
-      });
+      Object.assign(state, { objectIndex: -1, objectGroupType });
     }
   },
   extraReducers: {
     // @TODO: createSlice wrapper to reduce
     // boilerplate with this nextSSR req in every
-    // substate
-    [HYDRATE]: (state, action) => {
-      return {
-        ...state,
-        ...action.payload.modelViewer
-      };
+    // slice
+    [HYDRATE]: (state, { payload: { modelViewer } }) => {
+      return { ...state, ...modelViewer };
     }
   }
 });
