@@ -2,6 +2,7 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Roboto } from 'next/font/google';
+import { wrapper } from '../store/store';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -14,10 +15,12 @@ const theme = createTheme({
   }
 });
 
-export default function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider theme={theme}>
       <Component {...pageProps} />
     </ThemeProvider>
   );
 }
+
+export default wrapper.withRedux(App);
