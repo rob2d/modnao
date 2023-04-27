@@ -4,13 +4,13 @@ import { HYDRATE } from 'next-redux-wrapper';
 export interface ModelViewerState {
   modelViewedIndex: number;
   objectIndex: number;
-  objectGroupType: 'mesh'; // @TODO: enumerate other types
+  objectSelectionType: 'mesh'; // @TODO: enumerate other types
 }
 
 export const initialState: ModelViewerState = {
   modelViewedIndex: 0,
   objectIndex: -1,
-  objectGroupType: 'mesh'
+  objectSelectionType: 'mesh'
 };
 
 export const modelViewerSlice = createSlice({
@@ -26,8 +26,8 @@ export const modelViewerSlice = createSlice({
       Object.assign(state, { objectIndex });
     },
 
-    setObjectType(state, { payload: { objectGroupType } }) {
-      Object.assign(state, { objectIndex: -1, objectGroupType });
+    setObjectType(state, { payload: { objectSelectionType } }) {
+      Object.assign(state, { objectIndex: -1, objectSelectionType });
     }
   },
   extraReducers: {
