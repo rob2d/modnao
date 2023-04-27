@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
-/** @TODO: flesh this out */
-export type StageModel = { anything: 'anyshape' };
+/** @TODO: flesh this out based on sample output */
+export type StageModel = { meshes: object[] };
 
 export interface StageDataState {
   models: StageModel[];
