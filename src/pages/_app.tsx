@@ -3,15 +3,14 @@ import type { AppProps } from 'next/app';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Roboto } from 'next/font/google';
 
-const roboto = Roboto({ 
+const roboto = Roboto({
   subsets: ['latin'],
-  weight: ['300', '400', '500'] 
+  weight: ['300', '400', '500']
 });
-
 
 const theme = createTheme({
   typography: {
-      fontFamily: roboto.style.fontFamily,
+    fontFamily: roboto.style.fontFamily
   }
 });
 
