@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
 export interface ModelViewerState {
@@ -31,11 +31,8 @@ export const modelViewerSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(
-      HYDRATE,
-      (state, { payload: { modelViewerSlice } }: any) => {
-        Object.assign(state, modelViewerSlice);
-      }
+    builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
+      Object.assign(state, payload)
     );
   }
 });

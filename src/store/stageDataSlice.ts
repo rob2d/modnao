@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
 /** @TODO: flesh this out based on sample output */
@@ -28,8 +28,8 @@ export const stageDataSlice = createSlice({
         state.models = models;
       }
     );
-    builder.addCase(HYDRATE, (state, { payload: { stageData } }: any) => {
-      Object.assign(state, stageData);
-    });
+    builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
+      Object.assign(state, payload)
+    );
   }
 });
