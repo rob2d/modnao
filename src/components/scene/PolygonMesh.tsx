@@ -3,17 +3,21 @@ import React, { useMemo, useRef, useEffect, MutableRefObject } from 'react';
 import { Mesh } from 'three';
 
 export type Vertex = {
-  position: [x: number, y: number, z: number]
-}
-
-type PolygonProps = {
-  isSelected: boolean,
-  vertexes: Vertex[],
-  vertexGroupMode: string,
-  color: number
+  position: [x: number, y: number, z: number];
 };
 
-export default function Polygon({
+export type Polygon = {
+  index: number;
+  vertexes: Vertex[];
+  vertexGroupMode: string;
+};
+
+type PolygonProps = {
+  isSelected: boolean;
+  color: number;
+} & Polygon;
+
+export default function PolygonMesh({
   isSelected,
   vertexes,
   vertexGroupMode,
@@ -22,26 +26,28 @@ export default function Polygon({
   const meshRef = useRef() as MutableRefObject<Mesh>;
 
   useEffect(() => {
-    if(!meshRef.current) { return }
+    if (!meshRef.current) {
+      return;
+    }
 
-    const { computeVertexNormals, attributes } = meshRef.current.geometry;
-    attributes.position.needsUpdate = true;
-    computeVertexNormals();
+    const { geometry } = meshRef.current;
+    geometry.attributes.position.needsUpdate = true;
+    geometry.computeVertexNormals();
   }, [vertexes]);
 
   const [vertices, indices] = useMemo(() => {
     const vArray: number[] = [];
     const iArray: number[] = [];
 
-    if(vertexGroupMode === 'regular') {
+    if (vertexGroupMode === 'regular') {
       vertexes.forEach((v, i) => {
         vArray.push(...v.position);
         iArray.push(i);
 
-        if(i + 1 < vertexes.length) {
+        if (i + 1 < vertexes.length) {
           iArray.push(i + 1);
         }
-        if(i + 2 < vertexes.length) {
+        if (i + 2 < vertexes.length) {
           iArray.push(i + 2);
         }
       });
@@ -52,29 +58,26 @@ export default function Polygon({
       });
     }
 
-    return [
-      new Float32Array(vArray),
-      new Uint16Array(iArray)
-    ];
+    return [new Float32Array(vArray), new Uint16Array(iArray)];
   }, [vertexes, vertexGroupMode]);
 
-  const colors = useMemo(() => {
-    const values: number[] = [];
-    vertexes.forEach(() => {
-      values.push(1);
-      values.push(1);
-      values.push(1);
-    });
+  const colors = useMemo(
+    () =>
+      new Float32Array(
+        vertexes.reduce((result: number[]) => {
+          result.push(1, 1, 1);
+          return result;
+        }, [])
+      ),
+    [vertexes]
+  );
 
-    return new Float32Array(values);
-  }, [vertexes, isSelected]);
-
-  if(meshRef?.current !== undefined) {
+  if (meshRef?.current !== undefined) {
     return null;
   }
 
   return (
-    <mesh ref={ meshRef }>
+    <mesh ref={meshRef}>
       <bufferGeometry attach={'geometry'}>
         <bufferAttribute
           attach='attributes-position'
@@ -90,7 +93,7 @@ export default function Polygon({
         />
         <bufferAttribute
           array={indices}
-          attach="index"
+          attach='index'
           count={indices.length}
           itemSize={1}
         />
@@ -98,8 +101,8 @@ export default function Polygon({
       <meshBasicMaterial
         wireframe
         vertexColors
-        wireframeLinewidth={ isSelected ? 3 : 1 }
-        color={ color }
+        wireframeLinewidth={isSelected ? 3 : 1}
+        color={color}
       />
     </mesh>
   );
