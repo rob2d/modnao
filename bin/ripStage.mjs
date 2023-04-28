@@ -50,11 +50,10 @@ const T = {
 const textureTypeMap = new Map();
 Object.keys(T).forEach((k) => textureTypeMap.set(k, T[k]));
 
-// convenience methods
-
 const nonRAM = (a) => a - O.RAM;
 
 // map out models
+
 const modelTablePointerAddress = nonRAM(buffer.readUInt32LE(0x0000));
 const modelCount = buffer.readUInt32LE(0x0004);
 const models = [];
