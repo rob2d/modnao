@@ -1,7 +1,8 @@
 import '@/styles/globals.css';
-import type { AppProps } from 'next/app';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import type { AppProps } from 'next/app';
 import { Roboto } from 'next/font/google';
+import { Provider } from 'react-redux';
 import { wrapper } from '../store/store';
 
 const roboto = Roboto({
@@ -15,12 +16,14 @@ const theme = createTheme({
   }
 });
 
-function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, ...rest }: AppProps) {
+  const { store, props } = wrapper.useWrappedStore(rest);
+
   return (
-    <ThemeProvider theme={theme}>
-      <Component {...pageProps} />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <Component {...props} />
+      </ThemeProvider>
+    </Provider>
   );
 }
-
-export default wrapper.withRedux(App);

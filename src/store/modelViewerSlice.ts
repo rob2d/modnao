@@ -30,13 +30,13 @@ export const modelViewerSlice = createSlice({
       Object.assign(state, { objectIndex: -1, objectSelectionType });
     }
   },
-  extraReducers: {
-    // @TODO: createSlice wrapper to reduce
-    // boilerplate with this nextSSR req in every
-    // slice
-    [HYDRATE]: (state, { payload: { modelViewer } }) => {
-      return { ...state, ...modelViewer };
-    }
+  extraReducers: (builder) => {
+    builder.addCase(
+      HYDRATE,
+      (state, { payload: { modelViewerSlice } }: any) => {
+        Object.assign(state, modelViewerSlice);
+      }
+    );
   }
 });
 
