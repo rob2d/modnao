@@ -1,6 +1,7 @@
 import Head from 'next/head';
-import styles from '@/styles/Home.module.css';
 import Typography from '@mui/material/Typography';
+import styles from '@/styles/Home.module.css';
+import SceneCanvas from '@/components/scene/SceneCanvas';
 
 export default function Home() {
   return (
@@ -15,10 +16,7 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <main className={styles.main}>
-        <Typography variant='h1' component='h2'>
-          ModNao 👋
-        </Typography>
-        ;
+        <SceneCanvas />;
       </main>
     </>
   );

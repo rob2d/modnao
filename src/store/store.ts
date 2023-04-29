@@ -1,4 +1,10 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import {
+  configureStore,
+  ThunkAction,
+  Action,
+  ThunkDispatch,
+  AnyAction
+} from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
 import modelViewerSlice from './modelViewerSlice';
 import stageDataSlice from './stageDataSlice';
@@ -20,5 +26,7 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   Action
 >;
+
+export type AppThunkDispatch = ThunkDispatch<AppState, any, AnyAction>;
 
 export const wrapper = createWrapper<AppStore>(makeStore);
