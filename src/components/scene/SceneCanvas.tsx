@@ -1,24 +1,17 @@
 import { Canvas } from '@react-three/fiber';
-import { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback } from 'react';
 import { NLMesh, loadStage } from '@/store/stageDataSlice';
-import { AppThunkDispatch } from '@/store/store';
 import { selectModel } from '@/store/selectors';
 import RenderedMesh from './RenderedMesh';
+import useAsyncDispatchOnMount from '@/hooks/useAsyncDispatchOnMount';
+import { useAppSelector } from '@/store/store';
 
 export default function SceneCanvas() {
-  const dispatch = useDispatch<AppThunkDispatch>();
-  useEffect(() => {
-    const promise = dispatch(loadStage());
-    return () => promise.abort();
-  }, [dispatch]);
+  useAsyncDispatchOnMount(loadStage());
+  const model = useAppSelector(selectModel);
 
-  /**
-   * TODO: selection highlighting behavior
-   */
+  // @TODO: selection highlighting behavior
   const onClick = useCallback(() => false, []);
-
-  const model = useSelector(selectModel);
 
   return (
     <Canvas>
