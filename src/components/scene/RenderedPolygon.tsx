@@ -6,23 +6,23 @@ export type Vertex = {
   position: [x: number, y: number, z: number];
 };
 
-export type Polygon = {
+export type NLPolygon = {
   index: number;
   vertexes: Vertex[];
   vertexGroupMode: string;
 };
 
-type PolygonProps = {
+type RenderedPolygonProps = {
   isSelected: boolean;
   color: number;
-} & Polygon;
+} & NLPolygon;
 
-export default function PolygonMesh({
+export default function RenderedPolygon({
   isSelected,
   vertexes,
   vertexGroupMode,
   color
-}: PolygonProps) {
+}: RenderedPolygonProps) {
   const meshRef = useRef() as MutableRefObject<Mesh>;
 
   useEffect(() => {

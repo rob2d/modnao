@@ -1,20 +1,23 @@
 import { ThreeEvent } from '@react-three/fiber';
 import React, { useCallback, useState } from 'react';
-import PolygonMesh, { Polygon } from './PolygonMesh';
+import RenderedPolygon, { NLPolygon } from './RenderedPolygon';
 
-type MeshProps = {
+export type NLMesh = {
   index: number;
-  onClick: (e: ThreeEvent<MouseEvent>) => boolean;
-  polygons: Polygon[];
-  isSelected: boolean;
+  polygons: NLPolygon[];
 };
 
-export default function Mesh({
+type RenderedMeshProps = {
+  onClick: (e: ThreeEvent<MouseEvent>) => boolean;
+  isSelected: boolean;
+} & NLMesh;
+
+export default function RenderedMesh({
   index,
   polygons,
   isSelected,
   onClick
-}: MeshProps) {
+}: RenderedMeshProps) {
   const [isHovered, setHovered] = useState(() => false);
 
   const onPointerOver = useCallback((e: ThreeEvent<MouseEvent>) => {
@@ -43,13 +46,9 @@ export default function Mesh({
   }
 
   return (
-    <mesh
-      onClick={handleClick}
-      onPointerOver={onPointerOver}
-      onPointerOut={onPointerOut}
-    >
+    <mesh onClick={handleClick}>
       {polygons.map((p, i) => (
-        <PolygonMesh
+        <RenderedPolygon
           {...p}
           key={`${index}_${i}`}
           isSelected={isSelected}
