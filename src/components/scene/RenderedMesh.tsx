@@ -1,11 +1,7 @@
 import { ThreeEvent } from '@react-three/fiber';
 import React, { useCallback, useState } from 'react';
-import RenderedPolygon, { NLPolygon } from './RenderedPolygon';
-
-export type NLMesh = {
-  index: number;
-  polygons: NLPolygon[];
-};
+import RenderedPolygon from './RenderedPolygon';
+import { NLMesh } from '@/store/stageDataSlice';
 
 type RenderedMeshProps = {
   onClick: (e: ThreeEvent<MouseEvent>) => boolean;

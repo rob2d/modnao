@@ -13,7 +13,7 @@ export const initialState: ModelViewerState = {
   objectSelectionType: 'mesh'
 };
 
-export const modelViewerSlice = createSlice({
+const modelViewerSlice = createSlice({
   name: 'modelViewer',
   initialState,
   reducers: {
@@ -38,3 +38,4 @@ export const modelViewerSlice = createSlice({
 });
 
 export const { setModelViewedIndex } = modelViewerSlice.actions;
+export default modelViewerSlice;

@@ -1,7 +1,7 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
-import { modelViewerSlice } from './modelViewerSlice';
-import { stageDataSlice } from './stageDataSlice';
+import modelViewerSlice from './modelViewerSlice';
+import stageDataSlice from './stageDataSlice';
 
 const makeStore = () =>
   configureStore({

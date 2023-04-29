@@ -1,16 +1,7 @@
+import { NLPolygon } from '@/store/stageDataSlice';
 import '@react-three/fiber';
 import React, { useMemo, useRef, useEffect, MutableRefObject } from 'react';
 import { Mesh } from 'three';
-
-export type Vertex = {
-  position: [x: number, y: number, z: number];
-};
-
-export type NLPolygon = {
-  index: number;
-  vertexes: Vertex[];
-  vertexGroupMode: string;
-};
 
 type RenderedPolygonProps = {
   isSelected: boolean;

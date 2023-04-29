@@ -1,31 +1,45 @@
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
-/** @TODO: flesh this out based on sample output */
-export type StageModel = { meshes: object[] };
+export type NLVertex = {
+  position: [x: number, y: number, z: number];
+};
+
+export type NLMesh = {
+  index: number;
+  polygons: NLPolygon[];
+};
+
+export type NLPolygon = {
+  index: number;
+  vertexes: NLVertex[];
+  vertexGroupMode: string;
+};
+
+export type NLStageModel = {
+  meshes: NLMesh[];
+};
 
 export interface StageDataState {
-  models: StageModel[];
+  models: NLStageModel[];
 }
 
 export const initialState: StageDataState = { models: [] };
 
-const loadStage = createAsyncThunk<{ models: StageModel[] }>(
+export const loadStage = createAsyncThunk<{ models: NLStageModel[] }>(
   'stageData/loadProcessedStage',
-  async () => {
-    return await (await fetch('/api/sample-stage')).json();
-  }
+  async () => JSON.parse(await (await fetch('/api/sample-stage')).json())
 );
 
-export const stageDataSlice = createSlice({
+const stageDataSlice = createSlice({
   name: 'stageData',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(
       loadStage.fulfilled,
-      (state: StageDataState, { payload: { models } }) => {
-        state.models = models;
+      (state: StageDataState, { payload }) => {
+        state.models = payload.models;
       }
     );
     builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
@@ -33,3 +47,5 @@ export const stageDataSlice = createSlice({
     );
   }
 });
+
+export default stageDataSlice;
