@@ -1,3 +1,4 @@
+![ModNao logo](./doc/logo.png)
 # ModNao
 Naomi & Dreamcast ROM Model Viewer/Virtual Debugger for games using the standard Sega Naomi Library model format; Used to help with reverse engineering and creating stage importers/exporters in a user-friendly way.
 
