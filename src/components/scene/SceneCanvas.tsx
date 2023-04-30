@@ -1,3 +1,4 @@
+import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { useCallback } from 'react';
 import { NLMesh, loadStage } from '@/store/stageDataSlice';
@@ -14,12 +15,12 @@ export default function SceneCanvas() {
   const onClick = useCallback(() => false, []);
 
   return (
-    <Canvas>
-      <ambientLight />
-      <pointLight position={[10, 10, 10]} />
+    <Canvas frameloop='demand' camera={{ far: 100000 }}>
+      <axesHelper args={[10]} />
       {(model?.meshes || []).map((m: NLMesh, i) => (
         <RenderedMesh key={i} {...m} isSelected={false} onClick={onClick} />
       ))}
+      <OrbitControls />
     </Canvas>
   );
 }

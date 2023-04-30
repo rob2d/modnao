@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import Typography from '@mui/material/Typography';
 import styles from '@/styles/Home.module.css';
 import SceneCanvas from '@/components/scene/SceneCanvas';
 
