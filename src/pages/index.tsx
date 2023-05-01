@@ -17,6 +17,9 @@ export default function Home() {
     });
 
   useEffect(() => {
+    if (!plainFiles[0]) {
+      return;
+    }
     const [stageFile] = plainFiles;
     dispatch(processStageFile(stageFile));
   }, [plainFiles?.[0]]);

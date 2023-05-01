@@ -2,12 +2,34 @@ import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import extractStageFile from './stage-data/extractStageFile';
 
+// TODO: create namespace for all types
+// that should be reasonably global in
+// app e.g. NLModel types
+
+export type TextureWrappingFlags = {
+  hFlip: boolean;
+  vFlip: boolean;
+  hRepeat: boolean;
+  vRepeat: boolean;
+  hStretch: boolean;
+};
+
 export type NLVertex = {
   position: [x: number, y: number, z: number];
 };
 
 export type NLMesh = {
   polygons: NLPolygon[];
+  position: [number, number, number];
+  color: [number, number, number];
+  alpha: number;
+  specularLightValue: number;
+  polygonDataLength: number;
+  textureWrappingValue: number;
+  textureWrappingFlags: TextureWrappingFlags;
+  textureControlValue: number; // @TODO: enumerate possible values
+  textureColorFormat: number; // @TODO enumerate possible values
+  textureNumber: number;
 };
 
 export type NLPolygon = {
