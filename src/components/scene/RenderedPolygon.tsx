@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, MutableRefObject, useEffect } from 'react';
+import React, { useMemo, useRef, MutableRefObject } from 'react';
 import { Mesh, MeshBasicMaterial } from 'three';
 import { NLPolygon } from '@/store/stageDataSlice';
 import { Color } from 'three';

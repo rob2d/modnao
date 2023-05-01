@@ -7,7 +7,7 @@ export interface ModelViewerState {
   objectSelectionType: 'mesh' | 'polygon';
 }
 
-export const initialState: ModelViewerState = {
+export const initialModelViewerState: ModelViewerState = {
   modelViewedIndex: 0,
   objectIndex: -1,
   objectSelectionType: 'mesh'
@@ -15,7 +15,7 @@ export const initialState: ModelViewerState = {
 
 const modelViewerSlice = createSlice({
   name: 'modelViewer',
-  initialState,
+  initialState: initialModelViewerState,
   reducers: {
     setModelViewedIndex(state, { payload: { nextIndex, models } }) {
       const modelViewedIndex = Math.max(0, nextIndex);
@@ -37,5 +37,7 @@ const modelViewerSlice = createSlice({
   }
 });
 
-export const { setModelViewedIndex } = modelViewerSlice.actions;
+export const { setModelViewedIndex, setObjectIndex, setObjectType } =
+  modelViewerSlice.actions;
+
 export default modelViewerSlice;

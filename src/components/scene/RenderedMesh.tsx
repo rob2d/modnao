@@ -15,11 +15,9 @@ export default function RenderedMesh({
   polygons,
   selectedIndex
 }: RenderedMeshProps) {
-  /**
-   * we use a mutable ref since state or signals
-   * create race conditions with pointer event
-   * frequency in component lifecycle + R3F
-   */
+  // we use a mutable ref for hovered & color since
+  // state or signals create race conditions with pointer event
+  // frequency in component lifecycle + R3F
   const isHovered = useRef(false);
   const color: MutableRefObject<Color> = useRef(new Color(0xff0000));
 

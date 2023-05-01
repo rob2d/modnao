@@ -22,7 +22,7 @@ export interface StageDataState {
   models: NLStageModel[];
 }
 
-export const initialState: StageDataState = { models: [] };
+export const initialStageDataState: StageDataState = { models: [] };
 
 export const loadStage = createAsyncThunk<{ models: NLStageModel[] }>(
   'stageData/loadProcessedStage',
@@ -31,7 +31,7 @@ export const loadStage = createAsyncThunk<{ models: NLStageModel[] }>(
 
 const stageDataSlice = createSlice({
   name: 'stageData',
-  initialState,
+  initialState: initialStageDataState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(
