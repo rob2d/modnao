@@ -1,30 +1,15 @@
-import { NLPolygon } from '@/store/stageDataSlice';
-import '@react-three/fiber';
-import React, { useMemo, useRef, useEffect, MutableRefObject } from 'react';
+import React, { useMemo, useRef, MutableRefObject } from 'react';
 import { Mesh } from 'three';
-
-type RenderedPolygonProps = {
-  isSelected: boolean;
-  color: number;
-} & NLPolygon;
+import { NLPolygon } from '@/store/stageDataSlice';
+import { Signal } from '@preact/signals-react';
+import { Color } from '@react-three/fiber';
 
 export default function RenderedPolygon({
-  isSelected,
-  vertexes,
   vertexGroupMode,
+  vertexes,
   color
-}: RenderedPolygonProps) {
+}: NLPolygon & { color: Signal<Color> }) {
   const meshRef = useRef() as MutableRefObject<Mesh>;
-
-  useEffect(() => {
-    if (!meshRef.current) {
-      return;
-    }
-
-    const { geometry } = meshRef.current;
-    geometry.attributes.position.needsUpdate = true;
-    geometry.computeVertexNormals();
-  }, [vertexes]);
 
   const [vertices, indices] = useMemo(() => {
     const vArray: number[] = [];
@@ -52,34 +37,18 @@ export default function RenderedPolygon({
     return [new Float32Array(vArray), new Uint16Array(iArray)];
   }, [vertexes, vertexGroupMode]);
 
-  const colors = useMemo(
-    () =>
-      new Float32Array(
-        vertexes.reduce((result: number[]) => {
-          result.push(1, 1, 1);
-          return result;
-        }, [])
-      ),
-    [vertexes]
-  );
-
   if (meshRef?.current !== undefined) {
     return null;
   }
 
   return (
     <mesh ref={meshRef}>
+      <meshBasicMaterial color={color.value} wireframe wireframeLinewidth={1} />
       <bufferGeometry attach={'geometry'}>
         <bufferAttribute
           attach='attributes-position'
           count={vertices.length / 3}
           array={vertices}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach='attributes-color'
-          count={colors.length / 3}
-          array={colors}
           itemSize={3}
         />
         <bufferAttribute
@@ -89,12 +58,6 @@ export default function RenderedPolygon({
           itemSize={1}
         />
       </bufferGeometry>
-      <meshBasicMaterial
-        wireframe
-        vertexColors
-        wireframeLinewidth={isSelected ? 3 : 1}
-        color={color}
-      />
     </mesh>
   );
 }

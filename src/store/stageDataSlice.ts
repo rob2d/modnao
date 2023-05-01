@@ -6,12 +6,10 @@ export type NLVertex = {
 };
 
 export type NLMesh = {
-  index: number;
   polygons: NLPolygon[];
 };
 
 export type NLPolygon = {
-  index: number;
   vertexes: NLVertex[];
   vertexGroupMode: string;
 };

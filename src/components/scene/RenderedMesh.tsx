@@ -1,55 +1,64 @@
-import { ThreeEvent } from '@react-three/fiber';
-import React, { useCallback, useState } from 'react';
-import RenderedPolygon from './RenderedPolygon';
+import { Color, ThreeEvent } from '@react-three/fiber';
+import {
+  useSignal,
+  useComputed,
+  Signal,
+  effect,
+  ReadonlySignal
+} from '@preact/signals-react';
 import { NLMesh } from '@/store/stageDataSlice';
+import RenderedPolygon from './RenderedPolygon';
 
 type RenderedMeshProps = {
-  onClick: (e: ThreeEvent<MouseEvent>) => boolean;
-  isSelected: boolean;
+  index: number;
+  selectedIndex: Signal<number>;
 } & NLMesh;
 
 export default function RenderedMesh({
   index,
   polygons,
-  isSelected,
-  onClick
+  selectedIndex
 }: RenderedMeshProps) {
-  const [isHovered, setHovered] = useState(() => false);
+  const isHovered = useSignal(false);
 
-  const onPointerOver = useCallback((e: ThreeEvent<MouseEvent>) => {
+  const color: ReadonlySignal<Color> = useComputed(() => {
+    //if (selectedIndex.value === index) {
+    return 0xff0000;
+    //}
+    //return isHovered.value === index ? 0x00ff00 : 0x0000ff;
+  });
+
+  effect(() => {
+    console.log('color ->', color.value);
+  });
+
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    setHovered(true);
-  }, []);
-
-  const onPointerOut = useCallback((e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation();
-    setHovered(false);
-  }, []);
-
-  const handleClick = useCallback(
-    (e: ThreeEvent<MouseEvent>) => {
-      isHovered && onClick(e);
-    },
-    [isHovered, onClick]
-  );
-
-  let color: number;
-
-  if (isSelected) {
-    color = 0xff00cd;
-  } else {
-    color = isHovered ? 0x771833 : 0x000000;
-  }
+    selectedIndex.value = index;
+  };
 
   return (
-    <mesh onClick={handleClick}>
+    <mesh
+      onClick={handleClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        console.log('onPointerOver', {
+          index,
+          isHovered: isHovered.value
+        });
+        isHovered.value = true;
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        console.log('onPointerOut', {
+          index,
+          isHovered: isHovered.value
+        });
+        isHovered.value = false;
+      }}
+    >
       {polygons.map((p, i) => (
-        <RenderedPolygon
-          {...p}
-          key={`${index}_${i}`}
-          isSelected={isSelected}
-          color={color}
-        />
+        <RenderedPolygon {...p} color={color} key={`${index}_${i}`} />
       ))}
     </mesh>
   );
