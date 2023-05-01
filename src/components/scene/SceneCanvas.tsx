@@ -5,17 +5,12 @@ import { selectModel } from '@/store/selectors';
 import RenderedMesh from './RenderedMesh';
 import useAsyncDispatchOnMount from '@/hooks/useAsyncDispatchOnMount';
 import { useAppSelector } from '@/store/store';
-import { effect, useSignal } from '@preact/signals-react';
+import { useSignal } from '@preact/signals-react';
 
 export default function SceneCanvas() {
   useAsyncDispatchOnMount(loadStage());
   const model = useAppSelector(selectModel);
-
-  // TODO: move to context so this is not passed
-  // to all objects
   const selectedIndex = useSignal(-1);
-
-  effect(() => console.log(selectedIndex.value));
 
   return (
     <Canvas frameloop='demand' camera={{ far: 100000 }}>

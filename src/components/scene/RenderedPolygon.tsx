@@ -1,16 +1,19 @@
-import React, { useMemo, useRef, MutableRefObject } from 'react';
-import { Mesh } from 'three';
+import React, { useMemo, useRef, MutableRefObject, useEffect } from 'react';
+import { Mesh, MeshBasicMaterial } from 'three';
 import { NLPolygon } from '@/store/stageDataSlice';
-import { Signal } from '@preact/signals-react';
-import { Color } from '@react-three/fiber';
+import { Color } from 'three';
+import { useFrame } from '@react-three/fiber';
 
 export default function RenderedPolygon({
   vertexGroupMode,
   vertexes,
   color
-}: NLPolygon & { color: Signal<Color> }) {
+}: NLPolygon & { color: MutableRefObject<Color> }) {
   const meshRef = useRef() as MutableRefObject<Mesh>;
+  const materialRef = useRef() as MutableRefObject<MeshBasicMaterial>;
 
+  // TODO: use preact/signal and computed here
+  // for same effect and potential DOM optimization
   const [vertices, indices] = useMemo(() => {
     const vArray: number[] = [];
     const iArray: number[] = [];
@@ -37,13 +40,25 @@ export default function RenderedPolygon({
     return [new Float32Array(vArray), new Uint16Array(iArray)];
   }, [vertexes, vertexGroupMode]);
 
+  // color must be updated manually with a mutable
+  // ref in each render because of a quirk in
+  // react-three/threejs fiber with race condition
+  // when we use either state or signals (unfortunately)
+  // @TODO: investigate and then post issue on r3f repo
+  useFrame(() => {
+    if (!materialRef.current) {
+      return;
+    }
+    materialRef.current.color = color.current;
+  });
+
   if (meshRef?.current !== undefined) {
     return null;
   }
 
   return (
     <mesh ref={meshRef}>
-      <meshBasicMaterial color={color.value} wireframe wireframeLinewidth={1} />
+      <meshBasicMaterial wireframe ref={materialRef} color={color.current} />
       <bufferGeometry attach={'geometry'}>
         <bufferAttribute
           attach='attributes-position'

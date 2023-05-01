@@ -1,13 +1,9 @@
-import { Color, ThreeEvent } from '@react-three/fiber';
-import {
-  useSignal,
-  useComputed,
-  Signal,
-  effect,
-  ReadonlySignal
-} from '@preact/signals-react';
+import { ThreeEvent, invalidate, useFrame } from '@react-three/fiber';
+import { Signal } from '@preact/signals-react';
 import { NLMesh } from '@/store/stageDataSlice';
 import RenderedPolygon from './RenderedPolygon';
+import { MutableRefObject, useRef } from 'react';
+import { Color } from 'three';
 
 type RenderedMeshProps = {
   index: number;
@@ -19,42 +15,37 @@ export default function RenderedMesh({
   polygons,
   selectedIndex
 }: RenderedMeshProps) {
-  const isHovered = useSignal(false);
+  /**
+   * we use a mutable ref since state or signals
+   * create race conditions with pointer event
+   * frequency in component lifecycle + R3F
+   */
+  const isHovered = useRef(false);
+  const color: MutableRefObject<Color> = useRef(new Color(0xff0000));
 
-  const color: ReadonlySignal<Color> = useComputed(() => {
-    //if (selectedIndex.value === index) {
-    return 0xff0000;
-    //}
-    //return isHovered.value === index ? 0x00ff00 : 0x0000ff;
-  });
-
-  effect(() => {
-    console.log('color ->', color.value);
+  useFrame(() => {
+    if (selectedIndex.value === index) {
+      color.current = new Color(0x0000ff);
+      return;
+    }
+    color.current = new Color(isHovered.current ? 0xff0000 : 0x00ff00);
   });
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     selectedIndex.value = index;
+    invalidate();
   };
 
   return (
     <mesh
       onClick={handleClick}
-      onPointerOver={(e) => {
+      onPointerEnter={(e) => {
         e.stopPropagation();
-        console.log('onPointerOver', {
-          index,
-          isHovered: isHovered.value
-        });
-        isHovered.value = true;
+        isHovered.current = true;
       }}
-      onPointerOut={(e) => {
-        e.stopPropagation();
-        console.log('onPointerOut', {
-          index,
-          isHovered: isHovered.value
-        });
-        isHovered.value = false;
+      onPointerLeave={(e) => {
+        isHovered.current = false;
       }}
     >
       {polygons.map((p, i) => (

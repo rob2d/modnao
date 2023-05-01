@@ -4,7 +4,7 @@ import { HYDRATE } from 'next-redux-wrapper';
 export interface ModelViewerState {
   modelViewedIndex: number;
   objectIndex: number;
-  objectSelectionType: 'mesh'; // @TODO: enumerate other types
+  objectSelectionType: 'mesh' | 'polygon';
 }
 
 export const initialState: ModelViewerState = {
