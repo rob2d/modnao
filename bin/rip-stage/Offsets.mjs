@@ -1,7 +1,6 @@
 import S from './Sizes.mjs';
 
-/** offsets */
-const O = {
+const Offsets = {
   RAM: 0x0cea0000,
   Model: {
     X: 0x08,
@@ -13,37 +12,37 @@ const O = {
   }
 };
 
-O.Model.Mesh = {
-  ...O.Model.Mesh,
+Offsets.Model.Mesh = {
+  ...Offsets.Model.Mesh,
 
-  TEXTURE_CONTROL: O.Model.MESH + 0x10,
-  TEXTURE_COLOR_MODE: O.Model.MESH + 0x0f,
+  TEXTURE_CONTROL: Offsets.Model.MESH + 0x10,
+  TEXTURE_COLOR_MODE: Offsets.Model.MESH + 0x0f,
 
-  X: O.Model.MESH + 0x10,
-  Y: O.Model.MESH + 0x14,
-  Z: O.Model.MESH + 0x18,
-  UV_FLIP: O.Model.Mesh + 0x0a,
+  X: Offsets.Model.MESH + 0x10,
+  Y: Offsets.Model.MESH + 0x14,
+  Z: Offsets.Model.MESH + 0x18,
+  UV_FLIP: Offsets.Model.Mesh + 0x0a,
   SRC_DIST_ALPHA: 0x0b,
   TEXTURE_CONTROL: 0x0c,
-  TEXTURE_COLOR_FORMAT: O.Model.MESH + 0x0f,
-  RADIUS: O.Model.MESH + 0x1c,
-  TEXTURE_NUMBER: O.Model.MESH + 0x20,
+  TEXTURE_COLOR_FORMAT: Offsets.Model.MESH + 0x0f,
+  RADIUS: Offsets.Model.MESH + 0x1c,
+  TEXTURE_NUMBER: Offsets.Model.MESH + 0x20,
   SPECULAR_LIGHT_VALUE: 0x24,
-  A: O.Model.MESH + 0x2c,
-  R: O.Model.MESH + 0x30,
-  G: O.Model.MESH + 0x34,
-  B: O.Model.MESH + 0x38,
+  A: Offsets.Model.MESH + 0x2c,
+  R: Offsets.Model.MESH + 0x30,
+  G: Offsets.Model.MESH + 0x34,
+  B: Offsets.Model.MESH + 0x38,
 
-  SPECULAR_A: O.Model.MESH + 0x3c,
-  SPECULAR_R: O.Model.MESH + 0x40,
-  SPECULAR_G: O.Model.MESH + 0x44,
-  SPECULAR_B: O.Model.MESH + 0x48,
+  SPECULAR_A: Offsets.Model.MESH + 0x3c,
+  SPECULAR_R: Offsets.Model.MESH + 0x40,
+  SPECULAR_G: Offsets.Model.MESH + 0x44,
+  SPECULAR_B: Offsets.Model.MESH + 0x48,
 
-  MESH_DATA_LENGTH: O.Model.MESH + 0x4c,
-  POLYGON_TYPE: O.Model.MESH + S.MESH
+  MESH_DATA_LENGTH: Offsets.Model.MESH + 0x4c,
+  POLYGON_TYPE: Offsets.Model.MESH + S.MESH
 };
 
-O.Polygon = {
+Offsets.Polygon = {
   VERTEX_GROUP_TYPE: 0x00,
   VERTEX_COUNT: 0x04,
 
@@ -63,4 +62,4 @@ O.Polygon = {
   V: 0x24
 };
 
-export default O;
+export default Offsets;
