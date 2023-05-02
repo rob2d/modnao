@@ -4,7 +4,7 @@ import ramToRawAddress from './ramToRawAddress';
  * @returns an array of pointers for each available
  * model discovered
  */
-export default function scanModelsTable(buffer: Buffer) {
+export default function scanForModelPointers(buffer: Buffer) {
   const modelTablePointer = ramToRawAddress(buffer.readUInt32LE(0x0000));
   const modelCount = buffer.readUInt32LE(0x0004);
   const modelPointers: number[] = [];

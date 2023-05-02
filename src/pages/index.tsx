@@ -8,13 +8,12 @@ import { loadStage, useAppDispatch } from '@/store';
 export default function Home() {
   const dispatch = useAppDispatch();
   // @TODO: handle async state on UI
-  const [openFileSelector, { loading, errors, plainFiles, clear }] =
-    useFilePicker({
-      multiple: false,
-      readAs: 'ArrayBuffer',
-      accept: ['.BIN'],
-      readFilesContent: false
-    });
+  const [openFileSelector, { plainFiles }] = useFilePicker({
+    multiple: false,
+    readAs: 'ArrayBuffer',
+    accept: ['.BIN'],
+    readFilesContent: false
+  });
 
   useEffect(() => {
     if (!plainFiles[0]) {
