@@ -69,6 +69,12 @@ export const loadStage = createAsyncThunk<{ models: NLStageModel[] }, File>(
   extractStageFile
 );
 
+export const loadSampleData = createAsyncThunk<{
+  models: NLStageModel[];
+}>('stageData/loadSampleData', async () =>
+  JSON.parse(await (await fetch('/api/sample-stage')).json())
+);
+
 const stageDataSlice = createSlice({
   name: 'stageData',
   initialState: initialStageDataState,
@@ -76,6 +82,12 @@ const stageDataSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(
       loadStage.fulfilled,
+      (state: StageDataState, { payload }) => {
+        state.models = payload.models;
+      }
+    );
+    builder.addCase(
+      loadSampleData.fulfilled,
       (state: StageDataState, { payload }) => {
         state.models = payload.models;
       }

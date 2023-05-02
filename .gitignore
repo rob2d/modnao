@@ -37,11 +37,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# TEMPORARY WHILE WIP /avoid 
-# distributing ROM files
-# for legal reasons
-# 
-# @TODO remove when possible to
-# load BIN files via client 
-STG*.BIN.json
+# avoid distributing ROM
+# content for legal reasons 
 STG*.BIN

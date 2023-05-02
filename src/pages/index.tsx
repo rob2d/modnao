@@ -2,8 +2,8 @@ import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import SceneCanvas from '@/components/scene/SceneCanvas';
 import { useFilePicker } from 'use-file-picker';
-import { useEffect } from 'react';
-import { loadStage, useAppDispatch } from '@/store';
+import { useCallback, useEffect } from 'react';
+import { loadSampleData, loadStage, useAppDispatch } from '@/store';
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -14,6 +14,10 @@ export default function Home() {
     accept: ['.BIN'],
     readFilesContent: false
   });
+
+  const onLoadSampleData = useCallback(() => {
+    dispatch(loadSampleData());
+  }, [dispatch]);
 
   useEffect(() => {
     if (!plainFiles[0]) {
@@ -36,6 +40,7 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <button onClick={openFileSelector}>Select file</button>
+        <button onClick={onLoadSampleData}>Load sample model</button>
         <SceneCanvas />;
       </main>
     </>
