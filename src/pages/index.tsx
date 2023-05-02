@@ -1,8 +1,29 @@
 import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import SceneCanvas from '@/components/scene/SceneCanvas';
+import { useFilePicker } from 'use-file-picker';
+import { useEffect } from 'react';
+import { loadStage, useAppDispatch } from '@/store';
 
 export default function Home() {
+  const dispatch = useAppDispatch();
+  // @TODO: handle async state on UI
+  const [openFileSelector, { loading, errors, plainFiles, clear }] =
+    useFilePicker({
+      multiple: false,
+      readAs: 'ArrayBuffer',
+      accept: ['.BIN'],
+      readFilesContent: false
+    });
+
+  useEffect(() => {
+    if (!plainFiles[0]) {
+      return;
+    }
+    const [stageFile] = plainFiles;
+    dispatch(loadStage(stageFile));
+  }, [plainFiles?.[0]]);
+
   return (
     <>
       <Head>
@@ -15,6 +36,7 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <main className={styles.main}>
+        <button onClick={openFileSelector}>Select file</button>
         <SceneCanvas />;
       </main>
     </>
