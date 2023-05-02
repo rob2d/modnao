@@ -3,7 +3,7 @@ import styles from '@/styles/Home.module.css';
 import SceneCanvas from '@/components/scene/SceneCanvas';
 import { useFilePicker } from 'use-file-picker';
 import { useEffect } from 'react';
-import { processStageFile, useAppDispatch } from '@/store';
+import { loadStage, useAppDispatch } from '@/store';
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -21,7 +21,7 @@ export default function Home() {
       return;
     }
     const [stageFile] = plainFiles;
-    dispatch(processStageFile(stageFile));
+    dispatch(loadStage(stageFile));
   }, [plainFiles?.[0]]);
 
   return (

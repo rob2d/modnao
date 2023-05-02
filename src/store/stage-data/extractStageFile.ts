@@ -7,13 +7,11 @@ export default async function processStageFile(stageFile: File): Promise<{
 }> {
   const buffer = Buffer.from(await stageFile?.arrayBuffer());
 
-  // @TODO: process buffer into models using logic from node util
-  // wait just to simulate something happening for now
-  return new Promise((resolve) => {
-    const modelPointers = scanModelsTable(buffer);
-    console.log('modelPointers discovered ->', modelPointers);
+  const modelPointers = scanModelsTable(buffer);
 
-    modelPointers.forEach((address) => scanModel({ buffer, address }));
-    setTimeout(() => resolve({ models: [] }), 5000);
+  return Promise.resolve({
+    models: modelPointers.map(
+      (address) => scanModel({ buffer, address }) as NLStageModel
+    )
   });
 }

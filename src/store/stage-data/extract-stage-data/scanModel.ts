@@ -1,9 +1,15 @@
-import { NLMesh, NLPolygon, NLVertex } from '@/store/stageDataSlice';
+import {
+  NLMesh,
+  NLPolygon,
+  NLStageModel,
+  NLVertex
+} from '@/store/stageDataSlice';
 import S from './Sizes';
 import getBufferMapper from './getBufferMapper';
 import ModelMappings from './ModelMappings';
 import getTextureWrappingFlags from './getTextureWrappingFlags';
 import getPolygonType from './getPolygonType';
+import toHexString from './toHexString';
 
 const meshMappings = ModelMappings.mesh;
 const polyMappings = meshMappings.polygon;
@@ -159,7 +165,13 @@ export default function scanModel({
       return {
         ...modelBase,
         meshes
-      };
+      } as NLStageModel;
     }
-  } catch (error) {}
+  } catch (error) {
+    // @TODO: more thoughtful handling of errors
+    console.error('error parsing model @ ' + toHexString(address));
+    return {
+      meshes: []
+    };
+  }
 }

@@ -61,14 +61,9 @@ export const initialStageDataState: StageDataState = {
   models: []
 };
 
-export const processStageFile = createAsyncThunk<
-  { models: NLStageModel[] },
-  File
->(`${sliceName}/processStageFile`, extractStageFile);
-
-export const loadStage = createAsyncThunk<{ models: NLStageModel[] }>(
-  `${sliceName}/loadProcessedStage`,
-  async () => JSON.parse(await (await fetch('/api/sample-stage')).json())
+export const loadStage = createAsyncThunk<{ models: NLStageModel[] }, File>(
+  `${sliceName}/loadStage`,
+  extractStageFile
 );
 
 const stageDataSlice = createSlice({
