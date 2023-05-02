@@ -48,6 +48,9 @@ export type NLPolygon = {
 };
 
 export type NLStageModel = {
+  address: number;
+  position: [x: number, y: number, z: number];
+  radius: [x: number, y: number, z: number];
   meshes: NLMesh[];
 };
 

@@ -15,7 +15,7 @@ export default function SceneCanvas() {
   });
 
   return (
-    <Canvas frameloop='demand' camera={{ far: 100000 }}>
+    <Canvas frameloop='demand' camera={{ far: 1000000 }}>
       <axesHelper args={[1000]} />
       {(model?.meshes || []).map((m, i) => (
         <RenderedMesh key={i} index={i} {...m} selectedIndex={selectedIndex} />

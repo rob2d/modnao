@@ -1,6 +1,6 @@
 import { NLStageModel } from '../stageDataSlice';
-import scanModel from './extract-stage-data/scanModel';
-import scanModelsTable from './extract-stage-data/scanModelsTable';
+import scanModel from './extract-stage-file/scanModel';
+import scanModelsTable from './extract-stage-file/scanModelsTable';
 
 export default async function processStageFile(stageFile: File): Promise<{
   models: NLStageModel[];
@@ -9,9 +9,10 @@ export default async function processStageFile(stageFile: File): Promise<{
 
   const modelPointers = scanModelsTable(buffer);
 
-  return Promise.resolve({
-    models: modelPointers.map(
-      (address) => scanModel({ buffer, address }) as NLStageModel
-    )
-  });
+  // @TODO: run in another thread
+  const models = modelPointers.map(
+    (address, index) => scanModel({ buffer, address, index }) as NLStageModel
+  );
+
+  return Promise.resolve({ models });
 }

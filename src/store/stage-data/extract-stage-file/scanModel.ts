@@ -21,22 +21,24 @@ const vertexMappings = polyMappings.vertex;
 
 export default function scanModel({
   address,
-  buffer
+  buffer,
+  index
 }: {
   address: number;
   buffer: Buffer;
+  index: number;
 }) {
   const h = (offset: number) => address - offset;
   const scan = getBufferMapper(buffer, address, false);
 
-  const modelBase = {
+  const model: NLStageModel = {
     address,
     position: scan(ModelMappings.position),
-    radius: scan(ModelMappings.radius)
+    radius: scan(ModelMappings.radius),
+    meshes: []
   };
 
   try {
-    const meshes = [];
     scan.setBaseAddress(address + S.MODEL_HEADER);
 
     const detectedModelEnd = false;
@@ -58,8 +60,6 @@ export default function scanModel({
         textureWrappingFlags: getTextureWrappingFlags(textureWrappingValue)
       };
 
-      meshes.push(mesh);
-
       const meshEndAddress =
         structAddress +
         ModelMappings.mesh.polygonDataLength[0] +
@@ -70,7 +70,7 @@ export default function scanModel({
       // scan polygons within mesh
       while (
         structAddress < meshEndAddress &&
-        structAddress < buffer.length &&
+        structAddress + S.VERTEX_B < buffer.length &&
         !detectedModelEnd
       ) {
         scan.setBaseAddress(structAddress);
@@ -114,6 +114,13 @@ export default function scanModel({
             break;
           }
 
+          if (structAddress + S.VERTEX_B >= buffer.length) {
+            console.log(
+              `invalid logic in parser occurred somewhere near ${structAddress}`
+            );
+            break;
+          }
+
           const vertexContentModeValue = scan(
             vertexMappings.nanContentModeFlag
           );
@@ -127,7 +134,7 @@ export default function scanModel({
             vertexOffset,
             contentAddress: structAddress - vertexOffset,
             position: scan(vertexMappings.position),
-            normals: scan(vertexMappings.normals),
+            normals: scan(vertexMappings.normals, 'vertexNormals'),
             uv: scan(vertexMappings.uv)
           };
           scan.setBaseAddress(structAddress);
@@ -141,7 +148,6 @@ export default function scanModel({
           polygon.vertexes.push(v);
 
           structAddress += v.contentMode === 'a' ? S.VERTEX_A : S.VERTEX_B;
-
           v.address = h(v.address);
           v.contentModeValue = h(v.contentModeValue);
 
@@ -149,27 +155,28 @@ export default function scanModel({
             v.contentAddress = h(v.contentAddress);
           }
 
-          if (structAddress >= meshEndAddress) {
-            detectedMeshEnd = true;
+          if (index === 9) {
+            console.log('STRUCTADDRESS ->', structAddress);
+            console.log('MESH END ADDRESS ->', meshEndAddress);
+            if (structAddress >= meshEndAddress) {
+              detectedMeshEnd = true;
+            }
           }
         }
 
         mesh.polygons.push(polygon);
       }
 
-      console.log('model extracted ->', {
-        ...modelBase,
-        meshes
-      });
-
-      return {
-        ...modelBase,
-        meshes
-      } as NLStageModel;
+      model.meshes.push(mesh);
     }
+
+    return model;
   } catch (error) {
     // @TODO: more thoughtful handling of errors
-    console.error('error parsing model @ ' + toHexString(address));
+    console.trace(
+      `${index}: error parsing model @ ` + toHexString(address),
+      error
+    );
     return {
       meshes: []
     };
