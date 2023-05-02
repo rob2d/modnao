@@ -1,7 +1,7 @@
 export type BufferReadOp = 'readFloatLE' | 'readUInt8' | 'readUInt32LE';
 
 // @TODO: rethink or structure ModelMappings in a more TS-amenable way
-// (perhaps flat mappings?)
+// or work on type for getBufferMapper scanner
 
 export type ModelPropertyMapping = [
   address: number,
