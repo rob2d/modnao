@@ -42,7 +42,7 @@ export default function RenderedMesh({
         e.stopPropagation();
         isHovered.current = true;
       }}
-      onPointerLeave={(e) => {
+      onPointerLeave={() => {
         isHovered.current = false;
       }}
     >
