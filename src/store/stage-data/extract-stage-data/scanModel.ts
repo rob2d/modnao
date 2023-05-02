@@ -156,7 +156,6 @@ export default function scanModel({
         meshes
       });
 
-      // TODO: calculate polys
       return {
         ...modelBase,
         meshes
