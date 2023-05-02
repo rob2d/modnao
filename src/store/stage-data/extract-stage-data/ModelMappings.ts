@@ -45,7 +45,7 @@ const ModelMappings = {
           [0x04, 'readFloatLE'],
           [0x08, 'readFloatLE']
         ] as ModelPropertyMapping[],
-        normal: [
+        normals: [
           [0x0c, 'readFloatLE'],
           [0x10, 'readFloatLE'],
           [0x14, 'readFloatLE']

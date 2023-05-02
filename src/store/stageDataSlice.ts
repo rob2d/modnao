@@ -16,6 +16,13 @@ export type TextureWrappingFlags = {
 
 export type NLVertex = {
   position: [x: number, y: number, z: number];
+  normals: [x: number, y: number, z: number];
+  address: number;
+  contentModeValue: number;
+  contentMode: 'a' | 'b';
+  vertexOffset: number;
+  contentAddress: number;
+  uv: [u: number, v: number];
 };
 
 export type NLMesh = {
@@ -33,7 +40,10 @@ export type NLMesh = {
 };
 
 export type NLPolygon = {
+  address: number;
   vertexes: NLVertex[];
+  vertexCount: number;
+  vertexGroupModeValue: number;
   vertexGroupMode: string;
 };
 
