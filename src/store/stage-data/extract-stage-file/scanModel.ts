@@ -156,8 +156,6 @@ export default function scanModel({
           }
 
           if (index === 9) {
-            console.log('STRUCTADDRESS ->', structAddress);
-            console.log('MESH END ADDRESS ->', meshEndAddress);
             if (structAddress >= meshEndAddress) {
               detectedMeshEnd = true;
             }

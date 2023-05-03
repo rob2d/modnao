@@ -1,9 +1,10 @@
-import { ThreeEvent, invalidate, useFrame } from '@react-three/fiber';
-import { Signal } from '@preact/signals-react';
+import { ThreeEvent } from '@react-three/fiber';
+import { Signal, batch, useComputed, useSignal } from '@preact/signals-react';
 import { NLMesh } from '@/store/stageDataSlice';
 import RenderedPolygon from './RenderedPolygon';
-import { MutableRefObject, useRef } from 'react';
-import { Color } from 'three';
+import { useCallback } from 'react';
+
+// @TODO: centralize colors within theme
 
 type RenderedMeshProps = {
   index: number;
@@ -15,39 +16,74 @@ export default function RenderedMesh({
   polygons,
   selectedIndex
 }: RenderedMeshProps) {
-  // we use a mutable ref for hovered & color since
-  // state or signals create race conditions with pointer event
-  // frequency in component lifecycle + R3F
-  const isHovered = useRef(false);
-  const color: MutableRefObject<Color> = useRef(new Color(0xff0000));
+  /**
+   * R3F nodes have to be recomputed
+   * so this is a simple counter to
+   * update the in batch calls
+   */
+  const invalidate = useSignal(0);
+  const isHovered = useSignal(false);
+  const isSelected = useComputed(() => index === selectedIndex.value);
 
-  useFrame(() => {
-    if (selectedIndex.value === index) {
-      color.current = new Color(0x0000ff);
-      return;
+  // @ TODO: use centralized theme
+  const color = useComputed(() => {
+    if (isSelected.value) {
+      return 0xdd0077;
     }
-    color.current = new Color(isHovered.current ? 0xff0000 : 0x00ff00);
+    return isHovered.value ? 0x999999 : 0xcccccc;
   });
 
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+  /**
+   * R3F has a quirk where we need to explicitly
+   * invalidate objects and meshes with keys or
+   * data becomes undrawable, so this render hash
+   * just gets aggregate of unique signals needed
+   * so that we know we are drawing after all signals
+   * update
+   */
+  const renderHash = useComputed(
+    () =>
+      `${index}-${selectedIndex.value}-${isSelected.value}-${isHovered.value}-${invalidate.value}`
+  );
+
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    selectedIndex.value = index;
-    invalidate();
-  };
+    batch(() => {
+      invalidate.value++;
+      selectedIndex.value = index;
+    });
+  }, []);
+
+  const onPointerOver = useCallback(() => {
+    batch(() => {
+      isHovered.value = true;
+      invalidate.value++;
+    });
+  }, []);
+
+  const onPointerOut = useCallback(() => {
+    batch(() => {
+      isHovered.value = false;
+      invalidate.value++;
+    });
+  }, []);
 
   return (
     <mesh
+      key={`m${renderHash}`}
       onClick={handleClick}
-      onPointerEnter={(e) => {
-        e.stopPropagation();
-        isHovered.current = true;
-      }}
-      onPointerLeave={() => {
-        isHovered.current = false;
-      }}
+      onPointerOver={onPointerOver}
+      onPointerOut={onPointerOut}
     >
-      {polygons.map((p, i) => (
-        <RenderedPolygon {...p} color={color} key={`${index}_${i}`} />
+      {polygons.map((p, pIndex) => (
+        <RenderedPolygon
+          {...p}
+          color={color.value}
+          isSelected={isSelected.value}
+          isHovered={isHovered.value}
+          key={`p-${pIndex}-${renderHash.value}`}
+          index={pIndex}
+        />
       ))}
     </mesh>
   );

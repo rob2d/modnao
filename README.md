@@ -13,9 +13,9 @@ Note: this is an early WIP.
 ## Credits/Acknowledgement
 While there are changes in some abstractions used in the internal format, this project would not have been possible without several people who put in work to reverse engineer and uncover the [Naomi Library model format](https://github.com/NaomiMod/NL-ModelFormat): 
 
-[TVIndustries](https://github.com/TVIndustries/), 
-
 [VincentNL](https://github.com/VincentNLOBJ),  
+
+[TVIndustries](https://github.com/TVIndustries/), 
 
 [Zocker_160](https://github.com/zocker-160)
 
