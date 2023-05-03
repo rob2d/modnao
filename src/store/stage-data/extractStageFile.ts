@@ -1,4 +1,3 @@
-import { NLStageModel } from '../stageDataSlice';
 import scanModel from './extract-stage-file/scanModel';
 import scanForModelPointers from './extract-stage-file/scanForModelPointers';
 

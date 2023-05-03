@@ -1,6 +1,5 @@
 import { ThreeEvent } from '@react-three/fiber';
 import { Signal, batch, useComputed, useSignal } from '@preact/signals-react';
-import { NLMesh } from '@/store/stageDataSlice';
 import RenderedPolygon from './RenderedPolygon';
 import { useCallback } from 'react';
 

@@ -1,6 +1,5 @@
 import React, { useMemo, useRef, MutableRefObject } from 'react';
 import { Mesh } from 'three';
-import { NLPolygon } from '@/store/stageDataSlice';
 import { Text } from '@react-three/drei';
 
 type Point3D = [x: number, y: number, z: number];
