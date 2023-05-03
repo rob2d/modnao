@@ -4,6 +4,8 @@ import SceneCanvas from '@/components/scene/SceneCanvas';
 import { useFilePicker } from 'use-file-picker';
 import { useCallback, useEffect } from 'react';
 import { loadSampleData, loadStage, useAppDispatch } from '@/store';
+import { Button } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -14,6 +16,15 @@ export default function Home() {
     accept: ['.BIN'],
     readFilesContent: false
   });
+
+  const Styled = styled('main')`
+    & .buttons {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      display: flex;
+    }
+  `;
 
   const onLoadSampleData = useCallback(() => {
     dispatch(loadSampleData());
@@ -38,11 +49,17 @@ export default function Home() {
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-      <main className={styles.main}>
-        <button onClick={openFileSelector}>Select file</button>
-        <button onClick={onLoadSampleData}>Load sample model</button>
+      <Styled className={styles.main}>
+        <div className='buttons'>
+          <Button onClick={openFileSelector} variant='outlined'>
+            Select File
+          </Button>
+          <Button onClick={onLoadSampleData} variant='outlined'>
+            Load sample model
+          </Button>
+        </div>
         <SceneCanvas />;
-      </main>
+      </Styled>
     </>
   );
 }
