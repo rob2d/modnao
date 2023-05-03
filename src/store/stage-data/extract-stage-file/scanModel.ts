@@ -1,9 +1,3 @@
-import {
-  NLMesh,
-  NLPolygon,
-  NLStageModel,
-  NLVertex
-} from '@/store/stageDataSlice';
 import S from './Sizes';
 import getBufferMapper from './getBufferMapper';
 import ModelMappings from './ModelMappings';
