@@ -13,7 +13,7 @@ export default function RenderedPolygon({
   isHovered,
   index
 }: NLPolygon & {
-  color: number;
+  color: string;
   isSelected: boolean;
   isHovered: boolean;
   index: number;
@@ -70,15 +70,17 @@ export default function RenderedPolygon({
         ref={meshRef}
         key={`m${address}-${color}-${isHovered}-${isSelected}`}
       >
-        <Text
-          key={`mt${address}-${color}-${isHovered}-${isSelected}`}
-          font={'/fonts/robotoLightRegular.json'}
-          color={color}
-          fontSize={isSelected ? 24 : 16}
-          position={displayPosition}
-        >
-          [{index}] {`0x${address.toString(16)}`}
-        </Text>
+        {!isSelected ? undefined : (
+          <Text
+            key={`mt${address}-${color}-${isHovered}-${isSelected}`}
+            font={'/fonts/robotoLightRegular.json'}
+            color={color}
+            fontSize={isSelected ? 24 : 16}
+            position={displayPosition}
+          >
+            [{index}] {`0x${address.toString(16)}`}
+          </Text>
+        )}
         <meshBasicMaterial
           wireframe
           wireframeLinewidth={lineWidth}

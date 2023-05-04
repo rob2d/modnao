@@ -1,20 +1,28 @@
 import { ThreeEvent } from '@react-three/fiber';
-import { Signal, batch, useComputed, useSignal } from '@preact/signals-react';
+import {
+  ReadonlySignal,
+  Signal,
+  batch,
+  useComputed,
+  useSignal
+} from '@preact/signals-react';
 import RenderedPolygon from './RenderedPolygon';
 import { useCallback } from 'react';
+import { useTheme } from '@mui/material';
 
 // @TODO: centralize colors within theme
 
 type RenderedMeshProps = {
   index: number;
-  selectedIndex: Signal<number>;
+  selectedSceneIndex: Signal<number>;
 } & NLMesh;
 
 export default function RenderedMesh({
   index,
   polygons,
-  selectedIndex
+  selectedSceneIndex
 }: RenderedMeshProps) {
+  const theme = useTheme();
   /**
    * R3F nodes have to be recomputed
    * so this is a simple counter to
@@ -22,15 +30,16 @@ export default function RenderedMesh({
    */
   const invalidate = useSignal(0);
   const isHovered = useSignal(false);
-  const isSelected = useComputed(() => index === selectedIndex.value);
+  const isSelected = useComputed(() => index === selectedSceneIndex.value);
 
-  // @ TODO: use centralized theme
   const color = useComputed(() => {
     if (isSelected.value) {
-      return 0xdd0077;
+      return theme.palette.sceneMesh.selected;
     }
-    return isHovered.value ? 0x999999 : 0xcccccc;
-  });
+    return isHovered.value
+      ? theme.palette.sceneMesh.highlighted
+      : theme.palette.sceneMesh.default;
+  }) as ReadonlySignal<string>;
 
   /**
    * R3F has a quirk where we need to explicitly
@@ -42,14 +51,14 @@ export default function RenderedMesh({
    */
   const renderHash = useComputed(
     () =>
-      `${index}-${selectedIndex.value}-${isSelected.value}-${isHovered.value}-${invalidate.value}`
+      `${index}-${selectedSceneIndex.value}-${isSelected.value}-${isHovered.value}-${invalidate.value}`
   );
 
   const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     batch(() => {
       invalidate.value++;
-      selectedIndex.value = index;
+      selectedSceneIndex.value = index;
     });
   }, []);
 

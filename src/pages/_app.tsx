@@ -1,22 +1,12 @@
-import '@/styles/globals.css';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import '@/theming/globals.css';
+import { ThemeProvider } from '@mui/material';
 import type { AppProps } from 'next/app';
-import { Roboto } from 'next/font/google';
 import { Provider } from 'react-redux';
 import { wrapper } from '../store/store';
-
-const roboto = Roboto({
-  subsets: ['latin'],
-  weight: ['300', '400', '500']
-});
-
-const theme = createTheme({
-  typography: {
-    fontFamily: roboto.style.fontFamily
-  }
-});
+import useModedTheme from '@/theming/useModedTheme';
 
 export default function App({ Component, ...rest }: AppProps) {
+  const theme = useModedTheme();
   const { store, props } = wrapper.useWrappedStore(rest);
 
   return (
