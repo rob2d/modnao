@@ -1,11 +1,12 @@
-import '@/styles/globals.css';
+import '@/theming/globals.css';
 import { ThemeProvider } from '@mui/material/styles';
 import type { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 import { wrapper } from '../store/store';
-import theme from '@/theme';
+import useModedTheme from '@/theming/useModedTheme';
 
 export default function App({ Component, ...rest }: AppProps) {
+  const theme = useModedTheme();
   const { store, props } = wrapper.useWrappedStore(rest);
 
   return (
