@@ -3,8 +3,7 @@ import SceneCanvas from '@/components/scene/SceneCanvas';
 import { useFilePicker } from 'use-file-picker';
 import { useCallback, useEffect, useState } from 'react';
 import { loadSampleData, loadStage, useAppDispatch } from '@/store';
-import { Button } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Button, styled } from '@mui/material';
 
 export default function Home() {
   const dispatch = useAppDispatch();

@@ -1,5 +1,5 @@
 import '@/theming/globals.css';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material';
 import type { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 import { wrapper } from '../store/store';

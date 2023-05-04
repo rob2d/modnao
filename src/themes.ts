@@ -6,11 +6,26 @@ export const roboto = Roboto({
   weight: ['300', '400', '500']
 });
 
+const modes: PaletteMode[] = ['dark', 'light'];
+
+declare module '@mui/material' {
+  type SceneMeshPalette = {
+    default: React.CSSProperties['color'];
+    highlighted: React.CSSProperties['color'];
+    selected: React.CSSProperties['color'];
+  };
+  interface PaletteOptions {
+    sceneMesh: SceneMeshPalette;
+  }
+
+  interface Palette {
+    sceneMesh: SceneMeshPalette;
+  }
+}
+
 export type AppThemes = {
   [key in PaletteMode]: Theme;
 };
-
-const modes: PaletteMode[] = ['dark', 'light'];
 
 const themes = Object.fromEntries(
   modes.map((mode) => [
@@ -22,11 +37,16 @@ const themes = Object.fromEntries(
       palette: {
         primary: {
           main: '#FF00F2',
-          contrastText: '#fff'
+          contrastText: '#FFF'
         },
         secondary: {
           main: '#00A5FF',
-          contrastText: '#fff'
+          contrastText: '#FFF'
+        },
+        sceneMesh: {
+          default: mode === 'dark' ? '#444' : '#CCC',
+          selected: mode === 'dark' ? '#00A5FF' : '#FF00F2',
+          highlighted: mode === 'dark' ? '#666' : '#AAA'
         }
       }
     })
