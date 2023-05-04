@@ -2,7 +2,7 @@ import Head from 'next/head';
 import styles from '@/styles/Home.module.css';
 import SceneCanvas from '@/components/scene/SceneCanvas';
 import { useFilePicker } from 'use-file-picker';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { loadSampleData, loadStage, useAppDispatch } from '@/store';
 import { Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -17,18 +17,29 @@ export default function Home() {
     readFilesContent: false
   });
 
-  const Styled = styled('main')`
+  const Styled = styled('main')(
+    ({ theme }) => `
     & .buttons {
       position: fixed;
-      bottom: 0;
-      right: 0;
+      bottom: ${theme.spacing(2)};
+      right: ${theme.spacing(2)};
       display: flex;
     }
-  `;
+
+    & .buttons > :first-child {
+      right: ${theme.spacing(2)}
+    }
+  `
+  );
+
+  const [hasLoadedSampleData, setLoadedSampleData] = useState(false);
 
   const onLoadSampleData = useCallback(() => {
-    dispatch(loadSampleData());
-  }, [dispatch]);
+    if (!hasLoadedSampleData) {
+      dispatch(loadSampleData());
+      setLoadedSampleData(true);
+    }
+  }, [hasLoadedSampleData, dispatch]);
 
   useEffect(() => {
     if (!plainFiles[0]) {
@@ -50,15 +61,19 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <Styled className={styles.main}>
+        <SceneCanvas />;
         <div className='buttons'>
+          <Button
+            onClick={onLoadSampleData}
+            variant='outlined'
+            disabled={hasLoadedSampleData}
+          >
+            Load sample model
+          </Button>
           <Button onClick={openFileSelector} variant='outlined'>
             Select File
           </Button>
-          <Button onClick={onLoadSampleData} variant='outlined'>
-            Load sample model
-          </Button>
         </div>
-        <SceneCanvas />;
       </Styled>
     </>
   );
