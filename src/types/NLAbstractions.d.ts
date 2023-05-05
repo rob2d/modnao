@@ -49,7 +49,7 @@ declare global {
     vertexes: NLVertex[];
     vertexCount: number;
     vertexGroupModeValue: number;
-    vertexGroupMode: string;
+    vertexGroupMode: 'regular' | 'triple';
   };
 
   export type NLModel = {
