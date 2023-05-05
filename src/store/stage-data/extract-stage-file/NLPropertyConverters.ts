@@ -3,7 +3,7 @@ export type BinFileReadOp =
   | Buffer['readUInt8']
   | Buffer['readUInt32LE'];
 
-export type NLPropertySerializer<T> = {
+export type NLPropertyConverter<T> = {
   targetOffset: number;
   readOps: BinFileReadOp[];
   updates: (model: T, values: number[]) => void;
@@ -11,7 +11,7 @@ export type NLPropertySerializer<T> = {
 
 const { readUInt8, readUInt32LE, readFloatLE } = Buffer.prototype;
 
-export const NLModelPropertyDefs: NLPropertySerializer<NLModel>[] = [
+export const NLModelConverters: NLPropertyConverter<NLModel>[] = [
   {
     targetOffset: 0x08,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
@@ -28,7 +28,7 @@ export const NLModelPropertyDefs: NLPropertySerializer<NLModel>[] = [
   }
 ];
 
-export const NLMeshPropertyDefs: NLPropertySerializer<NLMesh>[] = [
+export const NLMeshDeserializers: NLPropertyConverter<NLMesh>[] = [
   {
     targetOffset: 0x08,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
@@ -108,7 +108,7 @@ export const NLMeshPropertyDefs: NLPropertySerializer<NLMesh>[] = [
   }
 ];
 
-export const NLPolygonPropertyDefs: NLPropertySerializer<NLPolygon>[] = [
+export const NLPolygonConverters: NLPropertyConverter<NLPolygon>[] = [
   {
     targetOffset: 0x00,
     readOps: [readUInt32LE],

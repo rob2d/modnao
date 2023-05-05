@@ -4,6 +4,7 @@ import ModelMappings from './ModelMappings';
 import getTextureWrappingFlags from './getTextureWrappingFlags';
 import getPolygonType from './getPolygonType';
 import toHexString from './toHexString';
+import { NLModelConverters, NLPolygonConverters } from './NLPropertyConverters';
 
 const meshMappings = ModelMappings.mesh;
 const polyMappings = meshMappings.polygon;
