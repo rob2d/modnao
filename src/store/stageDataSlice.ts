@@ -1,9 +1,9 @@
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import extractStageFile from './stage-data/extractStageFile';
+import processStageFile from './stage-data/processStageFile';
 
 export interface StageDataState {
-  models: NLStageModel[];
+  models: NLModel[];
 }
 
 const sliceName = 'stageData';
@@ -12,13 +12,13 @@ export const initialStageDataState: StageDataState = {
   models: []
 };
 
-export const loadStage = createAsyncThunk<{ models: NLStageModel[] }, File>(
+export const loadStage = createAsyncThunk<{ models: NLModel[] }, File>(
   `${sliceName}/loadStage`,
-  extractStageFile
+  processStageFile
 );
 
 export const loadSampleData = createAsyncThunk<{
-  models: NLStageModel[];
+  models: NLModel[];
 }>('stageData/loadSampleData', async () =>
   JSON.parse(await (await fetch('/api/sample-stage')).json())
 );

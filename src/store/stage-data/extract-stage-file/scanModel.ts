@@ -25,7 +25,7 @@ export default function scanModel({
   const h = (offset: number) => address - offset;
   const scan = getBufferMapper(buffer, address, false);
 
-  const model: NLStageModel = {
+  const model: NLModel = {
     address,
     position: scan(ModelMappings.position),
     radius: scan(ModelMappings.radius),
@@ -37,6 +37,12 @@ export default function scanModel({
 
     const detectedModelEnd = false;
     let structAddress = address + S.MODEL_HEADER;
+
+    let hasLoggedStructAddress = false;
+    if (index === 0 && !hasLoggedStructAddress) {
+      console.log('structAddress ->', structAddress);
+      hasLoggedStructAddress = true;
+    }
 
     while (structAddress < buffer.length && !detectedModelEnd) {
       const textureWrappingValue = scan(ModelMappings.mesh.textureWrapping);

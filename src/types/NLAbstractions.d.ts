@@ -52,10 +52,10 @@ declare global {
     vertexGroupMode: string;
   };
 
-  export type NLStageModel = {
+  export type NLModel = {
     address: number;
     position: NLPoint3D;
-    radius: [x: number, y: number, z: number];
+    radius: number;
     meshes: NLMesh[];
   };
 }
