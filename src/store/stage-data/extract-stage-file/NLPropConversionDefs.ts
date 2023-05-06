@@ -6,7 +6,8 @@ export type BinFileReadOp =
   | Buffer['readUInt32LE'];
 
 export type NLPropConversion<T extends ModNaoMemoryObject> = {
-  targetOffset: number;
+  condition?: (object: DeepPartial<T>) => boolean;
+  targetOffset: number | ((object: DeepPartial<T>) => number);
   readOps: BinFileReadOp[];
   updates: (model: DeepPartial<T>, values: number[]) => void;
 };
