@@ -41,7 +41,7 @@ const Offsets = {
   },
   Vertex: {
     NAN_CONTENT_MODE_FLAG: 0x00,
-    VERTEX_OFFSET_DIFF: 0x04,
+    VERTEX_OFFSET_VAR: 0x04,
     POSITION: 0x00,
     NORMALS: 0x0c,
     UV: 0x18

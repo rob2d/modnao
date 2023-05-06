@@ -18,7 +18,7 @@ export const loadStage = createAsyncThunk<{ models: NLModel[] }, File>(
 );
 
 const stageDataSlice = createSlice({
-  name: 'stageData',
+  name: sliceName,
   initialState: initialStageDataState,
   reducers: {},
   extraReducers: (builder) => {

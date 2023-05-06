@@ -71,7 +71,7 @@ export default function scanModel({
 
           if (structAddress + S.VERTEX_B >= buffer.length) {
             console.log(
-              `invalid logic in parser occurred somewhere near ${structAddress}`
+              `invalid logic in parser occurred somewhere near ${structAddress}; went beyond buffer length of ${buffer.length}`
             );
             break;
           }

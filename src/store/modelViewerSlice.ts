@@ -4,13 +4,13 @@ import { loadStage } from './stageDataSlice';
 import { AppState } from './store';
 
 export interface ModelViewerState {
-  modelViewedIndex: number;
+  modelIndex: number;
   objectIndex: number;
   objectSelectionType: 'mesh' | 'polygon';
 }
 
 export const initialModelViewerState: ModelViewerState = {
-  modelViewedIndex: 0,
+  modelIndex: 0,
   objectIndex: -1,
   objectSelectionType: 'mesh'
 };
@@ -24,12 +24,12 @@ const sliceName = 'modelViewer';
 export const setModelViewedIndex = createAsyncThunk(
   `${sliceName}/setModelViewedIndexInterface`,
   async (nextIndex: number, { dispatch, getState }) => {
-    let modelViewedIndex = Math.max(0, nextIndex);
+    let modelIndex = Math.max(0, nextIndex);
     const modelCount = (getState() as AppState).stageData.models.length;
-    modelViewedIndex = Math.min(modelViewedIndex, modelCount - 1);
+    modelIndex = Math.min(modelIndex, modelCount - 1);
 
     const { actions } = modelViewerSlice;
-    dispatch(actions.setModelViewedIndex(modelViewedIndex));
+    dispatch(actions.setModelViewedIndex(modelIndex));
   }
 );
 
@@ -38,10 +38,10 @@ const modelViewerSlice = createSlice({
   initialState: initialModelViewerState,
   reducers: {
     setModelViewedIndex(state, { payload: nextIndex }) {
-      state.modelViewedIndex = nextIndex;
+      state.modelIndex = nextIndex;
     },
 
-    setObjectIndex(state, { payload: { objectIndex } }) {
+    setObjectIndex(state, { payload: objectIndex }) {
       Object.assign(state, { objectIndex });
     },
 
@@ -55,7 +55,7 @@ const modelViewerSlice = createSlice({
     );
     builder.addCase(loadStage.fulfilled, (state) => {
       state.objectIndex = -1;
-      state.modelViewedIndex = 0;
+      state.modelIndex = 0;
     });
   }
 });

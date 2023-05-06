@@ -1,8 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
 
-export const selectModelViewedIndex = (s: AppState) =>
-  s.modelViewer.modelViewedIndex;
+export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
 export const selectObjectIndex = (s: AppState) => s.modelViewer.objectIndex;
 
@@ -16,10 +15,9 @@ export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
 export const selectModel = createSelector(
-  selectModelViewedIndex,
+  selectModelIndex,
   selectStageModels,
-  (modelViewedIndex, models) => {
-    console.log('modelViewedIndex ->', modelViewedIndex);
-    return models?.[modelViewedIndex];
+  (modelIndex, models) => {
+    return models?.[modelIndex];
   }
 );

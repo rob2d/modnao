@@ -4,7 +4,8 @@ import getPolygonType from './getPolygonType';
 export type BinFileReadOp =
   | Buffer['readFloatLE']
   | Buffer['readUInt8']
-  | Buffer['readUInt32LE'];
+  | Buffer['readUInt32LE']
+  | Buffer['readUInt32BE'];
 
 export type NLPropConversion<T extends ModNaoMemoryObject> = {
   condition?: (object: DeepPartial<T>) => boolean;
@@ -13,20 +14,28 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
   updates: (model: DeepPartial<T>, values: number[]) => void;
 };
 
-const { readUInt8, readUInt32LE, readFloatLE } = Buffer.prototype;
+const { readUInt8, readUInt32LE, readUInt32BE, readFloatLE } = Buffer.prototype;
 
 export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
   [readUInt8, 1],
   [readFloatLE, 4],
-  [readUInt32LE, 4]
+  [readUInt32LE, 4],
+  [readUInt32BE, 4]
 ]);
+
+// while sorting mesh logic, parse undefined
+// positions as 0 to prevent THREE errors
+const parseNLPoint3D = (values: number[]) =>
+  values.map((v: number) =>
+    typeof v !== 'number' || isNaN(v) ? 0 : v
+  ) as NLPoint3D;
 
 export const NLModelConversions: NLPropConversion<NLModel>[] = [
   {
     targetOffset: O.Model.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates: (model, values) => {
-      model.position = values as NLPoint3D;
+      model.position = parseNLPoint3D(values);
     }
   },
   {
@@ -71,7 +80,7 @@ export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
     targetOffset: O.Mesh.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates(mesh: NLMesh, values: number[]) {
-      mesh.position = values as NLPoint3D;
+      mesh.position = parseNLPoint3D(values);
     }
   },
   {
@@ -149,8 +158,8 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
     }
   },
   {
-    targetOffset: O.Vertex.VERTEX_OFFSET_DIFF,
-    readOps: [readUInt32LE],
+    targetOffset: O.Vertex.VERTEX_OFFSET_VAR,
+    readOps: [readUInt32BE],
     updates(v, [value]) {
       if (v.contentMode === 'b') {
         v.vertexOffset = 0xfffffff8 - value;
@@ -168,7 +177,7 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
     },
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates(vertex, values) {
-      vertex.position = values as NLPoint3D;
+      vertex.position = parseNLPoint3D(values);
     }
   },
   {
