@@ -1,8 +1,8 @@
 import Head from 'next/head';
 import SceneCanvas from '@/components/scene/SceneCanvas';
 import { useFilePicker } from 'use-file-picker';
-import { useCallback, useEffect, useState } from 'react';
-import { loadSampleData, loadStage, useAppDispatch } from '@/store';
+import { useEffect } from 'react';
+import { loadStage, useAppDispatch } from '@/store';
 import { Button, styled } from '@mui/material';
 
 export default function Home() {
@@ -38,15 +38,6 @@ export default function Home() {
   `
   );
 
-  const [hasLoadedSampleData, setLoadedSampleData] = useState(false);
-
-  const onLoadSampleData = useCallback(() => {
-    if (!hasLoadedSampleData) {
-      dispatch(loadSampleData());
-      setLoadedSampleData(true);
-    }
-  }, [hasLoadedSampleData, dispatch]);
-
   useEffect(() => {
     if (!plainFiles[0]) {
       return;
@@ -69,13 +60,6 @@ export default function Home() {
       <Styled>
         <SceneCanvas />
         <div className='buttons'>
-          <Button
-            onClick={onLoadSampleData}
-            variant='outlined'
-            disabled={hasLoadedSampleData}
-          >
-            Load sample model
-          </Button>
           <Button onClick={openFileSelector} variant='outlined'>
             Select File
           </Button>

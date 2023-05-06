@@ -1,5 +1,4 @@
-import React, { useMemo, useRef, MutableRefObject } from 'react';
-import { Mesh } from 'three';
+import React, { useMemo } from 'react';
 import { Text } from '@react-three/drei';
 
 type Point3D = [x: number, y: number, z: number];
@@ -10,16 +9,13 @@ export default function RenderedPolygon({
   color,
   address,
   isSelected,
-  isHovered,
   index
 }: NLPolygon & {
   color: string;
   isSelected: boolean;
-  isHovered: boolean;
   index: number;
 }) {
-  const meshRef = useRef() as MutableRefObject<Mesh>;
-
+  console.log('RE RENDERING POLYGON');
   // @TODO: use preact/signal and computed here
   // for same effect and potential DOM optimization
   const [vertices, indices, displayPosition] = useMemo(() => {
@@ -53,55 +49,39 @@ export default function RenderedPolygon({
     return [new Float32Array(vArray), new Uint16Array(iArray), dArray];
   }, [vertexes, vertexGroupMode]);
 
-  if (meshRef?.current !== undefined) {
-    return null;
-  }
-
-  let lineWidth = 1;
-  if (isSelected) {
-    lineWidth = 3;
-  } else if (isHovered) {
-    lineWidth = 2;
-  }
+  const lineWidth = isSelected ? 3 : 2;
 
   return (
-    <>
-      <mesh
-        ref={meshRef}
-        key={`m${address}-${color}-${isHovered}-${isSelected}`}
-      >
-        {!isSelected ? undefined : (
-          <Text
-            key={`mt${address}-${color}-${isHovered}-${isSelected}`}
-            font={'/fonts/robotoLightRegular.json'}
-            color={color}
-            fontSize={isSelected ? 24 : 16}
-            position={displayPosition}
-          >
-            [{index}] {`0x${address.toString(16)}`}
-          </Text>
-        )}
-        <meshBasicMaterial
-          wireframe
-          wireframeLinewidth={lineWidth}
+    <mesh key={address}>
+      {!isSelected ? undefined : (
+        <Text
+          font={'/fonts/robotoLightRegular.json'}
           color={color}
-          key={`mtbm${address}-${color}`}
+          fontSize={isSelected ? 24 : 16}
+          position={displayPosition}
+        >
+          [{index}] {`0x${address.toString(16)}`}
+        </Text>
+      )}
+      <meshBasicMaterial
+        wireframe
+        wireframeLinewidth={lineWidth}
+        color={color}
+      />
+      <bufferGeometry attach={'geometry'}>
+        <bufferAttribute
+          attach='attributes-position'
+          count={vertices.length / 3}
+          array={vertices}
+          itemSize={3}
         />
-        <bufferGeometry attach={'geometry'}>
-          <bufferAttribute
-            attach='attributes-position'
-            count={vertices.length / 3}
-            array={vertices}
-            itemSize={3}
-          />
-          <bufferAttribute
-            array={indices}
-            attach='index'
-            count={indices.length}
-            itemSize={1}
-          />
-        </bufferGeometry>
-      </mesh>
-    </>
+        <bufferAttribute
+          array={indices}
+          attach='index'
+          count={indices.length}
+          itemSize={1}
+        />
+      </bufferGeometry>
+    </mesh>
   );
 }

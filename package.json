@@ -23,9 +23,9 @@
   "devDependencies": {
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.12.3",
-    "@preact/signals-react": "^1.3.2",
     "@react-three/drei": "^9.66.1",
     "@react-three/fiber": "^8.13.0",
+    "@react-typed-hooks/use-key-press": "^1.0.5",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
