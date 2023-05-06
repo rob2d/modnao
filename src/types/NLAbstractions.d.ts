@@ -1,9 +1,9 @@
 export {};
 
 declare global {
-  // TODO: create namespace for all types
-  // that should be reasonably global in
-  // app e.g. NLModel types
+  interface ModNaoMemoryObject {
+    address: number;
+  }
 
   export type TextureWrappingFlags = {
     hFlip: boolean;
@@ -22,13 +22,12 @@ declare global {
   export type NLVertex = {
     position: NLPoint3D;
     normals: NLPoint3D;
-    address: number;
     contentModeValue: number;
     contentMode: 'a' | 'b';
     vertexOffset: number;
     contentAddress: number;
     uv: NLUV;
-  };
+  } & ModNaoMemoryObject;
 
   export type NLMesh = {
     polygons: NLPolygon[];
@@ -42,20 +41,19 @@ declare global {
     textureControlValue: number; // @TODO: enumerate possible values
     textureColorFormat: number; // @TODO enumerate possible values
     textureNumber: number;
-  };
+  } & ModNaoMemoryObject;
 
   export type NLPolygon = {
-    address: number;
     vertexes: NLVertex[];
     vertexCount: number;
     vertexGroupModeValue: number;
-    vertexGroupMode: string;
-  };
+    vertexGroupMode: 'regular' | 'triple';
+  } & ModNaoMemoryObject;
 
-  export type NLStageModel = {
+  export type NLModel = {
     address: number;
     position: NLPoint3D;
-    radius: [x: number, y: number, z: number];
+    radius: number;
     meshes: NLMesh[];
-  };
+  } & ModNaoMemoryObject;
 }
