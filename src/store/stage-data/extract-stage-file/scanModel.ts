@@ -9,8 +9,7 @@ import {
   parseNLConversions as parseNLConversions
 } from './NLPropConversionDefs';
 
-const meshMappings = ModelMappings.mesh;
-const polyMappings = meshMappings.polygon;
+const polyMappings = ModelMappings.mesh.polygon;
 const vertexMappings = polyMappings.vertex;
 
 // @TODO: clean up logic here; a bit slopped
