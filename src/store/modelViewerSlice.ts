@@ -21,7 +21,7 @@ const sliceName = 'modelViewer';
  * interfacing action for actual setModelViewedIndex
  * for toolkit thunk api access
  */
-export const setModelViewedIndex = createAsyncThunk(
+export const setModelViewedIndex = createAsyncThunk<void, number>(
   `${sliceName}/setModelViewedIndexInterface`,
   async (nextIndex: number, { dispatch, getState }) => {
     let modelIndex = Math.max(0, nextIndex);
@@ -37,7 +37,7 @@ const modelViewerSlice = createSlice({
   name: 'modelViewer',
   initialState: initialModelViewerState,
   reducers: {
-    setModelViewedIndex(state, { payload: nextIndex }) {
+    setModelViewedIndex(state, { payload: nextIndex }: { payload: number }) {
       state.modelIndex = nextIndex;
     },
 
