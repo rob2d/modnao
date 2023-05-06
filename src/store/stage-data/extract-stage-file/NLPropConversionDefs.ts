@@ -159,7 +159,7 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
   },
   {
     targetOffset: O.Vertex.VERTEX_OFFSET_VAR,
-    readOps: [readUInt32BE],
+    readOps: [readUInt32LE],
     updates(v, [value]) {
       if (v.contentMode === 'b') {
         v.vertexOffset = 0xfffffff8 - value;
