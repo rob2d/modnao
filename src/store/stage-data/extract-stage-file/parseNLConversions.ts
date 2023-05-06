@@ -20,7 +20,9 @@ export function parseNLConversions<T extends ModNaoMemoryObject>(
     }
 
     const offset =
-      typeof targetOffset === 'function' ? targetOffset(object) : targetOffset;
+      typeof targetOffset === 'function'
+        ? targetOffset(object, baseAddress)
+        : targetOffset;
 
     let workingAddress = baseAddress + offset;
     const values: number[] = [];
