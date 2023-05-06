@@ -3,15 +3,21 @@ export type BinFileReadOp =
   | Buffer['readUInt8']
   | Buffer['readUInt32LE'];
 
-export type NLPropertyConverter<T> = {
+export type NLPropConverter<T extends ModNaoMemoryObject> = {
   targetOffset: number;
   readOps: BinFileReadOp[];
-  updates: (model: T, values: number[]) => void;
+  updates: (model: DeepPartial<T>, values: number[]) => void;
 };
 
 const { readUInt8, readUInt32LE, readFloatLE } = Buffer.prototype;
 
-export const NLModelConverters: NLPropertyConverter<NLModel>[] = [
+export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
+  [readUInt8, 1],
+  [readFloatLE, 4],
+  [readUInt32LE, 4]
+]);
+
+export const NLModelConversions: NLPropConverter<NLModel>[] = [
   {
     targetOffset: 0x08,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
@@ -28,7 +34,7 @@ export const NLModelConverters: NLPropertyConverter<NLModel>[] = [
   }
 ];
 
-export const NLMeshDeserializers: NLPropertyConverter<NLMesh>[] = [
+export const NLMeshConversions: NLPropConverter<NLMesh>[] = [
   {
     targetOffset: 0x08,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
@@ -108,11 +114,12 @@ export const NLMeshDeserializers: NLPropertyConverter<NLMesh>[] = [
   }
 ];
 
-export const NLPolygonConverters: NLPropertyConverter<NLPolygon>[] = [
+export const NLPolygonConversions: NLPropConverter<NLPolygon>[] = [
   {
     targetOffset: 0x00,
     readOps: [readUInt32LE],
     updates(polygon, [value]) {
+      /*
       const binVertexGroup = [...`${polygon.vertexGroupModeValue.toString(2)}`]
         .reverse()
         .join()
@@ -123,6 +130,31 @@ export const NLPolygonConverters: NLPropertyConverter<NLPolygon>[] = [
 
       polygon.vertexGroupModeValue = value;
       polygon.vertexGroupMode = !isTripleGroupMode ? 'regular' : 'triple';
+      */
     }
   }
 ];
+
+export function parseNLConversions<T extends ModNaoMemoryObject>(
+  converters: NLPropConverter<T>[],
+  buffer: Buffer,
+  baseAddress: number
+): T {
+  const object = {} as DeepPartial<T>;
+
+  for (const { targetOffset, readOps, updates } of converters) {
+    let workingAddress = baseAddress + targetOffset;
+    const values: number[] = [];
+
+    readOps.forEach((op: BinFileReadOp) => {
+      values.push(op.call(buffer, workingAddress));
+      workingAddress += BinFileReadOpSizes.get(op) || 0;
+    });
+
+    updates(object, values);
+  }
+
+  object.address = baseAddress;
+
+  return object as T;
+}

@@ -1,10 +1,13 @@
 import S from './Sizes';
 import getBufferMapper from './getBufferMapper';
 import ModelMappings from './ModelMappings';
-import getTextureWrappingFlags from './getTextureWrappingFlags';
 import getPolygonType from './getPolygonType';
 import toHexString from './toHexString';
-import { NLModelConverters, NLPolygonConverters } from './NLPropertyConverters';
+import {
+  NLMeshConversions as NLMeshConversions,
+  NLModelConversions,
+  parseNLConversions as parseNLConversions
+} from './NLPropConversionDefs';
 
 const meshMappings = ModelMappings.mesh;
 const polyMappings = meshMappings.polygon;
@@ -26,41 +29,34 @@ export default function scanModel({
   const h = (offset: number) => address - offset;
   const scan = getBufferMapper(buffer, address, false);
 
-  const model: NLModel = {
-    address,
-    position: scan(ModelMappings.position),
-    radius: scan(ModelMappings.radius),
-    meshes: []
-  };
+  // (1) scan base model props
 
+  const model = parseNLConversions<NLModel>(
+    NLModelConversions,
+    buffer,
+    address
+  );
+  model.address = address;
+  model.meshes = [];
+
+  // (2) scan through meshes
   try {
-    scan.setBaseAddress(address + S.MODEL_HEADER);
-
     const detectedModelEnd = false;
     let structAddress = address + S.MODEL_HEADER;
-
-    let hasLoggedStructAddress = false;
-    if (index === 0 && !hasLoggedStructAddress) {
-      console.log('structAddress ->', structAddress);
-      hasLoggedStructAddress = true;
-    }
+    scan.setBaseAddress(structAddress);
 
     while (structAddress < buffer.length && !detectedModelEnd) {
-      const textureWrappingValue = scan(ModelMappings.mesh.textureWrapping);
-      const mesh: NLMesh = {
-        textureWrappingValue,
-        textureControlValue: scan(ModelMappings.mesh.textureControlValue),
-        textureColorFormat: scan(ModelMappings.mesh.textureColorFormat),
-        textureNumber: scan(ModelMappings.mesh.textureNumber),
-        specularLightValue: scan(ModelMappings.mesh.specularLightValue),
-        position: scan(ModelMappings.mesh.position),
-        alpha: scan(ModelMappings.mesh.alpha),
-        color: scan(ModelMappings.mesh.color),
-        polygonDataLength: scan(ModelMappings.mesh.polygonDataLength),
-        polygons: [],
-        textureWrappingFlags: getTextureWrappingFlags(textureWrappingValue)
-      };
+      const mesh = parseNLConversions<NLMesh>(
+        NLMeshConversions,
+        buffer,
+        structAddress
+      );
 
+      mesh.polygons = [];
+
+      // TODO: add param to ConversionDef to allow
+      // this to be assigned based on base mesh/object
+      // address
       const meshEndAddress =
         structAddress +
         ModelMappings.mesh.polygonDataLength[0] +
@@ -68,7 +64,7 @@ export default function scanModel({
 
       structAddress += S.MESH;
 
-      // scan polygons within mesh
+      // (3) scan polygons within mesh
       while (
         structAddress < meshEndAddress &&
         structAddress + S.VERTEX_B < buffer.length &&
@@ -103,12 +99,9 @@ export default function scanModel({
           polygon.vertexCount * (polygon.vertexGroupMode == 'triple' ? 3 : 1);
         structAddress = polygon.address + 8;
 
-        // ------------- //
-        // scan vertexes //
-        // ------------- //
+        // (4) scan vertexes within polygon
 
         let detectedMeshEnd = false;
-
         for (let i = 0; i < vertexCount; i++) {
           if (detectedMeshEnd) {
             console.log('detectedMeshEnd @ structAddress ', structAddress);
@@ -177,7 +170,7 @@ export default function scanModel({
       error
     );
     return {
-      meshes: []
+      meshes: model.meshes
     };
   }
 }
