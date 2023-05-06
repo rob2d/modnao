@@ -15,28 +15,28 @@ const Offsets = {
     RADIUS: 0x14,
     MESH,
     Mesh: {
-      X: MESH + 0x10,
-      Y: MESH + 0x14,
-      Z: MESH + 0x18,
-      UV_FLIP: MESH + 0x0a,
-      SRC_DIST_ALPHA: MESH + 0x0b,
-      TEXTURE_CONTROL: MESH + 0x0c, // @TODO: confirm either 10 or 0C
-      TEXTURE_COLOR_FORMAT: MESH + 0x0f,
-      RADIUS: MESH + 0x1c,
-      TEXTURE_NUMBER: MESH + 0x20,
+      X: 0x10,
+      Y: 0x14,
+      Z: 0x18,
+      UV_FLIP: 0x0a,
+      SRC_DIST_ALPHA: 0x0b,
+      TEXTURE_CONTROL: 0x0c, // @TODO: confirm either 10 or 0C
+      TEXTURE_COLOR_FORMAT: 0x0f,
+      RADIUS: 0x1c,
+      TEXTURE_NUMBER: 0x20,
       SPECULAR_LIGHT_VALUE: 0x24,
-      A: MESH + 0x2c,
-      R: MESH + 0x30,
-      G: MESH + 0x34,
-      B: MESH + 0x38,
+      A: 0x2c,
+      R: 0x30,
+      G: 0x34,
+      B: 0x38,
 
-      SPECULAR_A: MESH + 0x3c,
-      SPECULAR_R: MESH + 0x40,
-      SPECULAR_G: MESH + 0x44,
-      SPECULAR_B: MESH + 0x48,
+      SPECULAR_A: 0x3c,
+      SPECULAR_R: 0x40,
+      SPECULAR_G: 0x44,
+      SPECULAR_B: 0x48,
 
-      MESH_DATA_LENGTH: MESH + 0x4c,
-      POLYGON_TYPE: MESH + S.MESH
+      MESH_DATA_LENGTH: 0x4c,
+      POLYGON_TYPE: S.MESH
     }
   },
   Polygon: {
