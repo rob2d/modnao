@@ -136,3 +136,6 @@ export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
     }
   }
 ];
+
+// @TODO: populate and use in scanModel logic
+export const NLVertexConversions: NLPropConversion<NLVertex>[] = [];

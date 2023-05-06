@@ -10,9 +10,6 @@ const Offsets = {
   RAM: 0x0cea0000,
   Model: {
     POSITION: 0x08,
-    X: 0x08,
-    Y: 0x0c,
-    Z: 0x10,
     RADIUS: 0x14,
     MESH
   },
@@ -46,9 +43,7 @@ const Offsets = {
 
     NORMAL: 0x14,
 
-    UV: 0x20,
-    U: 0x20,
-    V: 0x24
+    UV: 0x20
   }
 } as const;
 
