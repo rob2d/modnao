@@ -20,6 +20,7 @@ declare global {
   export type NLPoint3D = [x: number, y: number, z: number];
 
   export type NLVertex = {
+    index: number;
     position: NLPoint3D;
     normals: NLPoint3D;
     contentModeValue: number;

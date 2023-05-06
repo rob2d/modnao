@@ -1,4 +1,5 @@
 import O from './Offsets';
+import getPolygonType from './getPolygonType';
 
 export type BinFileReadOp =
   | Buffer['readFloatLE']
@@ -6,7 +7,8 @@ export type BinFileReadOp =
   | Buffer['readUInt32LE'];
 
 export type NLPropConversion<T extends ModNaoMemoryObject> = {
-  targetOffset: number;
+  condition?: (object: DeepPartial<T>) => boolean;
+  targetOffset: number | ((object: DeepPartial<T>, address: number) => number);
   readOps: BinFileReadOp[];
   updates: (model: DeepPartial<T>, values: number[]) => void;
 };
@@ -137,5 +139,64 @@ export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
   }
 ];
 
-// @TODO: populate and use in scanModel logic
-export const NLVertexConversions: NLPropConversion<NLVertex>[] = [];
+export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
+  {
+    targetOffset: O.Vertex.NAN_CONTENT_MODE_FLAG,
+    readOps: [readUInt32LE],
+    updates(vertex, [value]) {
+      vertex.contentModeValue = value;
+      vertex.contentMode = getPolygonType(value);
+    }
+  },
+  {
+    targetOffset: O.Vertex.VERTEX_OFFSET_DIFF,
+    readOps: [readUInt32LE],
+    updates(v, [value]) {
+      if (v.contentMode === 'b') {
+        v.vertexOffset = 0xfffffff8 - value;
+        v.contentAddress = (v.address as number) - v.vertexOffset;
+      }
+    }
+  },
+  {
+    targetOffset: (vertex, address) => {
+      const baseOffset =
+        vertex.contentMode === 'b'
+          ? (vertex.contentAddress as number) - address
+          : 0;
+      return baseOffset + O.Vertex.POSITION;
+    },
+    readOps: [readFloatLE, readFloatLE, readFloatLE],
+    updates(vertex, values) {
+      vertex.position = values as NLPoint3D;
+    }
+  },
+  {
+    targetOffset: (vertex, address) => {
+      const baseOffset =
+        vertex.contentMode === 'b'
+          ? (vertex.contentAddress as number) - address
+          : 0;
+      return baseOffset + O.Vertex.NORMALS;
+    },
+    readOps: [readUInt32LE, readUInt32LE, readUInt32LE],
+    updates(vertex, values) {
+      vertex.normals = values as [number, number, number];
+    }
+  },
+  {
+    targetOffset: (vertex, address) => {
+      const baseOffset =
+        vertex.contentMode === 'b'
+          ? (vertex.contentAddress as number) - address
+          : 0;
+      return baseOffset + O.Vertex.UV;
+    },
+    readOps: [readUInt32LE, readUInt32LE],
+    updates(vertex, values) {
+      vertex.uv = values as NLUV;
+    }
+  }
+];
+
+// VERTEX OFFSET ONLY SET WHEN CONTENTMODE IS B

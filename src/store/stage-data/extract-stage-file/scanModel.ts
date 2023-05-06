@@ -1,17 +1,14 @@
 import S from './Sizes';
 import getBufferMapper from './getBufferMapper';
 import ModelMappings from './ModelMappings';
-import getPolygonType from './getPolygonType';
 import toHexString from './toHexString';
 import {
   NLMeshConversions,
   NLModelConversions,
-  NLPolygonConversions
+  NLPolygonConversions,
+  NLVertexConversions
 } from './NLPropConversionDefs';
 import { parseNLConversions } from './parseNLConversions';
-
-const polyMappings = ModelMappings.mesh.polygon;
-const vertexMappings = polyMappings.vertex;
 
 export default function scanModel({
   address,
@@ -22,7 +19,6 @@ export default function scanModel({
   buffer: Buffer;
   index: number;
 }) {
-  const h = (offset: number) => address - offset;
   const scan = getBufferMapper(buffer, address, false);
 
   // (1) scan base model props
@@ -90,44 +86,19 @@ export default function scanModel({
             break;
           }
 
-          const vertexContentModeValue = scan(
-            vertexMappings.nanContentModeFlag
+          const vertex = parseNLConversions<NLVertex>(
+            NLVertexConversions,
+            buffer,
+            structAddress
           );
+          vertex.index = i;
 
-          const vertexOffset = 0xfffffff8 - scan(vertexMappings.vertexOffset);
-
-          const v: NLVertex = {
-            address: structAddress,
-            contentModeValue: scan(vertexMappings.nanContentModeFlag),
-            contentMode: getPolygonType(vertexContentModeValue),
-            vertexOffset,
-            contentAddress: structAddress - vertexOffset,
-            position: scan(vertexMappings.position),
-            normals: scan(vertexMappings.normals, 'vertexNormals'),
-            uv: scan(vertexMappings.uv)
-          };
           scan.setBaseAddress(structAddress);
+          polygon.vertexes.push(vertex);
+          structAddress += vertex.contentMode === 'a' ? S.VERTEX_A : S.VERTEX_B;
 
-          if (v.contentMode == 'b') {
-            v.vertexOffset = 0xfffffff8 - scan(vertexMappings.vertexOffset);
-            v.contentAddress = structAddress - vertexOffset;
-            scan.setBaseAddress(v.contentAddress);
-          }
-
-          polygon.vertexes.push(v);
-
-          structAddress += v.contentMode === 'a' ? S.VERTEX_A : S.VERTEX_B;
-          v.address = h(v.address);
-          v.contentModeValue = h(v.contentModeValue);
-
-          if (v.contentAddress) {
-            v.contentAddress = h(v.contentAddress);
-          }
-
-          if (index === 9) {
-            if (structAddress >= meshEndAddress) {
-              detectedMeshEnd = true;
-            }
+          if (structAddress >= meshEndAddress) {
+            detectedMeshEnd = true;
           }
         }
 
@@ -136,16 +107,13 @@ export default function scanModel({
 
       model.meshes.push(mesh);
     }
-
-    return model;
   } catch (error) {
     // @TODO: more thoughtful handling of errors
     console.trace(
       `${index}: error parsing model @ ` + toHexString(address),
       error
     );
-    return {
-      meshes: model.meshes
-    };
   }
+
+  return model;
 }

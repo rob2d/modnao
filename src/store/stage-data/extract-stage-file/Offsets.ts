@@ -24,26 +24,27 @@ const Offsets = {
     SPECULAR_LIGHT_VALUE: 0x24,
     ALPHA: 0x2c,
     COLOR: 0x30,
-
     SPECULAR_ALPHA: 0x3c,
     SPECULAR_COLOR: 0x40,
-
     MESH_DATA_LENGTH: 0x4c,
     POLYGON_TYPE: S.MESH
   },
   Polygon: {
     VERTEX_GROUP_TYPE: 0x00,
     VERTEX_COUNT: 0x04,
-
     /* 0x08 is used for NaN detection with B content mode */
     NAN_CONTENT_MODE_FLAG: 0x08,
     BASE_POINTER_OFFSET: 0x0c,
-
     POSITION: 0x08,
-
     NORMAL: 0x14,
-
     UV: 0x20
+  },
+  Vertex: {
+    NAN_CONTENT_MODE_FLAG: 0x00,
+    VERTEX_OFFSET_DIFF: 0x04,
+    POSITION: 0x00,
+    NORMALS: 0x0c,
+    UV: 0x18
   }
 } as const;
 
