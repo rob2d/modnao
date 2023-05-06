@@ -2,22 +2,19 @@
 # ModNao
 Naomi & Dreamcast ROM Model Viewer/Virtual Debugger for games using the standard Sega Naomi Library model format; Used to help with reverse engineering and creating stage importers/exporters in a user-friendly way.
 
-Note: this is an early WIP.
-
-## Getting Started
-🚧 TODO
+*Note: this is an early WIP. Documentation is a little sparse for the moment*
 
 ## Model Viewer
-🚧 TODO
-
-## Credits/Acknowledgement
-While there are changes in some abstractions used in the internal format, this project would not have been possible without several people who put in work to reverse engineer and uncover the [Naomi Library model format](https://github.com/NaomiMod/NL-ModelFormat): 
-
-[VincentNL](https://github.com/VincentNLOBJ),  
-
-[TVIndustries](https://github.com/TVIndustries/), 
-
-[Zocker_160](https://github.com/zocker-160)
+Visit https://modnao.vercel.app to check it out... nao.
 
 ## Contributing
 You're here early! Community contributions should be made possible in the near future.
+
+## Credits/Acknowledgements
+While there are some liberties taken for the data structures used in this project, it probably would not have gotten anywhere without the people listed below for their research on the NaomiLib format itself.
+
+<a href="https://github.com/VincentNLOBJ" title="VincentNLObj"><img alt="VincentNLOBJ" src="https://avatars.githubusercontent.com/u/71412899?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
+<a href="https://github.com/VincentNLOBJ" title="egregiousguy"><img src="https://avatars.githubusercontent.com/u/74125588?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
+<a href="https://github.com/strugglemeat" title="(urboi)bankbank"><img src="https://avatars.githubusercontent.com/u/36766617?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
+<a href="https://github.com/zocker-160" title="zocker-160"><img src="https://avatars.githubusercontent.com/u/36563538?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
+<a href="https://github.com/TVIndustries" title="TVIndustries"><img src="https://avatars.githubusercontent.com/u/63134071?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
