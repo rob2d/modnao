@@ -1,3 +1,5 @@
+import O from './Offsets';
+
 export type BinFileReadOp =
   | Buffer['readFloatLE']
   | Buffer['readUInt8']
@@ -19,14 +21,14 @@ export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
 
 export const NLModelConversions: NLPropConversion<NLModel>[] = [
   {
-    targetOffset: 0x08,
+    targetOffset: O.Model.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates: (model, values) => {
       model.position = values as NLPoint3D;
     }
   },
   {
-    targetOffset: 0x1c,
+    targetOffset: O.Model.RADIUS,
     readOps: [readFloatLE],
     updates: (model, values) => {
       model.radius = values[0];
@@ -43,70 +45,63 @@ export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
     }
   },
   {
-    targetOffset: 0x0a,
+    targetOffset: O.Mesh.UV_FLIP,
     readOps: [readUInt8],
     updates(model, [value]) {
       model.textureWrappingValue = value;
     }
   },
   {
-    targetOffset: 0x0c,
+    targetOffset: O.Mesh.TEXTURE_CONTROL,
     readOps: [readUInt32LE],
     updates(model: NLMesh, [value]) {
       model.textureControlValue = value;
     }
   },
   {
-    targetOffset: 0x0f,
+    targetOffset: O.Mesh.TEXTURE_COLOR_FORMAT,
     readOps: [readUInt8],
     updates(model, [value]) {
       model.textureColorFormat = value;
     }
   },
   {
-    targetOffset: 0x0f,
-    readOps: [readUInt8],
-    updates(model, [value]) {
-      model.textureColorFormat = value;
-    }
-  },
-  {
-    targetOffset: 0x10,
+    targetOffset: O.Mesh.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates(mesh: NLMesh, values: number[]) {
       mesh.position = values as NLPoint3D;
     }
   },
   {
-    targetOffset: 0x20,
+    targetOffset: O.Mesh.TEXTURE_NUMBER,
     readOps: [readUInt8],
     updates(mesh, [value]) {
       mesh.textureNumber = value;
     }
   },
   {
-    targetOffset: 0x24,
+    targetOffset: O.Mesh.SPECULAR_LIGHT_VALUE,
     readOps: [readUInt32LE],
     updates(mesh, [value]) {
       mesh.specularLightValue = value;
     }
   },
   {
-    targetOffset: 0x2c,
+    targetOffset: O.Mesh.ALPHA,
     readOps: [readFloatLE],
     updates(mesh: NLMesh, [value]) {
       mesh.alpha = value;
     }
   },
   {
-    targetOffset: 0x30,
+    targetOffset: O.Mesh.COLOR,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates(model: NLMesh, values) {
       model.color = values as [number, number, number];
     }
   },
   {
-    targetOffset: 0x4c,
+    targetOffset: O.Mesh.MESH_DATA_LENGTH,
     readOps: [readUInt32LE],
     updates(mesh, [value]) {
       mesh.polygonDataLength = value;
@@ -116,7 +111,7 @@ export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
 
 export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
   {
-    targetOffset: 0x00,
+    targetOffset: O.Polygon.VERTEX_GROUP_TYPE,
     readOps: [readUInt32LE],
     updates(polygon, [value]) {
       const binVertexGroup = [...`${value.toString(2)}`]
@@ -132,7 +127,7 @@ export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
     }
   },
   {
-    targetOffset: 0x04,
+    targetOffset: O.Polygon.VERTEX_COUNT,
     readOps: [readUInt32LE],
     updates(polygon, [value]) {
       polygon.vertexCount = value;
