@@ -4,17 +4,14 @@ import ModelMappings from './ModelMappings';
 import getPolygonType from './getPolygonType';
 import toHexString from './toHexString';
 import {
-  NLMeshConversions as NLMeshConversions,
+  NLMeshConversions,
   NLModelConversions,
-  parseNLConversions as parseNLConversions
+  NLPolygonConversions
 } from './NLPropConversionDefs';
+import { parseNLConversions } from './parseNLConversions';
 
 const polyMappings = ModelMappings.mesh.polygon;
 const vertexMappings = polyMappings.vertex;
-
-// @TODO: clean up logic here; a bit slopped
-// together since importing and converting
-// old script to TS in order to start testing
 
 export default function scanModel({
   address,
@@ -53,9 +50,6 @@ export default function scanModel({
 
       mesh.polygons = [];
 
-      // TODO: add param to ConversionDef to allow
-      // this to be assigned based on base mesh/object
-      // address
       const meshEndAddress =
         structAddress +
         ModelMappings.mesh.polygonDataLength[0] +
@@ -71,37 +65,19 @@ export default function scanModel({
       ) {
         scan.setBaseAddress(structAddress);
 
-        const polygon: NLPolygon = {
-          address: structAddress,
-          vertexCount: scan(polyMappings.vertexCount),
-          vertexGroupModeValue: scan(polyMappings.vertexGroupMode),
-          vertexGroupMode: 'regular',
-          vertexes: []
-        };
+        const polygon = parseNLConversions<NLPolygon>(
+          NLPolygonConversions,
+          buffer,
+          structAddress
+        );
+        polygon.vertexes = [];
 
-        // @TODO: verify this logic
-        const binVertexGroup = [
-          ...`${polygon.vertexGroupModeValue.toString(2)}`
-        ]
-          .reverse()
-          .join()
-          .padStart(8, '0');
-
-        if (
-          binVertexGroup[1] === '1' ||
-          polygon.vertexGroupModeValue === 0x0a
-        ) {
-          polygon.vertexGroupMode = 'triple';
-        }
-
-        const vertexCount =
-          polygon.vertexCount * (polygon.vertexGroupMode == 'triple' ? 3 : 1);
         structAddress = polygon.address + 8;
 
         // (4) scan vertexes within polygon
 
         let detectedMeshEnd = false;
-        for (let i = 0; i < vertexCount; i++) {
+        for (let i = 0; i < polygon.actualVertexCount; i++) {
           if (detectedMeshEnd) {
             console.log('detectedMeshEnd @ structAddress ', structAddress);
             break;

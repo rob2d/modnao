@@ -46,6 +46,7 @@ declare global {
   export type NLPolygon = {
     vertexes: NLVertex[];
     vertexCount: number;
+    actualVertexCount: number;
     vertexGroupModeValue: number;
     vertexGroupMode: 'regular' | 'triple';
   } & ModNaoMemoryObject;
