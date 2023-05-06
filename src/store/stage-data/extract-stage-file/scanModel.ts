@@ -1,6 +1,5 @@
 import S from './Sizes';
-import getBufferMapper from './getBufferMapper';
-import ModelMappings from './ModelMappings';
+import O from './Offsets';
 import toHexString from './toHexString';
 import {
   NLMeshConversions,
@@ -19,10 +18,7 @@ export default function scanModel({
   buffer: Buffer;
   index: number;
 }) {
-  const scan = getBufferMapper(buffer, address, false);
-
   // (1) scan base model props
-
   const model = parseNLConversions<NLModel>(
     NLModelConversions,
     buffer,
@@ -35,7 +31,6 @@ export default function scanModel({
   try {
     const detectedModelEnd = false;
     let structAddress = address + S.MODEL_HEADER;
-    scan.setBaseAddress(structAddress);
 
     while (structAddress < buffer.length && !detectedModelEnd) {
       const mesh = parseNLConversions<NLMesh>(
@@ -47,9 +42,7 @@ export default function scanModel({
       mesh.polygons = [];
 
       const meshEndAddress =
-        structAddress +
-        ModelMappings.mesh.polygonDataLength[0] +
-        mesh.polygonDataLength;
+        structAddress + O.Mesh.MESH_DATA_LENGTH + mesh.polygonDataLength;
 
       structAddress += S.MESH;
 
@@ -59,8 +52,6 @@ export default function scanModel({
         structAddress + S.VERTEX_B < buffer.length &&
         !detectedModelEnd
       ) {
-        scan.setBaseAddress(structAddress);
-
         const polygon = parseNLConversions<NLPolygon>(
           NLPolygonConversions,
           buffer,
@@ -68,10 +59,9 @@ export default function scanModel({
         );
         polygon.vertexes = [];
 
-        structAddress = polygon.address + 8;
+        structAddress = polygon.address + S.POLYGON_HEADER;
 
         // (4) scan vertexes within polygon
-
         let detectedMeshEnd = false;
         for (let i = 0; i < polygon.actualVertexCount; i++) {
           if (detectedMeshEnd) {
@@ -92,8 +82,6 @@ export default function scanModel({
             structAddress
           );
           vertex.index = i;
-
-          scan.setBaseAddress(structAddress);
           polygon.vertexes.push(vertex);
           structAddress += vertex.contentMode === 'a' ? S.VERTEX_A : S.VERTEX_B;
 
