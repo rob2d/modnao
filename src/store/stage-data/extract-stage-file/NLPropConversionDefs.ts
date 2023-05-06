@@ -3,7 +3,7 @@ export type BinFileReadOp =
   | Buffer['readUInt8']
   | Buffer['readUInt32LE'];
 
-export type NLPropConverter<T extends ModNaoMemoryObject> = {
+export type NLPropConversion<T extends ModNaoMemoryObject> = {
   targetOffset: number;
   readOps: BinFileReadOp[];
   updates: (model: DeepPartial<T>, values: number[]) => void;
@@ -17,7 +17,7 @@ export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
   [readUInt32LE, 4]
 ]);
 
-export const NLModelConversions: NLPropConverter<NLModel>[] = [
+export const NLModelConversions: NLPropConversion<NLModel>[] = [
   {
     targetOffset: 0x08,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
@@ -34,7 +34,7 @@ export const NLModelConversions: NLPropConverter<NLModel>[] = [
   }
 ];
 
-export const NLMeshConversions: NLPropConverter<NLMesh>[] = [
+export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
   {
     targetOffset: 0x08,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
@@ -114,7 +114,7 @@ export const NLMeshConversions: NLPropConverter<NLMesh>[] = [
   }
 ];
 
-export const NLPolygonConversions: NLPropConverter<NLPolygon>[] = [
+export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
   {
     targetOffset: 0x00,
     readOps: [readUInt32LE],
@@ -136,7 +136,7 @@ export const NLPolygonConversions: NLPropConverter<NLPolygon>[] = [
 ];
 
 export function parseNLConversions<T extends ModNaoMemoryObject>(
-  converters: NLPropConverter<T>[],
+  converters: NLPropConversion<T>[],
   buffer: Buffer,
   baseAddress: number
 ): T {
