@@ -4,11 +4,11 @@ import ModelMappings from './ModelMappings';
 import getPolygonType from './getPolygonType';
 import toHexString from './toHexString';
 import {
-  NLMeshConversions as NLMeshConversions,
+  NLMeshConversions,
   NLModelConversions,
-  NLPolygonConversions,
-  parseNLConversions as parseNLConversions
+  NLPolygonConversions
 } from './NLPropConversionDefs';
+import { parseNLConversions } from './parseNLConversions';
 
 const polyMappings = ModelMappings.mesh.polygon;
 const vertexMappings = polyMappings.vertex;
