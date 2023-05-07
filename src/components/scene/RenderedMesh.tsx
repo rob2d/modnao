@@ -16,8 +16,8 @@ export default function RenderedMesh({
 }: RenderedMeshProps) {
   const theme = useTheme();
   const isSelected = index === objectIndex;
-  const { sceneMesh } = theme.palette;
-  const color = isSelected ? sceneMesh.selected : sceneMesh.default;
+  const { sceneMesh: colors } = theme.palette;
+  const color = isSelected ? colors.selected : colors.default;
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
@@ -30,6 +30,7 @@ export default function RenderedMesh({
         <RenderedPolygon
           {...p}
           color={color as string}
+          flaggedColor={colors.flagged as string}
           isSelected={isSelected}
           key={pIndex}
           index={pIndex}

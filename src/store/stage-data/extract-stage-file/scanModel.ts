@@ -88,7 +88,7 @@ export default function scanModel({
           vertex.index = i;
           polygon.vertexes.push(vertex);
           structAddress +=
-            vertex.addressingMode === 'a' ? S.VERTEX_A : S.VERTEX_B;
+            vertex.addressingMode === 'direct' ? S.VERTEX_A : S.VERTEX_B;
 
           if (structAddress >= meshEndAddress) {
             detectedMeshEnd = true;
