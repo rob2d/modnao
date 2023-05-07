@@ -21,7 +21,7 @@ export default function RenderedMesh({
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    onSelectObjectIndex(index);
+    onSelectObjectIndex(objectIndex !== index ? index : -1);
   };
 
   return (

@@ -28,6 +28,14 @@ export function parseNLConversions<T extends ModNaoMemoryObject>(
     const values: number[] = [];
 
     readOps.forEach((op: BinFileReadOp) => {
+      if (workingAddress + (BinFileReadOpSizes.get(op) || 0) > buffer.length) {
+        console.error(
+          `went beyond buffer length while parsing object @ 0x${workingAddress.toString(
+            16
+          )}`
+        );
+        return;
+      }
       values.push(op.call(buffer, workingAddress));
       workingAddress += BinFileReadOpSizes.get(op) || 0;
     });

@@ -1,7 +1,7 @@
 import { PaletteMode, Theme, createTheme } from '@mui/material';
-import { Roboto } from 'next/font/google';
+import { Fira_Code } from 'next/font/google';
 
-export const roboto = Roboto({
+export const firaCode = Fira_Code({
   subsets: ['latin'],
   weight: ['300', '400', '500']
 });
@@ -32,11 +32,12 @@ const themes = Object.fromEntries(
     mode,
     createTheme({
       typography: {
-        fontFamily: roboto.style.fontFamily
+        fontFamily: firaCode.style.fontFamily
       },
       palette: {
         primary: {
           main: '#FF00F2',
+          light: '#e98df5',
           contrastText: '#FFF'
         },
         secondary: {
@@ -45,7 +46,7 @@ const themes = Object.fromEntries(
         },
         sceneMesh: {
           default: mode === 'dark' ? '#444' : '#CCC',
-          selected: mode === 'dark' ? '#00A5FF' : '#FF00F2',
+          selected: mode === 'dark' ? '#00A5FF' : '#e98df5',
           highlighted: mode === 'dark' ? '#666' : '#AAA'
         }
       }
