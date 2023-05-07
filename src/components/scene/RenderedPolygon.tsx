@@ -1,16 +1,19 @@
 import React, { useMemo } from 'react';
 import { Text } from '@react-three/drei';
+import themes from '@/themes';
 
 type Point3D = [x: number, y: number, z: number];
 
 export default function RenderedPolygon({
   vertexGroupMode,
   vertexes,
+  flaggedColor,
   color,
   address,
   isSelected,
   index
 }: NLPolygon & {
+  flaggedColor: string;
   color: string;
   isSelected: boolean;
   index: number;
@@ -81,7 +84,7 @@ export default function RenderedPolygon({
          * @TODO remove this when reference addressing mode
          * instances discovered
          */
-        color={!usesReferenceMode ? color : '#F00'}
+        color={!usesReferenceMode ? color : flaggedColor}
       />
       <bufferGeometry attach={'geometry'}>
         <bufferAttribute
