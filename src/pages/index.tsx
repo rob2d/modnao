@@ -13,6 +13,7 @@ import { Fab, Tooltip, styled } from '@mui/material';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import { useSelector } from 'react-redux';
+import DebugInfoPanel from '@/components/scene/DebugInfoPanel';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -79,6 +80,7 @@ export default function Home() {
       </Head>
       <Styled>
         <SceneCanvas />
+        <DebugInfoPanel />
         <div className='buttons'>
           {!model ? undefined : (
             <Tooltip title='Export ModNao model .json data'>
