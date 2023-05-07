@@ -3,6 +3,7 @@ export {};
 declare global {
   interface ModNaoMemoryObject {
     address: number;
+    addressH: string;
   }
 
   export type TextureWrappingFlags = {
