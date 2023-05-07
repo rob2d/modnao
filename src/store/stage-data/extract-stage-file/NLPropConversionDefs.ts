@@ -1,5 +1,5 @@
 import O from './Offsets';
-import getPolygonType from './getPolygonType';
+import getVertexAddressingMode from './getVertexAddressingMode';
 
 export type BinFileReadOp =
   | Buffer['readFloatLE']
@@ -9,6 +9,11 @@ export type BinFileReadOp =
 
 export type NLPropConversion<T extends ModNaoMemoryObject> = {
   condition?: (object: DeepPartial<T>) => boolean;
+  /**
+   * if defined, ignore the address in calculating and use targetOffset as
+   * the actual address of property to scan
+   */
+  useOffsetAsBase?: boolean;
   targetOffset: number | ((object: DeepPartial<T>, address: number) => number);
   readOps: BinFileReadOp[];
   updates: (model: DeepPartial<T>, values: number[]) => void;
@@ -154,53 +159,44 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
     readOps: [readUInt32LE],
     updates(vertex, [value]) {
       vertex.contentModeValue = value;
-      vertex.contentMode = getPolygonType(value);
+      vertex.addressingMode = getVertexAddressingMode(value);
+      vertex.contentAddress = vertex.address;
     }
   },
+
+  // if this is a B vertex addressing-mode,
+  // then set the offset to a calculation
+  // w 32-bit big-endian address diffed
   {
+    condition: (v) => v.addressingMode === 'reference',
     targetOffset: O.Vertex.VERTEX_OFFSET_VAR,
-    readOps: [readUInt32LE],
+    readOps: [readUInt32BE],
     updates(v, [value]) {
-      if (v.contentMode === 'b') {
-        v.vertexOffset = 0xfffffff8 - value;
-        v.contentAddress = (v.address as number) - v.vertexOffset;
-      }
+      v.vertexOffset = value;
+      v.contentAddress = 0xfffffff8 - value;
     }
   },
   {
-    targetOffset: (vertex, address) => {
-      const baseOffset =
-        vertex.contentMode === 'b'
-          ? (vertex.contentAddress as number) - address
-          : 0;
-      return baseOffset + O.Vertex.POSITION;
-    },
+    targetOffset: (v, address) =>
+      (v.contentAddress || address) + O.Vertex.POSITION,
+    useOffsetAsBase: true,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates(vertex, values) {
+      if (vertex.addressingMode === 'reference') {
+      }
       vertex.position = parseNLPoint3D(values);
     }
   },
   {
-    targetOffset: (vertex, address) => {
-      const baseOffset =
-        vertex.contentMode === 'b'
-          ? (vertex.contentAddress as number) - address
-          : 0;
-      return baseOffset + O.Vertex.NORMALS;
-    },
+    targetOffset: (v, address) =>
+      (v.contentAddress || address) + O.Vertex.NORMALS,
     readOps: [readUInt32LE, readUInt32LE, readUInt32LE],
     updates(vertex, values) {
       vertex.normals = values as [number, number, number];
     }
   },
   {
-    targetOffset: (vertex, address) => {
-      const baseOffset =
-        vertex.contentMode === 'b'
-          ? (vertex.contentAddress as number) - address
-          : 0;
-      return baseOffset + O.Vertex.UV;
-    },
+    targetOffset: (v, address) => (v.contentAddress || address) + O.Vertex.UV,
     readOps: [readUInt32LE, readUInt32LE],
     updates(vertex, values) {
       vertex.uv = values as NLUV;
