@@ -1,9 +1,41 @@
+import { useCallback, useEffect } from 'react';
+import exportFromJSON from 'export-from-json';
 import Head from 'next/head';
 import SceneCanvas from '@/components/scene/SceneCanvas';
 import { useFilePicker } from 'use-file-picker';
-import { useEffect } from 'react';
-import { loadStage, useAppDispatch } from '@/store';
-import { Button, styled } from '@mui/material';
+import {
+  loadStage,
+  useAppDispatch,
+  selectModel,
+  selectModelIndex
+} from '@/store';
+import { Fab, Tooltip, styled } from '@mui/material';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
+import { useSelector } from 'react-redux';
+
+const Styled = styled('main')(
+  ({ theme }) => `
+  & {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+  }
+  & .buttons {
+    position: fixed;
+    bottom: ${theme.spacing(2)};
+    right: ${theme.spacing(2)};
+    display: flex;
+  }
+
+  & .buttons > :first-child {
+    right: ${theme.spacing(2)}
+  }
+`
+);
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -15,28 +47,16 @@ export default function Home() {
     readFilesContent: false
   });
 
-  const Styled = styled('main')(
-    ({ theme }) => `
-    & {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      height: 100vh;
-      width: 100vw;
-    }
-    & .buttons {
-      position: fixed;
-      bottom: ${theme.spacing(2)};
-      right: ${theme.spacing(2)};
-      display: flex;
-    }
+  const model = useSelector(selectModel);
+  const modelIndex = useSelector(selectModelIndex);
 
-    & .buttons > :first-child {
-      right: ${theme.spacing(2)}
-    }
-  `
-  );
+  const onDownloadModel = useCallback(() => {
+    exportFromJSON({
+      data: model,
+      fileName: `modnao-model-${modelIndex}.json`,
+      exportType: exportFromJSON.types.json
+    });
+  }, [model]);
 
   useEffect(() => {
     if (!plainFiles[0]) {
@@ -60,9 +80,18 @@ export default function Home() {
       <Styled>
         <SceneCanvas />
         <div className='buttons'>
-          <Button onClick={openFileSelector} variant='outlined'>
-            Select File
-          </Button>
+          {!model ? undefined : (
+            <Tooltip title='Export ModNao model .json data'>
+              <Fab onClick={onDownloadModel} color='secondary'>
+                <DownloadForOfflineIcon />
+              </Fab>
+            </Tooltip>
+          )}
+          <Tooltip title='Select an MVC2 or CVS2 STGXY.POL file'>
+            <Fab onClick={openFileSelector} color='primary'>
+              <FileUploadIcon />
+            </Fab>
+          </Tooltip>
         </div>
       </Styled>
     </>
