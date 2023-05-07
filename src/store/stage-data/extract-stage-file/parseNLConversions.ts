@@ -7,12 +7,20 @@ import {
 export function parseNLConversions<T extends ModNaoMemoryObject>(
   conversion: NLPropConversion<T>[],
   buffer: Buffer,
-  baseAddress: number
+  baseAddress: number,
+  modelAddress: number
 ): T {
   const object = {} as DeepPartial<T>;
   object.address = baseAddress;
+  object.addressH = `0x${(baseAddress - modelAddress).toString(16)}`;
 
-  for (const { condition, targetOffset, readOps, updates } of conversion) {
+  for (const {
+    condition,
+    targetOffset,
+    readOps,
+    updates,
+    useOffsetAsBase
+  } of conversion) {
     if (condition && !condition(object)) {
       // if conditional exists but not satisfied,
       // advance to next conversion
@@ -24,7 +32,7 @@ export function parseNLConversions<T extends ModNaoMemoryObject>(
         ? targetOffset(object, baseAddress)
         : targetOffset;
 
-    let workingAddress = baseAddress + offset;
+    let workingAddress = !useOffsetAsBase ? baseAddress + offset : offset;
     const values: number[] = [];
 
     readOps.forEach((op: BinFileReadOp) => {

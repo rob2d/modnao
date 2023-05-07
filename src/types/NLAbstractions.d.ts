@@ -3,6 +3,7 @@ export {};
 declare global {
   interface ModNaoMemoryObject {
     address: number;
+    addressH: string;
   }
 
   export type TextureWrappingFlags = {
@@ -23,8 +24,8 @@ declare global {
     index: number;
     position: NLPoint3D;
     normals: NLPoint3D;
+    addressingMode: 'direct' | 'reference'; // TODO: consider indexed mode?
     contentModeValue: number;
-    contentMode: 'a' | 'b';
     vertexOffset: number;
     contentAddress: number;
     uv: NLUV;
@@ -53,7 +54,6 @@ declare global {
   } & ModNaoMemoryObject;
 
   export type NLModel = {
-    address: number;
     position: NLPoint3D;
     radius: number;
     meshes: NLMesh[];

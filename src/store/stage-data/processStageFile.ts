@@ -11,8 +11,5 @@ export default async function processStageFile(stageFile: File): Promise<{
   const models = modelPointers.map(
     (address, index) => scanModel({ buffer, address, index }) as NLModel
   );
-
-  console.log('models ->', models);
-
   return Promise.resolve({ models });
 }

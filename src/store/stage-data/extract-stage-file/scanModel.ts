@@ -22,6 +22,7 @@ export default function scanModel({
   const model = parseNLConversions<NLModel>(
     NLModelConversions,
     buffer,
+    address,
     address
   );
   model.address = address;
@@ -36,7 +37,8 @@ export default function scanModel({
       const mesh = parseNLConversions<NLMesh>(
         NLMeshConversions,
         buffer,
-        structAddress
+        structAddress,
+        address
       );
 
       mesh.polygons = [];
@@ -55,7 +57,8 @@ export default function scanModel({
         const polygon = parseNLConversions<NLPolygon>(
           NLPolygonConversions,
           buffer,
-          structAddress
+          structAddress,
+          address
         );
         polygon.vertexes = [];
 
@@ -79,11 +82,13 @@ export default function scanModel({
           const vertex = parseNLConversions<NLVertex>(
             NLVertexConversions,
             buffer,
-            structAddress
+            structAddress,
+            address
           );
           vertex.index = i;
           polygon.vertexes.push(vertex);
-          structAddress += vertex.contentMode === 'a' ? S.VERTEX_A : S.VERTEX_B;
+          structAddress +=
+            vertex.addressingMode === 'direct' ? S.VERTEX_A : S.VERTEX_B;
 
           if (structAddress >= meshEndAddress) {
             detectedMeshEnd = true;

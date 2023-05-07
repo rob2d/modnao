@@ -11,8 +11,8 @@ const modes: PaletteMode[] = ['dark', 'light'];
 declare module '@mui/material' {
   type SceneMeshPalette = {
     default: React.CSSProperties['color'];
-    highlighted: React.CSSProperties['color'];
     selected: React.CSSProperties['color'];
+    flagged: React.CSSProperties['color'];
   };
   interface PaletteOptions {
     sceneMesh: SceneMeshPalette;
@@ -47,11 +47,11 @@ const themes = Object.fromEntries(
         sceneMesh: {
           default: mode === 'dark' ? '#444' : '#CCC',
           selected: mode === 'dark' ? '#00A5FF' : '#e98df5',
-          highlighted: mode === 'dark' ? '#666' : '#AAA'
+          flagged: '#C45'
         }
       }
     })
   ])
-) as AppThemes;
+);
 
 export default themes;
