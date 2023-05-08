@@ -74,9 +74,14 @@ export default function scanModel({
           // detect modelEnd flag in the vertex position
           if (buffer.readUInt32LE(structAddress) === 0) {
             detectedModelEnd = true;
+            detectedMeshEnd = true;
             structAddress += 4;
             model.totalVertexCount = buffer.readUInt32LE(structAddress);
             structAddress += 4;
+            break;
+          }
+
+          if (detectedMeshEnd) {
             break;
           }
 
