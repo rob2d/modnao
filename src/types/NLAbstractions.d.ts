@@ -3,7 +3,7 @@ export {};
 declare global {
   interface ModNaoMemoryObject {
     address: number;
-    addressH: string;
+    modelAddress: number;
   }
 
   export type TextureWrappingFlags = {
@@ -57,5 +57,6 @@ declare global {
     position: NLPoint3D;
     radius: number;
     meshes: NLMesh[];
+    totalVertexCount: number;
   } & ModNaoMemoryObject;
 }

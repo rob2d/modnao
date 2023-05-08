@@ -28,9 +28,14 @@ export default function scanModel({
   model.address = address;
   model.meshes = [];
 
+  // total vert count is populated
+  // at the end of parsing polygons
+  // following a ds flag
+  model.totalVertexCount = 0;
+
   // (2) scan through meshes
   try {
-    const detectedModelEnd = false;
+    let detectedModelEnd = false;
     let structAddress = address + S.MODEL_HEADER;
 
     while (structAddress < buffer.length && !detectedModelEnd) {
@@ -45,7 +50,6 @@ export default function scanModel({
 
       const meshEndAddress =
         structAddress + O.Mesh.MESH_DATA_LENGTH + mesh.polygonDataLength;
-
       structAddress += S.MESH;
 
       // (3) scan polygons within mesh
@@ -67,8 +71,12 @@ export default function scanModel({
         // (4) scan vertexes within polygon
         let detectedMeshEnd = false;
         for (let i = 0; i < polygon.actualVertexCount; i++) {
-          if (detectedMeshEnd) {
-            console.log('detectedMeshEnd @ structAddress ', structAddress);
+          // detect modelEnd flag in the vertex position
+          if (buffer.readUInt32LE(structAddress) === 0) {
+            detectedModelEnd = true;
+            structAddress += 4;
+            model.totalVertexCount = buffer.readUInt32LE(structAddress);
+            structAddress += 4;
             break;
           }
 
@@ -85,6 +93,7 @@ export default function scanModel({
             structAddress,
             address
           );
+
           vertex.index = i;
           polygon.vertexes.push(vertex);
           structAddress +=

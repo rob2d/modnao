@@ -47,7 +47,7 @@ const themes = Object.fromEntries(
         sceneMesh: {
           default: mode === 'dark' ? '#444' : '#CCC',
           selected: mode === 'dark' ? '#00A5FF' : '#e98df5',
-          flagged: '#C45'
+          flagged: '#9BF'
         }
       }
     })

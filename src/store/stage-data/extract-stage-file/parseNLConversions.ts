@@ -12,7 +12,7 @@ export function parseNLConversions<T extends ModNaoMemoryObject>(
 ): T {
   const object = {} as DeepPartial<T>;
   object.address = baseAddress;
-  object.addressH = `0x${(baseAddress - modelAddress).toString(16)}`;
+  object.modelAddress = modelAddress;
 
   for (const {
     condition,

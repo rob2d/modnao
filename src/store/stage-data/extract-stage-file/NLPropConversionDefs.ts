@@ -1,9 +1,12 @@
 import O from './Offsets';
+import S from './Sizes';
 import getVertexAddressingMode from './getVertexAddressingMode';
 
 export type BinFileReadOp =
   | Buffer['readFloatLE']
   | Buffer['readUInt8']
+  | Buffer['readInt32LE']
+  | Buffer['readInt32BE']
   | Buffer['readUInt32LE']
   | Buffer['readUInt32BE'];
 
@@ -19,12 +22,14 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
   updates: (model: DeepPartial<T>, values: number[]) => void;
 };
 
-const { readUInt8, readUInt32LE, readUInt32BE, readFloatLE } = Buffer.prototype;
+const { readUInt8, readUInt32LE, readUInt32BE, readInt32LE, readFloatLE } =
+  Buffer.prototype;
 
 export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
   [readUInt8, 1],
   [readFloatLE, 4],
   [readUInt32LE, 4],
+  [readInt32LE, 4],
   [readUInt32BE, 4]
 ]);
 
@@ -130,15 +135,9 @@ export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
     targetOffset: O.Polygon.VERTEX_GROUP_TYPE,
     readOps: [readUInt32LE],
     updates(polygon, [value]) {
-      const binVertexGroup = [...`${value.toString(2)}`]
-        .reverse()
-        .join()
-        .padStart(8, '0');
-
-      const isTripleGroupMode =
-        binVertexGroup[1] === '1' || polygon.vertexGroupModeValue === 0x0a;
-
       polygon.vertexGroupModeValue = value;
+
+      const isTripleGroupMode = ((value >> 3) & 1) == 1;
       polygon.vertexGroupMode = !isTripleGroupMode ? 'regular' : 'triple';
     }
   },
@@ -170,10 +169,10 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
   {
     condition: (v) => v.addressingMode === 'reference',
     targetOffset: O.Vertex.VERTEX_OFFSET_VAR,
-    readOps: [readUInt32BE],
+    readOps: [readInt32LE],
     updates(v, [value]) {
       v.vertexOffset = value;
-      v.contentAddress = 0xfffffff8 - value;
+      v.contentAddress = (v.address as number) + value + S.POLYGON_HEADER;
     }
   },
   {
