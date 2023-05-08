@@ -57,5 +57,6 @@ declare global {
     position: NLPoint3D;
     radius: number;
     meshes: NLMesh[];
+    totalVertexCount: number;
   } & ModNaoMemoryObject;
 }
