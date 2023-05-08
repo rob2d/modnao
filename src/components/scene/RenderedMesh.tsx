@@ -30,7 +30,6 @@ export default function RenderedMesh({
         <RenderedPolygon
           {...p}
           color={color as string}
-          flaggedColor={colors.flagged as string}
           isSelected={isSelected}
           key={pIndex}
           index={pIndex}
