@@ -135,14 +135,9 @@ export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
     targetOffset: O.Polygon.VERTEX_GROUP_TYPE,
     readOps: [readUInt32LE],
     updates(polygon, [value]) {
-      const binVertexGroup = [...`${value.toString(2)}`]
-        .reverse()
-        .join('')
-        .padStart(8, '0');
-
       polygon.vertexGroupModeValue = value;
-      const isTripleGroupMode = binVertexGroup[1] === '1' || value === 0x0a;
 
+      const isTripleGroupMode = ((value >> 3) & 1) == 1;
       polygon.vertexGroupMode = !isTripleGroupMode ? 'regular' : 'triple';
     }
   },

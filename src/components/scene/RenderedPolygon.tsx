@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { Text } from '@react-three/drei';
-import themes from '@/themes';
 
 type Point3D = [x: number, y: number, z: number];
 
