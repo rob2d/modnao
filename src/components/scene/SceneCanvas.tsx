@@ -5,7 +5,7 @@ import { Canvas } from '@react-three/fiber';
 import { selectModel, selectObjectIndex } from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
 import RenderedMesh from './RenderedMesh';
-import useTemporaryModelNav from '@/hooks/useTemporaryModelNav';
+import { useTemporaryModelNav } from '@/hooks';
 
 THREE.ColorManagement.enabled = true;
 

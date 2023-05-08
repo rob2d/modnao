@@ -1,19 +1,13 @@
-import { useCallback, useEffect } from 'react';
-import exportFromJSON from 'export-from-json';
 import Head from 'next/head';
 import SceneCanvas from '@/components/scene/SceneCanvas';
-import { useFilePicker } from 'use-file-picker';
-import {
-  loadStage,
-  useAppDispatch,
-  selectModel,
-  selectModelIndex
-} from '@/store';
+import { loadStage, useAppDispatch, selectModel } from '@/store';
 import { Fab, Tooltip, styled } from '@mui/material';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import { useSelector } from 'react-redux';
 import DebugInfoPanel from '@/components/scene/DebugInfoPanel';
+import { useModelSelectionExport } from '@/hooks';
+import useUserStageFileLoader from '@/hooks/useStageFilePicker';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -39,33 +33,9 @@ const Styled = styled('main')(
 );
 
 export default function Home() {
-  const dispatch = useAppDispatch();
-  // @TODO: handle async state on UI
-  const [openFileSelector, { plainFiles }] = useFilePicker({
-    multiple: false,
-    readAs: 'ArrayBuffer',
-    accept: ['.BIN'],
-    readFilesContent: false
-  });
-
   const model = useSelector(selectModel);
-  const modelIndex = useSelector(selectModelIndex);
-
-  const onDownloadModel = useCallback(() => {
-    exportFromJSON({
-      data: model,
-      fileName: `modnao-model-${modelIndex}.json`,
-      exportType: exportFromJSON.types.json
-    });
-  }, [model]);
-
-  useEffect(() => {
-    if (!plainFiles[0]) {
-      return;
-    }
-    const [stageFile] = plainFiles;
-    dispatch(loadStage(stageFile));
-  }, [plainFiles?.[0]]);
+  const openFileSelector = useUserStageFileLoader();
+  const onExportSelection = useModelSelectionExport();
 
   return (
     <>
@@ -84,7 +54,7 @@ export default function Home() {
         <div className='buttons'>
           {!model ? undefined : (
             <Tooltip title='Export ModNao model .json data'>
-              <Fab onClick={onDownloadModel} color='secondary'>
+              <Fab onClick={onExportSelection} color='secondary'>
                 <DownloadForOfflineIcon />
               </Fab>
             </Tooltip>
