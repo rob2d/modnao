@@ -43,10 +43,8 @@ export default function scanModel({
 
       mesh.polygons = [];
 
-      const meshEndAddress =
-        structAddress + O.Mesh.MESH_DATA_LENGTH + mesh.polygonDataLength;
-
       structAddress += S.MESH;
+      const meshEndAddress = structAddress + mesh.polygonDataLength;
 
       // (3) scan polygons within mesh
       while (
@@ -85,6 +83,7 @@ export default function scanModel({
             structAddress,
             address
           );
+
           vertex.index = i;
           polygon.vertexes.push(vertex);
           structAddress +=
