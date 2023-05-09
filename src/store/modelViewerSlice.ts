@@ -37,8 +37,11 @@ const modelViewerSlice = createSlice({
   name: 'modelViewer',
   initialState: initialModelViewerState,
   reducers: {
-    setModelViewedIndex(state, { payload: nextIndex }: { payload: number }) {
-      state.modelIndex = nextIndex;
+    setModelViewedIndex(state, { payload: modelIndex }: { payload: number }) {
+      Object.assign(state, {
+        modelIndex,
+        objectIndex: -1
+      });
     },
 
     setObjectIndex(state, { payload: objectIndex }) {
@@ -46,7 +49,10 @@ const modelViewerSlice = createSlice({
     },
 
     setObjectType(state, { payload: { objectSelectionType } }) {
-      Object.assign(state, { objectIndex: -1, objectSelectionType });
+      Object.assign(state, {
+        objectIndex: -1,
+        objectSelectionType
+      });
     }
   },
   extraReducers: (builder) => {
@@ -54,8 +60,10 @@ const modelViewerSlice = createSlice({
       Object.assign(state, payload)
     );
     builder.addCase(loadStage.fulfilled, (state) => {
-      state.objectIndex = -1;
-      state.modelIndex = 0;
+      Object.assign(state, {
+        modelIndex: 0,
+        objectIndex: -1
+      });
     });
   }
 });
