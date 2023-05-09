@@ -31,6 +31,7 @@ export default function scanModel({
   // total vert count is populated
   // at the end of parsing polygons
   // following a ds flag
+
   model.totalVertexCount = 0;
 
   // (2) scan through meshes
@@ -39,6 +40,14 @@ export default function scanModel({
     let structAddress = address + S.MODEL_HEADER;
 
     while (structAddress < buffer.length && !detectedModelEnd) {
+      if (buffer.readUInt32LE(structAddress) === 0) {
+        detectedModelEnd = true;
+        structAddress += 4;
+        model.totalVertexCount = buffer.readUInt32LE(structAddress);
+        structAddress += 4;
+        break;
+      }
+
       const mesh = parseNLConversions<NLMesh>(
         NLMeshConversions,
         buffer,
@@ -48,9 +57,8 @@ export default function scanModel({
 
       mesh.polygons = [];
 
-      const meshEndAddress =
-        structAddress + O.Mesh.MESH_DATA_LENGTH + mesh.polygonDataLength;
       structAddress += S.MESH;
+      const meshEndAddress = structAddress + mesh.polygonDataLength;
 
       // (3) scan polygons within mesh
       while (

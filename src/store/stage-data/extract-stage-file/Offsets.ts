@@ -26,7 +26,7 @@ const Offsets = {
     COLOR: 0x30,
     SPECULAR_ALPHA: 0x3c,
     SPECULAR_COLOR: 0x40,
-    MESH_DATA_LENGTH: 0x4c,
+    VERTEX_DATA_LENGTH: 0x4c,
     POLYGON_TYPE: S.MESH
   },
   Polygon: {

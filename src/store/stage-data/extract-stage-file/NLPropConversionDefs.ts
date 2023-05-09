@@ -122,7 +122,7 @@ export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
     }
   },
   {
-    targetOffset: O.Mesh.MESH_DATA_LENGTH,
+    targetOffset: O.Mesh.VERTEX_DATA_LENGTH,
     readOps: [readUInt32LE],
     updates(mesh, [value]) {
       mesh.polygonDataLength = value;
