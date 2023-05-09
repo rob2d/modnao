@@ -20,12 +20,16 @@ export default function useModelSelectionExport() {
   }, [model, objectIndex]);
 
   const onDownloadModelSelection = useCallback(() => {
+    if (modelIndex === -1) {
+      return;
+    }
+    const hasSelection = objectIndex !== -1;
     exportFromJSON({
       data,
-      fileName: `model-${modelIndex}-${objectIndex}`,
+      fileName: `model-${modelIndex}${!hasSelection ? '' : `-${objectIndex}`}`,
       exportType: exportFromJSON.types.json
     });
-  }, [data]);
+  }, [modelIndex, objectIndex, data]);
 
   return onDownloadModelSelection;
 }
