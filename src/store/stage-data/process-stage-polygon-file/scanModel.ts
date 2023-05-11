@@ -1,6 +1,4 @@
 import S from './Sizes';
-import O from './Offsets';
-import toHexString from './toHexString';
 import {
   NLMeshConversions,
   NLModelConversions,
@@ -125,7 +123,7 @@ export default function scanModel({
   } catch (error) {
     // @TODO: more thoughtful handling of errors
     console.trace(
-      `${index}: error parsing model @ ` + toHexString(address),
+      `${index}: error parsing model @ 0x${address.toString(16)}`,
       error
     );
   }

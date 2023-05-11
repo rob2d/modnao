@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
-import { loadStage, useAppDispatch } from '@/store';
+import { loadStagePolygonFile, useAppDispatch } from '@/store';
 
 /**
  * handle a user selection of a file client-side
@@ -23,7 +23,7 @@ export default function useUserStageFileLoader() {
       return;
     }
     const [stageFile] = plainFiles;
-    dispatch(loadStage(stageFile));
+    dispatch(loadStagePolygonFile(stageFile));
   }, [plainFiles?.[0]]);
 
   return openFileSelector;

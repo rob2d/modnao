@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import SceneCanvas from '@/components/scene/SceneCanvas';
-import { loadStage, useAppDispatch, selectModel } from '@/store';
+import { loadStagePolygonFile, useAppDispatch, selectModel } from '@/store';
 import { Fab, Tooltip, styled } from '@mui/material';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
