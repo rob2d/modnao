@@ -1,6 +1,8 @@
 import O from './Offsets';
 import S from './StructSizes';
+import getTextureColorFormat from './getTextureColorFormat';
 import getTextureSize from './getTextureSize';
+import getTextureWrappingFlags from './getTextureWrappingFlags';
 import getVertexAddressingMode from './getVertexAddressingMode';
 
 export type BinFileReadOp =
@@ -72,6 +74,7 @@ export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
     readOps: [readUInt8],
     updates(mesh, [value]) {
       mesh.textureWrappingValue = value;
+      mesh.textureWrappingFlags = getTextureWrappingFlags(value);
     }
   },
   {
@@ -85,7 +88,8 @@ export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
     targetOffset: O.Mesh.TEXTURE_COLOR_FORMAT,
     readOps: [readUInt8],
     updates(model, [value]) {
-      model.textureColorFormat = value;
+      model.textureColorFormatValue = value;
+      model.textureColorFormat = getTextureColorFormat(value);
     }
   },
   {

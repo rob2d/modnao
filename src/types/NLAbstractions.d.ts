@@ -1,3 +1,4 @@
+import { TextureColorFormat } from '@/store/stage-data/process-stage-polygon-file/TextureColorFormat';
 import { TextureSize } from '@/store/stage-data/process-stage-polygon-file/TextureSize';
 
 export {};
@@ -42,8 +43,9 @@ declare global {
     polygonDataLength: number;
     textureWrappingValue: number;
     textureWrappingFlags: TextureWrappingFlags;
-    textureControlValue: number; // @TODO: enumerate possible values
-    textureColorFormat: number; // @TODO enumerate possible values
+    textureControlValue: number;
+    textureColorFormat: TextureColorFormat;
+    textureColorFormatValue: number;
     textureNumber: number;
     textureSizeValue: number;
     textureSize: TextureSize;
