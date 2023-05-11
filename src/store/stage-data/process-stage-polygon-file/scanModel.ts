@@ -1,4 +1,4 @@
-import S from './Sizes';
+import S from './StructSizes';
 import {
   NLMeshConversions,
   NLModelConversions,

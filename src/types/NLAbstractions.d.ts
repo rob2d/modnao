@@ -1,3 +1,5 @@
+import { TextureSize } from '@/store/stage-data/process-stage-polygon-file/TextureSize';
+
 export {};
 
 declare global {
@@ -43,6 +45,8 @@ declare global {
     textureControlValue: number; // @TODO: enumerate possible values
     textureColorFormat: number; // @TODO enumerate possible values
     textureNumber: number;
+    textureSizeValue: number;
+    textureSize: TextureSize;
   } & ModNaoMemoryObject;
 
   export type NLPolygon = {

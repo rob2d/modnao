@@ -1,4 +1,4 @@
-import S from './Sizes';
+import S from './StructSizes';
 
 /**
  * Mesh offset; is at the start after model header
@@ -16,6 +16,7 @@ const Offsets = {
   Mesh: {
     POSITION: 0x10,
     UV_FLIP: 0x0a,
+    TEXTURE_SIZE: 0x08,
     SRC_DIST_ALPHA: 0x0b,
     TEXTURE_CONTROL: 0x0c, // @TODO: confirm either 10 or 0C
     TEXTURE_COLOR_FORMAT: 0x0f,

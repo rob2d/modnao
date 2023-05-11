@@ -48,7 +48,7 @@ export function parseNLConversions<T extends ModNaoMemoryObject>(
       workingAddress += BinFileReadOpSizes.get(op) || 0;
     });
 
-    updates(object, values);
+    updates(object as T, values);
   }
   return object as T;
 }

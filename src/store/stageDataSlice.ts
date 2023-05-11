@@ -54,7 +54,6 @@ const stageDataSlice = createSlice({
     builder.addCase(
       loadStageTextureFile.fulfilled,
       (state: StageDataState, { payload }) => {
-        /** @TODO: hydrate texture data here */
         state.models = payload.models;
       }
     );

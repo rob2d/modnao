@@ -62,21 +62,23 @@ export default function useUserStageFileLoader(
       return;
     }
 
-    if (selectedPolygonFile) {
-      dispatch(loadStagePolygonFile(selectedPolygonFile));
-    }
-
-    if (selectedTextureFile) {
-      if (hasLoadedStagePolygonFile || selectedPolygonFile) {
-        dispatch(loadStageTextureFile(selectedTextureFile));
-      } else {
-        onError(
-          'Must load a polygon file along with or before loading a texture file'
-        );
-        return;
+    (async () => {
+      if (selectedPolygonFile) {
+        await dispatch(loadStagePolygonFile(selectedPolygonFile));
       }
-    }
-  }, [plainFiles?.[0]]);
+
+      if (selectedTextureFile) {
+        if (hasLoadedStagePolygonFile || selectedPolygonFile) {
+          dispatch(loadStageTextureFile(selectedTextureFile));
+        } else {
+          onError(
+            'Must load a polygon file along with or before loading a texture file'
+          );
+          return;
+        }
+      }
+    })();
+  }, [plainFiles]);
 
   return openFileSelector;
 }

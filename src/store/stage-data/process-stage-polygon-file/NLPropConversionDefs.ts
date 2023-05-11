@@ -1,5 +1,6 @@
 import O from './Offsets';
-import S from './Sizes';
+import S from './StructSizes';
+import getTextureSize from './getTextureSize';
 import getVertexAddressingMode from './getVertexAddressingMode';
 
 export type BinFileReadOp =
@@ -19,7 +20,7 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
   useOffsetAsBase?: boolean;
   targetOffset: number | ((object: DeepPartial<T>, address: number) => number);
   readOps: BinFileReadOp[];
-  updates: (model: DeepPartial<T>, values: number[]) => void;
+  updates: (model: T, values: number[]) => void;
 };
 
 const { readUInt8, readUInt32LE, readUInt32BE, readInt32LE, readFloatLE } =
@@ -59,24 +60,25 @@ export const NLModelConversions: NLPropConversion<NLModel>[] = [
 
 export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
   {
-    targetOffset: 0x08,
-    readOps: [readFloatLE, readFloatLE, readFloatLE],
-    updates(mesh, values) {
-      // @TODO: determine what to update in NLMesh
+    targetOffset: O.Mesh.TEXTURE_SIZE,
+    readOps: [readUInt8],
+    updates(mesh, [value]) {
+      mesh.textureSizeValue = value;
+      mesh.textureSize = getTextureSize(value);
     }
   },
   {
     targetOffset: O.Mesh.UV_FLIP,
     readOps: [readUInt8],
-    updates(model, [value]) {
-      model.textureWrappingValue = value;
+    updates(mesh, [value]) {
+      mesh.textureWrappingValue = value;
     }
   },
   {
     targetOffset: O.Mesh.TEXTURE_CONTROL,
     readOps: [readUInt32LE],
-    updates(model: NLMesh, [value]) {
-      model.textureControlValue = value;
+    updates(mesh: NLMesh, [value]) {
+      mesh.textureControlValue = value;
     }
   },
   {
@@ -90,7 +92,7 @@ export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
     targetOffset: O.Mesh.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates(mesh: NLMesh, values: number[]) {
-      mesh.position = parseNLPoint3D(values);
+      mesh.position = parseNLPoint3D(values as NLPoint3D);
     }
   },
   {
@@ -202,5 +204,3 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
     }
   }
 ];
-
-// VERTEX OFFSET ONLY SET WHEN CONTENTMODE IS B
