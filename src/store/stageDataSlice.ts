@@ -6,12 +6,14 @@ import { AppState } from './store';
 
 export interface StageDataState {
   models: NLModel[];
+  hasLoadedStagePolygonFile: boolean;
 }
 
 const sliceName = 'stageData';
 
 export const initialStageDataState: StageDataState = {
-  models: []
+  models: [],
+  hasLoadedStagePolygonFile: false
 };
 
 export const loadStagePolygonFile = createAsyncThunk<
@@ -26,6 +28,11 @@ export const loadStageTextureFile = createAsyncThunk<
 >(`${sliceName}/loadStageTextureFile`, (file: File, { getState }) => {
   const state = getState();
   const models = state.stageData.models;
+
+  if (!state.stageData.hasLoadedStagePolygonFile) {
+    return Promise.resolve({ models });
+  }
+
   return processStageTextureFile(file, models);
 });
 
@@ -38,6 +45,7 @@ const stageDataSlice = createSlice({
       loadStagePolygonFile.fulfilled,
       (state: StageDataState, { payload }) => {
         state.models = payload.models;
+        state.hasLoadedStagePolygonFile = true;
       }
     );
     builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
@@ -47,6 +55,7 @@ const stageDataSlice = createSlice({
       loadStageTextureFile.fulfilled,
       (state: StageDataState, { payload }) => {
         /** @TODO: hydrate texture data here */
+        state.models = payload.models;
       }
     );
   }

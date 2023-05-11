@@ -1,13 +1,13 @@
 import Head from 'next/head';
 import SceneCanvas from '@/components/scene/SceneCanvas';
-import { loadStagePolygonFile, useAppDispatch, selectModel } from '@/store';
+import { selectModel } from '@/store';
 import { Fab, Tooltip, styled } from '@mui/material';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import { useSelector } from 'react-redux';
 import DebugInfoPanel from '@/components/scene/DebugInfoPanel';
 import { useModelSelectionExport } from '@/hooks';
-import useUserStageFileLoader from '@/hooks/useStageFilePicker';
+import useStageFilePicker from '@/hooks/useStageFilePicker';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -34,7 +34,9 @@ const Styled = styled('main')(
 
 export default function Home() {
   const model = useSelector(selectModel);
-  const openFileSelector = useUserStageFileLoader();
+
+  // @TODO use a more standard error dialog vs using window.alert here
+  const openFileSelector = useStageFilePicker(globalThis.alert);
   const onExportSelection = useModelSelectionExport();
 
   return (
