@@ -1,5 +1,6 @@
 import scanModel from './process-stage-polygon-file/scanModel';
 import scanForModelPointers from './process-stage-polygon-file/scanForModelPointers';
+import scanTextureHeaderData from './process-stage-polygon-file/scanTextureHeaderData';
 
 export default async function processStageFile(
   stagePolygonFile: File
@@ -14,5 +15,9 @@ export default async function processStageFile(
     (address: number, index: number) =>
       scanModel({ buffer, address, index }) as NLModel
   );
+
+  // @TODO: run these on separate thread
+  scanTextureHeaderData(buffer);
+
   return Promise.resolve({ models });
 }

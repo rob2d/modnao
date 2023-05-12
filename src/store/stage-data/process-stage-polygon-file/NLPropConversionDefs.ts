@@ -1,4 +1,4 @@
-import O from './Offsets';
+import O from './StructOffsets';
 import S from './StructSizes';
 import getTextureColorFormat from './getTextureColorFormat';
 import getTextureSize from './getTextureSize';

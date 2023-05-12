@@ -1,7 +1,12 @@
 import { TextureColorFormat } from './TextureColorFormat';
 
-export default function getTextureColorFormat(value: number): TextureColorFormat {
+export default function getTextureColorFormat(
+  value: number
+): TextureColorFormat {
   switch (value) {
+    case 0: {
+      return 'ARGB1555';
+    }
     case 1: {
       return 'RGB565';
     }
