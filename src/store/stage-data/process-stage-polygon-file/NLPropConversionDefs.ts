@@ -1,10 +1,15 @@
-import O from './Offsets';
-import S from './Sizes';
+import { NLTextureDef } from '@/types/NLAbstractions';
+import O from './StructOffsets';
+import S from './StructSizes';
+import getTextureColorFormat from './getTextureColorFormat';
+import getTextureSize from './getTextureSize';
+import getTextureWrappingFlags from './getTextureWrappingFlags';
 import getVertexAddressingMode from './getVertexAddressingMode';
 
 export type BinFileReadOp =
   | Buffer['readFloatLE']
   | Buffer['readUInt8']
+  | Buffer['readUInt16LE']
   | Buffer['readInt32LE']
   | Buffer['readInt32BE']
   | Buffer['readUInt32LE']
@@ -19,14 +24,21 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
   useOffsetAsBase?: boolean;
   targetOffset: number | ((object: DeepPartial<T>, address: number) => number);
   readOps: BinFileReadOp[];
-  updates: (model: DeepPartial<T>, values: number[]) => void;
+  updates: (model: T, values: number[]) => void;
 };
 
-const { readUInt8, readUInt32LE, readUInt32BE, readInt32LE, readFloatLE } =
-  Buffer.prototype;
+const {
+  readUInt8,
+  readUInt16LE,
+  readUInt32LE,
+  readUInt32BE,
+  readInt32LE,
+  readFloatLE
+} = Buffer.prototype;
 
 export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
   [readUInt8, 1],
+  [readUInt16LE, 2],
   [readFloatLE, 4],
   [readUInt32LE, 4],
   [readInt32LE, 4],
@@ -59,38 +71,41 @@ export const NLModelConversions: NLPropConversion<NLModel>[] = [
 
 export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
   {
-    targetOffset: 0x08,
-    readOps: [readFloatLE, readFloatLE, readFloatLE],
-    updates(mesh, values) {
-      // @TODO: determine what to update in NLMesh
+    targetOffset: O.Mesh.TEXTURE_SIZE,
+    readOps: [readUInt8],
+    updates(mesh, [value]) {
+      mesh.textureSizeValue = value;
+      mesh.textureSize = getTextureSize(value);
     }
   },
   {
     targetOffset: O.Mesh.UV_FLIP,
     readOps: [readUInt8],
-    updates(model, [value]) {
-      model.textureWrappingValue = value;
+    updates(mesh, [value]) {
+      mesh.textureWrappingValue = value;
+      mesh.textureWrappingFlags = getTextureWrappingFlags(value);
     }
   },
   {
     targetOffset: O.Mesh.TEXTURE_CONTROL,
     readOps: [readUInt32LE],
-    updates(model: NLMesh, [value]) {
-      model.textureControlValue = value;
+    updates(mesh: NLMesh, [value]) {
+      mesh.textureControlValue = value;
     }
   },
   {
     targetOffset: O.Mesh.TEXTURE_COLOR_FORMAT,
     readOps: [readUInt8],
     updates(model, [value]) {
-      model.textureColorFormat = value;
+      model.textureColorFormatValue = value;
+      model.textureColorFormat = getTextureColorFormat(value);
     }
   },
   {
     targetOffset: O.Mesh.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates(mesh: NLMesh, values: number[]) {
-      mesh.position = parseNLPoint3D(values);
+      mesh.position = parseNLPoint3D(values as NLPoint3D);
     }
   },
   {
@@ -203,4 +218,41 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
   }
 ];
 
-// VERTEX OFFSET ONLY SET WHEN CONTENTMODE IS B
+export const NLTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
+  {
+    targetOffset: O.TextureDef.WIDTH,
+    readOps: [readUInt16LE],
+    updates(texture, [value]) {
+      texture.width = value;
+    }
+  },
+  {
+    targetOffset: O.TextureDef.HEIGHT,
+    readOps: [readUInt16LE],
+    updates(texture, [value]) {
+      texture.height = value;
+    }
+  },
+  {
+    targetOffset: O.TextureDef.COLOR_FORMAT,
+    readOps: [readUInt8],
+    updates(texture, [value]) {
+      texture.colorFormatValue = value;
+      texture.colorFormat = getTextureColorFormat(value);
+    }
+  },
+  {
+    targetOffset: O.TextureDef.TYPE,
+    readOps: [readUInt8],
+    updates(texture, [value]) {
+      texture.type = value;
+    }
+  },
+  {
+    targetOffset: O.TextureDef.LOCATION,
+    readOps: [readUInt32LE],
+    updates(texture, [value]) {
+      texture.location = value - O.MODEL_TEXTURE_DEF;
+    }
+  }
+];

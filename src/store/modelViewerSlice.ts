@@ -1,6 +1,6 @@
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { loadStage } from './stageDataSlice';
+import { loadStagePolygonFile } from './stageDataSlice';
 import { AppState } from './store';
 
 export interface ModelViewerState {
@@ -59,7 +59,7 @@ const modelViewerSlice = createSlice({
     builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
       Object.assign(state, payload)
     );
-    builder.addCase(loadStage.fulfilled, (state) => {
+    builder.addCase(loadStagePolygonFile.fulfilled, (state) => {
       Object.assign(state, {
         modelIndex: 0,
         objectIndex: -1

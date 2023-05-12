@@ -4,15 +4,13 @@ import {
   NLPropConversion
 } from './NLPropConversionDefs';
 
-export function parseNLConversions<T extends ModNaoMemoryObject>(
+export function processNLConversions<T extends ModNaoMemoryObject>(
   conversion: NLPropConversion<T>[],
   buffer: Buffer,
-  baseAddress: number,
-  modelAddress: number
+  baseAddress: number
 ): T {
   const object = {} as DeepPartial<T>;
   object.address = baseAddress;
-  object.modelAddress = modelAddress;
 
   for (const {
     condition,
@@ -48,7 +46,7 @@ export function parseNLConversions<T extends ModNaoMemoryObject>(
       workingAddress += BinFileReadOpSizes.get(op) || 0;
     });
 
-    updates(object, values);
+    updates(object as T, values);
   }
   return object as T;
 }
