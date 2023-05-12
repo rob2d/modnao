@@ -11,7 +11,7 @@ export default function getTextureColorFormat(
       return 'RGB565';
     }
     case 2: {
-      return 'RGB444';
+      return 'ARGB4444';
     }
     case 3: {
       return 'ARGB8888';

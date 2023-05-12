@@ -6,7 +6,6 @@ export {};
 declare global {
   interface ModNaoMemoryObject {
     address: number;
-    modelAddress: number;
   }
 
   export type TextureWrappingFlags = {
@@ -66,3 +65,12 @@ declare global {
     totalVertexCount: number;
   } & ModNaoMemoryObject;
 }
+
+export type NLTextureDef = {
+  width: number;
+  height: number;
+  colorFormat: TextureColorFormat;
+  colorFormatValue: number;
+  type: number;
+  location: number;
+} & ModNaoMemoryObject;

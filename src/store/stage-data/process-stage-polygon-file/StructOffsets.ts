@@ -7,6 +7,7 @@ const MESH = S.MODEL_HEADER;
 
 /** offsets */
 const Offsets = {
+  MODEL_TEXTURE_DEF: 0x0cc00000,
   RAM: 0x0cea0000,
   Model: {
     POSITION: 0x08,
@@ -46,6 +47,13 @@ const Offsets = {
     POSITION: 0x00,
     NORMALS: 0x0c,
     UV: 0x18
+  },
+  TextureDef: {
+    WIDTH: 0x00,
+    HEIGHT: 0x02,
+    COLOR_FORMAT: 0x04,
+    TYPE: 0x05,
+    LOCATION: 0x08
   }
 } as const;
 

@@ -5,7 +5,7 @@ import {
   NLPolygonConversions,
   NLVertexConversions
 } from './NLPropConversionDefs';
-import { parseNLConversions } from './parseNLConversions';
+import { processNLConversions as processNLConversions } from './processNLConversions';
 
 export default function scanModel({
   address,
@@ -17,12 +17,12 @@ export default function scanModel({
   index: number;
 }) {
   // (1) scan base model props
-  const model = parseNLConversions<NLModel>(
+  const model = processNLConversions<NLModel>(
     NLModelConversions,
     buffer,
-    address,
     address
   );
+
   model.address = address;
   model.meshes = [];
 
@@ -46,11 +46,10 @@ export default function scanModel({
         break;
       }
 
-      const mesh = parseNLConversions<NLMesh>(
+      const mesh = processNLConversions<NLMesh>(
         NLMeshConversions,
         buffer,
-        structAddress,
-        address
+        structAddress
       );
 
       mesh.polygons = [];
@@ -64,11 +63,10 @@ export default function scanModel({
         structAddress + S.VERTEX_B < buffer.length &&
         !detectedModelEnd
       ) {
-        const polygon = parseNLConversions<NLPolygon>(
+        const polygon = processNLConversions<NLPolygon>(
           NLPolygonConversions,
           buffer,
-          structAddress,
-          address
+          structAddress
         );
         polygon.vertexes = [];
 
@@ -98,11 +96,10 @@ export default function scanModel({
             break;
           }
 
-          const vertex = parseNLConversions<NLVertex>(
+          const vertex = processNLConversions<NLVertex>(
             NLVertexConversions,
             buffer,
-            structAddress,
-            address
+            structAddress
           );
 
           vertex.index = i;

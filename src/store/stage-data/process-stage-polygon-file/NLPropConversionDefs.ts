@@ -1,3 +1,4 @@
+import { NLTextureDef } from '@/types/NLAbstractions';
 import O from './StructOffsets';
 import S from './StructSizes';
 import getTextureColorFormat from './getTextureColorFormat';
@@ -8,6 +9,7 @@ import getVertexAddressingMode from './getVertexAddressingMode';
 export type BinFileReadOp =
   | Buffer['readFloatLE']
   | Buffer['readUInt8']
+  | Buffer['readUInt16LE']
   | Buffer['readInt32LE']
   | Buffer['readInt32BE']
   | Buffer['readUInt32LE']
@@ -25,11 +27,18 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
   updates: (model: T, values: number[]) => void;
 };
 
-const { readUInt8, readUInt32LE, readUInt32BE, readInt32LE, readFloatLE } =
-  Buffer.prototype;
+const {
+  readUInt8,
+  readUInt16LE,
+  readUInt32LE,
+  readUInt32BE,
+  readInt32LE,
+  readFloatLE
+} = Buffer.prototype;
 
 export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
   [readUInt8, 1],
+  [readUInt16LE, 2],
   [readFloatLE, 4],
   [readUInt32LE, 4],
   [readInt32LE, 4],
@@ -205,6 +214,45 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
     readOps: [readUInt32LE, readUInt32LE],
     updates(vertex, values) {
       vertex.uv = values as NLUV;
+    }
+  }
+];
+
+export const NLTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
+  {
+    targetOffset: O.TextureDef.WIDTH,
+    readOps: [readUInt16LE],
+    updates(texture, [value]) {
+      texture.width = value;
+    }
+  },
+  {
+    targetOffset: O.TextureDef.HEIGHT,
+    readOps: [readUInt16LE],
+    updates(texture, [value]) {
+      texture.height = value;
+    }
+  },
+  {
+    targetOffset: O.TextureDef.COLOR_FORMAT,
+    readOps: [readUInt8],
+    updates(texture, [value]) {
+      texture.colorFormatValue = value;
+      texture.colorFormat = getTextureColorFormat(value);
+    }
+  },
+  {
+    targetOffset: O.TextureDef.TYPE,
+    readOps: [readUInt8],
+    updates(texture, [value]) {
+      texture.type = value;
+    }
+  },
+  {
+    targetOffset: O.TextureDef.LOCATION,
+    readOps: [readUInt32LE],
+    updates(texture, [value]) {
+      texture.location = value - O.MODEL_TEXTURE_DEF;
     }
   }
 ];
