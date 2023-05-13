@@ -218,7 +218,7 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
   }
 ];
 
-export const NLTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
+export const nlTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
   {
     targetOffset: O.TextureDef.WIDTH,
     readOps: [readUInt16LE],
