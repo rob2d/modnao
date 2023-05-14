@@ -16,13 +16,14 @@ export default function scanPVRHeaderData(buffer: Buffer) {
       address
     );
 
-    texture.imageCanvas = document.createElement('canvas');
-    texture.imageCanvas.width = texture.width;
-    texture.imageCanvas.height = texture.height;
-    textures.push(texture);
+    // there is usually a final empty extra texture
+    // we can discard when scanning
+    if (texture.width > 0) {
+      // will be re-assigned when populating tex file
+      texture.dataUrl = '';
+      textures.push(texture);
+    }
   }
-
-  console.log('textures ->', textures);
 
   return textures;
 }
