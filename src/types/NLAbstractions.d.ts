@@ -73,4 +73,5 @@ export type NLTextureDef = {
   colorFormatValue: number;
   type: number;
   location: number;
+  dataUrl: string;
 } & ModNaoMemoryObject;

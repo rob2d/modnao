@@ -1,9 +1,9 @@
 import S from './StructSizes';
 import {
-  NLMeshConversions,
-  NLModelConversions,
-  NLPolygonConversions,
-  NLVertexConversions
+  nlMeshConversions,
+  nlModelConversions,
+  nlPolygonConversions,
+  nlVertexConversions
 } from './NLPropConversionDefs';
 import { processNLConversions as processNLConversions } from './processNLConversions';
 
@@ -18,7 +18,7 @@ export default function scanModel({
 }) {
   // (1) scan base model props
   const model = processNLConversions<NLModel>(
-    NLModelConversions,
+    nlModelConversions,
     buffer,
     address
   );
@@ -47,7 +47,7 @@ export default function scanModel({
       }
 
       const mesh = processNLConversions<NLMesh>(
-        NLMeshConversions,
+        nlMeshConversions,
         buffer,
         structAddress
       );
@@ -64,7 +64,7 @@ export default function scanModel({
         !detectedModelEnd
       ) {
         const polygon = processNLConversions<NLPolygon>(
-          NLPolygonConversions,
+          nlPolygonConversions,
           buffer,
           structAddress
         );
@@ -97,7 +97,7 @@ export default function scanModel({
           }
 
           const vertex = processNLConversions<NLVertex>(
-            NLVertexConversions,
+            nlVertexConversions,
             buffer,
             structAddress
           );

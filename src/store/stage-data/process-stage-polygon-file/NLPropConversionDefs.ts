@@ -52,7 +52,7 @@ const parseNLPoint3D = (values: number[]) =>
     typeof v !== 'number' || isNaN(v) ? 0 : v
   ) as NLPoint3D;
 
-export const NLModelConversions: NLPropConversion<NLModel>[] = [
+export const nlModelConversions: NLPropConversion<NLModel>[] = [
   {
     targetOffset: O.Model.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
@@ -69,7 +69,7 @@ export const NLModelConversions: NLPropConversion<NLModel>[] = [
   }
 ];
 
-export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
+export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
   {
     targetOffset: O.Mesh.TEXTURE_SIZE,
     readOps: [readUInt8],
@@ -145,7 +145,7 @@ export const NLMeshConversions: NLPropConversion<NLMesh>[] = [
   }
 ];
 
-export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
+export const nlPolygonConversions: NLPropConversion<NLPolygon>[] = [
   {
     targetOffset: O.Polygon.VERTEX_GROUP_TYPE,
     readOps: [readUInt32LE],
@@ -167,7 +167,7 @@ export const NLPolygonConversions: NLPropConversion<NLPolygon>[] = [
   }
 ];
 
-export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
+export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
   {
     targetOffset: O.Vertex.NAN_CONTENT_MODE_FLAG,
     readOps: [readUInt32LE],
@@ -218,7 +218,7 @@ export const NLVertexConversions: NLPropConversion<NLVertex>[] = [
   }
 ];
 
-export const NLTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
+export const nlTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
   {
     targetOffset: O.TextureDef.WIDTH,
     readOps: [readUInt16LE],
