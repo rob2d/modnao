@@ -24,6 +24,8 @@ export default function SceneCanvas() {
     [objectIndex]
   );
 
+  const textureDefs = useAppSelector((s) => s.stageData.textureDefs);
+
   const model = useAppSelector(selectModel);
 
   return (
@@ -37,6 +39,7 @@ export default function SceneCanvas() {
             {...m}
             objectIndex={objectIndex}
             onSelectObjectIndex={onSelectObjectIndex}
+            textureDefs={textureDefs}
           />
         ))}
         <OrbitControls />

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Text } from '@react-three/drei';
+import { DoubleSide, Texture } from 'three';
 
 type Point3D = [x: number, y: number, z: number];
 
@@ -9,15 +10,23 @@ export default function RenderedPolygon({
   color,
   address,
   isSelected,
-  index
+  index,
+  texture
 }: NLPolygon & {
   color: string;
   isSelected: boolean;
   index: number;
+  texture?: Texture;
 }) {
-  const [vertices, indices, displayPosition] = useMemo(() => {
-    const vArray: number[] = [];
+  const [vertices, normals, uvs, indices, displayPosition] = useMemo(() => {
+    let vArrayIndex = 0;
+    let nArrayIndex = 0;
+    let uvArrayIndex = 0;
+
+    const vArray = new Float32Array(vertexes.length * 3);
+    const nArray = new Float32Array(vertexes.length * 3);
     const iArray: number[] = [];
+    const uvArray = new Float32Array(vertexes.length * 2);
 
     // display position is an aggregated weight
     // @TODO: precalculate
@@ -25,9 +34,16 @@ export default function RenderedPolygon({
 
     vertexes.forEach((v, i) => {
       v.position.forEach((v, i) => {
-        vArray.push(v);
+        vArray[vArrayIndex++] = v;
         dArray[i] += v;
       });
+
+      nArray[nArrayIndex++] = v.normals[0];
+      nArray[nArrayIndex++] = v.normals[1];
+      nArray[nArrayIndex++] = v.normals[2];
+
+      uvArray[uvArrayIndex++] = v.uv[0];
+      uvArray[uvArrayIndex++] = v.uv[1];
 
       iArray.push(i);
 
@@ -43,13 +59,19 @@ export default function RenderedPolygon({
 
     dArray = dArray.map((c) => Math.round(c / vertexes.length)) as Point3D;
 
-    return [new Float32Array(vArray), new Uint16Array(iArray), dArray];
+    return [vArray, nArray, uvArray, new Uint16Array(iArray), dArray];
   }, [vertexes, vertexGroupMode]);
 
   const lineWidth = isSelected ? 3 : 2;
 
   return (
     <mesh key={address}>
+      <meshBasicMaterial
+        color={color}
+        side={DoubleSide}
+        wireframe
+        wireframeLinewidth={lineWidth}
+      />
       {!isSelected ? undefined : (
         <Text
           font={'/fonts/robotoLightRegular.json'}
@@ -60,16 +82,23 @@ export default function RenderedPolygon({
           [{index}] {`0x${address.toString(16)}`}
         </Text>
       )}
-      <meshBasicMaterial
-        wireframe
-        wireframeLinewidth={lineWidth}
-        color={color}
-      />
       <bufferGeometry attach={'geometry'}>
         <bufferAttribute
           attach='attributes-position'
           count={vertices.length / 3}
           array={vertices}
+          itemSize={3}
+        />
+        <bufferAttribute
+          attach='attributes-uv'
+          count={uvs.length / 2}
+          array={uvs}
+          itemSize={2}
+        />
+        <bufferAttribute
+          attach='attributes-normal'
+          count={normals.length / 3}
+          array={normals}
           itemSize={3}
         />
         <bufferAttribute

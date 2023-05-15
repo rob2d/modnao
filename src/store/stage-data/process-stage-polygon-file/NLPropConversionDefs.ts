@@ -8,6 +8,7 @@ import getVertexAddressingMode from './getVertexAddressingMode';
 
 export type BinFileReadOp =
   | Buffer['readFloatLE']
+  | Buffer['readFloatBE']
   | Buffer['readUInt8']
   | Buffer['readUInt16LE']
   | Buffer['readInt32LE']
@@ -33,13 +34,15 @@ const {
   readUInt32LE,
   readUInt32BE,
   readInt32LE,
-  readFloatLE
+  readFloatLE,
+  readFloatBE
 } = Buffer.prototype;
 
 export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
   [readUInt8, 1],
   [readUInt16LE, 2],
   [readFloatLE, 4],
+  [readFloatBE, 4],
   [readUInt32LE, 4],
   [readInt32LE, 4],
   [readUInt32BE, 4]
@@ -116,10 +119,10 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     }
   },
   {
-    targetOffset: O.Mesh.SPECULAR_LIGHT_VALUE,
-    readOps: [readUInt32LE],
+    targetOffset: O.Mesh.TEXTURE_SHADING,
+    readOps: [readInt32LE],
     updates(mesh, [value]) {
-      mesh.specularLightValue = value;
+      mesh.textureShadingValue = value;
     }
   },
   {
@@ -211,7 +214,7 @@ export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
   },
   {
     targetOffset: (v, address) => (v.contentAddress || address) + O.Vertex.UV,
-    readOps: [readUInt32LE, readUInt32LE],
+    readOps: [readFloatBE, readFloatBE],
     updates(vertex, values) {
       vertex.uv = values as NLUV;
     }

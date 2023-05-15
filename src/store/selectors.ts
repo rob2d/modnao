@@ -14,6 +14,8 @@ export const selectModelCount = createSelector(
 export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
+export const selectTextureDefs = (s: AppState) => s.stageData.textureDefs;
+
 export const selectModel = createSelector(
   selectModelIndex,
   selectStageModels,
