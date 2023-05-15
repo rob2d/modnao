@@ -3,7 +3,7 @@ import RenderedPolygon from './RenderedPolygon';
 import { useTheme } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { useTexture } from '@react-three/drei';
-import { RepeatWrapping } from 'three';
+import { ClampToEdgeWrapping, RepeatWrapping } from 'three';
 
 type RenderedMeshProps = {
   index: number;
@@ -19,15 +19,22 @@ export default function RenderedMesh({
   polygons,
   objectIndex,
   onSelectObjectIndex,
+  textureWrappingFlags,
   textureNumber,
   textureDefs
 }: RenderedMeshProps) {
   const theme = useTheme();
-  const texture = useTexture(
-    textureDefs?.[textureNumber]?.dataUrl || transparent1x1
-  );
-  texture.wrapS = RepeatWrapping;
-  texture.wrapT = RepeatWrapping;
+  const textureDef = textureDefs?.[textureNumber];
+  const texture = useTexture(textureDef?.dataUrl || transparent1x1);
+
+  texture.wrapS = textureWrappingFlags.hRepeat
+    ? RepeatWrapping
+    : ClampToEdgeWrapping;
+
+  texture.wrapT = textureWrappingFlags.vRepeat
+    ? RepeatWrapping
+    : ClampToEdgeWrapping;
+
   const isSelected = index === objectIndex;
   const { sceneMesh: colors } = theme.palette;
   const color = isSelected ? colors.selected : colors.default;

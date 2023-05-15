@@ -122,7 +122,7 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     targetOffset: O.Mesh.TEXTURE_SHADING,
     readOps: [readInt32LE],
     updates(mesh, [value]) {
-      console.log(value);
+      mesh.textureShadingValue = value;
     }
   },
   {
