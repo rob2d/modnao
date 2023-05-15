@@ -38,7 +38,7 @@ declare global {
     position: NLPoint3D;
     color: NLColor;
     alpha: number;
-    specularLightValue: number;
+    textureShadingValue: number;
     polygonDataLength: number;
     textureWrappingValue: number;
     textureWrappingFlags: TextureWrappingFlags;

@@ -61,6 +61,7 @@ const stageDataSlice = createSlice({
       loadStageTextureFile.fulfilled,
       (state: StageDataState, { payload }) => {
         state.models = payload.models;
+        state.textureDefs = payload.textureDefs;
       }
     );
   }
