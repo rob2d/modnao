@@ -25,12 +25,7 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
   useOffsetAsBase?: boolean;
   targetOffset: number | ((object: DeepPartial<T>, address: number) => number);
   readOps: BinFileReadOp[];
-  updates: (
-    model: T,
-    values: number[],
-    address: number,
-    workingAddress: number
-  ) => void;
+  updates: (model: T, values: number[]) => void;
 };
 
 const {
@@ -233,6 +228,7 @@ export const nlTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
     targetOffset: O.TextureDef.WIDTH,
     readOps: [readUInt16LE],
     updates(texture, [value]) {
+      texture.height = value;
       texture.width = value;
     }
   },

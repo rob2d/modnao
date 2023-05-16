@@ -11,10 +11,10 @@ export default async function processStageTextureFile(
   const nextTextureDefs: NLTextureDef[] = [];
   for await (const t of textureDefs) {
     const buffer = Buffer.from(await textureFile.arrayBuffer());
-    const imageCanvas = document.createElement('canvas');
-    imageCanvas.width = t.width;
-    imageCanvas.height = t.height;
-    const context = imageCanvas.getContext('2d') as CanvasRenderingContext2D;
+    const canvas = document.createElement('canvas');
+    canvas.width = t.width;
+    canvas.height = t.height;
+    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
     const id = context?.getImageData(0, 0, t.width, t.height) as ImageData;
     const pixels = id.data;
 
@@ -23,11 +23,8 @@ export default async function processStageTextureFile(
       for (let offset = yOffset; offset < yOffset + t.width; offset += 1) {
         const offsetDrawn = decodeZMortonPosition(offset - yOffset, y);
         const colorValue = buffer.readUInt16LE(t.location + offsetDrawn * 2);
-        let conversionOp!: (color: number) => {
-          r: number;
-          g: number;
-          b: number;
-        };
+
+        let conversionOp!: typeof rgb565ToRgb888 | typeof argb4444ToRgba8888;
         switch (t.colorFormat) {
           case 'RGB565': {
             conversionOp = rgb565ToRgb888;
@@ -38,24 +35,30 @@ export default async function processStageTextureFile(
             conversionOp = argb4444ToRgba8888;
           }
         }
-        const color = conversionOp(colorValue);
-        // each pixel contains 4 values in canvas data
-        const canvasOffset = offset * 4;
 
+        const color = conversionOp(colorValue);
+
+        const canvasOffset = offset * 4;
         pixels[canvasOffset] = color.r;
         pixels[canvasOffset + 1] = color.g;
         pixels[canvasOffset + 2] = color.b;
-
-        // @TODO: use alpha in formats where relevant;
-        // for now must sort twiddling and to see
-        // that we're in the general ballpark with
-        // extraction first
-        pixels[canvasOffset + 3] = 255;
+        pixels[canvasOffset + 3] = color.a;
       }
     }
 
     context.putImageData(id, 0, 0);
-    const dataUrl = imageCanvas.toDataURL('image/png');
+
+    const canvas2 = document.createElement('canvas');
+    canvas2.width = t.width;
+    canvas2.height = t.height;
+    const context2 = canvas2.getContext('2d') as CanvasRenderingContext2D;
+
+    context2.translate(canvas.width / 2, canvas.height / 2);
+    context2.rotate((-90 * Math.PI) / 180);
+
+    context2.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+
+    const dataUrl = canvas2.toDataURL('image/png');
     nextTextureDefs.push({ ...t, dataUrl });
   }
 
