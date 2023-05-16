@@ -1,7 +1,8 @@
-import rgb565ToRgb888 from './process-stage-texture-file/rgb565ToRgb888';
+import rgb565ToRgb8888 from './process-stage-texture-file/rgb565ToRgb888';
 import argb4444ToRgba8888 from './process-stage-texture-file/argb4444toRgba8888';
 import decodeZMortonPosition from './process-stage-texture-file/decodeZMortonPosition';
 import { NLTextureDef } from '@/types/NLAbstractions';
+import argb1555toRgba8888 from './process-stage-texture-file/argb1555toRgba8888';
 
 export default async function processStageTextureFile(
   textureFile: File,
@@ -24,15 +25,26 @@ export default async function processStageTextureFile(
         const offsetDrawn = decodeZMortonPosition(offset - yOffset, y);
         const colorValue = buffer.readUInt16LE(t.location + offsetDrawn * 2);
 
-        let conversionOp!: typeof rgb565ToRgb888 | typeof argb4444ToRgba8888;
+        let conversionOp: (v: number) => {
+          r: number;
+          g: number;
+          b: number;
+          a: number;
+        };
+
         switch (t.colorFormat) {
           case 'RGB565': {
-            conversionOp = rgb565ToRgb888;
+            conversionOp = rgb565ToRgb8888;
+            break;
+          }
+          case 'ARGB1555': {
+            conversionOp = argb1555toRgba8888;
             break;
           }
           default:
           case 'ARGB4444': {
             conversionOp = argb4444ToRgba8888;
+            break;
           }
         }
 
