@@ -25,7 +25,12 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
   useOffsetAsBase?: boolean;
   targetOffset: number | ((object: DeepPartial<T>, address: number) => number);
   readOps: BinFileReadOp[];
-  updates: (model: T, values: number[]) => void;
+  updates: (
+    model: T,
+    values: number[],
+    address: number,
+    workingAddress: number
+  ) => void;
 };
 
 const {
@@ -208,13 +213,15 @@ export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
     targetOffset: (v, address) =>
       (v.contentAddress || address) + O.Vertex.NORMALS,
     readOps: [readUInt32LE, readUInt32LE, readUInt32LE],
+    useOffsetAsBase: true,
     updates(vertex, values) {
       vertex.normals = values as [number, number, number];
     }
   },
   {
     targetOffset: (v, address) => (v.contentAddress || address) + O.Vertex.UV,
-    readOps: [readFloatBE, readFloatBE],
+    readOps: [readFloatLE, readFloatLE],
+    useOffsetAsBase: true,
     updates(vertex, values) {
       vertex.uv = values as NLUV;
     }

@@ -1,8 +1,4 @@
-import {
-  BinFileReadOp,
-  BinFileReadOpSizes,
-  NLPropConversion
-} from './NLPropConversionDefs';
+import { BinFileReadOpSizes, NLPropConversion } from './NLPropConversionDefs';
 
 export function processNLConversions<T extends ModNaoMemoryObject>(
   conversion: NLPropConversion<T>[],
@@ -33,7 +29,7 @@ export function processNLConversions<T extends ModNaoMemoryObject>(
     let workingAddress = !useOffsetAsBase ? baseAddress + offset : offset;
     const values: number[] = [];
 
-    readOps.forEach((op: BinFileReadOp) => {
+    readOps.forEach((op) => {
       if (workingAddress + (BinFileReadOpSizes.get(op) || 0) > buffer.length) {
         console.error(
           `went beyond buffer length while parsing object @ 0x${workingAddress.toString(
