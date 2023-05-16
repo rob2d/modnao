@@ -9,7 +9,8 @@ import {
 } from '@/store';
 import { Typography, styled } from '@mui/material';
 import Image from 'next/image';
-import { useMemo, Fragment } from 'react';
+import { useMemo, Fragment, useEffect } from 'react';
+import clsx from 'clsx';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -51,6 +52,13 @@ const Styled = styled('div')(
       border-color: ${theme.palette.secondary.main};
       border-width: 1px;
       border-style: solid;
+      opacity: 1.0;
+      transition: opacity 0.35s ease;
+    }
+
+    & > .textures img.deemphasized {
+      filter: saturate(0.25);
+      opacity: 0.75;
     }
 
     & > .textures img:not(:last-child) {
@@ -67,18 +75,22 @@ export default function DebugInfoPanel() {
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
 
+  const selectedMeshTexture: number = useMemo(
+    () => model?.meshes?.[objectIndex]?.textureNumber || -1,
+    [model, objectIndex]
+  );
+
   const textures = useMemo(() => {
     const images: JSX.Element[] = [];
     const textureSet = new Set<number>();
 
-    const sourceMeshes =
-      (objectIndex !== -1
-        ? model?.meshes?.[objectIndex] && [model.meshes[objectIndex]]
-        : model?.meshes) || [];
-
-    sourceMeshes.forEach((m, i) => {
+    (model?.meshes || []).forEach((m, i) => {
       if (!textureSet.has(m.textureNumber) && textureDefs?.[m.textureNumber]) {
         textureSet.add(m.textureNumber);
+
+        const isDeemphasized = !(
+          selectedMeshTexture === -1 || selectedMeshTexture === m.textureNumber
+        );
 
         const [, width, height] = m.textureSize.match(/([0-9]+)x([0-9]+)/) as [
           unknown,
@@ -86,6 +98,7 @@ export default function DebugInfoPanel() {
           number
         ];
         const tDef = textureDefs?.[m.textureNumber];
+
         images.push(
           <Fragment key={`${i}_${m.textureNumber}`}>
             <Typography variant='subtitle2' textAlign='right'>
@@ -98,9 +111,11 @@ export default function DebugInfoPanel() {
             >
               <Image
                 src={tDef.dataUrl}
+                id={`debug-panel-t-${m.textureNumber}`}
                 alt={`Mesh # ${i}, Texture # ${m.textureNumber}`}
                 width={Number(width)}
                 height={Number(height)}
+                className={clsx(isDeemphasized && 'deemphasized')}
               />
             </a>
           </Fragment>
@@ -109,7 +124,18 @@ export default function DebugInfoPanel() {
     });
 
     return images;
-  }, [model, textureDefs, objectIndex]);
+  }, [model, textureDefs, selectedMeshTexture]);
+
+  // when selecting a texture, scroll to the item
+  useEffect(() => {
+    const textureEl = document.getElementById(
+      `debug-panel-t-${selectedMeshTexture}`
+    );
+
+    if (textureEl) {
+      textureEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [textureDefs, selectedMeshTexture]);
 
   return (
     <Styled>
