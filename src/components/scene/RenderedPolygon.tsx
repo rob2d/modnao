@@ -44,7 +44,6 @@ export default function RenderedPolygon({
 
       uvArray[uvArrayIndex++] = v.uv[0];
       uvArray[uvArrayIndex++] = v.uv[1];
-
       iArray.push(i);
 
       if (vertexGroupMode === 'regular') {
@@ -62,16 +61,9 @@ export default function RenderedPolygon({
     return [vArray, nArray, uvArray, new Uint16Array(iArray), dArray];
   }, [vertexes, vertexGroupMode]);
 
-  const lineWidth = isSelected ? 3 : 2;
-
   return (
     <mesh key={address}>
-      <meshBasicMaterial
-        color={color}
-        side={DoubleSide}
-        wireframe
-        wireframeLinewidth={lineWidth}
-      />
+      <meshBasicMaterial map={texture} color={color} side={DoubleSide} />
       {!isSelected ? undefined : (
         <Text
           font={'/fonts/robotoLightRegular.json'}
