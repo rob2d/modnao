@@ -63,7 +63,12 @@ export default function RenderedPolygon({
 
   return (
     <mesh key={address}>
-      <meshBasicMaterial map={texture} color={color} side={DoubleSide} />
+      <meshBasicMaterial
+        map={texture}
+        color={color}
+        transparent={true}
+        side={DoubleSide}
+      />
       {!isSelected ? undefined : (
         <Text
           font={'/fonts/robotoLightRegular.json'}
