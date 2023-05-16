@@ -208,13 +208,15 @@ export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
     targetOffset: (v, address) =>
       (v.contentAddress || address) + O.Vertex.NORMALS,
     readOps: [readUInt32LE, readUInt32LE, readUInt32LE],
+    useOffsetAsBase: true,
     updates(vertex, values) {
       vertex.normals = values as [number, number, number];
     }
   },
   {
     targetOffset: (v, address) => (v.contentAddress || address) + O.Vertex.UV,
-    readOps: [readFloatBE, readFloatBE],
+    readOps: [readFloatLE, readFloatLE],
+    useOffsetAsBase: true,
     updates(vertex, values) {
       vertex.uv = values as NLUV;
     }
@@ -226,6 +228,7 @@ export const nlTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
     targetOffset: O.TextureDef.WIDTH,
     readOps: [readUInt16LE],
     updates(texture, [value]) {
+      texture.height = value;
       texture.width = value;
     }
   },
