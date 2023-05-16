@@ -58,7 +58,7 @@ const Styled = styled('div')(
 
     & > .textures img.deemphasized {
       filter: saturate(0.25);
-      opacity: 0.75;
+      opacity: 0.25;
     }
 
     & > .textures img:not(:last-child) {
