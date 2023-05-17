@@ -11,12 +11,14 @@ export default function RenderedPolygon({
   address,
   isSelected,
   index,
-  texture
+  texture,
+  meshDisplayMode = 'textured'
 }: NLPolygon & {
   color: string;
   isSelected: boolean;
   index: number;
   texture?: Texture;
+  meshDisplayMode: 'wireframe' | 'textured';
 }) {
   const [vertices, normals, uvs, indices, displayPosition] = useMemo(() => {
     let vArrayIndex = 0;
@@ -61,14 +63,21 @@ export default function RenderedPolygon({
     return [vArray, nArray, uvArray, new Uint16Array(iArray), dArray];
   }, [vertexes, vertexGroupMode]);
 
+  const meshModeProps =
+    meshDisplayMode === 'wireframe'
+      ? {
+          wireframe: true,
+          wireframeLinewidth: isSelected ? 4 : 3
+        }
+      : {
+          map: texture,
+          side: DoubleSide,
+          transparent: true
+        };
+
   return (
     <mesh key={address}>
-      <meshBasicMaterial
-        map={texture}
-        color={color}
-        transparent={true}
-        side={DoubleSide}
-      />
+      <meshBasicMaterial color={color} {...meshModeProps} />
       {!isSelected ? undefined : (
         <Text
           font={'/fonts/robotoLightRegular.json'}

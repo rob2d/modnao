@@ -2,7 +2,11 @@ import { useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { selectModel, selectObjectIndex } from '@/store/selectors';
+import {
+  selectMeshDisplayMode,
+  selectModel,
+  selectObjectIndex
+} from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useTemporaryModelNav } from '@/hooks';
@@ -13,8 +17,10 @@ const cameraParams = { far: 500000 };
 
 export default function SceneCanvas() {
   useTemporaryModelNav();
+
   const dispatch = useAppDispatch();
   const objectIndex = useAppSelector(selectObjectIndex);
+  const meshDisplayMode = useAppSelector(selectMeshDisplayMode);
   const onSelectObjectIndex = useCallback(
     (i: number) => {
       if (objectIndex !== i) {
@@ -25,7 +31,6 @@ export default function SceneCanvas() {
   );
 
   const textureDefs = useAppSelector((s) => s.stageData.textureDefs);
-
   const model = useAppSelector(selectModel);
 
   return (
@@ -40,6 +45,7 @@ export default function SceneCanvas() {
             objectIndex={objectIndex}
             onSelectObjectIndex={onSelectObjectIndex}
             textureDefs={textureDefs}
+            meshDisplayMode={meshDisplayMode}
           />
         ))}
         <OrbitControls />
