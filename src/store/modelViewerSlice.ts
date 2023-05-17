@@ -7,12 +7,16 @@ export interface ModelViewerState {
   modelIndex: number;
   objectIndex: number;
   objectSelectionType: 'mesh' | 'polygon';
+  meshDisplayMode: 'wireframe' | 'textured';
+  isGuiDisplayed: boolean;
 }
 
 export const initialModelViewerState: ModelViewerState = {
   modelIndex: 0,
   objectIndex: -1,
-  objectSelectionType: 'mesh'
+  objectSelectionType: 'mesh',
+  meshDisplayMode: 'textured',
+  isGuiDisplayed: true
 };
 
 const sliceName = 'modelViewer';
@@ -48,11 +52,14 @@ const modelViewerSlice = createSlice({
       Object.assign(state, { objectIndex });
     },
 
-    setObjectType(state, { payload: { objectSelectionType } }) {
+    setObjectType(state, { payload: objectSelectionType }) {
       Object.assign(state, {
         objectIndex: -1,
         objectSelectionType
       });
+    },
+    setMeshDisplayMode(state, { payload: meshDisplayMode }) {
+      Object.assign(state, { meshDisplayMode });
     }
   },
   extraReducers: (builder) => {
@@ -68,6 +75,7 @@ const modelViewerSlice = createSlice({
   }
 });
 
-export const { setObjectIndex, setObjectType } = modelViewerSlice.actions;
+export const { setObjectIndex, setObjectType, setMeshDisplayMode } =
+  modelViewerSlice.actions;
 
 export default modelViewerSlice;

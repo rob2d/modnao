@@ -1,22 +1,32 @@
 import {
+  selectMeshDisplayMode,
   selectModel,
   selectModelCount,
   selectModelIndex,
   selectObjectIndex,
   selectObjectSelectionType,
   selectTextureDefs,
+  setMeshDisplayMode,
+  setObjectType,
+  useAppDispatch,
   useAppSelector
 } from '@/store';
-import { Typography, styled } from '@mui/material';
+import {
+  Grid,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+  styled
+} from '@mui/material';
 import Image from 'next/image';
-import { useMemo, Fragment, useEffect } from 'react';
+import { useMemo, Fragment, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 
 const Styled = styled('div')(
   ({ theme }) => `
     & {
         position: absolute;
-        width: 256px;
+        width: 208px;
         top: 0;
         right: 0;
         display: flex;
@@ -28,12 +38,36 @@ const Styled = styled('div')(
         padding-bottom: ${theme.spacing(12)};
     }
 
-    & .MuiTypography-root {
+    & .MuiToggleButtonGroup-root {
+      margin-top: ${theme.spacing(1)};
+      margin-bottom: ${theme.spacing(1)};
+    }
+
+    & > .MuiTypography-h5 {
       padding-right: ${theme.spacing(2)};
     }
 
     & > .selection {
-      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: end;
+      width: 100%;    
+    }
+
+    & > .selection > * {
+        padding-right: ${theme.spacing(2)};
+    }
+
+    & .property-table > *:nth-child(odd) {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    & .property-table > *:nth-child(even) {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
     }
 
     & > .textures {
@@ -42,7 +76,11 @@ const Styled = styled('div')(
       overflow-y: auto;
     }
 
-    & > div:not(:last-child) {
+    & > .textures > .MuiTypography-root {
+      padding-right: ${theme.spacing(2)}
+    }
+
+    & > :not(:last-child) {
       margin-bottom: ${theme.spacing(2)}
     }
 
@@ -68,16 +106,32 @@ const Styled = styled('div')(
 );
 
 export default function DebugInfoPanel() {
+  const dispatch = useAppDispatch();
   const modelIndex = useAppSelector(selectModelIndex);
   const modelCount = useAppSelector(selectModelCount);
   const objectIndex = useAppSelector(selectObjectIndex);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
+  const meshDisplayMode = useAppSelector(selectMeshDisplayMode);
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
 
   const selectedMeshTexture: number = useMemo(
     () => model?.meshes?.[objectIndex]?.textureNumber || -1,
     [model, objectIndex]
+  );
+
+  const onSetObjectSelectionType = useCallback(
+    (_: React.MouseEvent<HTMLElement>, type: any) => {
+      type && dispatch(setObjectType(type));
+    },
+    []
+  );
+
+  const onSetMeshDisplayMode = useCallback(
+    (_: React.MouseEvent<HTMLElement>, mode: any) => {
+      mode && dispatch(setMeshDisplayMode(mode));
+    },
+    []
   );
 
   const textures = useMemo(() => {
@@ -139,23 +193,81 @@ export default function DebugInfoPanel() {
 
   return (
     <Styled>
+      <Typography variant='h5' textAlign='right'>
+        Selection
+      </Typography>
       <div className='selection'>
-        <Typography variant='h5' textAlign='right'>
-          Selection
-        </Typography>
-        <Typography variant='subtitle1' textAlign='right'>
-          Model Count&nbsp;&nbsp;<b>{modelCount}</b>
-        </Typography>
-        <Typography variant='subtitle1' textAlign='right'>
-          Model Index&nbsp;&nbsp;<b>{modelIndex === -1 ? 'N/A' : modelIndex}</b>
-        </Typography>
-        <Typography variant='subtitle1' textAlign='right'>
-          Selection Mode&nbsp;&nbsp;<b>{objectSelectionType}</b>
-        </Typography>
-        <Typography variant='subtitle1' textAlign='right'>
-          Object Index&nbsp;&nbsp;
-          <b>{objectIndex === -1 ? 'N/A' : objectIndex}</b>
-        </Typography>
+        <Grid container className={'property-table'}>
+          <Grid xs={6}>
+            <Typography variant='body2' textAlign='right'>
+              Model Count
+            </Typography>
+          </Grid>
+          <Grid xs={6}>
+            <Typography variant='button' textAlign='right'>
+              {modelCount}
+            </Typography>
+          </Grid>
+          <Grid xs={6}>
+            <Typography variant='body2' textAlign='right'>
+              Model Index
+            </Typography>
+          </Grid>
+          <Grid xs={6}>
+            <Typography variant='button' textAlign='right'>
+              {modelIndex === -1 ? 'N/A' : modelIndex}
+            </Typography>
+          </Grid>
+          <Grid xs={8}>
+            <Typography variant='body2' textAlign='right'>
+              Object Index
+            </Typography>
+          </Grid>
+          <Grid xs={4}>
+            <Typography variant='button' textAlign='right'>
+              {objectIndex === -1 ? 'N/A' : objectIndex}
+            </Typography>
+          </Grid>
+          <Grid xs={6}>
+            <Typography variant='body2' textAlign='right'>
+              Selection Type
+            </Typography>
+          </Grid>
+          <Grid xs={6}>
+            <ToggleButtonGroup
+              orientation='vertical'
+              color='secondary'
+              value={objectSelectionType}
+              size='small'
+              exclusive
+              onChange={onSetObjectSelectionType}
+              aria-label='text alignment'
+              disabled
+            >
+              <ToggleButton value='mesh'>mesh</ToggleButton>
+              <ToggleButton value='polygon'>polygon</ToggleButton>
+            </ToggleButtonGroup>
+          </Grid>
+          <Grid xs={6}>
+            <Typography variant='body2' textAlign='right'>
+              Mesh Display
+            </Typography>
+          </Grid>
+          <Grid xs={6}>
+            <ToggleButtonGroup
+              orientation='vertical'
+              size='small'
+              color='secondary'
+              value={meshDisplayMode}
+              exclusive
+              onChange={onSetMeshDisplayMode}
+              aria-label='Mesh Display Mode Selection'
+            >
+              <ToggleButton value='wireframe'>wireframe</ToggleButton>
+              <ToggleButton value='textured'>textured</ToggleButton>
+            </ToggleButtonGroup>
+          </Grid>
+        </Grid>
       </div>
       <Typography variant='h5' textAlign='right'>
         Textures
