@@ -122,14 +122,14 @@ export default function DebugInfoPanel() {
 
   const onSetObjectSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: any) => {
-      dispatch(setObjectType(type));
+      type && dispatch(setObjectType(type));
     },
     []
   );
 
   const onSetMeshDisplayMode = useCallback(
-    (_: React.MouseEvent<HTMLElement>, type: any) => {
-      dispatch(setMeshDisplayMode(type));
+    (_: React.MouseEvent<HTMLElement>, mode: any) => {
+      mode && dispatch(setMeshDisplayMode(mode));
     },
     []
   );

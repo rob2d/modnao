@@ -63,7 +63,7 @@ export default function RenderedPolygon({
     return [vArray, nArray, uvArray, new Uint16Array(iArray), dArray];
   }, [vertexes, vertexGroupMode]);
 
-  const meshModeProps =
+  const meshModeMaterialProps =
     meshDisplayMode === 'wireframe'
       ? {
           wireframe: true,
@@ -72,17 +72,22 @@ export default function RenderedPolygon({
       : {
           map: texture,
           side: DoubleSide,
-          transparent: true
+          transparent: true,
+          opacity: isSelected ? 0.75 : 1
         };
 
   return (
     <mesh key={address}>
-      <meshBasicMaterial color={color} {...meshModeProps} />
-      {!isSelected ? undefined : (
+      <meshBasicMaterial
+        color={color}
+        {...meshModeMaterialProps}
+        key={meshDisplayMode}
+      />
+      {!isSelected || meshDisplayMode === 'textured' ? undefined : (
         <Text
           font={'/fonts/robotoLightRegular.json'}
           color={color}
-          fontSize={isSelected ? 24 : 16}
+          fontSize={30}
           position={displayPosition}
         >
           [{index}] {`0x${address.toString(16)}`}

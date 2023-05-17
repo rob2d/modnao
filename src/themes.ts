@@ -13,6 +13,8 @@ declare module '@mui/material' {
     default: React.CSSProperties['color'];
     selected: React.CSSProperties['color'];
     flagged: React.CSSProperties['color'];
+    textureDefault: React.CSSProperties['color'];
+    textureSelected: React.CSSProperties['color'];
   };
   interface PaletteOptions {
     sceneMesh: SceneMeshPalette;
@@ -47,7 +49,9 @@ const themes = Object.fromEntries(
         sceneMesh: {
           default: mode === 'dark' ? '#444' : '#CCC',
           selected: mode === 'dark' ? '#00A5FF' : '#e98df5',
-          flagged: '#9BF'
+          flagged: '#9BF',
+          textureDefault: '#fff',
+          textureSelected: mode === 'dark' ? '#9cf' : '#f9c'
         }
       }
     })

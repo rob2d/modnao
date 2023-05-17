@@ -39,7 +39,13 @@ export default function RenderedMesh({
 
   const isSelected = index === objectIndex;
   const { sceneMesh: colors } = theme.palette;
-  const color = isSelected ? colors.selected : colors.default;
+  let color: React.CSSProperties['color'] = colors.default;
+
+  if (meshDisplayMode === 'wireframe') {
+    color = isSelected ? colors.selected : colors.default;
+  } else {
+    color = isSelected ? colors.textureSelected : colors.textureDefault;
+  }
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
