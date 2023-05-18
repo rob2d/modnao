@@ -1,25 +1,48 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei';
-import { DoubleSide, Texture } from 'three';
+import { DoubleSide, Mesh, MeshBasicMaterial, Texture, Vector3 } from 'three';
+import { useFrame } from '@react-three/fiber';
+import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import { useTheme } from '@mui/material';
 
 type Point3D = [x: number, y: number, z: number];
 
 export default function RenderedPolygon({
   vertexGroupMode,
   vertexes,
-  color,
   address,
   isSelected,
   index,
-  texture,
-  meshDisplayMode = 'textured'
+  texture
 }: NLPolygon & {
-  color: string;
   isSelected: boolean;
   index: number;
   texture?: Texture;
-  meshDisplayMode: 'wireframe' | 'textured';
 }) {
+  const { meshDisplayMode, showPolygonAddresses } =
+    useContext(ViewOptionsContext);
+  const textRef = useRef();
+  const theme = useTheme();
+
+  const { sceneMesh: colors } = theme.palette;
+  let color: React.CSSProperties['color'] = colors.default;
+
+  if (meshDisplayMode === 'wireframe') {
+    color = isSelected ? colors.selected : colors.default;
+  } else {
+    color = isSelected ? colors.textureSelected : colors.textureDefault;
+  }
+
+  useFrame(({ camera }) => {
+    if (textRef.current) {
+      const cameraPosition = new Vector3();
+      camera.getWorldPosition(cameraPosition);
+
+      const mesh = textRef.current as Mesh;
+      mesh?.lookAt(cameraPosition);
+    }
+  });
+
   const [vertices, normals, uvs, indices, displayPosition] = useMemo(() => {
     let vArrayIndex = 0;
     let nArrayIndex = 0;
@@ -76,49 +99,64 @@ export default function RenderedPolygon({
           opacity: isSelected ? 0.75 : 1
         };
 
+  const meshAddressText = useMemo(() => {
+    const material = new MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.75
+    });
+
+    return !isSelected ||
+      meshDisplayMode === 'textured' ||
+      !showPolygonAddresses ? undefined : (
+      <Text
+        font={'/fonts/robotoLightRegular.json'}
+        fontSize={16}
+        position={displayPosition}
+        ref={textRef}
+        material={material}
+      >
+        [{index}] {`0x${address.toString(16)}`}
+      </Text>
+    );
+  }, [color, showPolygonAddresses, meshDisplayMode]);
+
   return (
-    <mesh key={address}>
-      <meshBasicMaterial
-        color={color}
-        {...meshModeMaterialProps}
-        key={meshDisplayMode}
-      />
-      {!isSelected || meshDisplayMode === 'textured' ? undefined : (
-        <Text
-          font={'/fonts/robotoLightRegular.json'}
+    <>
+      {meshAddressText}
+      <mesh key={address}>
+        <meshBasicMaterial
           color={color}
-          fontSize={30}
-          position={displayPosition}
-        >
-          [{index}] {`0x${address.toString(16)}`}
-        </Text>
-      )}
-      <bufferGeometry attach={'geometry'}>
-        <bufferAttribute
-          attach='attributes-position'
-          count={vertices.length / 3}
-          array={vertices}
-          itemSize={3}
+          {...meshModeMaterialProps}
+          key={meshDisplayMode}
         />
-        <bufferAttribute
-          attach='attributes-uv'
-          count={uvs.length / 2}
-          array={uvs}
-          itemSize={2}
-        />
-        <bufferAttribute
-          attach='attributes-normal'
-          count={normals.length / 3}
-          array={normals}
-          itemSize={3}
-        />
-        <bufferAttribute
-          array={indices}
-          attach='index'
-          count={indices.length}
-          itemSize={1}
-        />
-      </bufferGeometry>
-    </mesh>
+        <bufferGeometry attach={'geometry'}>
+          <bufferAttribute
+            attach='attributes-position'
+            count={vertices.length / 3}
+            array={vertices}
+            itemSize={3}
+          />
+          <bufferAttribute
+            attach='attributes-uv'
+            count={uvs.length / 2}
+            array={uvs}
+            itemSize={2}
+          />
+          <bufferAttribute
+            attach='attributes-normal'
+            count={normals.length / 3}
+            array={normals}
+            itemSize={3}
+          />
+          <bufferAttribute
+            array={indices}
+            attach='index'
+            count={indices.length}
+            itemSize={1}
+          />
+        </bufferGeometry>
+      </mesh>
+    </>
   );
 }
