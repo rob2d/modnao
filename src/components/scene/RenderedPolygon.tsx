@@ -25,12 +25,12 @@ export default function RenderedPolygon({
   const theme = useTheme();
 
   const { sceneMesh: colors } = theme.palette;
-  let color: React.CSSProperties['color'] = colors.default;
+  let color: React.CSSProperties['color'];
 
   if (meshDisplayMode === 'wireframe') {
     color = isSelected ? colors.selected : colors.default;
   } else {
-    color = isSelected ? colors.textureSelected : colors.textureDefault;
+    color = isSelected ? colors.textureSelected : undefined;
   }
 
   useFrame(({ camera }) => {
@@ -128,7 +128,7 @@ export default function RenderedPolygon({
         <meshBasicMaterial
           color={color}
           {...meshModeMaterialProps}
-          key={meshDisplayMode}
+          key={`${meshDisplayMode}_${color}`}
         />
         <bufferGeometry attach={'geometry'}>
           <bufferAttribute
