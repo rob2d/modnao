@@ -10,14 +10,12 @@ type RenderedMeshProps = {
   objectIndex: number;
   onSelectObjectIndex: (index: number) => void;
   textureDefs: NLTextureDef[];
-  meshDisplayMode: 'wireframe' | 'textured';
 } & NLMesh;
 
 const transparent1x1 = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==`;
 
 export default function RenderedMesh({
   index,
-  meshDisplayMode,
   polygons,
   objectIndex,
   onSelectObjectIndex,
@@ -38,14 +36,6 @@ export default function RenderedMesh({
     : ClampToEdgeWrapping;
 
   const isSelected = index === objectIndex;
-  const { sceneMesh: colors } = theme.palette;
-  let color: React.CSSProperties['color'] = colors.default;
-
-  if (meshDisplayMode === 'wireframe') {
-    color = isSelected ? colors.selected : colors.default;
-  } else {
-    color = isSelected ? colors.textureSelected : colors.textureDefault;
-  }
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
@@ -57,12 +47,10 @@ export default function RenderedMesh({
       {polygons.map((p, pIndex) => (
         <RenderedPolygon
           {...p}
-          color={color as string}
           isSelected={isSelected}
           key={pIndex}
           index={pIndex}
           texture={texture}
-          meshDisplayMode={meshDisplayMode}
         />
       ))}
     </mesh>

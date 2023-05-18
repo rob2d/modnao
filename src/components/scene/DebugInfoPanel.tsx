@@ -1,32 +1,42 @@
 import {
-  selectMeshDisplayMode,
   selectModel,
   selectModelCount,
   selectModelIndex,
   selectObjectIndex,
   selectObjectSelectionType,
   selectTextureDefs,
-  setMeshDisplayMode,
   setObjectType,
   useAppDispatch,
   useAppSelector
 } from '@/store';
 import {
-  Grid,
+  Checkbox,
+  FormControlLabel,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
   styled
 } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import Image from 'next/image';
-import { useMemo, Fragment, useEffect, useCallback } from 'react';
+import {
+  useMemo,
+  Fragment,
+  useEffect,
+  useCallback,
+  useContext,
+  SyntheticEvent
+} from 'react';
 import clsx from 'clsx';
+import ViewOptionsContext, {
+  MeshDisplayMode
+} from '@/contexts/ViewOptionsContext';
 
 const Styled = styled('div')(
   ({ theme }) => `
     & {
         position: absolute;
-        width: 208px;
+        width: 240px;
         top: 0;
         right: 0;
         display: flex;
@@ -38,8 +48,11 @@ const Styled = styled('div')(
         padding-bottom: ${theme.spacing(12)};
     }
 
-    & .MuiToggleButtonGroup-root {
+    & .MuiToggleButtonGroup-root:not(:first-item) {
       margin-top: ${theme.spacing(1)};
+    }
+
+    & .MuiToggleButtonGroup-root {
       margin-bottom: ${theme.spacing(1)};
     }
 
@@ -102,16 +115,22 @@ const Styled = styled('div')(
     & > .textures img:not(:last-child) {
       margin-bottom: ${theme.spacing(1)}
     }
+
+    & .view-options {
+      display: flex;
+      flex-direction: column;
+      margin-right: ${theme.spacing(2)}
+    }
   `
 );
 
 export default function DebugInfoPanel() {
+  const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
   const modelIndex = useAppSelector(selectModelIndex);
   const modelCount = useAppSelector(selectModelCount);
   const objectIndex = useAppSelector(selectObjectIndex);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
-  const meshDisplayMode = useAppSelector(selectMeshDisplayMode);
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
 
@@ -129,9 +148,23 @@ export default function DebugInfoPanel() {
 
   const onSetMeshDisplayMode = useCallback(
     (_: React.MouseEvent<HTMLElement>, mode: any) => {
-      mode && dispatch(setMeshDisplayMode(mode));
+      mode && viewOptions.setMeshDisplayMode(mode as MeshDisplayMode);
     },
-    []
+    [viewOptions.setMeshDisplayMode]
+  );
+
+  const onSetShowAxesHelper = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      viewOptions.setShowAxesHelper(value);
+    },
+    [viewOptions.setShowAxesHelper]
+  );
+
+  const onSetShowPolygonAddresses = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      viewOptions.setShowPolygonAddresses(value);
+    },
+    [viewOptions.setShowPolygonAddresses]
   );
 
   const textures = useMemo(() => {
@@ -199,7 +232,7 @@ export default function DebugInfoPanel() {
       <div className='selection'>
         <Grid container className={'property-table'}>
           <Grid xs={6}>
-            <Typography variant='body2' textAlign='right'>
+            <Typography variant='body1' textAlign='right'>
               Model Count
             </Typography>
           </Grid>
@@ -209,7 +242,7 @@ export default function DebugInfoPanel() {
             </Typography>
           </Grid>
           <Grid xs={6}>
-            <Typography variant='body2' textAlign='right'>
+            <Typography variant='body1' textAlign='right'>
               Model Index
             </Typography>
           </Grid>
@@ -219,7 +252,7 @@ export default function DebugInfoPanel() {
             </Typography>
           </Grid>
           <Grid xs={8}>
-            <Typography variant='body2' textAlign='right'>
+            <Typography variant='body1' textAlign='right'>
               Object Index
             </Typography>
           </Grid>
@@ -229,7 +262,7 @@ export default function DebugInfoPanel() {
             </Typography>
           </Grid>
           <Grid xs={6}>
-            <Typography variant='body2' textAlign='right'>
+            <Typography variant='body1' textAlign='right'>
               Selection Type
             </Typography>
           </Grid>
@@ -245,11 +278,17 @@ export default function DebugInfoPanel() {
               disabled
             >
               <ToggleButton value='mesh'>mesh</ToggleButton>
-              <ToggleButton value='polygon'>polygon</ToggleButton>
             </ToggleButtonGroup>
           </Grid>
+        </Grid>
+      </div>
+      <Typography variant='h5' textAlign='right'>
+        View Options
+      </Typography>
+      <div className='view-options'>
+        <Grid container className={'property-table'}>
           <Grid xs={6}>
-            <Typography variant='body2' textAlign='right'>
+            <Typography variant='body1' textAlign='right'>
               Mesh Display
             </Typography>
           </Grid>
@@ -258,7 +297,7 @@ export default function DebugInfoPanel() {
               orientation='vertical'
               size='small'
               color='secondary'
-              value={meshDisplayMode}
+              value={viewOptions.meshDisplayMode}
               exclusive
               onChange={onSetMeshDisplayMode}
               aria-label='Mesh Display Mode Selection'
@@ -268,6 +307,20 @@ export default function DebugInfoPanel() {
             </ToggleButtonGroup>
           </Grid>
         </Grid>
+        {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
+          <FormControlLabel
+            control={<Checkbox checked={viewOptions.showPolygonAddresses} />}
+            label='Polygon Addresses'
+            labelPlacement='start'
+            onChange={onSetShowPolygonAddresses}
+          />
+        )}
+        <FormControlLabel
+          control={<Checkbox checked={viewOptions.showAxesHelper} />}
+          label='Axes Helper'
+          labelPlacement='start'
+          onChange={onSetShowAxesHelper}
+        />
       </div>
       <Typography variant='h5' textAlign='right'>
         Textures
