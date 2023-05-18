@@ -10,7 +10,7 @@ import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 THREE.ColorManagement.enabled = true;
 
-const cameraParams = { far: 500000 };
+const cameraParams = { far: 5000000 };
 
 export default function SceneCanvas() {
   const viewOptions = useContext(ViewOptionsContext);
