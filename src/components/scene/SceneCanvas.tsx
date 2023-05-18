@@ -2,11 +2,7 @@ import { useCallback, useContext } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import {
-  selectMeshDisplayMode,
-  selectModel,
-  selectObjectIndex
-} from '@/store/selectors';
+import { selectModel, selectObjectIndex } from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useTemporaryModelNav } from '@/hooks';
@@ -22,7 +18,6 @@ export default function SceneCanvas() {
 
   const dispatch = useAppDispatch();
   const objectIndex = useAppSelector(selectObjectIndex);
-  const meshDisplayMode = useAppSelector(selectMeshDisplayMode);
   const onSelectObjectIndex = useCallback(
     (i: number) => {
       if (objectIndex !== i) {
@@ -47,7 +42,6 @@ export default function SceneCanvas() {
             objectIndex={objectIndex}
             onSelectObjectIndex={onSelectObjectIndex}
             textureDefs={textureDefs}
-            meshDisplayMode={meshDisplayMode}
           />
         ))}
         <OrbitControls />

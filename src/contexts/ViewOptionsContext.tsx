@@ -39,10 +39,6 @@ export function ViewOptionsContextProvider({ children }: Props) {
       return;
     }
 
-    console.log(
-      'localStorage showPolygonAddresses ->',
-      window.localStorage.getItem('showPolygonAddresses')
-    );
     const { localStorage } = window;
     if (localStorage.getItem('meshDisplayMode') !== null) {
       handleSetMeshDisplayMode(
