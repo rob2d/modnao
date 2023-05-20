@@ -179,17 +179,13 @@ export default function DebugInfoPanel() {
           selectedMeshTexture === -1 || selectedMeshTexture === m.textureNumber
         );
 
-        const [, width, height] = m.textureSize.match(/([0-9]+)x([0-9]+)/) as [
-          unknown,
-          number,
-          number
-        ];
+        const [width, height] = m.textureSize;
         const tDef = textureDefs?.[m.textureNumber];
 
         images.push(
           <Fragment key={`${i}_${m.textureNumber}`}>
             <Typography variant='subtitle2' textAlign='right'>
-              {m.textureSize} [index {m.textureNumber}]
+              {m.textureSize[0]}x{m.textureSize[0]} [index {m.textureNumber}]
             </Typography>
             <a
               href={tDef.dataUrl}
