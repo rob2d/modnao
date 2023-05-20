@@ -1,6 +1,5 @@
 import { ThreeEvent } from '@react-three/fiber';
 import RenderedPolygon from './RenderedPolygon';
-import { useTheme } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { useTexture } from '@react-three/drei';
 import { ClampToEdgeWrapping, RepeatWrapping } from 'three';
@@ -20,11 +19,10 @@ export default function RenderedMesh({
   objectIndex,
   onSelectObjectIndex,
   textureWrappingFlags,
-  textureNumber,
+  textureIndex,
   textureDefs
 }: RenderedMeshProps) {
-  const theme = useTheme();
-  const textureDef = textureDefs?.[textureNumber];
+  const textureDef = textureDefs?.[textureIndex];
   const texture = useTexture(textureDef?.dataUrl || transparent1x1);
 
   texture.wrapS = textureWrappingFlags.hRepeat

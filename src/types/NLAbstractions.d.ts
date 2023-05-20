@@ -43,9 +43,10 @@ declare global {
     textureWrappingValue: number;
     textureWrappingFlags: TextureWrappingFlags;
     textureControlValue: number;
+    isOpaque: boolean;
     textureColorFormat: TextureColorFormat;
     textureColorFormatValue: number;
-    textureNumber: number;
+    textureIndex: number;
     textureSizeValue: number;
     textureSize: TextureSize;
   } & ModNaoMemoryObject;
@@ -74,4 +75,5 @@ export type NLTextureDef = {
   type: number;
   location: number;
   dataUrl: string;
+  isOpaque: boolean;
 } & ModNaoMemoryObject;

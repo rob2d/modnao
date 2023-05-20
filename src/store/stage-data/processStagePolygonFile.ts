@@ -13,13 +13,13 @@ export default async function processStagePolygonFile(
   const modelPointers = scanForModelPointers(buffer);
 
   // @TODO: run these on separate thread
-  const models = modelPointers.map(
-    (address: number, index: number) =>
-      scanModel({ buffer, address, index }) as NLModel
-  );
+  const textureDefs = scanTextureHeaderData(buffer);
 
   // @TODO: run these on separate thread
-  const textureDefs = scanTextureHeaderData(buffer);
+  const models = modelPointers.map(
+    (address: number, index: number) =>
+      scanModel({ buffer, address, index, textureDefs }) as NLModel
+  );
 
   return Promise.resolve({ models, textureDefs });
 }

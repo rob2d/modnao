@@ -6,15 +6,18 @@ import {
   nlVertexConversions
 } from './NLPropConversionDefs';
 import { processNLConversions as processNLConversions } from './processNLConversions';
+import { NLTextureDef } from '@/types/NLAbstractions';
 
 export default function scanModel({
   address,
   buffer,
-  index
+  index,
+  textureDefs
 }: {
   address: number;
   buffer: Buffer;
   index: number;
+  textureDefs: NLTextureDef[];
 }) {
   // (1) scan base model props
   const model = processNLConversions<NLModel>(
@@ -111,10 +114,8 @@ export default function scanModel({
             detectedMeshEnd = true;
           }
         }
-
         mesh.polygons.push(polygon);
       }
-
       model.meshes.push(mesh);
     }
   } catch (error) {

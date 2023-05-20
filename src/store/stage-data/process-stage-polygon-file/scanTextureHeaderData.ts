@@ -3,7 +3,7 @@ import { nlTextureDefConversions } from './NLPropConversionDefs';
 import { processNLConversions } from './processNLConversions';
 import ramToRaw from './ramToRawAddress';
 
-export default function scanPVRHeaderData(buffer: Buffer) {
+export default function scanTextureHeaderData(buffer: Buffer) {
   const pvrStartAddress = ramToRaw(buffer.readUInt32LE(0x8));
   const pvrEndAddress = ramToRaw(buffer.readUInt32LE(0x10));
 

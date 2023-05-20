@@ -94,6 +94,7 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     readOps: [readUInt32LE],
     updates(mesh: NLMesh, [value]) {
       mesh.textureControlValue = value;
+      mesh.isOpaque = !(value & 0b0000000100000000);
     }
   },
   {
@@ -115,7 +116,7 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     targetOffset: O.Mesh.TEXTURE_NUMBER,
     readOps: [readUInt8],
     updates(mesh, [value]) {
-      mesh.textureNumber = value;
+      mesh.textureIndex = value;
     }
   },
   {
