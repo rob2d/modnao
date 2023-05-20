@@ -16,11 +16,13 @@ export default function scanTextureHeaderData(buffer: Buffer) {
       address
     );
 
+    // this may get overwritten based on mesh-usage when they are populated
+
     // there is usually a final empty extra texture
     // we can discard when scanning
     if (texture.width > 0) {
       // will be re-assigned when populating tex file
-      texture.dataUrl = '';
+      texture.dataUrls = {};
       textures.push(texture);
     }
   }

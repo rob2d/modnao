@@ -20,10 +20,13 @@ export default function RenderedMesh({
   onSelectObjectIndex,
   textureWrappingFlags,
   textureIndex,
-  textureDefs
+  textureDefs,
+  isOpaque
 }: RenderedMeshProps) {
   const textureDef = textureDefs?.[textureIndex];
-  const texture = useTexture(textureDef?.dataUrl || transparent1x1);
+  const texture = useTexture(
+    textureDef?.dataUrls[isOpaque ? 'opaque' : 'translucent'] || transparent1x1
+  );
 
   texture.wrapS = textureWrappingFlags.hRepeat
     ? RepeatWrapping

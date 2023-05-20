@@ -55,6 +55,16 @@ export default function scanModel({
         structAddress
       );
 
+      // keys in dataUrls will be used to populate
+      const textureDataUrls = textureDefs[mesh.textureIndex].dataUrls;
+
+      if (mesh.isOpaque && !textureDataUrls.opaque) {
+        textureDataUrls.opaque = '';
+      }
+      if (!mesh.isOpaque && !textureDataUrls.translucent) {
+        textureDataUrls.translucent = '';
+      }
+
       mesh.polygons = [];
 
       structAddress += S.MESH;

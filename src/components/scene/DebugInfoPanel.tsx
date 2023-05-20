@@ -181,6 +181,7 @@ export default function DebugInfoPanel() {
 
         const [width, height] = m.textureSize;
         const tDef = textureDefs?.[m.textureIndex];
+        const dataUrl = tDef.dataUrls.translucent || tDef.dataUrls.opaque || '';
 
         images.push(
           <Fragment key={`${i}_${m.textureIndex}`}>
@@ -188,12 +189,12 @@ export default function DebugInfoPanel() {
               {m.textureSize[0]}x{m.textureSize[0]} [index {m.textureIndex}]
             </Typography>
             <a
-              href={tDef.dataUrl}
+              href={dataUrl}
               title='View this texture in a new tab'
               target='_parent'
             >
               <Image
-                src={tDef.dataUrl}
+                src={dataUrl}
                 id={`debug-panel-t-${m.textureIndex}`}
                 alt={`Mesh # ${i}, Texture # ${m.textureIndex}`}
                 width={Number(width)}
