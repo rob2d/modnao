@@ -14,7 +14,6 @@ import {
   Checkbox,
   Divider,
   Drawer,
-  Fab,
   FormControlLabel,
   ToggleButton,
   ToggleButtonGroup,
@@ -38,8 +37,14 @@ import ViewOptionsContext, {
 } from '@/contexts/ViewOptionsContext';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
+
 import useStageFilePicker from '@/hooks/useStageFilePicker';
 import { useModelSelectionExport } from '@/hooks';
+
+// @TODO: consider either:
+// (1) breaking this panel into separate components,
+// (2) offload hook functionality since there's quite a lot of cruft
+// (3) abstract the components to eliminate cognitive overhead
 
 const StyledDrawer = styled(Drawer)(
   ({ theme }) => `
@@ -77,7 +82,8 @@ const StyledDrawer = styled(Drawer)(
       width: 100%;
     }
 
-    & > .MuiPaper-root > .MuiTypography-subtitle2 {
+    & > .MuiPaper-root > .MuiTypography-subtitle2, & > .MuiPaper-root > :not(.MuiDivider-root):not(.textures) {
+      width: 100%;
       padding-left: ${theme.spacing(2)};
       padding-right: ${theme.spacing(2)};
     }
@@ -87,11 +93,6 @@ const StyledDrawer = styled(Drawer)(
       flex-direction: column;
       align-items: end;
       width: 100%;    
-    }
-
-    & .selection > * {
-      padding-left: ${theme.spacing(2)};
-      padding-right: ${theme.spacing(2)};
     }
 
     & *:nth-child(odd) {
@@ -147,22 +148,20 @@ const StyledDrawer = styled(Drawer)(
       display: flex;
       flex-direction: column;
       flex-grow: 1;
-      margin-right: ${theme.spacing(2)}
     }
 
     & .buttons {
       display: flex;
       width: 100%;
-      padding: 0 ${theme.spacing(2)};
     }
 
-    & .buttons > :first-child {
+    & .buttons > :not(:last-child) {
       margin-right: ${theme.spacing(2)}
     }
   `
 );
 
-export default function InfoPanel() {
+export default function GuiPanel() {
   // @TODO use a more standard error dialog vs using window.alert here
   const openFileSelector = useStageFilePicker(globalThis.alert);
   const onExportSelection = useModelSelectionExport();
@@ -206,6 +205,13 @@ export default function InfoPanel() {
       viewOptions.setShowPolygonAddresses(value);
     },
     [viewOptions.setShowPolygonAddresses]
+  );
+
+  const onSetShowSceneCursor = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      viewOptions.setShowSceneCursor(value);
+    },
+    [viewOptions.setShowSceneCursor]
   );
 
   const textures = useMemo(() => {
@@ -362,6 +368,12 @@ export default function InfoPanel() {
           label='Axes Helper'
           labelPlacement='start'
           onChange={onSetShowAxesHelper}
+        />
+        <FormControlLabel
+          control={<Checkbox checked={viewOptions.showSceneCursor} />}
+          label='Scene Cursor'
+          labelPlacement='start'
+          onChange={onSetShowSceneCursor}
         />
       </div>
       {!textures.length ? undefined : (

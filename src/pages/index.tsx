@@ -1,10 +1,12 @@
 import Head from 'next/head';
 import SceneCanvas from '@/components/scene/SceneCanvas';
 import { CssBaseline, styled } from '@mui/material';
-import InfoPanel from '@/components/scene/InfoPanel';
+import GuiPanel from '@/components/scene/GuiPanel';
+import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import { useContext } from 'react';
 
 const Styled = styled('main')(
-  ({ theme }) => `
+  () => `
   & {
     position: relative;
     display: flex;
@@ -18,6 +20,8 @@ const Styled = styled('main')(
 );
 
 export default function Home() {
+  const viewOptions = useContext(ViewOptionsContext);
+
   return (
     <>
       <Head>
@@ -31,7 +35,7 @@ export default function Home() {
       </Head>
       <Styled>
         <SceneCanvas />
-        <InfoPanel />
+        {!viewOptions.showGuiPanel ? undefined : <GuiPanel />}
       </Styled>
       <CssBaseline />
     </>

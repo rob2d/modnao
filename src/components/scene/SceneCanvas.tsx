@@ -5,7 +5,7 @@ import { Canvas } from '@react-three/fiber';
 import { selectModel, selectObjectIndex } from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
 import RenderedMesh from './RenderedMesh';
-import { useTemporaryModelNav } from '@/hooks';
+import { useSceneKeyboardActions } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 THREE.ColorManagement.enabled = true;
@@ -14,7 +14,7 @@ const cameraParams = { far: 5000000 };
 
 export default function SceneCanvas() {
   const viewOptions = useContext(ViewOptionsContext);
-  useTemporaryModelNav();
+  useSceneKeyboardActions();
 
   const dispatch = useAppDispatch();
   const objectIndex = useAppSelector(selectObjectIndex);
