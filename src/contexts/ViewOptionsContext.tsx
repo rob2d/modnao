@@ -10,18 +10,22 @@ export type MeshDisplayMode = 'wireframe' | 'textured';
 
 export type ViewOptions = {
   showAxesHelper: boolean;
-  setShowAxesHelper: (showAxesHelper: boolean) => void;
+  showSceneCursor: boolean;
   showPolygonAddresses: boolean;
-  setShowPolygonAddresses: (showPolygonAddresses: boolean) => void;
   meshDisplayMode: MeshDisplayMode;
+  setShowAxesHelper: (showAxesHelper: boolean) => void;
+  setShowSceneCursor: (showSceneCursor: boolean) => void;
+  setShowPolygonAddresses: (showPolygonAddresses: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
 };
 
 export const ViewOptionsContext = React.createContext<ViewOptions>({
   showAxesHelper: true,
   showPolygonAddresses: true,
+  showSceneCursor: true,
   meshDisplayMode: 'wireframe',
   setShowAxesHelper: (_: boolean) => null,
+  setShowSceneCursor: (_: boolean) => null,
   setShowPolygonAddresses: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null
 });
@@ -33,6 +37,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const [showPolygonAddresses, handleSetShowPolygonAddresses] = useState(true);
   const [meshDisplayMode, handleSetMeshDisplayMode] =
     useState<MeshDisplayMode>('wireframe');
+  const [showSceneCursor, handleSetShowSceneCursor] = useState(true);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -72,6 +77,16 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [showPolygonAddresses]
   );
 
+  const setShowSceneCursor = useCallback(
+    (value: boolean) => {
+      console.log('value ->', value);
+      if (showSceneCursor !== value) {
+        handleSetShowSceneCursor(value);
+      }
+    },
+    [showSceneCursor]
+  );
+
   const setShowAxesHelper = useCallback(
     (value: boolean) => {
       if (showAxesHelper !== value) {
@@ -96,6 +111,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
     () => ({
       showPolygonAddresses,
       setShowPolygonAddresses,
+      showSceneCursor,
+      setShowSceneCursor,
       showAxesHelper,
       setShowAxesHelper,
       meshDisplayMode,
@@ -104,6 +121,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [
       showPolygonAddresses,
       setShowPolygonAddresses,
+      showSceneCursor,
+      setShowSceneCursor,
       showAxesHelper,
       setShowAxesHelper,
       meshDisplayMode,

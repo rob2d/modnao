@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
@@ -30,8 +30,13 @@ export default function SceneCanvas() {
   const textureDefs = useAppSelector((s) => s.stageData.textureDefs);
   const model = useAppSelector(selectModel);
 
+  const canvasStyle = useMemo(
+    () => ({ cursor: viewOptions.showSceneCursor ? 'default' : 'none' }),
+    [viewOptions.showSceneCursor]
+  );
+
   return (
-    <Canvas camera={cameraParams} frameloop='demand'>
+    <Canvas camera={cameraParams} frameloop='demand' style={canvasStyle}>
       <group dispose={null}>
         {!viewOptions.showAxesHelper ? undefined : <axesHelper args={[50]} />}
         {(model?.meshes || []).map((m, i) => (
