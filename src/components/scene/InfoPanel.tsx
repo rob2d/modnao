@@ -10,10 +10,15 @@ import {
   useAppSelector
 } from '@/store';
 import {
+  Button,
   Checkbox,
+  Divider,
+  Drawer,
+  Fab,
   FormControlLabel,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
   styled
 } from '@mui/material';
@@ -31,12 +36,24 @@ import clsx from 'clsx';
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
+import useStageFilePicker from '@/hooks/useStageFilePicker';
+import { useModelSelectionExport } from '@/hooks';
 
-const Styled = styled('div')(
+const StyledDrawer = styled(Drawer)(
   ({ theme }) => `
-    & {
+
+    & > .MuiPaper-root:before {
+      position: relative;
+      content: '""',
+      width: '256px',
+      height: '100%'
+    }
+
+    & > .MuiPaper-root.MuiDrawer-paper.MuiDrawer-paperAnchorRight {
         position: absolute;
-        width: 240px;
+        width: 256px;
         top: 0;
         right: 0;
         display: flex;
@@ -44,34 +61,40 @@ const Styled = styled('div')(
         align-items: flex-end;
         max-height: 100vh;
         box-sizing: border-box;
-        padding-top: ${theme.spacing(2)};
-        padding-bottom: ${theme.spacing(12)};
+        padding-top: ${theme.spacing(1)};
+        padding-bottom: ${theme.spacing(2)};
     }
 
-    & .MuiToggleButtonGroup-root:not(:first-item) {
+    & > .MuiPaper-root .MuiToggleButtonGroup-root:not(:first-item) {
       margin-top: ${theme.spacing(1)};
     }
 
-    & .MuiToggleButtonGroup-root {
+    & > .MuiPaper-root .MuiToggleButtonGroup-root {
       margin-bottom: ${theme.spacing(1)};
     }
 
-    & > .MuiTypography-h5 {
+    & > .MuiPaper-root .MuiToggleButtonGroup-root .MuiButtonBase-root {
+      width: 100%;
+    }
+
+    & > .MuiPaper-root > .MuiTypography-subtitle2 {
+      padding-left: ${theme.spacing(2)};
       padding-right: ${theme.spacing(2)};
     }
 
-    & > .selection {
+    & > .MuiPaper-root > .selection {
       display: flex;
       flex-direction: column;
       align-items: end;
       width: 100%;    
     }
 
-    & > .selection > * {
-        padding-right: ${theme.spacing(2)};
+    & .selection > * {
+      padding-left: ${theme.spacing(2)};
+      padding-right: ${theme.spacing(2)};
     }
 
-    & .property-table > *:nth-child(odd) {
+    & *:nth-child(odd) {
       display: flex;
       align-items: center;
       justify-content: flex-start;
@@ -83,21 +106,25 @@ const Styled = styled('div')(
       justify-content: flex-end;
     }
 
-    & > .textures {
-      width: 192px;
-      flex-grow: 1;
+    & .textures {
+      width: 240px;
+      flex-grow: 2;
       overflow-y: auto;
     }
 
-    & > .textures > .MuiTypography-root {
+    & .textures > .MuiTypography-root {
       padding-right: ${theme.spacing(2)}
     }
 
-    & > :not(:last-child) {
+    & > .MuiPaper-root > :not(:last-child):not(.MuiDivider-root) {
       margin-bottom: ${theme.spacing(2)}
     }
 
-    & > .textures img {
+    & > .MuiPaper-root > .MuiDivider-root {
+      margin-bottom: ${theme.spacing(1)}
+    }
+
+    & .textures img {
       width: 100%;
       height: auto;
       border-color: ${theme.palette.secondary.main};
@@ -119,12 +146,26 @@ const Styled = styled('div')(
     & .view-options {
       display: flex;
       flex-direction: column;
+      flex-grow: 1;
+      margin-right: ${theme.spacing(2)}
+    }
+
+    & .buttons {
+      display: flex;
+      width: 100%;
+      padding: 0 ${theme.spacing(2)};
+    }
+
+    & .buttons > :first-child {
       margin-right: ${theme.spacing(2)}
     }
   `
 );
 
-export default function DebugInfoPanel() {
+export default function InfoPanel() {
+  // @TODO use a more standard error dialog vs using window.alert here
+  const openFileSelector = useStageFilePicker(globalThis.alert);
+  const onExportSelection = useModelSelectionExport();
   const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
   const modelIndex = useAppSelector(selectModelIndex);
@@ -222,10 +263,12 @@ export default function DebugInfoPanel() {
   }, [textureDefs, selectedMeshTexture]);
 
   return (
-    <Styled>
-      <Typography variant='h5' textAlign='right'>
-        Selection
-      </Typography>
+    <StyledDrawer variant='permanent' anchor='right'>
+      <Divider flexItem>
+        <Typography variant='subtitle2' textAlign='left' width='100%'>
+          Selection
+        </Typography>
+      </Divider>
       <div className='selection'>
         <Grid container className={'property-table'}>
           <Grid xs={6}>
@@ -279,9 +322,11 @@ export default function DebugInfoPanel() {
           </Grid>
         </Grid>
       </div>
-      <Typography variant='h5' textAlign='right'>
-        View Options
-      </Typography>
+      <Divider flexItem>
+        <Typography variant='subtitle2' textAlign='left' width='100%'>
+          View Options
+        </Typography>
+      </Divider>
       <div className='view-options'>
         <Grid container className={'property-table'}>
           <Grid xs={6}>
@@ -319,18 +364,47 @@ export default function DebugInfoPanel() {
           onChange={onSetShowAxesHelper}
         />
       </div>
-      <Typography variant='h5' textAlign='right'>
-        Textures
-      </Typography>
-      <div className='textures'>
-        {textures.length ? (
-          textures
-        ) : (
-          <Typography variant='subtitle1' textAlign='right'>
-            N/A
-          </Typography>
+      {!textures.length ? undefined : (
+        <>
+          <Divider flexItem>
+            <Typography variant='subtitle2' textAlign='left' width='100%'>
+              Textures
+            </Typography>
+          </Divider>
+          <div className='textures'>{textures}</div>
+        </>
+      )}
+      <Divider flexItem>
+        <Typography variant='subtitle2' textAlign='left' width='100%'>
+          Data
+        </Typography>
+      </Divider>
+      <div className='buttons'>
+        <Tooltip title='Select an MVC2 or CVS2 STGXY.POL file'>
+          <Button
+            onClick={openFileSelector}
+            color='primary'
+            size='small'
+            variant='outlined'
+          >
+            <FileUploadIcon />
+            Import
+          </Button>
+        </Tooltip>
+        {!model ? undefined : (
+          <Tooltip title='Export ModNao model .json data'>
+            <Button
+              onClick={onExportSelection}
+              color='secondary'
+              size='small'
+              variant='outlined'
+            >
+              <DownloadForOfflineIcon />
+              Export
+            </Button>
+          </Tooltip>
         )}
       </div>
-    </Styled>
+    </StyledDrawer>
   );
 }
