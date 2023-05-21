@@ -392,7 +392,7 @@ export default function InfoPanel() {
           </Button>
         </Tooltip>
         {!model ? undefined : (
-          <Tooltip title='Export ModNao model .json data'>
+          <Tooltip title='Export ModNao model .json data. Will narrow data down to the current selection'>
             <Button
               onClick={onExportSelection}
               color='secondary'
