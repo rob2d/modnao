@@ -74,6 +74,53 @@ export const nlModelConversions: NLPropConversion<NLModel>[] = [
 
 export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
   {
+    targetOffset: O.Mesh.BASE_PARAMETERS,
+    readOps: [readUInt32LE],
+    updates(mesh, [value]) {
+      mesh.baseParams = value;
+    }
+  },
+  {
+    targetOffset: O.Mesh.TEXTURE_INSTRUCTIONS,
+    readOps: [readUInt32LE],
+    updates(mesh, [value]) {
+      mesh.textureInstructions = value;
+      mesh.isOpaque = false;
+
+      // TODO: streamline deduction of this;
+      // probably a simple bitflag
+      if (value === 0x83000000) {
+        switch (mesh.baseParams) {
+          case 0x8000001c:
+          case 0x8000002c:
+          case 0x8000003c:
+          case 0x8000009c:
+          case 0x800000ac:
+          case 0x800000bc:
+            mesh.isOpaque = true;
+            break;
+          default:
+            break;
+        }
+      }
+
+      if (value === 0x83400000) {
+        switch (mesh.baseParams) {
+          case 0x8000001d:
+          case 0x8000002d:
+          case 0x8000003d:
+          case 0x8000009d:
+          case 0x800000ad:
+          case 0x800000bd:
+            mesh.isOpaque = true;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  },
+  {
     targetOffset: O.Mesh.TEXTURE_SIZE,
     readOps: [readUInt8],
     updates(mesh, [value]) {
@@ -96,6 +143,14 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
       mesh.textureControlValue = value;
     }
   },
+
+  {
+    targetOffset: O.Mesh.TEXTURE_ALPHA_CONTROL,
+    readOps: [readUInt32LE],
+    updates(mesh: NLMesh, [value]) {
+      mesh.textureAlphaControlValue = value;
+    }
+  },
   {
     targetOffset: O.Mesh.TEXTURE_COLOR_FORMAT,
     readOps: [readUInt8],
@@ -115,12 +170,12 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     targetOffset: O.Mesh.TEXTURE_NUMBER,
     readOps: [readUInt8],
     updates(mesh, [value]) {
-      mesh.textureNumber = value;
+      mesh.textureIndex = value;
     }
   },
   {
     targetOffset: O.Mesh.TEXTURE_SHADING,
-    readOps: [readInt32LE],
+    readOps: [readUInt32LE],
     updates(mesh, [value]) {
       mesh.textureShadingValue = value;
     }

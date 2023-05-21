@@ -34,6 +34,8 @@ declare global {
   } & ModNaoMemoryObject;
 
   export type NLMesh = {
+    baseParams: number;
+    textureInstructions: number;
     polygons: NLPolygon[];
     position: NLPoint3D;
     color: NLColor;
@@ -43,9 +45,11 @@ declare global {
     textureWrappingValue: number;
     textureWrappingFlags: TextureWrappingFlags;
     textureControlValue: number;
+    textureAlphaControlValue: number;
+    isOpaque: boolean;
     textureColorFormat: TextureColorFormat;
     textureColorFormatValue: number;
-    textureNumber: number;
+    textureIndex: number;
     textureSizeValue: number;
     textureSize: TextureSize;
   } & ModNaoMemoryObject;
@@ -66,6 +70,8 @@ declare global {
   } & ModNaoMemoryObject;
 }
 
+export type TextureDataUrlType = 'opaque' | 'translucent';
+
 export type NLTextureDef = {
   width: number;
   height: number;
@@ -73,5 +79,5 @@ export type NLTextureDef = {
   colorFormatValue: number;
   type: number;
   location: number;
-  dataUrl: string;
+  dataUrls: { opaque?: string; translucent?: string };
 } & ModNaoMemoryObject;

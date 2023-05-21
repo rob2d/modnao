@@ -116,7 +116,7 @@ Object {
       "textureColorFormat": "RGB555",
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
-      "textureNumber": 0,
+      "textureIndex": 0,
       "textureShadingValue": -1,
       "textureSize": Array [
         64,
@@ -244,7 +244,7 @@ Object {
       "textureColorFormat": "RGB555",
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
-      "textureNumber": 0,
+      "textureIndex": 0,
       "textureShadingValue": -1,
       "textureSize": Array [
         64,
@@ -372,7 +372,7 @@ Object {
       "textureColorFormat": "RGB555",
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
-      "textureNumber": 0,
+      "textureIndex": 0,
       "textureShadingValue": -1,
       "textureSize": Array [
         64,
@@ -500,7 +500,7 @@ Object {
       "textureColorFormat": "RGB555",
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
-      "textureNumber": 0,
+      "textureIndex": 0,
       "textureShadingValue": -1,
       "textureSize": Array [
         64,
@@ -628,7 +628,7 @@ Object {
       "textureColorFormat": "RGB555",
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
-      "textureNumber": 0,
+      "textureIndex": 0,
       "textureShadingValue": -1,
       "textureSize": Array [
         64,
@@ -756,7 +756,7 @@ Object {
       "textureColorFormat": "RGB555",
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
-      "textureNumber": 0,
+      "textureIndex": 0,
       "textureShadingValue": -1,
       "textureSize": Array [
         64,

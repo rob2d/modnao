@@ -135,7 +135,7 @@ export default function DebugInfoPanel() {
   const textureDefs = useAppSelector(selectTextureDefs);
 
   const selectedMeshTexture: number = useMemo(
-    () => model?.meshes?.[objectIndex]?.textureNumber || -1,
+    () => model?.meshes?.[objectIndex]?.textureIndex || -1,
     [model, objectIndex]
   );
 
@@ -172,30 +172,31 @@ export default function DebugInfoPanel() {
     const textureSet = new Set<number>();
 
     (model?.meshes || []).forEach((m, i) => {
-      if (!textureSet.has(m.textureNumber) && textureDefs?.[m.textureNumber]) {
-        textureSet.add(m.textureNumber);
+      if (!textureSet.has(m.textureIndex) && textureDefs?.[m.textureIndex]) {
+        textureSet.add(m.textureIndex);
 
         const isDeemphasized = !(
-          selectedMeshTexture === -1 || selectedMeshTexture === m.textureNumber
+          selectedMeshTexture === -1 || selectedMeshTexture === m.textureIndex
         );
 
         const [width, height] = m.textureSize;
-        const tDef = textureDefs?.[m.textureNumber];
+        const tDef = textureDefs?.[m.textureIndex];
+        const dataUrl = tDef.dataUrls.translucent || tDef.dataUrls.opaque || '';
 
         images.push(
-          <Fragment key={`${i}_${m.textureNumber}`}>
+          <Fragment key={`${i}_${m.textureIndex}`}>
             <Typography variant='subtitle2' textAlign='right'>
-              {m.textureSize[0]}x{m.textureSize[0]} [index {m.textureNumber}]
+              {m.textureSize[0]}x{m.textureSize[0]} [index {m.textureIndex}]
             </Typography>
             <a
-              href={tDef.dataUrl}
+              href={dataUrl}
               title='View this texture in a new tab'
               target='_parent'
             >
               <Image
-                src={tDef.dataUrl}
-                id={`debug-panel-t-${m.textureNumber}`}
-                alt={`Mesh # ${i}, Texture # ${m.textureNumber}`}
+                src={dataUrl}
+                id={`debug-panel-t-${m.textureIndex}`}
+                alt={`Mesh # ${i}, Texture # ${m.textureIndex}`}
                 width={Number(width)}
                 height={Number(height)}
                 className={clsx(isDeemphasized && 'deemphasized')}
