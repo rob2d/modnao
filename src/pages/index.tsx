@@ -1,17 +1,14 @@
 import Head from 'next/head';
 import SceneCanvas from '@/components/scene/SceneCanvas';
-import { selectModel } from '@/store';
-import { Fab, Tooltip, styled } from '@mui/material';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
-import { useSelector } from 'react-redux';
-import DebugInfoPanel from '@/components/scene/DebugInfoPanel';
-import { useModelSelectionExport } from '@/hooks';
-import useStageFilePicker from '@/hooks/useStageFilePicker';
+import { CssBaseline, styled } from '@mui/material';
+import GuiPanel from '@/components/scene/GuiPanel';
+import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import { useContext } from 'react';
 
 const Styled = styled('main')(
-  ({ theme }) => `
+  () => `
   & {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -19,25 +16,11 @@ const Styled = styled('main')(
     height: 100vh;
     width: 100vw;
   }
-  & .buttons {
-    position: fixed;
-    bottom: ${theme.spacing(2)};
-    right: ${theme.spacing(2)};
-    display: flex;
-  }
-
-  & .buttons > :first-child {
-    right: ${theme.spacing(2)}
-  }
 `
 );
 
 export default function Home() {
-  const model = useSelector(selectModel);
-
-  // @TODO use a more standard error dialog vs using window.alert here
-  const openFileSelector = useStageFilePicker(globalThis.alert);
-  const onExportSelection = useModelSelectionExport();
+  const viewOptions = useContext(ViewOptionsContext);
 
   return (
     <>
@@ -52,22 +35,9 @@ export default function Home() {
       </Head>
       <Styled>
         <SceneCanvas />
-        <DebugInfoPanel />
-        <div className='buttons'>
-          {!model ? undefined : (
-            <Tooltip title='Export ModNao model .json data'>
-              <Fab onClick={onExportSelection} color='secondary'>
-                <DownloadForOfflineIcon />
-              </Fab>
-            </Tooltip>
-          )}
-          <Tooltip title='Select an MVC2 or CVS2 STGXY.POL file'>
-            <Fab onClick={openFileSelector} color='primary'>
-              <FileUploadIcon />
-            </Fab>
-          </Tooltip>
-        </div>
+        {!viewOptions.showGuiPanel ? undefined : <GuiPanel />}
       </Styled>
+      <CssBaseline />
     </>
   );
 }

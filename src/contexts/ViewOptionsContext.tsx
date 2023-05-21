@@ -10,18 +10,26 @@ export type MeshDisplayMode = 'wireframe' | 'textured';
 
 export type ViewOptions = {
   showAxesHelper: boolean;
-  setShowAxesHelper: (showAxesHelper: boolean) => void;
+  showSceneCursor: boolean;
+  showGuiPanel: boolean;
   showPolygonAddresses: boolean;
-  setShowPolygonAddresses: (showPolygonAddresses: boolean) => void;
   meshDisplayMode: MeshDisplayMode;
+  setShowAxesHelper: (showAxesHelper: boolean) => void;
+  setShowSceneCursor: (showSceneCursor: boolean) => void;
+  setShowGuiPanel: (showGuiPanel: boolean) => void;
+  setShowPolygonAddresses: (showPolygonAddresses: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
 };
 
 export const ViewOptionsContext = React.createContext<ViewOptions>({
   showAxesHelper: true,
+  showSceneCursor: true,
+  showGuiPanel: true,
   showPolygonAddresses: true,
   meshDisplayMode: 'wireframe',
   setShowAxesHelper: (_: boolean) => null,
+  setShowSceneCursor: (_: boolean) => null,
+  setShowGuiPanel: (_: boolean) => null,
   setShowPolygonAddresses: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null
 });
@@ -31,8 +39,10 @@ type Props = { children: ReactNode };
 export function ViewOptionsContextProvider({ children }: Props) {
   const [showAxesHelper, handleSetShowAxesHelper] = useState(true);
   const [showPolygonAddresses, handleSetShowPolygonAddresses] = useState(true);
+  const [showGuiPanel, handleSetShowGuiPanel] = useState(true);
   const [meshDisplayMode, handleSetMeshDisplayMode] =
     useState<MeshDisplayMode>('wireframe');
+  const [showSceneCursor, handleSetShowSceneCursor] = useState(true);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -72,6 +82,24 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [showPolygonAddresses]
   );
 
+  const setShowSceneCursor = useCallback(
+    (value: boolean) => {
+      if (showSceneCursor !== value) {
+        handleSetShowSceneCursor(value);
+      }
+    },
+    [showSceneCursor]
+  );
+
+  const setShowGuiPanel = useCallback(
+    (value: boolean) => {
+      if (showGuiPanel !== value) {
+        handleSetShowGuiPanel(value);
+      }
+    },
+    [showGuiPanel]
+  );
+
   const setShowAxesHelper = useCallback(
     (value: boolean) => {
       if (showAxesHelper !== value) {
@@ -92,22 +120,30 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [meshDisplayMode]
   );
 
-  const contextValue = useMemo(
+  const contextValue = useMemo<ViewOptions>(
     () => ({
       showPolygonAddresses,
       setShowPolygonAddresses,
+      showSceneCursor,
+      setShowSceneCursor,
       showAxesHelper,
       setShowAxesHelper,
       meshDisplayMode,
-      setMeshDisplayMode
+      setMeshDisplayMode,
+      showGuiPanel,
+      setShowGuiPanel
     }),
     [
       showPolygonAddresses,
       setShowPolygonAddresses,
+      showSceneCursor,
+      setShowSceneCursor,
       showAxesHelper,
       setShowAxesHelper,
       meshDisplayMode,
-      setMeshDisplayMode
+      setMeshDisplayMode,
+      showGuiPanel,
+      setShowGuiPanel
     ]
   );
 
