@@ -37,7 +37,7 @@ import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 
 import useStageFilePicker from '@/hooks/useStageFilePicker';
 import { useModelSelectionExport } from '@/hooks';
-import PanelTexture from './PanelTexture';
+import GuiPanelTexture from './GuiPanelTexture';
 
 // @TODO: consider either:
 // (1) breaking this panel into separate components,
@@ -79,7 +79,7 @@ const StyledDrawer = styled(Drawer)(
       width: 100%;
     }
 
-    & > .MuiPaper-root > .MuiTypography-subtitle2, & > .MuiPaper-root > :not(.MuiDivider-root):not(.textures) {
+    & > .MuiPaper-root > .MuiTypography-subtitle2, & > .MuiPaper-root > :not(.MuiDivider-root) {
       width: 100%;
       padding-left: ${theme.spacing(2)};
       padding-right: ${theme.spacing(2)};
@@ -199,7 +199,7 @@ export default function GuiPanel() {
         const textureDef = textureDefs?.[m.textureIndex];
 
         images.push(
-          <PanelTexture
+          <GuiPanelTexture
             key={`${m.textureIndex}_${i}`}
             textureDef={textureDef}
             textureIndex={m.textureIndex}
@@ -319,7 +319,7 @@ export default function GuiPanel() {
         {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
           <FormControlLabel
             control={<Checkbox checked={viewOptions.showPolygonAddresses} />}
-            label='Polygon Addresses'
+            label='Addresses'
             labelPlacement='start'
             onChange={onSetShowPolygonAddresses}
           />
