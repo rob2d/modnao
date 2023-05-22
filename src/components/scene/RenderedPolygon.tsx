@@ -119,7 +119,7 @@ export default function RenderedPolygon({
         [{index}] {`0x${address.toString(16)}`}
       </Text>
     );
-  }, [color, showPolygonAddresses, meshDisplayMode]);
+  }, [color, showPolygonAddresses, meshDisplayMode, isSelected]);
 
   return (
     <>
