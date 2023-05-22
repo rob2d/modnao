@@ -1,11 +1,9 @@
-import { useState, MouseEvent } from 'react';
+import { useState, MouseEvent, useMemo } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { styled } from '@mui/material';
-
-const options = ['Download', 'Replace'];
 
 const StyledPanelTextureMenu = styled('div')(
   ({ theme }) => `& {
@@ -21,7 +19,13 @@ const StyledPanelTextureMenu = styled('div')(
     `
 );
 
-export default function GuiPanelTextureMenu() {
+export default function GuiPanelTextureMenu({
+  textureIndex,
+  dataUrl
+}: {
+  textureIndex: number;
+  dataUrl: string;
+}) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: MouseEvent<HTMLElement>) => {
@@ -30,6 +34,26 @@ export default function GuiPanelTextureMenu() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const options = useMemo(
+    () => [
+      {
+        label: 'Download',
+        onClick: () => {
+          const a = document.createElement('a');
+          a.download = `modNaoTexture${textureIndex}.png`;
+          console.log('dataUrl ->', dataUrl);
+          a.href = dataUrl;
+          a.click();
+        }
+      },
+      {
+        label: 'Replace',
+        onClick: () => null
+      }
+    ],
+    [dataUrl, textureIndex]
+  );
 
   return (
     <StyledPanelTextureMenu>
@@ -53,11 +77,11 @@ export default function GuiPanelTextureMenu() {
       >
         {options.map((option) => (
           <MenuItem
-            key={option}
-            selected={option === 'Pyxis'}
-            onClick={handleClose}
+            key={option.label}
+            disabled={option.label === 'Replace'}
+            onClick={option.onClick}
           >
-            {option}
+            {option.label}
           </MenuItem>
         ))}
       </Menu>

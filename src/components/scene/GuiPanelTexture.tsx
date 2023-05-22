@@ -75,7 +75,7 @@ export default function GuiPanelTexture({
 }: GuiPanelTextureProps) {
   const [width, height] = textureSize;
   const dataUrl =
-    textureDef.dataUrls.translucent || textureDef.dataUrls.opaque || '';
+    textureDef.dataUrls.opaque || textureDef.dataUrls.translucent || '';
 
   const deemphasizedClass = clsx(isDeemphasized && 'deemphasized');
 
@@ -97,7 +97,7 @@ export default function GuiPanelTexture({
         >
           {textureSize[0]}x{textureSize[0]} [index: {textureIndex}]
         </Typography>
-        <GuiPanelTextureMenu />
+        <GuiPanelTextureMenu textureIndex={textureIndex} dataUrl={dataUrl} />
       </div>
     </StyledPanelTexture>
   );
