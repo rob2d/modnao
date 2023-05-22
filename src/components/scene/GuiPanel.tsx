@@ -22,16 +22,13 @@ import {
   styled
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
-import Image from 'next/image';
 import {
   useMemo,
-  Fragment,
   useEffect,
   useCallback,
   useContext,
   SyntheticEvent
 } from 'react';
-import clsx from 'clsx';
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
@@ -40,6 +37,7 @@ import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 
 import useStageFilePicker from '@/hooks/useStageFilePicker';
 import { useModelSelectionExport } from '@/hooks';
+import PanelTexture from './PanelTexture';
 
 // @TODO: consider either:
 // (1) breaking this panel into separate components,
@@ -48,17 +46,16 @@ import { useModelSelectionExport } from '@/hooks';
 
 const StyledDrawer = styled(Drawer)(
   ({ theme }) => `
-
     & > .MuiPaper-root:before {
       position: relative;
       content: '""',
-      width: '256px',
+      width: '222px',
       height: '100%'
     }
 
     & > .MuiPaper-root.MuiDrawer-paper.MuiDrawer-paperAnchorRight {
         position: absolute;
-        width: 256px;
+        width: 222px;
         top: 0;
         right: 0;
         display: flex;
@@ -108,39 +105,16 @@ const StyledDrawer = styled(Drawer)(
     }
 
     & .textures {
-      width: 240px;
+      width: 222px;
       flex-grow: 2;
       overflow-y: auto;
     }
 
-    & .textures > .MuiTypography-root {
-      padding-right: ${theme.spacing(2)}
-    }
-
-    & > .MuiPaper-root > :not(:last-child):not(.MuiDivider-root) {
-      margin-bottom: ${theme.spacing(2)}
-    }
-
     & > .MuiPaper-root > .MuiDivider-root {
-      margin-bottom: ${theme.spacing(1)}
+      margin-bottom: ${theme.spacing(1)};
     }
 
-    & .textures img {
-      width: 100%;
-      height: auto;
-      border-color: ${theme.palette.secondary.main};
-      border-width: 1px;
-      border-style: solid;
-      opacity: 1.0;
-      transition: opacity 0.35s ease;
-    }
-
-    & > .textures img.deemphasized {
-      filter: saturate(0.25);
-      opacity: 0.25;
-    }
-
-    & > .textures img:not(:last-child) {
+    & > .textures *:not(:last-child) {
       margin-bottom: ${theme.spacing(1)}
     }
 
@@ -174,10 +148,11 @@ export default function GuiPanel() {
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
 
-  const selectedMeshTexture: number = useMemo(
-    () => model?.meshes?.[objectIndex]?.textureIndex || -1,
-    [model, objectIndex]
-  );
+  const selectedMeshTexture: number = useMemo(() => {
+    const textureIndex = model?.meshes?.[objectIndex]?.textureIndex;
+
+    return typeof textureIndex === 'number' ? textureIndex : -1;
+  }, [model, objectIndex]);
 
   const onSetObjectSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: any) => {
@@ -221,35 +196,21 @@ export default function GuiPanel() {
     (model?.meshes || []).forEach((m, i) => {
       if (!textureSet.has(m.textureIndex) && textureDefs?.[m.textureIndex]) {
         textureSet.add(m.textureIndex);
-
-        const isDeemphasized = !(
-          selectedMeshTexture === -1 || selectedMeshTexture === m.textureIndex
-        );
-
-        const [width, height] = m.textureSize;
-        const tDef = textureDefs?.[m.textureIndex];
-        const dataUrl = tDef.dataUrls.translucent || tDef.dataUrls.opaque || '';
+        const textureDef = textureDefs?.[m.textureIndex];
 
         images.push(
-          <Fragment key={`${i}_${m.textureIndex}`}>
-            <Typography variant='subtitle2' textAlign='right'>
-              {m.textureSize[0]}x{m.textureSize[0]} [index {m.textureIndex}]
-            </Typography>
-            <a
-              href={dataUrl}
-              title='View this texture in a new tab'
-              target='_parent'
-            >
-              <Image
-                src={dataUrl}
-                id={`debug-panel-t-${m.textureIndex}`}
-                alt={`Mesh # ${i}, Texture # ${m.textureIndex}`}
-                width={Number(width)}
-                height={Number(height)}
-                className={clsx(isDeemphasized && 'deemphasized')}
-              />
-            </a>
-          </Fragment>
+          <PanelTexture
+            key={`${m.textureIndex}_${i}`}
+            textureDef={textureDef}
+            textureIndex={m.textureIndex}
+            textureSize={m.textureSize}
+            isDeemphasized={
+              !(
+                selectedMeshTexture === -1 ||
+                selectedMeshTexture === m.textureIndex
+              )
+            }
+          />
         );
       }
     });
@@ -266,7 +227,7 @@ export default function GuiPanel() {
     if (textureEl) {
       textureEl.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [textureDefs, selectedMeshTexture]);
+  }, [textureDefs && selectedMeshTexture]);
 
   return (
     <StyledDrawer variant='permanent' anchor='right'>
@@ -277,22 +238,22 @@ export default function GuiPanel() {
       </Divider>
       <div className='selection'>
         <Grid container className={'property-table'}>
-          <Grid xs={6}>
+          <Grid xs={8}>
             <Typography variant='body1' textAlign='right'>
               Model Count
             </Typography>
           </Grid>
-          <Grid xs={6}>
+          <Grid xs={4}>
             <Typography variant='button' textAlign='right'>
               {modelCount}
             </Typography>
           </Grid>
-          <Grid xs={6}>
+          <Grid xs={8}>
             <Typography variant='body1' textAlign='right'>
               Model Index
             </Typography>
           </Grid>
-          <Grid xs={6}>
+          <Grid xs={4}>
             <Typography variant='button' textAlign='right'>
               {modelIndex === -1 ? 'N/A' : modelIndex}
             </Typography>
@@ -307,7 +268,7 @@ export default function GuiPanel() {
               {objectIndex === -1 ? 'N/A' : objectIndex}
             </Typography>
           </Grid>
-          <Grid xs={6}>
+          <Grid xs={5}>
             <Typography variant='body1' textAlign='right'>
               Selection Type
             </Typography>
