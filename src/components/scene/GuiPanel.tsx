@@ -148,10 +148,11 @@ export default function GuiPanel() {
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
 
-  const selectedMeshTexture: number = useMemo(
-    () => model?.meshes?.[objectIndex]?.textureIndex || -1,
-    [model, objectIndex]
-  );
+  const selectedMeshTexture: number = useMemo(() => {
+    const textureIndex = model?.meshes?.[objectIndex]?.textureIndex;
+
+    return typeof textureIndex === 'number' ? textureIndex : -1;
+  }, [model, objectIndex]);
 
   const onSetObjectSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: any) => {
