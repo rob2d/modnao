@@ -124,12 +124,8 @@ export default function RenderedPolygon({
   return (
     <>
       {meshAddressText}
-      <mesh key={address}>
-        <meshBasicMaterial
-          color={color}
-          {...meshModeMaterialProps}
-          key={`${meshDisplayMode}_${color}`}
-        />
+      <mesh key={`${address}_${meshDisplayMode}_${color}`}>
+        <meshBasicMaterial color={color} {...meshModeMaterialProps} />
         <bufferGeometry attach={'geometry'}>
           <bufferAttribute
             attach='attributes-position'

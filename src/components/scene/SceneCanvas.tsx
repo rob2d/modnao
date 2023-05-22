@@ -7,6 +7,7 @@ import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardActions } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import { useTheme } from '@mui/material';
 
 THREE.ColorManagement.enabled = true;
 
@@ -29,10 +30,14 @@ export default function SceneCanvas() {
 
   const textureDefs = useAppSelector((s) => s.stageData.textureDefs);
   const model = useAppSelector(selectModel);
+  const theme = useTheme();
 
   const canvasStyle = useMemo(
-    () => ({ cursor: viewOptions.showSceneCursor ? 'default' : 'none' }),
-    [viewOptions.showSceneCursor]
+    () => ({
+      background: theme.palette.scene.background,
+      cursor: viewOptions.showSceneCursor ? 'default' : 'none'
+    }),
+    [viewOptions.showSceneCursor, theme]
   );
 
   return (

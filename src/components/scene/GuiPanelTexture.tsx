@@ -3,13 +3,7 @@ import { NLTextureDef } from '@/types/NLAbstractions';
 import { Typography, styled } from '@mui/material';
 import clsx from 'clsx';
 import Image from 'next/image';
-
-type PanelTextureProps = {
-  isDeemphasized: boolean;
-  textureDef: NLTextureDef;
-  textureSize: TextureSize;
-  textureIndex: number;
-};
+import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -17,6 +11,7 @@ const StyledPanelTexture = styled('div')(
       display: flex;
       flex-direction: column;
       width: 100%;
+      background-color: ${theme.palette.panelTexture.background};
   }
 
   & .MuiTypography-root.deemphasized {
@@ -55,21 +50,29 @@ const StyledPanelTexture = styled('div')(
     position: absolute;
     right: ${theme.spacing(1)};
     bottom: 0;
-    text-shadow: 1px 1px 1px white;
+    color: #fff;
+    text-shadow: 1px 1px 1px black;
   }
 
-  & .size-notation:not(.deemphasized) {
+  & .size-notation.deemphasized {
     filter: invert(1);
   }
   `
 );
 
-export default function PanelTexture({
+export type GuiPanelTextureProps = {
+  isDeemphasized: boolean;
+  textureDef: NLTextureDef;
+  textureSize: TextureSize;
+  textureIndex: number;
+};
+
+export default function GuiPanelTexture({
   isDeemphasized,
   textureIndex,
   textureDef,
   textureSize
-}: PanelTextureProps) {
+}: GuiPanelTextureProps) {
   const [width, height] = textureSize;
   const dataUrl =
     textureDef.dataUrls.translucent || textureDef.dataUrls.opaque || '';
@@ -94,6 +97,7 @@ export default function PanelTexture({
         >
           {textureSize[0]}x{textureSize[0]} [index: {textureIndex}]
         </Typography>
+        <GuiPanelTextureMenu />
       </div>
     </StyledPanelTexture>
   );

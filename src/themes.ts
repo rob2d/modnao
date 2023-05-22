@@ -1,3 +1,4 @@
+import { CSSProperties } from 'react';
 import { PaletteMode, Theme, createTheme } from '@mui/material';
 import { Fira_Code } from 'next/font/google';
 
@@ -9,19 +10,34 @@ export const firaCode = Fira_Code({
 const modes: PaletteMode[] = ['dark', 'light'];
 
 declare module '@mui/material' {
-  type SceneMeshPalette = {
-    default: React.CSSProperties['color'];
-    selected: React.CSSProperties['color'];
-    flagged: React.CSSProperties['color'];
-    textureDefault: React.CSSProperties['color'];
-    textureSelected: React.CSSProperties['color'];
+  type ScenePalette = {
+    background: CSSProperties['color'];
   };
-  interface PaletteOptions {
-    sceneMesh: SceneMeshPalette;
+
+  type SceneMeshPalette = {
+    default: CSSProperties['color'];
+    selected: CSSProperties['color'];
+    flagged: CSSProperties['color'];
+    textureDefault: CSSProperties['color'];
+    textureSelected: CSSProperties['color'];
+  };
+
+  interface PanelTexturePalette {
+    background: CSSProperties['color'];
   }
 
-  interface Palette {
+  interface PaletteOptions {
+    scene: ScenePalette;
     sceneMesh: SceneMeshPalette;
+    panelTexture: PanelTexturePalette;
+  }
+
+  // note: redundancy is due to MUI typings
+  // perhaps should post an issue
+  interface Palette {
+    scene: ScenePalette;
+    sceneMesh: SceneMeshPalette;
+    panelTexture: PanelTexturePalette;
   }
 }
 
@@ -47,6 +63,7 @@ const themes = Object.fromEntries(
         }
       },
       palette: {
+        mode,
         primary: {
           main: '#FF00F2',
           light: '#e98df5',
@@ -56,12 +73,18 @@ const themes = Object.fromEntries(
           main: '#00A5FF',
           contrastText: '#FFF'
         },
+        scene: {
+          background: mode === 'dark' ? '#1f121f' : '#efefff'
+        },
         sceneMesh: {
-          default: mode === 'dark' ? '#444' : '#CCC',
+          default: mode === 'dark' ? '#546' : '#CCC',
           selected: mode === 'dark' ? '#00A5FF' : '#e98df5',
           flagged: '#9BF',
           textureDefault: '#fff',
           textureSelected: mode === 'dark' ? '#9cf' : '#f9c'
+        },
+        panelTexture: {
+          background: mode === 'dark' ? '#212' : '#efefff'
         }
       }
     })
