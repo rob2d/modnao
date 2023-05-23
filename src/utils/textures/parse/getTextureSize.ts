@@ -1,4 +1,4 @@
-import { TextureSize } from './TextureSize';
+import { TextureSize } from '../TextureSize';
 
 export default function getTextureSize(value: number) {
   const baseWidth = Math.floor((value % 64) / 8);

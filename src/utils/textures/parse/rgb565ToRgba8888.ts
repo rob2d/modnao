@@ -1,4 +1,4 @@
-export default function rgb565ToRgb888(rgb565: number) {
+export default function rgb565ToRgba8888(rgb565: number) {
   let r = (rgb565 >> 11) & 0x1f;
   let g = (rgb565 >> 5) & 0x3f;
   let b = rgb565 & 0x1f;

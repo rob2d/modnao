@@ -1,9 +1,11 @@
 import { NLTextureDef } from '@/types/NLAbstractions';
-import O from './StructOffsets';
-import S from './StructSizes';
-import getTextureColorFormat from './getTextureColorFormat';
-import getTextureSize from './getTextureSize';
-import getTextureWrappingFlags from './getTextureWrappingFlags';
+import O from '../../../constants/StructOffsets';
+import S from '../../../hooks/StructSizes';
+import {
+  getTextureColorFormat,
+  getTextureSize,
+  getTextureWrappingFlags
+} from '@/utils/textures/parse';
 import getVertexAddressingMode from './getVertexAddressingMode';
 
 export type BinFileReadOp =

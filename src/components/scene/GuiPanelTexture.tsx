@@ -1,4 +1,4 @@
-import { TextureSize } from '@/store/stage-data/process-stage-polygon-file/TextureSize';
+import { TextureSize } from '@/utils/textures/TextureSize';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { Typography, styled } from '@mui/material';
 import clsx from 'clsx';
