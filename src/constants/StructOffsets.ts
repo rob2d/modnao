@@ -1,4 +1,4 @@
-import S from '../hooks/StructSizes';
+import S from './StructSizes';
 
 /**
  * Mesh offset; is at the start after model header

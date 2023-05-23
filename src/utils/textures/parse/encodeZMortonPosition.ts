@@ -1,4 +1,4 @@
-export default function decodeZMortonPosition(x: number, y: number) {
+export default function encodeZMortonPosition(x: number, y: number) {
   x &= 0x0000ffff; // Mask with 16 one bits
   y &= 0x0000ffff; // Mask with 16 one bits
   x = (x | (x << 8)) & 0x00ff00ff; // Interleave bits of x

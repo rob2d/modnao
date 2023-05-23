@@ -2,9 +2,11 @@ import {
   rgb565ToRgba8888,
   argb1555ToRgba8888,
   argb4444ToRgba8888,
-  decodeZMortonPosition
+  encodeZMortonPosition
 } from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+
+const COLOR_SIZE = 2;
 
 export default async function processStageTextureFile(
   textureFile: File,
@@ -29,8 +31,10 @@ export default async function processStageTextureFile(
         const yOffset = t.width * y;
 
         for (let offset = yOffset; offset < yOffset + t.width; offset += 1) {
-          const offsetDrawn = decodeZMortonPosition(offset - yOffset, y);
-          const colorValue = buffer.readUInt16LE(t.location + offsetDrawn * 2);
+          const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
+          const colorValue = buffer.readUInt16LE(
+            t.location + offsetDrawn * COLOR_SIZE
+          );
 
           let conversionOp: (v: number) => {
             r: number;

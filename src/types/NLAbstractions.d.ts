@@ -1,4 +1,4 @@
-import { TextureColorFormat } from '@/utils/textures/TextureColorFormat';
+import { TextureColorFormat } from '@/utils/textures/serialize/TextureColorFormat';
 import { TextureSize } from '@/utils/textures/TextureSize';
 
 export {};
