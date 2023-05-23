@@ -1,4 +1,4 @@
-import S from '../../../hooks/StructSizes';
+import S from '@/hooks/StructSizes';
 import {
   nlMeshConversions,
   nlModelConversions,

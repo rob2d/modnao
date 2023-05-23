@@ -1,6 +1,6 @@
 import { NLTextureDef } from '@/types/NLAbstractions';
-import O from '../../../constants/StructOffsets';
-import S from '../../../hooks/StructSizes';
+import O from '@/constants/StructOffsets';
+import S from '@/hooks/StructSizes';
 import {
   getTextureColorFormat,
   getTextureSize,
