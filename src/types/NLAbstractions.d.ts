@@ -1,5 +1,5 @@
-import { TextureColorFormat } from '@/store/stage-data/process-stage-polygon-file/TextureColorFormat';
-import { TextureSize } from '@/store/stage-data/process-stage-polygon-file/TextureSize';
+import { TextureColorFormat } from '@/utils/textures/TextureColorFormat';
+import { TextureSize } from '@/utils/textures/TextureSize';
 
 export {};
 

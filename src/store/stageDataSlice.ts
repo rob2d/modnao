@@ -4,7 +4,7 @@ import processStagePolygonFile from './stage-data/processStagePolygonFile';
 import processStageTextureFile from './stage-data/processStageTextureFile';
 import { AppState } from './store';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
-import getImageDimensions from './textures/getImageDimensions';
+import getImageDimensions from '@/utils/images/getImageDimensions';
 
 export interface StageDataState {
   models: NLModel[];

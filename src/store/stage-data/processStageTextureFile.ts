@@ -1,8 +1,10 @@
-import rgb565ToRgb8888 from './process-stage-texture-file/rgb565ToRgb888';
-import argb4444ToRgba8888 from './process-stage-texture-file/argb4444toRgba8888';
-import decodeZMortonPosition from './process-stage-texture-file/decodeZMortonPosition';
+import {
+  rgb565ToRgba8888,
+  argb1555ToRgba8888,
+  argb4444ToRgba8888,
+  decodeZMortonPosition
+} from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
-import argb1555toRgba8888 from './process-stage-texture-file/argb1555toRgba8888';
 
 export default async function processStageTextureFile(
   textureFile: File,
@@ -39,11 +41,11 @@ export default async function processStageTextureFile(
 
           switch (t.colorFormat) {
             case 'RGB565': {
-              conversionOp = rgb565ToRgb8888;
+              conversionOp = rgb565ToRgba8888;
               break;
             }
             case 'ARGB1555': {
-              conversionOp = argb1555toRgba8888;
+              conversionOp = argb1555ToRgba8888;
               break;
             }
             default:
