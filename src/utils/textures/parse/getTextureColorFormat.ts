@@ -1,4 +1,4 @@
-import { TextureColorFormat } from '../serialize/TextureColorFormat';
+import { TextureColorFormat } from '../TextureColorFormat';
 
 export default function getTextureColorFormat(
   value: number
