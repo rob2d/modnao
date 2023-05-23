@@ -23,7 +23,6 @@ export default function App({ Component, ...rest }: AppProps) {
           process.env.NODE_ENV === 'production' ? 'production' : 'development'
         }
       />
-      ;
     </ViewOptionsContextProvider>
   );
 }

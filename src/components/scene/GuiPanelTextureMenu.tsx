@@ -1,4 +1,4 @@
-import { useState, MouseEvent, useMemo, useEffect } from 'react';
+import { useState, MouseEvent, useMemo, useEffect, useCallback } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -55,9 +55,9 @@ export default function GuiPanelTextureMenu({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setAnchorEl(null);
-  };
+  }, [setAnchorEl]);
 
   const options = useMemo(
     () => [
@@ -68,14 +68,18 @@ export default function GuiPanelTextureMenu({
           a.download = `modnao-texture-${textureIndex}.png`;
           a.href = dataUrl;
           a.click();
+          handleClose();
         }
       },
       {
         label: 'Replace (Preview)',
-        onClick: () => openFileSelector()
+        onClick: () => {
+          openFileSelector();
+          handleClose();
+        }
       }
     ],
-    [dataUrl, textureIndex, openFileSelector]
+    [dataUrl, textureIndex, openFileSelector, handleClose]
   );
 
   return (
