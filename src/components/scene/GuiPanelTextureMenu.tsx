@@ -1,9 +1,11 @@
-import { useState, MouseEvent, useMemo } from 'react';
+import { useState, MouseEvent, useMemo, useEffect } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { styled } from '@mui/material';
+import { useFilePicker } from 'use-file-picker';
+import { replaceTextureDataUrl, useAppDispatch } from '@/store';
 
 const StyledPanelTextureMenu = styled('div')(
   ({ theme }) => `& {
@@ -19,6 +21,26 @@ const StyledPanelTextureMenu = styled('div')(
     `
 );
 
+function useTextureReplacementPicker(textureIndex: number) {
+  const dispatch = useAppDispatch();
+  const [openFileSelector, { filesContent }] = useFilePicker({
+    multiple: false,
+    readAs: 'DataURL',
+    accept: ['image/*']
+  });
+
+  useEffect(() => {
+    if (!filesContent[0]) {
+      return;
+    }
+    const [file] = filesContent;
+    const dataUrl = file.content;
+    dispatch(replaceTextureDataUrl({ dataUrl, textureIndex }));
+  }, [filesContent]);
+
+  return openFileSelector;
+}
+
 export default function GuiPanelTextureMenu({
   textureIndex,
   dataUrl
@@ -26,11 +48,13 @@ export default function GuiPanelTextureMenu({
   textureIndex: number;
   dataUrl: string;
 }) {
+  const openFileSelector = useTextureReplacementPicker(textureIndex);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -41,18 +65,17 @@ export default function GuiPanelTextureMenu({
         label: 'Download',
         onClick: () => {
           const a = document.createElement('a');
-          a.download = `modNaoTexture${textureIndex}.png`;
-          console.log('dataUrl ->', dataUrl);
+          a.download = `modnao-texture-${textureIndex}.png`;
           a.href = dataUrl;
           a.click();
         }
       },
       {
-        label: 'Replace',
-        onClick: () => null
+        label: 'Replace (Preview)',
+        onClick: () => openFileSelector()
       }
     ],
-    [dataUrl, textureIndex]
+    [dataUrl, textureIndex, openFileSelector]
   );
 
   return (
@@ -68,9 +91,7 @@ export default function GuiPanelTextureMenu({
       </IconButton>
       <Menu
         id='long-menu'
-        MenuListProps={{
-          'aria-labelledby': 'long-button'
-        }}
+        MenuListProps={{ 'aria-labelledby': 'long-button' }}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}

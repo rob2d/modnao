@@ -35,6 +35,7 @@ export default function useUserStageFileLoader(
 
     let selectedPolygonFile: File | undefined = undefined;
     let selectedTextureFile: File | undefined = undefined;
+
     plainFiles.forEach((f) => {
       if (f.name.match(/^STG[0-9A-F]{2}POL\.BIN$/)) {
         if (!selectedPolygonFile) {
