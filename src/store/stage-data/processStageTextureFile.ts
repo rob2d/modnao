@@ -5,6 +5,8 @@ import {
   encodeZMortonPosition
 } from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import { RgbaColor } from '@/utils/textures';
+import nonSerializables from '../nonSerializables';
 
 const COLOR_SIZE = 2;
 
@@ -17,6 +19,7 @@ export default async function processStageTextureFile(
   for await (const t of textureDefs) {
     const dataUrlTypes = Object.keys(t.dataUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
+
     for await (const dataUrlType of dataUrlTypes) {
       const buffer = Buffer.from(await textureFile.arrayBuffer());
       const canvas = document.createElement('canvas');
@@ -36,12 +39,7 @@ export default async function processStageTextureFile(
             t.location + offsetDrawn * COLOR_SIZE
           );
 
-          let conversionOp: (v: number) => {
-            r: number;
-            g: number;
-            b: number;
-            a: number;
-          };
+          let conversionOp: (v: number) => RgbaColor;
 
           switch (t.colorFormat) {
             case 'RGB565': {
@@ -91,5 +89,10 @@ export default async function processStageTextureFile(
     nextTextureDefs.push(updatedTexture);
   }
 
-  return Promise.resolve({ models, textureDefs: nextTextureDefs });
+  nonSerializables.stageTextureFile = textureFile;
+
+  return Promise.resolve({
+    models,
+    textureDefs: nextTextureDefs
+  });
 }

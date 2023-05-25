@@ -1,5 +1,4 @@
-import { TextureColorFormat } from '@/utils/textures/TextureColorFormat';
-import { TextureSize } from '@/utils/textures/TextureSize';
+import { TextureColorFormat, TextureSize } from '@/utils/textures';
 
 export {};
 
