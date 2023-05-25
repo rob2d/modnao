@@ -1,4 +1,4 @@
-import { RgbaColor } from '../RGBAColor';
+import { RgbaColor } from '../RgbaColor';
 
 export default function rgbaToRgb565(color: RgbaColor) {
   const r = color.r >> 3;

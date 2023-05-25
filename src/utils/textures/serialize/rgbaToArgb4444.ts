@@ -1,4 +1,4 @@
-import { RgbaColor } from '../RGBAColor';
+import { RgbaColor } from '../RgbaColor';
 
 export default function rgbaToArgb444(color: RgbaColor) {
   const r = Math.round((color.r * 15) / 255);
