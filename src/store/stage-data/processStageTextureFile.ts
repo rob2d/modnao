@@ -5,10 +5,19 @@ import {
   encodeZMortonPosition
 } from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
-import { RgbaColor } from '@/utils/textures';
+import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import nonSerializables from '../nonSerializables';
-
 const COLOR_SIZE = 2;
+
+const unsupportedConversion = () => ({ r: 0, g: 0, b: 0, a: 0 });
+const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
+  {
+    RGB565: rgb565ToRgba8888,
+    ARGB1555: argb1555ToRgba8888,
+    ARGB4444: argb4444ToRgba8888,
+    RGB555: unsupportedConversion,
+    ARGB8888: unsupportedConversion
+  };
 
 export default async function processStageTextureFile(
   textureFile: File,
@@ -39,23 +48,7 @@ export default async function processStageTextureFile(
             t.location + offsetDrawn * COLOR_SIZE
           );
 
-          let conversionOp: (v: number) => RgbaColor;
-
-          switch (t.colorFormat) {
-            case 'RGB565': {
-              conversionOp = rgb565ToRgba8888;
-              break;
-            }
-            case 'ARGB1555': {
-              conversionOp = argb1555ToRgba8888;
-              break;
-            }
-            default:
-            case 'ARGB4444': {
-              conversionOp = argb4444ToRgba8888;
-              break;
-            }
-          }
+          const conversionOp = conversionDict[t.colorFormat];
 
           const color = conversionOp(colorValue);
 
