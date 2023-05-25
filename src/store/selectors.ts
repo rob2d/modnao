@@ -7,6 +7,12 @@ export const selectObjectIndex = (s: AppState) => s.modelViewer.objectIndex;
 
 export const selectStageModels = (s: AppState) => s.stageData.models;
 
+export const selectHasLoadedStageTextureFile = (s: AppState) =>
+  s.stageData.hasLoadedStageTextureFile;
+
+export const selectHasReplacementTextures = (s: AppState) =>
+  s.stageData.hasReplacementTextures;
+
 export const selectModelCount = createSelector(
   selectStageModels,
   (models) => models.length

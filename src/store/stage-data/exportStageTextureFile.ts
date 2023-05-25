@@ -12,7 +12,6 @@ import loadImageFromDataUrl from '@/utils/images/loadImageFromDataUrl';
  */
 async function getPixelsFromDataUrlImage(dataUrl: string) {
   const image = await loadImageFromDataUrl(dataUrl);
-
   const canvas = document.createElement('canvas');
   const width = image.width;
   const height = image.height;
@@ -25,10 +24,11 @@ async function getPixelsFromDataUrlImage(dataUrl: string) {
   // rotate canvas
   const rotatedCanvas = document.createElement('canvas');
   const rotatedCtx = rotatedCanvas.getContext('2d') as CanvasRenderingContext2D;
+  rotatedCtx.translate(canvas.width / 2, canvas.height / 2);
   rotatedCtx.rotate((90 * Math.PI) / 180);
   rotatedCtx.drawImage(canvas, 0, 0);
 
-  const imageData = ctx.getImageData(0, 0, width, height);
+  const imageData = rotatedCtx.getImageData(0, 0, width, height);
   return imageData.data;
 }
 
@@ -74,11 +74,14 @@ export default async function exportStageTextureFile(
           b: pixelColors[colorOffset + 2],
           a: pixelColors[colorOffset + 3]
         };
+
         const conversionOp = conversionDict[t.colorFormat];
         const offsetWritten = location + decodedOffset * COLOR_SIZE;
         buffer[offsetWritten] = conversionOp(color);
       }
     }
+
+    console.log('colorSet ->', colorSet);
   }
 
   const output = new Blob([buffer], { type: 'octet-stream' });

@@ -1,4 +1,7 @@
 import {
+  downloadStageTextureFile,
+  selectHasLoadedStageTextureFile,
+  selectHasReplacementTextures,
   selectModel,
   selectModelCount,
   selectModelIndex,
@@ -124,13 +127,8 @@ const StyledDrawer = styled(Drawer)(
       flex-grow: 1;
     }
 
-    & .buttons {
-      display: flex;
-      width: 100%;
-    }
-
-    & .buttons > :not(:last-child) {
-      margin-right: ${theme.spacing(2)}
+    & .MuiButton-root.MuiButton-outlined {
+      justify-content: center;
     }
   `
 );
@@ -138,15 +136,22 @@ const StyledDrawer = styled(Drawer)(
 export default function GuiPanel() {
   // @TODO use a more standard error dialog vs using window.alert here
   const openFileSelector = useStageFilePicker(globalThis.alert);
-  const onExportSelection = useModelSelectionExport();
+
   const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
+  const onExportSelectionJson = useModelSelectionExport();
+  const onExportTextureFile = useCallback(() => {
+    dispatch(downloadStageTextureFile());
+  }, [dispatch]);
   const modelIndex = useAppSelector(selectModelIndex);
   const modelCount = useAppSelector(selectModelCount);
   const objectIndex = useAppSelector(selectObjectIndex);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
+  const hasLoadedStageTextureFile = useAppSelector(
+    selectHasLoadedStageTextureFile
+  );
 
   const selectedMeshTexture: number = useMemo(() => {
     const textureIndex = model?.meshes?.[objectIndex]?.textureIndex;
@@ -218,6 +223,8 @@ export default function GuiPanel() {
     return images;
   }, [model, textureDefs, selectedMeshTexture]);
 
+  const hasReplacementTextures = useAppSelector(selectHasReplacementTextures);
+
   // when selecting a texture, scroll to the item
   useEffect(() => {
     const textureEl = document.getElementById(
@@ -233,7 +240,7 @@ export default function GuiPanel() {
     <StyledDrawer variant='permanent' anchor='right'>
       <Divider flexItem>
         <Typography variant='subtitle2' textAlign='left' width='100%'>
-          Selection
+          Models
         </Typography>
       </Divider>
       <div className='selection'>
@@ -268,12 +275,12 @@ export default function GuiPanel() {
               {objectIndex === -1 ? 'N/A' : objectIndex}
             </Typography>
           </Grid>
-          <Grid xs={5}>
+          <Grid xs={8}>
             <Typography variant='body1' textAlign='right'>
-              Selection Type
+              Object Type
             </Typography>
           </Grid>
-          <Grid xs={6}>
+          <Grid xs={4}>
             <ToggleButtonGroup
               orientation='vertical'
               color='secondary'
@@ -288,10 +295,34 @@ export default function GuiPanel() {
             </ToggleButtonGroup>
           </Grid>
         </Grid>
+        <Tooltip title='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'>
+          <Button
+            onClick={openFileSelector}
+            color='primary'
+            fullWidth
+            size='small'
+            variant='outlined'
+          >
+            Import ROM Files
+          </Button>
+        </Tooltip>
+        {!model ? undefined : (
+          <Tooltip title='Export ModNao model .json data. Will narrow data down to the current selection'>
+            <Button
+              fullWidth
+              onClick={onExportSelectionJson}
+              color='secondary'
+              size='small'
+              variant='outlined'
+            >
+              Export Selection JSON
+            </Button>
+          </Tooltip>
+        )}
       </div>
       <Divider flexItem>
         <Typography variant='subtitle2' textAlign='left' width='100%'>
-          View Options
+          View
         </Typography>
       </Divider>
       <div className='view-options'>
@@ -337,7 +368,7 @@ export default function GuiPanel() {
           onChange={onSetShowSceneCursor}
         />
       </div>
-      {!textures.length ? undefined : (
+      {!hasLoadedStageTextureFile ? undefined : (
         <>
           <Divider flexItem>
             <Typography variant='subtitle2' textAlign='left' width='100%'>
@@ -347,37 +378,21 @@ export default function GuiPanel() {
           <div className='textures'>{textures}</div>
         </>
       )}
-      <Divider flexItem>
-        <Typography variant='subtitle2' textAlign='left' width='100%'>
-          Data
-        </Typography>
-      </Divider>
-      <div className='buttons'>
-        <Tooltip title='Select an MVC2 or CVS2 STGXY.POL file'>
-          <Button
-            onClick={openFileSelector}
-            color='primary'
-            size='small'
-            variant='outlined'
-          >
-            <FileUploadIcon />
-            Import
-          </Button>
-        </Tooltip>
-        {!model ? undefined : (
-          <Tooltip title='Export ModNao model .json data. Will narrow data down to the current selection'>
+      {!hasReplacementTextures ? undefined : (
+        <div>
+          <Tooltip title='Download texture ROM binary with replaced images'>
             <Button
-              onClick={onExportSelection}
+              onClick={onExportTextureFile}
+              fullWidth
               color='secondary'
               size='small'
               variant='outlined'
             >
-              <DownloadForOfflineIcon />
-              Export
+              Export Textures
             </Button>
           </Tooltip>
-        )}
-      </div>
+        </div>
+      )}
     </StyledDrawer>
   );
 }
