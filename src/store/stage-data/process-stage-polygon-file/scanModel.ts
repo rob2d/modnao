@@ -6,18 +6,15 @@ import {
   nlVertexConversions
 } from './NLPropConversionDefs';
 import { processNLConversions as processNLConversions } from './processNLConversions';
-import { NLTextureDef } from '@/types/NLAbstractions';
 
 export default function scanModel({
   address,
   buffer,
-  index,
-  textureDefs
+  index
 }: {
   address: number;
   buffer: Buffer;
   index: number;
-  textureDefs: NLTextureDef[];
 }) {
   // (1) scan base model props
   const model = processNLConversions<NLModel>(
@@ -54,16 +51,6 @@ export default function scanModel({
         buffer,
         structAddress
       );
-
-      // keys in dataUrls will be used to populate
-      const textureDataUrls = textureDefs[mesh.textureIndex].dataUrls;
-
-      if (mesh.isOpaque && !textureDataUrls.opaque) {
-        textureDataUrls.opaque = '';
-      }
-      if (!mesh.isOpaque && !textureDataUrls.translucent) {
-        textureDataUrls.translucent = '';
-      }
 
       mesh.polygons = [];
 

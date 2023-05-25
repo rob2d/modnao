@@ -19,7 +19,7 @@ export default async function processStagePolygonFile(
   // @TODO: run these on separate thread
   const models = modelPointers.map(
     (address: number, index: number) =>
-      scanModel({ buffer, address, index, textureDefs }) as NLModel
+      scanModel({ buffer, address, index }) as NLModel
   );
 
   nonSerializables.stagePolygonFile = stagePolygonFile;

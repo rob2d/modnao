@@ -36,7 +36,7 @@ export default async function processStageTextureFile(
       canvas.height = t.height;
 
       const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-      const id = context?.getImageData(0, 0, t.width, t.height) as ImageData;
+      const id = context.getImageData(0, 0, t.width, t.height) as ImageData;
       const pixels = id.data;
 
       for (let y = 0; y < t.height; y++) {

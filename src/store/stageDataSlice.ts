@@ -110,11 +110,6 @@ const stageDataSlice = createSlice({
           state.textureDefs[textureIndex].dataUrls
         ) as TextureDataUrlType[];
 
-        // @TODO: process both translucent and opaque
-        // textures in action to resolve both variants as necessary.
-        // For first iteration, just returning dataUrl with whatever
-        // is passed in (defaulting to opaque)
-
         dataUrlTypes.forEach((key) => {
           state.textureDefs[textureIndex].dataUrls[key] = dataUrl;
         });
