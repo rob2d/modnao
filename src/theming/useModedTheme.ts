@@ -1,4 +1,4 @@
-import themes from '@/themes';
+import themes from '@/theming/themes';
 import { Theme, useMediaQuery } from '@mui/material';
 import { useMemo } from 'react';
 

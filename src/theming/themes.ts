@@ -74,17 +74,17 @@ const themes = Object.fromEntries(
           contrastText: '#FFF'
         },
         scene: {
-          background: mode === 'dark' ? '#1f121f' : '#efefff'
+          background: mode === 'dark' ? '#1c121c' : '#efefff'
         },
         sceneMesh: {
-          default: mode === 'dark' ? '#546' : '#CCC',
+          default: mode === 'dark' ? '#683C62' : '#AAC',
           selected: mode === 'dark' ? '#00A5FF' : '#e98df5',
           flagged: '#9BF',
           textureDefault: '#fff',
           textureSelected: mode === 'dark' ? '#9cf' : '#f9c'
         },
         panelTexture: {
-          background: mode === 'dark' ? '#212' : '#efefff'
+          background: mode === 'dark' ? '#1d1b1d' : '#efefff'
         }
       }
     })
