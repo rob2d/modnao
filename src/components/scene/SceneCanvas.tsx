@@ -1,21 +1,28 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { selectModel, selectObjectIndex } from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardActions } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
+import { SceneContext } from '@/contexts/SceneContext';
 
 THREE.ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
 
 export default function SceneCanvas() {
-  const viewOptions = useContext(ViewOptionsContext);
   useSceneKeyboardActions();
+
+  const viewOptions = useContext(ViewOptionsContext);
+  const { setScene } = useContext(SceneContext);
+  const { scene } = useThree();
+  useEffect(() => {
+    setScene(scene);
+  }, [scene]);
 
   const dispatch = useAppDispatch();
   const objectIndex = useAppSelector(selectObjectIndex);
