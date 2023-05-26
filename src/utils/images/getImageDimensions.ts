@@ -1,12 +1,8 @@
-export default function getImageDimensions(
+import loadImageFromDataUrl from './loadImageFromDataUrl';
+
+export default async function getImageDimensions(
   dataUrl: string
 ): Promise<[number, number]> {
-  return new Promise((resolve) => {
-    const i = new Image();
-    i.onload = function () {
-      resolve([i.width, i.height]);
-    };
-
-    i.src = dataUrl;
-  });
+  const image = await loadImageFromDataUrl(dataUrl);
+  return [image.width, image.height];
 }

@@ -22,7 +22,7 @@ export default function scanTextureHeaderData(buffer: Buffer) {
     // we can discard when scanning
     if (texture.width > 0) {
       // will be re-assigned when populating tex file
-      texture.dataUrls = {};
+      texture.dataUrls = { opaque: '', translucent: '' };
       textures.push(texture);
     }
   }

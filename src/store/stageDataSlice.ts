@@ -5,12 +5,15 @@ import processStageTextureFile from './stage-data/processStageTextureFile';
 import { AppState } from './store';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import getImageDimensions from '@/utils/images/getImageDimensions';
+import exportStageTextureFile from './stage-data/exportStageTextureFile';
 
 export interface StageDataState {
   models: NLModel[];
   textureDefs: NLTextureDef[];
   replacedTextureDataUrls: Record<number, string>;
   hasLoadedStagePolygonFile: boolean;
+  hasLoadedStageTextureFile: boolean;
+  hasReplacementTextures: boolean;
 }
 
 const sliceName = 'stageData';
@@ -19,6 +22,8 @@ export const initialStageDataState: StageDataState = {
   models: [],
   textureDefs: [],
   hasLoadedStagePolygonFile: false,
+  hasLoadedStageTextureFile: false,
+  hasReplacementTextures: false,
   replacedTextureDataUrls: {}
 };
 
@@ -65,6 +70,15 @@ export const replaceTextureDataUrl = createAsyncThunk<
   }
 );
 
+export const downloadStageTextureFile = createAsyncThunk<
+  void,
+  void,
+  { state: AppState }
+>(`${sliceName}/downloadStageTextureFile`, async (_, { getState }) => {
+  const state = getState();
+  await exportStageTextureFile(state.stageData.textureDefs);
+});
+
 const stageDataSlice = createSlice({
   name: sliceName,
   initialState: initialStageDataState,
@@ -76,38 +90,36 @@ const stageDataSlice = createSlice({
         state.models = models;
         state.textureDefs = textureDefs;
         state.hasLoadedStagePolygonFile = true;
+        state.hasLoadedStageTextureFile = false;
+      }
+    );
+
+    builder.addCase(
+      loadStageTextureFile.fulfilled,
+      (state: StageDataState, { payload: { models, textureDefs } }) => {
+        state.models = models;
+        state.textureDefs = textureDefs;
+        state.hasLoadedStageTextureFile = true;
       }
     );
 
     builder.addCase(
       replaceTextureDataUrl.fulfilled,
       (state: StageDataState, { payload: { textureIndex, dataUrl } }) => {
-        state.hasLoadedStagePolygonFile = true;
         const dataUrlTypes = Object.keys(
           state.textureDefs[textureIndex].dataUrls
         ) as TextureDataUrlType[];
 
-        // @TODO: process both translucent and opaque
-        // textures in action to resolve both variants as necessary.
-        // For first iteration, just returning dataUrl with whatever
-        // is passed in (defaulting to opaque)
-
         dataUrlTypes.forEach((key) => {
           state.textureDefs[textureIndex].dataUrls[key] = dataUrl;
         });
+
+        state.hasReplacementTextures = true;
       }
     );
 
     builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
       Object.assign(state, payload)
-    );
-
-    builder.addCase(
-      loadStageTextureFile.fulfilled,
-      (state: StageDataState, { payload }) => {
-        state.models = payload.models;
-        state.textureDefs = payload.textureDefs;
-      }
     );
   }
 });

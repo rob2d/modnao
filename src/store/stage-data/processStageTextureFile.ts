@@ -2,9 +2,22 @@ import {
   rgb565ToRgba8888,
   argb1555ToRgba8888,
   argb4444ToRgba8888,
-  decodeZMortonPosition
+  encodeZMortonPosition
 } from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import { RgbaColor, TextureColorFormat } from '@/utils/textures';
+import nonSerializables from '../nonSerializables';
+const COLOR_SIZE = 2;
+
+const unsupportedConversion = () => ({ r: 0, g: 0, b: 0, a: 0 });
+const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
+  {
+    RGB565: rgb565ToRgba8888,
+    ARGB1555: argb1555ToRgba8888,
+    ARGB4444: argb4444ToRgba8888,
+    RGB555: unsupportedConversion,
+    ARGB8888: unsupportedConversion
+  };
 
 export default async function processStageTextureFile(
   textureFile: File,
@@ -15,6 +28,7 @@ export default async function processStageTextureFile(
   for await (const t of textureDefs) {
     const dataUrlTypes = Object.keys(t.dataUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
+
     for await (const dataUrlType of dataUrlTypes) {
       const buffer = Buffer.from(await textureFile.arrayBuffer());
       const canvas = document.createElement('canvas');
@@ -22,38 +36,19 @@ export default async function processStageTextureFile(
       canvas.height = t.height;
 
       const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-      const id = context?.getImageData(0, 0, t.width, t.height) as ImageData;
+      const id = context.getImageData(0, 0, t.width, t.height) as ImageData;
       const pixels = id.data;
 
       for (let y = 0; y < t.height; y++) {
         const yOffset = t.width * y;
 
         for (let offset = yOffset; offset < yOffset + t.width; offset += 1) {
-          const offsetDrawn = decodeZMortonPosition(offset - yOffset, y);
-          const colorValue = buffer.readUInt16LE(t.location + offsetDrawn * 2);
+          const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
+          const colorValue = buffer.readUInt16LE(
+            t.location + offsetDrawn * COLOR_SIZE
+          );
 
-          let conversionOp: (v: number) => {
-            r: number;
-            g: number;
-            b: number;
-            a: number;
-          };
-
-          switch (t.colorFormat) {
-            case 'RGB565': {
-              conversionOp = rgb565ToRgba8888;
-              break;
-            }
-            case 'ARGB1555': {
-              conversionOp = argb1555ToRgba8888;
-              break;
-            }
-            default:
-            case 'ARGB4444': {
-              conversionOp = argb4444ToRgba8888;
-              break;
-            }
-          }
+          const conversionOp = conversionDict[t.colorFormat];
 
           const color = conversionOp(colorValue);
 
@@ -87,5 +82,10 @@ export default async function processStageTextureFile(
     nextTextureDefs.push(updatedTexture);
   }
 
-  return Promise.resolve({ models, textureDefs: nextTextureDefs });
+  nonSerializables.stageTextureFile = textureFile;
+
+  return Promise.resolve({
+    models,
+    textureDefs: nextTextureDefs
+  });
 }

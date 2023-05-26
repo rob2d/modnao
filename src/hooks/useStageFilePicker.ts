@@ -46,7 +46,7 @@ export default function useUserStageFileLoader(
         }
       }
 
-      if (f.name.match(/^STG[0-9A-F]{2}TEX\.BIN$/)) {
+      if (f.name.match(/^STG[0-9A-F]{2}TEX(.modnao)?\.BIN$/)) {
         if (!selectedTextureFile) {
           selectedTextureFile = f;
         } else {

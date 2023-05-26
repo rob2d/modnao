@@ -1,5 +1,4 @@
-import { TextureColorFormat } from '@/utils/textures/TextureColorFormat';
-import { TextureSize } from '@/utils/textures/TextureSize';
+import { TextureColorFormat, TextureSize } from '@/utils/textures';
 
 export {};
 
@@ -79,5 +78,5 @@ export type NLTextureDef = {
   colorFormatValue: number;
   type: number;
   location: number;
-  dataUrls: { opaque?: string; translucent?: string };
+  dataUrls: { opaque: string; translucent: string };
 } & ModNaoMemoryObject;
