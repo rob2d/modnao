@@ -6,6 +6,7 @@ import { wrapper } from '../store/store';
 import useModedTheme from '@/theming/useModedTheme';
 import { ViewOptionsContextProvider } from '@/contexts/ViewOptionsContext';
 import { Analytics } from '@vercel/analytics/react';
+import { SceneContextProvider } from '@/contexts/SceneContext';
 
 export default function App({ Component, ...rest }: AppProps) {
   const theme = useModedTheme();
@@ -13,16 +14,18 @@ export default function App({ Component, ...rest }: AppProps) {
 
   return (
     <ViewOptionsContextProvider>
-      <Provider store={store}>
-        <ThemeProvider theme={theme}>
-          <Component {...props} />
-        </ThemeProvider>
-      </Provider>
-      <Analytics
-        mode={
-          process.env.NODE_ENV === 'production' ? 'production' : 'development'
-        }
-      />
+      <SceneContextProvider>
+        <Provider store={store}>
+          <ThemeProvider theme={theme}>
+            <Component {...props} />
+          </ThemeProvider>
+        </Provider>
+        <Analytics
+          mode={
+            process.env.NODE_ENV === 'production' ? 'production' : 'development'
+          }
+        />
+      </SceneContextProvider>
     </ViewOptionsContextProvider>
   );
 }
