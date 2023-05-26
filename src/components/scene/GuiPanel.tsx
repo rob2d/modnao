@@ -111,6 +111,7 @@ const StyledDrawer = styled(Drawer)(
       width: 222px;
       flex-grow: 2;
       overflow-y: auto;
+      margin-bottom: ${theme.spacing(1)};
     }
 
     & > .MuiPaper-root > .MuiDivider-root {
@@ -129,6 +130,14 @@ const StyledDrawer = styled(Drawer)(
 
     & .MuiButton-root.MuiButton-outlined {
       justify-content: center;
+    }
+
+    & .MuiButton-root.MuiButton-outlined:not(:last-child) {
+      margin-bottom: ${theme.spacing(1)};
+    }
+
+    & .MuiDivider-root:not(:first-child) {
+      padding-top: ${theme.spacing(1)};
     }
   `
 );
