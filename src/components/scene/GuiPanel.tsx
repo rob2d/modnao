@@ -312,19 +312,19 @@ export default function GuiPanel() {
             size='small'
             variant='outlined'
           >
-            Import ROM Files
+            Import Stage/Texture
           </Button>
         </Tooltip>
         {!model ? undefined : (
-          <Tooltip title='Download a blender OBJ file representing the current model scene loaded'>
+          <Tooltip title='Download a blender .obj file representing the current model scene loaded'>
             <Button
               onClick={onExportOBJFile}
-              color='primary'
+              color='secondary'
               fullWidth
               size='small'
               variant='outlined'
             >
-              Import ROM Files
+              Export Blender OBJ
             </Button>
           </Tooltip>
         )}

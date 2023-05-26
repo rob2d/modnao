@@ -23,7 +23,7 @@ export default function useSceneOBJFileDownloader() {
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(file);
     link.click();
-  }, []);
+  }, [scene]);
 
   return onDownloadSceneOBJFile;
 }

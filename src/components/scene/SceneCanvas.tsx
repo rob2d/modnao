@@ -1,14 +1,14 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
-import { Canvas, useThree } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { selectModel, selectObjectIndex } from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardActions } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
-import { SceneContext } from '@/contexts/SceneContext';
+import { SceneContextSetup } from '@/contexts/SceneContext';
 
 THREE.ColorManagement.enabled = true;
 
@@ -18,11 +18,6 @@ export default function SceneCanvas() {
   useSceneKeyboardActions();
 
   const viewOptions = useContext(ViewOptionsContext);
-  const { setScene } = useContext(SceneContext);
-  const { scene } = useThree();
-  useEffect(() => {
-    setScene(scene);
-  }, [scene]);
 
   const dispatch = useAppDispatch();
   const objectIndex = useAppSelector(selectObjectIndex);
@@ -49,6 +44,7 @@ export default function SceneCanvas() {
 
   return (
     <Canvas camera={cameraParams} frameloop='demand' style={canvasStyle}>
+      <SceneContextSetup />
       <group dispose={null}>
         {!viewOptions.showAxesHelper ? undefined : <axesHelper args={[50]} />}
         {(model?.meshes || []).map((m, i) => (
