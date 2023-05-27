@@ -14,15 +14,14 @@ export default function useSceneOBJFileDownloader() {
 
     const output = exporter.parse(scene);
 
-    // @TODO: when original filename is available,
-    // format as STG{NN}.modnao.OBJ
-    const file = new File([output], 'STG.modnao.obj', {
-      type: 'application/object',
-      lastModified: Date.now()
-    });
+    const file = new Blob([output], { type: 'application/object' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(file);
     link.click();
+
+    // @TODO: when original filename is available,
+    // format as STG{NN}.modnao.obj
+    link.download = 'STG00.modnao.obj';
   }, [scene]);
 
   return onDownloadSceneOBJFile;

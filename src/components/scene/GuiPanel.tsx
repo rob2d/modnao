@@ -316,7 +316,20 @@ export default function GuiPanel() {
           </Button>
         </Tooltip>
         {!model ? undefined : (
-          <Tooltip title='Download a blender .obj file representing the current model scene loaded'>
+          <Tooltip
+            title={
+              <div>
+                <p>
+                  Download a blender .obj file to import representing the
+                  current in-scene model.
+                </p>
+                <p>
+                  ⚠️ Note that this feature is WIP. There are known issues with
+                  vertex ordering ⚠️
+                </p>
+              </div>
+            }
+          >
             <Button
               onClick={onExportOBJFile}
               color='secondary'
