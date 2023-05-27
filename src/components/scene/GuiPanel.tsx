@@ -35,12 +35,11 @@ import {
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 
 import useStageFilePicker from '@/hooks/useStageFilePicker';
 import { useModelSelectionExport } from '@/hooks';
 import GuiPanelTexture from './GuiPanelTexture';
+import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
 
 // @TODO: consider either:
 // (1) breaking this panel into separate components,
@@ -149,6 +148,7 @@ export default function GuiPanel() {
   const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
   const onExportSelectionJson = useModelSelectionExport();
+  const onExportOBJFile = useSceneOBJFileDownloader();
   const onExportTextureFile = useCallback(() => {
     dispatch(downloadStageTextureFile());
   }, [dispatch]);
@@ -169,15 +169,15 @@ export default function GuiPanel() {
   }, [model, objectIndex]);
 
   const onSetObjectSelectionType = useCallback(
-    (_: React.MouseEvent<HTMLElement>, type: any) => {
+    (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
       type && dispatch(setObjectType(type));
     },
     []
   );
 
   const onSetMeshDisplayMode = useCallback(
-    (_: React.MouseEvent<HTMLElement>, mode: any) => {
-      mode && viewOptions.setMeshDisplayMode(mode as MeshDisplayMode);
+    (_: React.MouseEvent<HTMLElement>, mode: MeshDisplayMode) => {
+      mode && viewOptions.setMeshDisplayMode(mode);
     },
     [viewOptions.setMeshDisplayMode]
   );
@@ -312,10 +312,37 @@ export default function GuiPanel() {
             size='small'
             variant='outlined'
           >
-            Import ROM Files
+            Import Stage/Texture
           </Button>
         </Tooltip>
         {!model ? undefined : (
+          <Tooltip
+            title={
+              <div>
+                <p>
+                  Download a blender .obj file to import representing the
+                  current in-scene model.
+                </p>
+                <p>
+                  ⚠️ Note that this feature is WIP. There are known issues with
+                  vertex ordering ⚠️
+                </p>
+              </div>
+            }
+          >
+            <Button
+              onClick={onExportOBJFile}
+              color='secondary'
+              fullWidth
+              size='small'
+              variant='outlined'
+            >
+              Export Blender OBJ
+            </Button>
+          </Tooltip>
+        )}
+        {!model ? undefined : (
+          // @TODO: customize the title and label based on selection-scope
           <Tooltip title='Export ModNao model .json data. Will narrow data down to the current selection'>
             <Button
               fullWidth

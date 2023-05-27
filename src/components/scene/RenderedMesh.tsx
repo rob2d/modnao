@@ -44,7 +44,7 @@ export default function RenderedMesh({
   };
 
   return (
-    <mesh onClick={handleClick}>
+    <group onClick={handleClick}>
       {polygons.map((p, pIndex) => (
         <RenderedPolygon
           {...p}
@@ -54,6 +54,6 @@ export default function RenderedMesh({
           texture={texture}
         />
       ))}
-    </mesh>
+    </group>
   );
 }

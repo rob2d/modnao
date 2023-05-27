@@ -8,14 +8,16 @@ import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardActions } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
+import { SceneContextSetup } from '@/contexts/SceneContext';
 
 THREE.ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
 
 export default function SceneCanvas() {
-  const viewOptions = useContext(ViewOptionsContext);
   useSceneKeyboardActions();
+
+  const viewOptions = useContext(ViewOptionsContext);
 
   const dispatch = useAppDispatch();
   const objectIndex = useAppSelector(selectObjectIndex);
@@ -42,6 +44,7 @@ export default function SceneCanvas() {
 
   return (
     <Canvas camera={cameraParams} frameloop='demand' style={canvasStyle}>
+      <SceneContextSetup />
       <group dispose={null}>
         {!viewOptions.showAxesHelper ? undefined : <axesHelper args={[50]} />}
         {(model?.meshes || []).map((m, i) => (
