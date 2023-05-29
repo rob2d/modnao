@@ -46,7 +46,7 @@ const modelViewerSlice = createSlice({
       });
     },
 
-    setObjectIndex(state, { payload: objectKey }) {
+    setObjectKey(state, { payload: objectKey }) {
       Object.assign(state, { objectKey });
     },
 
@@ -70,6 +70,6 @@ const modelViewerSlice = createSlice({
   }
 });
 
-export const { setObjectIndex, setObjectType } = modelViewerSlice.actions;
+export const { setObjectKey, setObjectType } = modelViewerSlice.actions;
 
 export default modelViewerSlice;

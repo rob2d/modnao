@@ -126,6 +126,7 @@ export default function RenderedPolygon({
   }, [color, showPolygonAddresses, meshDisplayMode, isSelected]);
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    e.nativeEvent.stopPropagation();
     e.stopPropagation();
     onSelectObjectKey(objectKey);
   };

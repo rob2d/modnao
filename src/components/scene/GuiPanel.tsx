@@ -279,12 +279,12 @@ export default function GuiPanel() {
           </Grid>
           <Grid xs={8}>
             <Typography variant='body1' textAlign='right'>
-              Object Index
+              Object Key
             </Typography>
           </Grid>
           <Grid xs={4}>
             <Typography variant='button' textAlign='right'>
-              {objectKey ? 'N/A' : objectKey}
+              {!objectKey ? 'N/A' : objectKey}
             </Typography>
           </Grid>
           <Grid xs={8}>
