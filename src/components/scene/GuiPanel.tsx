@@ -79,6 +79,7 @@ const StyledDrawer = styled(Drawer)(
 
     & > .MuiPaper-root .MuiToggleButtonGroup-root .MuiButtonBase-root {
       width: 100%;
+      justify-content: center;
     }
 
     & > .MuiPaper-root > .MuiTypography-subtitle2, & > .MuiPaper-root > :not(.MuiDivider-root) {
@@ -172,7 +173,7 @@ export default function GuiPanel() {
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
       type && dispatch(setObjectType(type));
     },
-    []
+    [objectSelectionType]
   );
 
   const onSetMeshDisplayMode = useCallback(
@@ -298,9 +299,9 @@ export default function GuiPanel() {
               exclusive
               onChange={onSetObjectSelectionType}
               aria-label='text alignment'
-              disabled
             >
               <ToggleButton value='mesh'>mesh</ToggleButton>
+              <ToggleButton value='polygon'>polygon</ToggleButton>
             </ToggleButtonGroup>
           </Grid>
         </Grid>
