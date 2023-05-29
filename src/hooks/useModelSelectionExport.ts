@@ -1,35 +1,35 @@
 import { useCallback, useMemo } from 'react';
 import exportFromJSON from 'export-from-json';
-import { selectModel, selectModelIndex, selectObjectIndex } from '@/store';
+import { selectModel, selectModelIndex, selectObjectKey } from '@/store';
 import { useSelector } from 'react-redux';
 
 export default function useModelSelectionExport() {
   const model = useSelector(selectModel);
   const modelIndex = useSelector(selectModelIndex);
-  const objectIndex = useSelector(selectObjectIndex);
+  const objectKey = useSelector(selectObjectKey);
 
   const data = useMemo(() => {
     if (!model) {
       return {};
     }
-    if (objectIndex === -1) {
+    if (objectKey === -1) {
       return model;
     }
 
-    return model.meshes[objectIndex];
-  }, [model, objectIndex]);
+    return model.meshes[objectKey];
+  }, [model, objectKey]);
 
   const onDownloadModelSelection = useCallback(() => {
     if (modelIndex === -1) {
       return;
     }
-    const hasSelection = objectIndex !== -1;
+    const hasSelection = objectKey !== -1;
     exportFromJSON({
       data,
-      fileName: `model-${modelIndex}${!hasSelection ? '' : `-${objectIndex}`}`,
+      fileName: `model-${modelIndex}${!hasSelection ? '' : `-${objectKey}`}`,
       exportType: exportFromJSON.types.json
     });
-  }, [modelIndex, objectIndex, data]);
+  }, [modelIndex, objectKey, data]);
 
   return onDownloadModelSelection;
 }

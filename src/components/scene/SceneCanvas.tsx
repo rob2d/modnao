@@ -2,7 +2,11 @@ import { useCallback, useContext, useMemo } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { selectModel, selectObjectIndex } from '@/store/selectors';
+import {
+  selectModel,
+  selectObjectKey,
+  selectObjectSelectionType
+} from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardActions } from '@/hooks';
@@ -20,14 +24,15 @@ export default function SceneCanvas() {
   const viewOptions = useContext(ViewOptionsContext);
 
   const dispatch = useAppDispatch();
-  const objectIndex = useAppSelector(selectObjectIndex);
-  const onSelectObjectIndex = useCallback(
-    (i: number) => {
-      if (objectIndex !== i) {
-        dispatch(setObjectIndex(i));
+  const objectKey = useAppSelector(selectObjectKey);
+  const objectSelectionType = useAppSelector(selectObjectSelectionType);
+  const onSelectObjectKey = useCallback(
+    (key: string) => {
+      if (objectKey !== key) {
+        dispatch(setObjectIndex(key));
       }
     },
-    [objectIndex]
+    [objectKey]
   );
 
   const textureDefs = useAppSelector((s) => s.stageData.textureDefs);
@@ -50,10 +55,11 @@ export default function SceneCanvas() {
         {(model?.meshes || []).map((m, i) => (
           <RenderedMesh
             key={m.address}
-            index={i}
             {...m}
-            objectIndex={objectIndex}
-            onSelectObjectIndex={onSelectObjectIndex}
+            objectKey={`${i}`}
+            selectedObjectKey={objectKey}
+            objectSelectionType={objectSelectionType}
+            onSelectObjectKey={onSelectObjectKey}
             textureDefs={textureDefs}
           />
         ))}

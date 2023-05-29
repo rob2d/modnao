@@ -5,7 +5,8 @@ import {
   selectModel,
   selectModelCount,
   selectModelIndex,
-  selectObjectIndex,
+  selectObjectKey,
+  selectObjectMeshIndex,
   selectObjectSelectionType,
   selectTextureDefs,
   setObjectType,
@@ -155,7 +156,8 @@ export default function GuiPanel() {
   }, [dispatch]);
   const modelIndex = useAppSelector(selectModelIndex);
   const modelCount = useAppSelector(selectModelCount);
-  const objectIndex = useAppSelector(selectObjectIndex);
+  const objectKey = useAppSelector(selectObjectKey);
+  const meshIndex = useAppSelector(selectObjectMeshIndex);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
@@ -164,10 +166,10 @@ export default function GuiPanel() {
   );
 
   const selectedMeshTexture: number = useMemo(() => {
-    const textureIndex = model?.meshes?.[objectIndex]?.textureIndex;
+    const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
 
     return typeof textureIndex === 'number' ? textureIndex : -1;
-  }, [model, objectIndex]);
+  }, [model, objectKey, meshIndex]);
 
   const onSetObjectSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
@@ -282,7 +284,7 @@ export default function GuiPanel() {
           </Grid>
           <Grid xs={4}>
             <Typography variant='button' textAlign='right'>
-              {objectIndex === -1 ? 'N/A' : objectIndex}
+              {objectKey ? 'N/A' : objectKey}
             </Typography>
           </Grid>
           <Grid xs={8}>
@@ -326,7 +328,7 @@ export default function GuiPanel() {
                 </p>
                 <p>
                   ⚠️ Note that this feature is WIP. There are known issues with
-                  vertex ordering ⚠️
+                  winding index order on vertices ⚠️
                 </p>
               </div>
             }
