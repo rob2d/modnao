@@ -1,18 +1,34 @@
 import { useCallback, useContext, useMemo } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
-import { selectModel, selectObjectIndex } from '@/store/selectors';
-import { useAppSelector, useAppDispatch, setObjectIndex } from '@/store';
+import { Canvas, ThreeEvent } from '@react-three/fiber';
+import {
+  selectModel,
+  selectObjectKey,
+  selectObjectSelectionType
+} from '@/store/selectors';
+import { useAppSelector, useAppDispatch, setObjectKey } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardActions } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import { useTheme } from '@mui/material';
+import { styled, useTheme } from '@mui/material';
 import { SceneContextSetup } from '@/contexts/SceneContext';
 
 THREE.ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
+
+const Styled = styled('div')(
+  () => `
+  & {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    zIndex: -1;
+  }
+`
+);
 
 export default function SceneCanvas() {
   useSceneKeyboardActions();
@@ -20,14 +36,13 @@ export default function SceneCanvas() {
   const viewOptions = useContext(ViewOptionsContext);
 
   const dispatch = useAppDispatch();
-  const objectIndex = useAppSelector(selectObjectIndex);
-  const onSelectObjectIndex = useCallback(
-    (i: number) => {
-      if (objectIndex !== i) {
-        dispatch(setObjectIndex(i));
-      }
+  const objectKey = useAppSelector(selectObjectKey);
+  const objectSelectionType = useAppSelector(selectObjectSelectionType);
+  const onSelectObjectKey = useCallback(
+    (key: string) => {
+      dispatch(setObjectKey(objectKey !== key ? key : undefined));
     },
-    [objectIndex]
+    [objectKey]
   );
 
   const textureDefs = useAppSelector((s) => s.stageData.textureDefs);
@@ -43,22 +58,25 @@ export default function SceneCanvas() {
   );
 
   return (
-    <Canvas camera={cameraParams} frameloop='demand' style={canvasStyle}>
-      <SceneContextSetup />
-      <group dispose={null}>
-        {!viewOptions.showAxesHelper ? undefined : <axesHelper args={[50]} />}
-        {(model?.meshes || []).map((m, i) => (
-          <RenderedMesh
-            key={m.address}
-            index={i}
-            {...m}
-            objectIndex={objectIndex}
-            onSelectObjectIndex={onSelectObjectIndex}
-            textureDefs={textureDefs}
-          />
-        ))}
-        <OrbitControls />
-      </group>
-    </Canvas>
+    <Styled>
+      <Canvas camera={cameraParams} frameloop='demand' style={canvasStyle}>
+        <SceneContextSetup />
+        <group dispose={null}>
+          {!viewOptions.showAxesHelper ? undefined : <axesHelper args={[50]} />}
+          {(model?.meshes || []).map((m, i) => (
+            <RenderedMesh
+              key={m.address}
+              {...m}
+              objectKey={`${i}`}
+              selectedObjectKey={objectKey}
+              objectSelectionType={objectSelectionType}
+              onSelectObjectKey={onSelectObjectKey}
+              textureDefs={textureDefs}
+            />
+          ))}
+          <OrbitControls />
+        </group>
+      </Canvas>
+    </Styled>
   );
 }

@@ -3,7 +3,7 @@ import { AppState } from './store';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
-export const selectObjectIndex = (s: AppState) => s.modelViewer.objectIndex;
+export const selectObjectKey = (s: AppState) => s.modelViewer.objectKey;
 
 export const selectStageModels = (s: AppState) => s.stageData.models;
 
@@ -25,7 +25,12 @@ export const selectTextureDefs = (s: AppState) => s.stageData.textureDefs;
 export const selectModel = createSelector(
   selectModelIndex,
   selectStageModels,
-  (modelIndex, models) => {
-    return models?.[modelIndex];
-  }
+  (modelIndex, models) => models?.[modelIndex]
+);
+
+/** infers mesh selection from selected object key */
+export const selectObjectMeshIndex = createSelector(
+  selectObjectKey,
+  (objectKey: string | undefined) =>
+    !objectKey ? -1 : Number(objectKey.split('-')[0])
 );

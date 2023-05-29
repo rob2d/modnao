@@ -1,23 +1,24 @@
-import { ThreeEvent } from '@react-three/fiber';
 import RenderedPolygon from './RenderedPolygon';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { useTexture } from '@react-three/drei';
 import { ClampToEdgeWrapping, RepeatWrapping } from 'three';
 
 type RenderedMeshProps = {
-  index: number;
-  objectIndex: number;
-  onSelectObjectIndex: (index: number) => void;
+  objectKey: string;
+  selectedObjectKey?: string;
+  objectSelectionType: 'mesh' | 'polygon';
+  onSelectObjectKey: (key: string) => void;
   textureDefs: NLTextureDef[];
 } & NLMesh;
 
 const transparent1x1 = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==`;
 
 export default function RenderedMesh({
-  index,
+  objectKey,
   polygons,
-  objectIndex,
-  onSelectObjectIndex,
+  selectedObjectKey,
+  onSelectObjectKey,
+  objectSelectionType,
   textureWrappingFlags,
   textureIndex,
   textureDefs,
@@ -36,24 +37,21 @@ export default function RenderedMesh({
     ? RepeatWrapping
     : ClampToEdgeWrapping;
 
-  const isSelected = index === objectIndex;
-
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation();
-    onSelectObjectIndex(objectIndex !== index ? index : -1);
-  };
-
   return (
-    <group onClick={handleClick}>
-      {polygons.map((p, pIndex) => (
-        <RenderedPolygon
-          {...p}
-          isSelected={isSelected}
-          key={pIndex}
-          index={pIndex}
-          texture={texture}
-        />
-      ))}
+    <group>
+      {polygons.map((p, pIndex) => {
+        const key = `${objectKey}-${pIndex}`;
+        return (
+          <RenderedPolygon
+            {...p}
+            key={key}
+            objectKey={objectSelectionType === 'mesh' ? objectKey : key}
+            selectedObjectKey={selectedObjectKey}
+            onSelectObjectKey={onSelectObjectKey}
+            texture={texture}
+          />
+        );
+      })}
     </group>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei';
 import { DoubleSide, Mesh, MeshBasicMaterial, Texture, Vector3 } from 'three';
-import { useFrame } from '@react-three/fiber';
+import { ThreeEvent, useFrame } from '@react-three/fiber';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
 
@@ -11,12 +11,14 @@ export default function RenderedPolygon({
   vertexGroupMode,
   vertexes,
   address,
-  isSelected,
-  index,
+  objectKey,
+  selectedObjectKey,
+  onSelectObjectKey,
   texture
 }: NLPolygon & {
-  isSelected: boolean;
-  index: number;
+  objectKey: string;
+  selectedObjectKey?: string;
+  onSelectObjectKey: (key: string) => void;
   texture?: Texture;
 }) {
   const { meshDisplayMode, showPolygonAddresses } =
@@ -26,6 +28,8 @@ export default function RenderedPolygon({
 
   const { sceneMesh: colors } = theme.palette;
   let color: React.CSSProperties['color'];
+
+  const isSelected = objectKey === selectedObjectKey;
 
   if (meshDisplayMode === 'wireframe') {
     color = isSelected ? colors.selected : colors.default;
@@ -116,15 +120,24 @@ export default function RenderedPolygon({
         ref={textRef}
         material={material}
       >
-        [{index}] {`0x${address.toString(16)}`}
+        [{objectKey}] {`0x${address.toString(16)}`}
       </Text>
     );
   }, [color, showPolygonAddresses, meshDisplayMode, isSelected]);
 
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    e.nativeEvent.stopPropagation();
+    e.stopPropagation();
+    onSelectObjectKey(objectKey);
+  };
+
   return (
     <>
       {meshAddressText}
-      <mesh key={`${address}_${meshDisplayMode}_${color}`}>
+      <mesh
+        key={`${address}_${meshDisplayMode}_${color}`}
+        onClick={handleClick}
+      >
         <meshBasicMaterial color={color} {...meshModeMaterialProps} />
         <bufferGeometry attach={'geometry'}>
           <bufferAttribute

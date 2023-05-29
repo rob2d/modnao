@@ -5,14 +5,14 @@ import { AppState } from './store';
 
 export interface ModelViewerState {
   modelIndex: number;
-  objectIndex: number;
+  objectKey?: string;
   objectSelectionType: 'mesh' | 'polygon';
   meshDisplayMode: 'wireframe' | 'textured';
 }
 
 export const initialModelViewerState: ModelViewerState = {
   modelIndex: 0,
-  objectIndex: -1,
+  objectKey: undefined,
   objectSelectionType: 'mesh',
   meshDisplayMode: 'textured'
 };
@@ -42,17 +42,17 @@ const modelViewerSlice = createSlice({
     setModelViewedIndex(state, { payload: modelIndex }: { payload: number }) {
       Object.assign(state, {
         modelIndex,
-        objectIndex: -1
+        objectKey: undefined
       });
     },
 
-    setObjectIndex(state, { payload: objectIndex }) {
-      Object.assign(state, { objectIndex });
+    setObjectKey(state, { payload: objectKey }) {
+      Object.assign(state, { objectKey });
     },
 
     setObjectType(state, { payload: objectSelectionType }) {
       Object.assign(state, {
-        objectIndex: -1,
+        objectKey: undefined,
         objectSelectionType
       });
     }
@@ -64,12 +64,12 @@ const modelViewerSlice = createSlice({
     builder.addCase(loadStagePolygonFile.fulfilled, (state) => {
       Object.assign(state, {
         modelIndex: 0,
-        objectIndex: -1
+        objectKey: undefined
       });
     });
   }
 });
 
-export const { setObjectIndex, setObjectType } = modelViewerSlice.actions;
+export const { setObjectKey, setObjectType } = modelViewerSlice.actions;
 
 export default modelViewerSlice;
