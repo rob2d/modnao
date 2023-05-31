@@ -21,7 +21,7 @@ export default function RenderedPolygon({
   onSelectObjectKey: (key: string) => void;
   texture?: Texture;
 }) {
-  const { meshDisplayMode, showPolygonAddresses } =
+  const { meshDisplayMode, objectAddressesVisible } =
     useContext(ViewOptionsContext);
   const textRef = useRef();
   const theme = useTheme();
@@ -112,7 +112,7 @@ export default function RenderedPolygon({
 
     return !isSelected ||
       meshDisplayMode === 'textured' ||
-      !showPolygonAddresses ? undefined : (
+      !objectAddressesVisible ? undefined : (
       <Text
         font={'/fonts/robotoLightRegular.json'}
         fontSize={16}
@@ -123,7 +123,7 @@ export default function RenderedPolygon({
         [{objectKey}] {`0x${address.toString(16)}`}
       </Text>
     );
-  }, [color, showPolygonAddresses, meshDisplayMode, isSelected]);
+  }, [color, objectAddressesVisible, meshDisplayMode, isSelected]);
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.nativeEvent.stopPropagation();

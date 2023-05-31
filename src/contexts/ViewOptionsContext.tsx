@@ -10,40 +10,41 @@ import React, {
 export type MeshDisplayMode = 'wireframe' | 'textured';
 
 export type ViewOptions = {
-  showAxesHelper: boolean;
-  showSceneCursor: boolean;
-  showGuiPanel: boolean;
-  showPolygonAddresses: boolean;
+  axesHelperVisible: boolean;
+  sceneCursorVisible: boolean;
+  guiPanelVisible: boolean;
+  objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
-  setShowAxesHelper: (showAxesHelper: boolean) => void;
-  setShowSceneCursor: (showSceneCursor: boolean) => void;
-  setShowGuiPanel: (showGuiPanel: boolean) => void;
-  setShowPolygonAddresses: (showPolygonAddresses: boolean) => void;
+  setAxesHelperVisible: (axesHelperVisible: boolean) => void;
+  setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
+  setGuiPanelVisible: (guiPanelVisible: boolean) => void;
+  setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
 };
 
 export const ViewOptionsContext = React.createContext<ViewOptions>({
-  showAxesHelper: true,
-  showSceneCursor: true,
-  showGuiPanel: true,
-  showPolygonAddresses: true,
+  axesHelperVisible: true,
+  sceneCursorVisible: true,
+  guiPanelVisible: true,
+  objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
-  setShowAxesHelper: (_: boolean) => null,
-  setShowSceneCursor: (_: boolean) => null,
-  setShowGuiPanel: (_: boolean) => null,
-  setShowPolygonAddresses: (_: boolean) => null,
+  setAxesHelperVisible: (_: boolean) => null,
+  setSceneCursorVisible: (_: boolean) => null,
+  setGuiPanelVisible: (_: boolean) => null,
+  setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null
 });
 
 type Props = { children: ReactNode };
 
 export function ViewOptionsContextProvider({ children }: Props) {
-  const [showAxesHelper, handleSetShowAxesHelper] = useState(true);
-  const [showPolygonAddresses, handleSetShowPolygonAddresses] = useState(true);
-  const [showGuiPanel, handleSetShowGuiPanel] = useState(true);
+  const [axesHelperVisible, handleSetAxesHelperVisible] = useState(true);
+  const [objectAddressesVisible, handleSetObjectAddressesVisible] =
+    useState(true);
+  const [guiPanelVisible, handleSetGuiPanelVisible] = useState(true);
   const [meshDisplayMode, handleSetMeshDisplayMode] =
     useState<MeshDisplayMode>('wireframe');
-  const [showSceneCursor, handleSetShowSceneCursor] = useState(true);
+  const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(true);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -58,57 +59,59 @@ export function ViewOptionsContextProvider({ children }: Props) {
       );
     }
 
-    if (localStorage.getItem('showAxesHelper') !== null) {
-      handleSetShowAxesHelper(
-        JSON.parse(localStorage.getItem('showAxesHelper') || 'true') as boolean
+    if (localStorage.getItem('axesHelperVisible') !== null) {
+      handleSetAxesHelperVisible(
+        JSON.parse(
+          localStorage.getItem('axesHelperVisible') || 'true'
+        ) as boolean
       );
     }
 
-    if (localStorage.getItem('showPolygonAddresses') !== null) {
-      handleSetShowPolygonAddresses(
+    if (localStorage.getItem('objectAddressesVisible') !== null) {
+      handleSetObjectAddressesVisible(
         JSON.parse(
-          localStorage.getItem('showPolygonAddresses') || 'true'
+          localStorage.getItem('objectAddressesVisible') || 'true'
         ) as boolean
       );
     }
   }, []);
 
-  const setShowPolygonAddresses = useCallback(
+  const setObjectAddressesVisible = useCallback(
     (value: boolean) => {
-      if (showPolygonAddresses !== value) {
-        localStorage.setItem('showPolygonAddresses', `${value}`);
-        handleSetShowPolygonAddresses(value);
+      if (objectAddressesVisible !== value) {
+        localStorage.setItem('objectAddressesVisible', `${value}`);
+        handleSetObjectAddressesVisible(value);
       }
     },
-    [showPolygonAddresses]
+    [objectAddressesVisible]
   );
 
-  const setShowSceneCursor = useCallback(
+  const setSceneCursorVisible = useCallback(
     (value: boolean) => {
-      if (showSceneCursor !== value) {
-        handleSetShowSceneCursor(value);
+      if (sceneCursorVisible !== value) {
+        handleSetSceneCursorVisible(value);
       }
     },
-    [showSceneCursor]
+    [sceneCursorVisible]
   );
 
-  const setShowGuiPanel = useCallback(
+  const setGuiPanelVisible = useCallback(
     (value: boolean) => {
-      if (showGuiPanel !== value) {
-        handleSetShowGuiPanel(value);
+      if (guiPanelVisible !== value) {
+        handleSetGuiPanelVisible(value);
       }
     },
-    [showGuiPanel]
+    [guiPanelVisible]
   );
 
-  const setShowAxesHelper = useCallback(
+  const setAxesHelperVisible = useCallback(
     (value: boolean) => {
-      if (showAxesHelper !== value) {
-        localStorage.setItem('showAxesHelper', `${value}`);
-        handleSetShowAxesHelper(value);
+      if (axesHelperVisible !== value) {
+        localStorage.setItem('axesHelperVisible', `${value}`);
+        handleSetAxesHelperVisible(value);
       }
     },
-    [showAxesHelper]
+    [axesHelperVisible]
   );
 
   const setMeshDisplayMode = useCallback(
@@ -123,28 +126,28 @@ export function ViewOptionsContextProvider({ children }: Props) {
 
   const contextValue = useMemo<ViewOptions>(
     () => ({
-      showPolygonAddresses,
-      setShowPolygonAddresses,
-      showSceneCursor,
-      setShowSceneCursor,
-      showAxesHelper,
-      setShowAxesHelper,
+      objectAddressesVisible,
+      setObjectAddressesVisible,
+      sceneCursorVisible,
+      setSceneCursorVisible,
+      axesHelperVisible,
+      setAxesHelperVisible,
       meshDisplayMode,
       setMeshDisplayMode,
-      showGuiPanel,
-      setShowGuiPanel
+      guiPanelVisible,
+      setGuiPanelVisible
     }),
     [
-      showPolygonAddresses,
-      setShowPolygonAddresses,
-      showSceneCursor,
-      setShowSceneCursor,
-      showAxesHelper,
-      setShowAxesHelper,
+      objectAddressesVisible,
+      setObjectAddressesVisible,
+      sceneCursorVisible,
+      setSceneCursorVisible,
+      axesHelperVisible,
+      setAxesHelperVisible,
       meshDisplayMode,
       setMeshDisplayMode,
-      showGuiPanel,
-      setShowGuiPanel
+      guiPanelVisible,
+      setGuiPanelVisible
     ]
   );
 

@@ -52,9 +52,9 @@ export default function SceneCanvas() {
   const canvasStyle = useMemo(
     () => ({
       background: theme.palette.scene.background,
-      cursor: viewOptions.showSceneCursor ? 'default' : 'none'
+      cursor: viewOptions.sceneCursorVisible ? 'default' : 'none'
     }),
-    [viewOptions.showSceneCursor, theme]
+    [viewOptions.sceneCursorVisible, theme]
   );
 
   return (
@@ -62,7 +62,7 @@ export default function SceneCanvas() {
       <Canvas camera={cameraParams} frameloop='demand' style={canvasStyle}>
         <SceneContextSetup />
         <group dispose={null}>
-          {!viewOptions.showAxesHelper ? undefined : <axesHelper args={[50]} />}
+          {!viewOptions.axesHelperVisible ? undefined : <axesHelper args={[50]} />}
           {(model?.meshes || []).map((m, i) => (
             <RenderedMesh
               key={m.address}

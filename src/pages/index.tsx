@@ -35,7 +35,7 @@ export default function Home() {
       </Head>
       <Styled>
         <SceneCanvas />
-        {!viewOptions.showGuiPanel ? undefined : <GuiPanel />}
+        {!viewOptions.guiPanelVisible ? undefined : <GuiPanel />}
       </Styled>
       <CssBaseline />
     </>

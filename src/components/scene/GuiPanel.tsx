@@ -185,25 +185,25 @@ export default function GuiPanel() {
     [viewOptions.setMeshDisplayMode]
   );
 
-  const onSetShowAxesHelper = useCallback(
+  const onSetAxesHelperVisible = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setShowAxesHelper(value);
+      viewOptions.setAxesHelperVisible(value);
     },
-    [viewOptions.setShowAxesHelper]
+    [viewOptions.setAxesHelperVisible]
   );
 
-  const onSetShowPolygonAddresses = useCallback(
+  const onSetObjectAddressesVisible = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setShowPolygonAddresses(value);
+      viewOptions.setObjectAddressesVisible(value);
     },
-    [viewOptions.setShowPolygonAddresses]
+    [viewOptions.setObjectAddressesVisible]
   );
 
-  const onSetShowSceneCursor = useCallback(
+  const onSetSceneCursorVisible = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setShowSceneCursor(value);
+      viewOptions.setSceneCursorVisible(value);
     },
-    [viewOptions.setShowSceneCursor]
+    [viewOptions.setSceneCursorVisible]
   );
 
   const textures = useMemo(() => {
@@ -388,23 +388,23 @@ export default function GuiPanel() {
         </Grid>
         {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
           <FormControlLabel
-            control={<Checkbox checked={viewOptions.showPolygonAddresses} />}
+            control={<Checkbox checked={viewOptions.objectAddressesVisible} />}
             label='Addresses'
             labelPlacement='start'
-            onChange={onSetShowPolygonAddresses}
+            onChange={onSetObjectAddressesVisible}
           />
         )}
         <FormControlLabel
-          control={<Checkbox checked={viewOptions.showAxesHelper} />}
+          control={<Checkbox checked={viewOptions.axesHelperVisible} />}
           label='Axes Helper'
           labelPlacement='start'
-          onChange={onSetShowAxesHelper}
+          onChange={onSetAxesHelperVisible}
         />
         <FormControlLabel
-          control={<Checkbox checked={viewOptions.showSceneCursor} />}
+          control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
           label='Scene Cursor'
           labelPlacement='start'
-          onChange={onSetShowSceneCursor}
+          onChange={onSetSceneCursorVisible}
         />
       </div>
       {!hasLoadedStageTextureFile ? undefined : (
