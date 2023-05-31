@@ -7,8 +7,6 @@ const MESH = S.MODEL_HEADER;
 
 /** offsets */
 const Offsets = {
-  MODEL_TEXTURE_DEF: 0x0cc00000,
-  RAM: 0x0cea0000,
   Model: {
     POSITION: 0x08,
     RADIUS: 0x14,
