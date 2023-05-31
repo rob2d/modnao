@@ -315,7 +315,7 @@ export const nlTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
     targetOffset: O.TextureDef.LOCATION,
     readOps: [readUInt32LE],
     updates(texture, [value]) {
-      texture.location = value - O.MODEL_TEXTURE_DEF;
+      texture.baseLocation = value;
     }
   }
 ];

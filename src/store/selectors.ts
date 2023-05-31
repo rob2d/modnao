@@ -8,7 +8,7 @@ export const selectObjectKey = (s: AppState) => s.modelViewer.objectKey;
 export const selectStageModels = (s: AppState) => s.stageData.models;
 
 export const selectHasLoadedStageTextureFile = (s: AppState) =>
-  s.stageData.hasLoadedStageTextureFile;
+  s.stageData.textureFileName;
 
 export const selectHasReplacementTextures = (s: AppState) =>
   s.stageData.hasReplacementTextures;

@@ -11,6 +11,7 @@ describe('scanForModelPointers', () => {
     const polygonFile = await fs.readFile(
       path.join(__dirname, '../../../__mocks__/STGXXPOL.BIN')
     );
+
     const results = scanForModelPointers(polygonFile);
     expect(results).toEqual([
       528, 1856, 2784, 3712, 9240, 14248, 19256, 19288, 19320, 19696, 24704,
