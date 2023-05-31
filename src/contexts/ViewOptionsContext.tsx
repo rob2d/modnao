@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useEffect
 } from 'react';
+import { StorageKeys } from '@/constants/StorageKeys';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
 
@@ -52,25 +53,25 @@ export function ViewOptionsContextProvider({ children }: Props) {
     }
 
     const { localStorage } = window;
-    if (localStorage.getItem('meshDisplayMode') !== null) {
+    if (localStorage.getItem(StorageKeys.MESH_DISPLAY_MODE) !== null) {
       handleSetMeshDisplayMode(
-        (localStorage.getItem('meshDisplayMode') ||
+        (localStorage.getItem(StorageKeys.MESH_DISPLAY_MODE) ||
           'wireframe') as MeshDisplayMode
       );
     }
 
-    if (localStorage.getItem('axesHelperVisible') !== null) {
+    if (localStorage.getItem(StorageKeys.AXES_HELPER_VISIBLE) !== null) {
       handleSetAxesHelperVisible(
         JSON.parse(
-          localStorage.getItem('axesHelperVisible') || 'true'
+          localStorage.getItem(StorageKeys.AXES_HELPER_VISIBLE) || 'true'
         ) as boolean
       );
     }
 
-    if (localStorage.getItem('objectAddressesVisible') !== null) {
+    if (localStorage.getItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE) !== null) {
       handleSetObjectAddressesVisible(
         JSON.parse(
-          localStorage.getItem('objectAddressesVisible') || 'true'
+          localStorage.getItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE) || 'true'
         ) as boolean
       );
     }
@@ -79,7 +80,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const setObjectAddressesVisible = useCallback(
     (value: boolean) => {
       if (objectAddressesVisible !== value) {
-        localStorage.setItem('objectAddressesVisible', `${value}`);
+        localStorage.setItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE, `${value}`);
         handleSetObjectAddressesVisible(value);
       }
     },
@@ -107,7 +108,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const setAxesHelperVisible = useCallback(
     (value: boolean) => {
       if (axesHelperVisible !== value) {
-        localStorage.setItem('axesHelperVisible', `${value}`);
+        localStorage.setItem(StorageKeys.AXES_HELPER_VISIBLE, `${value}`);
         handleSetAxesHelperVisible(value);
       }
     },
@@ -117,7 +118,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const setMeshDisplayMode = useCallback(
     (value: MeshDisplayMode) => {
       if (meshDisplayMode !== value) {
-        localStorage.setItem('meshDisplayMode', `${value}`);
+        localStorage.setItem(StorageKeys.MESH_DISPLAY_MODE, `${value}`);
         handleSetMeshDisplayMode(value);
       }
     },
