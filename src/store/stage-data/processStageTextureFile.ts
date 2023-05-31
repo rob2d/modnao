@@ -23,14 +23,20 @@ export default async function processStageTextureFile(
   textureFile: File,
   models: NLModel[],
   textureDefs: NLTextureDef[]
-): Promise<{ models: NLModel[]; textureDefs: NLTextureDef[] }> {
+): Promise<{
+  models: NLModel[];
+  textureDefs: NLTextureDef[];
+  fileName: string;
+}> {
   const nextTextureDefs: NLTextureDef[] = [];
+
+  const buffer = Buffer.from(await textureFile.arrayBuffer());
+
   for await (const t of textureDefs) {
     const dataUrlTypes = Object.keys(t.dataUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
 
     for await (const dataUrlType of dataUrlTypes) {
-      const buffer = Buffer.from(await textureFile.arrayBuffer());
       const canvas = document.createElement('canvas');
       canvas.width = t.width;
       canvas.height = t.height;
@@ -45,7 +51,7 @@ export default async function processStageTextureFile(
         for (let offset = yOffset; offset < yOffset + t.width; offset += 1) {
           const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
           const colorValue = buffer.readUInt16LE(
-            t.location + offsetDrawn * COLOR_SIZE
+            t.baseLocation - t.ramOffset + offsetDrawn * COLOR_SIZE
           );
 
           const conversionOp = conversionDict[t.colorFormat];
@@ -86,6 +92,7 @@ export default async function processStageTextureFile(
 
   return Promise.resolve({
     models,
-    textureDefs: nextTextureDefs
+    textureDefs: nextTextureDefs,
+    fileName: textureFile.name
   });
 }

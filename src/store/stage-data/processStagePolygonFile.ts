@@ -7,14 +7,16 @@ import nonSerializables from '../nonSerializables';
 export default async function processStagePolygonFile(
   stagePolygonFile: File
 ): Promise<{
+  modelRamOffset: number;
   models: NLModel[];
   textureDefs: NLTextureDef[];
+  fileName: string;
 }> {
   const buffer = Buffer.from(await stagePolygonFile.arrayBuffer());
-  const modelPointers = scanForModelPointers(buffer);
+  const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
 
   // @TODO: run these on separate thread
-  const textureDefs = scanTextureHeaderData(buffer);
+  const textureDefs = scanTextureHeaderData(buffer, modelRamOffset);
 
   // @TODO: run these on separate thread
   const models = modelPointers.map(
@@ -23,5 +25,10 @@ export default async function processStagePolygonFile(
   );
 
   nonSerializables.stagePolygonFile = stagePolygonFile;
-  return Promise.resolve({ models, textureDefs });
+  return Promise.resolve({
+    modelRamOffset,
+    models,
+    textureDefs,
+    fileName: stagePolygonFile.name
+  });
 }

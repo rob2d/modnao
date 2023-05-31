@@ -55,7 +55,9 @@ export default async function exportStageTextureFile(
   const buffer = Buffer.from(await stageTextureFile.arrayBuffer());
 
   for await (const t of textureDefs) {
-    const { location, width, height } = t;
+    const { baseLocation, ramOffset, width, height } = t;
+    console.log('ramOffset ->', t.ramOffset.toString(16));
+    console.log('baseLocation ->', t.baseLocation.toString(16));
 
     const pixelColors = await getPixelsFromDataUrlImage(t.dataUrls.translucent);
 
@@ -73,7 +75,7 @@ export default async function exportStageTextureFile(
         };
 
         const conversionOp = conversionDict[t.colorFormat];
-        const offsetWritten = location + offset * COLOR_SIZE;
+        const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
 
         buffer.writeUInt16LE(conversionOp(color), offsetWritten);
       }

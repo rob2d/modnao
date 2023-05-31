@@ -11,8 +11,8 @@ export interface StageDataState {
   models: NLModel[];
   textureDefs: NLTextureDef[];
   replacedTextureDataUrls: Record<number, string>;
-  hasLoadedStagePolygonFile: boolean;
-  hasLoadedStageTextureFile: boolean;
+  polygonFileName?: string;
+  textureFileName?: string;
   hasReplacementTextures: boolean;
 }
 
@@ -21,27 +21,28 @@ const sliceName = 'stageData';
 export const initialStageDataState: StageDataState = {
   models: [],
   textureDefs: [],
-  hasLoadedStagePolygonFile: false,
-  hasLoadedStageTextureFile: false,
+  polygonFileName: undefined,
+  textureFileName: undefined,
   hasReplacementTextures: false,
   replacedTextureDataUrls: {}
 };
 
 export const loadStagePolygonFile = createAsyncThunk<
-  { models: NLModel[]; textureDefs: NLTextureDef[] },
+  { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
   File
 >(`${sliceName}/loadStagePolygonFile`, processStagePolygonFile);
 
 export const loadStageTextureFile = createAsyncThunk<
-  { models: NLModel[]; textureDefs: NLTextureDef[] },
+  { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
   File,
   { state: AppState }
 >(`${sliceName}/loadStageTextureFile`, (file, { getState }) => {
   const state = getState();
   const { models, textureDefs } = state.stageData;
 
-  if (!state.stageData.hasLoadedStagePolygonFile) {
-    return Promise.resolve({ models, textureDefs });
+  // if no polygon loaded, resolve entry data
+  if (!state.stageData.polygonFileName) {
+    return Promise.resolve({ models, textureDefs, fileName: undefined });
   }
 
   return processStageTextureFile(file, models, textureDefs);
@@ -86,20 +87,26 @@ const stageDataSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(
       loadStagePolygonFile.fulfilled,
-      (state: StageDataState, { payload: { models, textureDefs } }) => {
+      (
+        state: StageDataState,
+        { payload: { models, textureDefs, fileName } }
+      ) => {
         state.models = models;
         state.textureDefs = textureDefs;
-        state.hasLoadedStagePolygonFile = true;
-        state.hasLoadedStageTextureFile = false;
+        state.polygonFileName = fileName;
+        state.textureFileName = undefined;
       }
     );
 
     builder.addCase(
       loadStageTextureFile.fulfilled,
-      (state: StageDataState, { payload: { models, textureDefs } }) => {
+      (
+        state: StageDataState,
+        { payload: { models, textureDefs, fileName } }
+      ) => {
         state.models = models;
         state.textureDefs = textureDefs;
-        state.hasLoadedStageTextureFile = true;
+        state.textureFileName = fileName;
       }
     );
 

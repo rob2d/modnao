@@ -14,11 +14,11 @@ import {
  *
  * @returns open-filepicker callback
  */
-export default function useUserStageFileLoader(
+export default function useSupportedFilePicker(
   onError: (error: string) => void
 ) {
   const hasLoadedStagePolygonFile = useAppSelector(
-    (s) => s.stageData.hasLoadedStagePolygonFile
+    (s) => s.stageData.polygonFileName
   );
   const dispatch = useAppDispatch();
   const [openFileSelector, { plainFiles }] = useFilePicker({
@@ -37,7 +37,7 @@ export default function useUserStageFileLoader(
     let selectedTextureFile: File | undefined = undefined;
 
     plainFiles.forEach((f) => {
-      if (f.name.match(/^STG[0-9A-F]{2}POL\.BIN$/)) {
+      if (f.name.match(/^(STG|DM)[0-9A-F]{2}POL\.BIN$/)) {
         if (!selectedPolygonFile) {
           selectedPolygonFile = f;
         } else {
@@ -46,7 +46,7 @@ export default function useUserStageFileLoader(
         }
       }
 
-      if (f.name.match(/^STG[0-9A-F]{2}TEX(.modnao)?\.BIN$/)) {
+      if (f.name.match(/^(STG|DM)[0-9A-F]{2}TEX(.modnao)?\.BIN$/)) {
         if (!selectedTextureFile) {
           selectedTextureFile = f;
         } else {

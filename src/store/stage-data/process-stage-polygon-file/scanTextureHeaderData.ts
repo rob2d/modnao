@@ -1,20 +1,28 @@
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { nlTextureDefConversions } from './NLPropConversionDefs';
 import { processNLConversions } from './processNLConversions';
-import ramToRaw from './ramToRawAddress';
 
-export default function scanTextureHeaderData(buffer: Buffer) {
-  const pvrStartAddress = ramToRaw(buffer.readUInt32LE(0x8));
-  const pvrEndAddress = ramToRaw(buffer.readUInt32LE(0x10));
+export default function scanTextureHeaderData(
+  buffer: Buffer,
+  modelRamOffset: number
+) {
+  const pvrStartAddress = buffer.readUInt32LE(0x8) - modelRamOffset;
+  const pvrEndAddress = buffer.readUInt32LE(0x10) - modelRamOffset;
 
+  let ramOffset;
   const textures: NLTextureDef[] = [];
-
   for (let address = pvrStartAddress; address < pvrEndAddress; address += 16) {
     const texture = processNLConversions(
       nlTextureDefConversions,
       buffer,
       address
     );
+
+    if (!ramOffset) {
+      ramOffset = texture.baseLocation;
+    }
+
+    texture.ramOffset = ramOffset;
 
     // this may get overwritten based on mesh-usage when they are populated
 

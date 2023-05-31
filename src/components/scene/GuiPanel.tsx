@@ -37,7 +37,7 @@ import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
 
-import useStageFilePicker from '@/hooks/useStageFilePicker';
+import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { useModelSelectionExport } from '@/hooks';
 import GuiPanelTexture from './GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
@@ -145,7 +145,7 @@ const StyledDrawer = styled(Drawer)(
 
 export default function GuiPanel() {
   // @TODO use a more standard error dialog vs using window.alert here
-  const openFileSelector = useStageFilePicker(globalThis.alert);
+  const openFileSelector = useSupportedFilePicker(globalThis.alert);
 
   const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
