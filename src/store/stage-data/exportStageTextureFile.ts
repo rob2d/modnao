@@ -56,8 +56,6 @@ export default async function exportStageTextureFile(
 
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
-    console.log('ramOffset ->', t.ramOffset.toString(16));
-    console.log('baseLocation ->', t.baseLocation.toString(16));
 
     const pixelColors = await getPixelsFromDataUrlImage(t.dataUrls.translucent);
 
