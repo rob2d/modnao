@@ -4,7 +4,7 @@
  */
 export const StorageKeys = {
   MESH_DISPLAY_MODE: 'meshDisplayMode',
-  WIREFRAME_LINE_THICKNESS: 'wireframeLineThickness',
+  WIREFRAME_LINE_WIDTH: 'wireframeLineWidth',
   AXES_HELPER_VISIBLE: 'axesHelperVisible',
   OBJECT_ADDRESSES_VISIBLE: 'objectAddressesVisible',
   SCENE_CURSOR_VISIBLE: 'sceneCursorVisible',

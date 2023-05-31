@@ -21,7 +21,12 @@ export default function RenderedPolygon({
   onSelectObjectKey: (key: string) => void;
   texture?: Texture;
 }) {
-  const { meshDisplayMode, objectAddressesVisible } =
+  // @TODO: consider breaking down mesh material and components
+  // to absorb context in subtrees if performance becomes an issue with
+  // settings change scenario for user interactions
+  // (seems not to be the case with workflows so far)
+
+  const { meshDisplayMode, objectAddressesVisible, wireframeLineWidth } =
     useContext(ViewOptionsContext);
   const textRef = useRef();
   const theme = useTheme();
@@ -94,7 +99,9 @@ export default function RenderedPolygon({
     meshDisplayMode === 'wireframe'
       ? {
           wireframe: true,
-          wireframeLinewidth: isSelected ? 4 : 3
+          wireframeLinewidth: isSelected
+            ? Math.round(wireframeLineWidth * 1.25)
+            : wireframeLineWidth
         }
       : {
           map: texture,

@@ -16,13 +16,13 @@ export type ViewOptions = {
   guiPanelVisible: boolean;
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
-  wireframeLineThickness: number;
+  wireframeLineWidth: number;
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
-  setWireframeLineThickness: (wireframeLineThickness: number) => void;
+  setWireframeLineWidth: (wireframeLineWidth: number) => void;
 };
 
 export const ViewOptionsContext = React.createContext<ViewOptions>({
@@ -31,13 +31,13 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   guiPanelVisible: true,
   objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
-  wireframeLineThickness: 3,
+  wireframeLineWidth: 3,
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
   setGuiPanelVisible: (_: boolean) => null,
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
-  setWireframeLineThickness: (_: number) => null
+  setWireframeLineWidth: (_: number) => null
 });
 
 type Props = { children: ReactNode };
@@ -50,7 +50,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const [meshDisplayMode, handleSetMeshDisplayMode] =
     useState<MeshDisplayMode>('wireframe');
   const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(true);
-  const [wireframeLineThickness, handleSetWireframeLineThickness] = useState(3);
+  const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(3);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -81,10 +81,10 @@ export function ViewOptionsContextProvider({ children }: Props) {
       );
     }
 
-    if (localStorage.getItem(StorageKeys.WIREFRAME_LINE_THICKNESS) !== null) {
-      handleSetWireframeLineThickness(
+    if (localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) !== null) {
+      handleSetWireframeLineWidth(
         Number(
-          localStorage.getItem(StorageKeys.WIREFRAME_LINE_THICKNESS) || 3
+          localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) || 3
         ) as number
       );
     }
@@ -138,14 +138,14 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [meshDisplayMode]
   );
 
-  const setWireframeLineThickness = useCallback(
+  const setWireframeLineWidth = useCallback(
     (value: number) => {
-      if (wireframeLineThickness !== value) {
-        localStorage.setItem(StorageKeys.WIREFRAME_LINE_THICKNESS, `${value}`);
-        handleSetWireframeLineThickness(value);
+      if (wireframeLineWidth !== value) {
+        localStorage.setItem(StorageKeys.WIREFRAME_LINE_WIDTH, `${value}`);
+        handleSetWireframeLineWidth(value);
       }
     },
-    [wireframeLineThickness]
+    [wireframeLineWidth]
   );
 
   const contextValue = useMemo<ViewOptions>(
@@ -160,8 +160,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setMeshDisplayMode,
       guiPanelVisible,
       setGuiPanelVisible,
-      wireframeLineThickness,
-      setWireframeLineThickness
+      wireframeLineWidth,
+      setWireframeLineWidth
     }),
     [
       objectAddressesVisible,
@@ -172,8 +172,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setAxesHelperVisible,
       meshDisplayMode,
       setMeshDisplayMode,
-      wireframeLineThickness,
-      setWireframeLineThickness,
+      wireframeLineWidth,
+      setWireframeLineWidth,
       guiPanelVisible,
       setGuiPanelVisible
     ]

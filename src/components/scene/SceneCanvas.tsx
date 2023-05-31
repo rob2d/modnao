@@ -62,7 +62,9 @@ export default function SceneCanvas() {
       <Canvas camera={cameraParams} frameloop='demand' style={canvasStyle}>
         <SceneContextSetup />
         <group dispose={null}>
-          {!viewOptions.axesHelperVisible ? undefined : <axesHelper args={[50]} />}
+          {!viewOptions.axesHelperVisible ? undefined : (
+            <axesHelper args={[50]} />
+          )}
           {(model?.meshes || []).map((m, i) => (
             <RenderedMesh
               key={m.address}
