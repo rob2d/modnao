@@ -15,6 +15,17 @@ declare global {
     hStretch: boolean;
   };
 
+  export type PolyTypeFlags = {
+    frontFaceCulling: boolean;
+    backFaceCulling: boolean;
+    spriteQuad: boolean;
+    triangles: boolean;
+    superVertexIndex: boolean;
+    gouradShading: boolean;
+    reuseGlobalParams: boolean;
+    envMaps: boolean;
+  };
+
   export type NLUV = [u: number, v: number];
 
   export type NLColor = [r: number, g: number, b: number];
