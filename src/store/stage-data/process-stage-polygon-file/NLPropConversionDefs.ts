@@ -7,11 +7,13 @@ import {
   getTextureWrappingFlags
 } from '@/utils/textures/parse';
 import getVertexAddressingMode from './getVertexAddressingMode';
+import { getPolyTypeFlags } from '@/utils/polygons/parse';
 
 export type BinFileReadOp =
   | Buffer['readFloatLE']
   | Buffer['readFloatBE']
   | Buffer['readUInt8']
+  | Buffer['readInt8']
   | Buffer['readUInt16LE']
   | Buffer['readInt32LE']
   | Buffer['readInt32BE']
@@ -31,6 +33,7 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
 };
 
 const {
+  readInt8,
   readUInt8,
   readUInt16LE,
   readUInt32LE,
@@ -145,14 +148,6 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
       mesh.textureControlValue = value;
     }
   },
-
-  {
-    targetOffset: O.Mesh.TEXTURE_ALPHA_CONTROL,
-    readOps: [readUInt32LE],
-    updates(mesh: NLMesh, [value]) {
-      mesh.textureAlphaControlValue = value;
-    }
-  },
   {
     targetOffset: O.Mesh.TEXTURE_COLOR_FORMAT,
     readOps: [readUInt8],
@@ -176,10 +171,11 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     }
   },
   {
-    targetOffset: O.Mesh.TEXTURE_SHADING,
-    readOps: [readUInt32LE],
+    targetOffset: O.Mesh.VERTEX_COLOR_MODE,
+    readOps: [readInt32LE],
     updates(mesh, [value]) {
-      mesh.textureShadingValue = value;
+      mesh.vertexColorModeValue = value;
+      mesh.hasColoredVertices = value === -3;
     }
   },
   {
@@ -214,6 +210,18 @@ export const nlPolygonConversions: NLPropConversion<NLPolygon>[] = [
 
       const isTripleGroupMode = ((value >> 3) & 1) == 1;
       polygon.vertexGroupMode = !isTripleGroupMode ? 'regular' : 'triple';
+      polygon.flags = getPolyTypeFlags(value);
+    }
+  },
+  {
+    targetOffset: O.Polygon.VERTEX_GROUP_TYPE,
+    readOps: [readUInt32LE],
+    updates(polygon, [value]) {
+      polygon.vertexGroupModeValue = value;
+
+      const isTripleGroupMode = ((value >> 3) & 1) == 1;
+      polygon.vertexGroupMode = !isTripleGroupMode ? 'regular' : 'triple';
+      polygon.flags = getPolyTypeFlags(value);
     }
   },
   {
@@ -227,7 +235,7 @@ export const nlPolygonConversions: NLPropConversion<NLPolygon>[] = [
   }
 ];
 
-export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
+export const commonVertexConversions: NLPropConversion<NLVertex>[] = [
   {
     targetOffset: O.Vertex.NAN_CONTENT_MODE_FLAG,
     readOps: [readUInt32LE],
@@ -262,20 +270,41 @@ export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
     }
   },
   {
-    targetOffset: (v, address) =>
-      (v.contentAddress || address) + O.Vertex.NORMALS,
-    readOps: [readUInt32LE, readUInt32LE, readUInt32LE],
-    useOffsetAsBase: true,
-    updates(vertex, values) {
-      vertex.normals = values as [number, number, number];
-    }
-  },
-  {
     targetOffset: (v, address) => (v.contentAddress || address) + O.Vertex.UV,
     readOps: [readFloatLE, readFloatLE],
     useOffsetAsBase: true,
     updates(vertex, values) {
       vertex.uv = values as NLUV;
+    }
+  }
+];
+
+export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
+  ...commonVertexConversions,
+  {
+    targetOffset: (v, address) =>
+      (v.contentAddress || address) + O.Vertex.NORMALS,
+    readOps: [readFloatLE, readFloatLE, readFloatLE],
+    useOffsetAsBase: true,
+    updates(vertex, values) {
+      vertex.normals = values as [number, number, number];
+    }
+  }
+];
+
+export const nlColoredVertexConversions: NLPropConversion<NLVertex>[] = [
+  ...commonVertexConversions,
+  {
+    targetOffset: (v, address) =>
+      (v.contentAddress || address) + O.Vertex.NORMALS,
+    readOps: [readInt8, readInt8, readInt8],
+    useOffsetAsBase: true,
+    updates(vertex, values) {
+      // normals use a special encoding where we
+      // must convert signed 8 bit numbers into float
+      vertex.normals = values.map((v: number) =>
+        v > 0x7f ? (v - 0x100) / 0x80 : v / 0x7f
+      ) as [number, number, number];
     }
   }
 ];

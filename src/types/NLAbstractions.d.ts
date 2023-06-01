@@ -15,6 +15,18 @@ declare global {
     hStretch: boolean;
   };
 
+  export type PolyTypeFlags = {
+    culling: boolean;
+    cullingType: 'front' | 'back';
+    spriteQuad: boolean;
+    strip: boolean;
+    triangles: boolean;
+    superVertexIndex: boolean;
+    gouradShading: boolean;
+    reuseGlobalParams: boolean;
+    envMaps: boolean;
+  };
+
   export type NLUV = [u: number, v: number];
 
   export type NLColor = [r: number, g: number, b: number];
@@ -39,13 +51,13 @@ declare global {
     position: NLPoint3D;
     color: NLColor;
     alpha: number;
-    textureShadingValue: number;
     polygonDataLength: number;
     textureWrappingValue: number;
     textureWrappingFlags: TextureWrappingFlags;
     textureControlValue: number;
-    textureAlphaControlValue: number;
     isOpaque: boolean;
+    vertexColorModeValue: number;
+    hasColoredVertices: boolean;
     textureColorFormat: TextureColorFormat;
     textureColorFormatValue: number;
     textureIndex: number;
@@ -54,6 +66,7 @@ declare global {
   } & ModNaoMemoryObject;
 
   export type NLPolygon = {
+    flags: PolyTypeFlags;
     vertexes: NLVertex[];
     vertexCount: number;
     actualVertexCount: number;

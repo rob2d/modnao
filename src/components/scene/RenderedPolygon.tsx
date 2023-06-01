@@ -1,6 +1,15 @@
 import React, { useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei';
-import { DoubleSide, Mesh, MeshBasicMaterial, Texture, Vector3 } from 'three';
+import {
+  Mesh,
+  MeshBasicMaterial,
+  Texture,
+  Vector3,
+  FrontSide,
+  BackSide,
+  DoubleSide,
+  Side
+} from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
@@ -14,7 +23,8 @@ export default function RenderedPolygon({
   objectKey,
   selectedObjectKey,
   onSelectObjectKey,
-  texture
+  texture,
+  flags
 }: NLPolygon & {
   objectKey: string;
   selectedObjectKey?: string;
@@ -66,6 +76,8 @@ export default function RenderedPolygon({
     // @TODO: precalculate
     let dArray: Point3D = [0, 0, 0];
 
+    let stripCount = 0;
+
     vertexes.forEach((v, i) => {
       v.position.forEach((v, i) => {
         vArray[vArrayIndex++] = v;
@@ -78,22 +90,51 @@ export default function RenderedPolygon({
 
       uvArray[uvArrayIndex++] = v.uv[0];
       uvArray[uvArrayIndex++] = v.uv[1];
-      iArray.push(i);
 
       if (vertexGroupMode === 'regular') {
-        if (i + 1 < vertexes.length) {
-          iArray.push(i + 1);
+        if (i > vertexes.length - 3) {
+          return;
         }
-        if (i + 2 < vertexes.length) {
-          iArray.push(i + 2);
+
+        if (stripCount % 2 === 0) {
+          if (flags.cullingType === 'front') {
+            iArray.push(i + 1, i, i + 2);
+          } else {
+            iArray.push(i, i + 1, i + 2);
+          }
+        } else {
+          if (flags.cullingType === 'front') {
+            iArray.push(i, i + 1, i + 2);
+          } else {
+            iArray.push(i + 1, i, i + 2);
+          }
         }
       }
+
+      stripCount += 1;
     });
+
+    if (vertexGroupMode === 'triple') {
+      for (let i = 2; i < vertexes.length; i += 3) {
+        if (flags.cullingType === 'front') {
+          iArray.push(i - 1, i - 2, i);
+        } else {
+          iArray.push(i - 2, i - 1, i);
+        }
+      }
+      stripCount += 1;
+    }
 
     dArray = dArray.map((c) => Math.round(c / vertexes.length)) as Point3D;
 
     return [vArray, nArray, uvArray, new Uint16Array(iArray), dArray];
   }, [vertexes, vertexGroupMode]);
+
+  let side: Side = DoubleSide;
+
+  if (flags.culling) {
+    side = flags.cullingType === 'back' ? BackSide : FrontSide;
+  }
 
   const meshModeMaterialProps =
     meshDisplayMode === 'wireframe'
@@ -105,7 +146,6 @@ export default function RenderedPolygon({
         }
       : {
           map: texture,
-          side: DoubleSide,
           transparent: true,
           opacity: isSelected ? 0.75 : 1
         };
@@ -145,7 +185,11 @@ export default function RenderedPolygon({
         key={`${address}_${meshDisplayMode}_${color}`}
         onClick={handleClick}
       >
-        <meshBasicMaterial color={color} {...meshModeMaterialProps} />
+        <meshBasicMaterial
+          color={color}
+          {...meshModeMaterialProps}
+          depthTest={true}
+        />
         <bufferGeometry attach={'geometry'}>
           <bufferAttribute
             attach='attributes-position'
