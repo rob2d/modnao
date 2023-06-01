@@ -6,44 +6,51 @@ import React, {
   useCallback,
   useEffect
 } from 'react';
+import { StorageKeys } from '@/constants/StorageKeys';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
 
 export type ViewOptions = {
-  showAxesHelper: boolean;
-  showSceneCursor: boolean;
-  showGuiPanel: boolean;
-  showPolygonAddresses: boolean;
+  axesHelperVisible: boolean;
+  sceneCursorVisible: boolean;
+  guiPanelVisible: boolean;
+  objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
-  setShowAxesHelper: (showAxesHelper: boolean) => void;
-  setShowSceneCursor: (showSceneCursor: boolean) => void;
-  setShowGuiPanel: (showGuiPanel: boolean) => void;
-  setShowPolygonAddresses: (showPolygonAddresses: boolean) => void;
+  wireframeLineWidth: number;
+  setAxesHelperVisible: (axesHelperVisible: boolean) => void;
+  setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
+  setGuiPanelVisible: (guiPanelVisible: boolean) => void;
+  setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
+  setWireframeLineWidth: (wireframeLineWidth: number) => void;
 };
 
 export const ViewOptionsContext = React.createContext<ViewOptions>({
-  showAxesHelper: true,
-  showSceneCursor: true,
-  showGuiPanel: true,
-  showPolygonAddresses: true,
+  axesHelperVisible: true,
+  sceneCursorVisible: true,
+  guiPanelVisible: true,
+  objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
-  setShowAxesHelper: (_: boolean) => null,
-  setShowSceneCursor: (_: boolean) => null,
-  setShowGuiPanel: (_: boolean) => null,
-  setShowPolygonAddresses: (_: boolean) => null,
-  setMeshDisplayMode: (_: MeshDisplayMode) => null
+  wireframeLineWidth: 3,
+  setAxesHelperVisible: (_: boolean) => null,
+  setSceneCursorVisible: (_: boolean) => null,
+  setGuiPanelVisible: (_: boolean) => null,
+  setObjectAddressesVisible: (_: boolean) => null,
+  setMeshDisplayMode: (_: MeshDisplayMode) => null,
+  setWireframeLineWidth: (_: number) => null
 });
 
 type Props = { children: ReactNode };
 
 export function ViewOptionsContextProvider({ children }: Props) {
-  const [showAxesHelper, handleSetShowAxesHelper] = useState(true);
-  const [showPolygonAddresses, handleSetShowPolygonAddresses] = useState(true);
-  const [showGuiPanel, handleSetShowGuiPanel] = useState(true);
+  const [axesHelperVisible, handleSetAxesHelperVisible] = useState(true);
+  const [objectAddressesVisible, handleSetObjectAddressesVisible] =
+    useState(true);
+  const [guiPanelVisible, handleSetGuiPanelVisible] = useState(true);
   const [meshDisplayMode, handleSetMeshDisplayMode] =
     useState<MeshDisplayMode>('wireframe');
-  const [showSceneCursor, handleSetShowSceneCursor] = useState(true);
+  const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(true);
+  const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(3);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -51,100 +58,124 @@ export function ViewOptionsContextProvider({ children }: Props) {
     }
 
     const { localStorage } = window;
-    if (localStorage.getItem('meshDisplayMode') !== null) {
+    if (localStorage.getItem(StorageKeys.MESH_DISPLAY_MODE) !== null) {
       handleSetMeshDisplayMode(
-        (localStorage.getItem('meshDisplayMode') ||
+        (localStorage.getItem(StorageKeys.MESH_DISPLAY_MODE) ||
           'wireframe') as MeshDisplayMode
       );
     }
 
-    if (localStorage.getItem('showAxesHelper') !== null) {
-      handleSetShowAxesHelper(
-        JSON.parse(localStorage.getItem('showAxesHelper') || 'true') as boolean
+    if (localStorage.getItem(StorageKeys.AXES_HELPER_VISIBLE) !== null) {
+      handleSetAxesHelperVisible(
+        JSON.parse(
+          localStorage.getItem(StorageKeys.AXES_HELPER_VISIBLE) || 'true'
+        ) as boolean
       );
     }
 
-    if (localStorage.getItem('showPolygonAddresses') !== null) {
-      handleSetShowPolygonAddresses(
+    if (localStorage.getItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE) !== null) {
+      handleSetObjectAddressesVisible(
         JSON.parse(
-          localStorage.getItem('showPolygonAddresses') || 'true'
+          localStorage.getItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE) || 'true'
         ) as boolean
+      );
+    }
+
+    if (localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) !== null) {
+      handleSetWireframeLineWidth(
+        Number(
+          localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) || 3
+        ) as number
       );
     }
   }, []);
 
-  const setShowPolygonAddresses = useCallback(
+  const setObjectAddressesVisible = useCallback(
     (value: boolean) => {
-      if (showPolygonAddresses !== value) {
-        localStorage.setItem('showPolygonAddresses', `${value}`);
-        handleSetShowPolygonAddresses(value);
+      if (objectAddressesVisible !== value) {
+        localStorage.setItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE, `${value}`);
+        handleSetObjectAddressesVisible(value);
       }
     },
-    [showPolygonAddresses]
+    [objectAddressesVisible]
   );
 
-  const setShowSceneCursor = useCallback(
+  const setSceneCursorVisible = useCallback(
     (value: boolean) => {
-      if (showSceneCursor !== value) {
-        handleSetShowSceneCursor(value);
+      if (sceneCursorVisible !== value) {
+        handleSetSceneCursorVisible(value);
       }
     },
-    [showSceneCursor]
+    [sceneCursorVisible]
   );
 
-  const setShowGuiPanel = useCallback(
+  const setGuiPanelVisible = useCallback(
     (value: boolean) => {
-      if (showGuiPanel !== value) {
-        handleSetShowGuiPanel(value);
+      if (guiPanelVisible !== value) {
+        handleSetGuiPanelVisible(value);
       }
     },
-    [showGuiPanel]
+    [guiPanelVisible]
   );
 
-  const setShowAxesHelper = useCallback(
+  const setAxesHelperVisible = useCallback(
     (value: boolean) => {
-      if (showAxesHelper !== value) {
-        localStorage.setItem('showAxesHelper', `${value}`);
-        handleSetShowAxesHelper(value);
+      if (axesHelperVisible !== value) {
+        localStorage.setItem(StorageKeys.AXES_HELPER_VISIBLE, `${value}`);
+        handleSetAxesHelperVisible(value);
       }
     },
-    [showAxesHelper]
+    [axesHelperVisible]
   );
 
   const setMeshDisplayMode = useCallback(
     (value: MeshDisplayMode) => {
       if (meshDisplayMode !== value) {
-        localStorage.setItem('meshDisplayMode', `${value}`);
+        localStorage.setItem(StorageKeys.MESH_DISPLAY_MODE, `${value}`);
         handleSetMeshDisplayMode(value);
       }
     },
     [meshDisplayMode]
   );
 
+  const setWireframeLineWidth = useCallback(
+    (value: number) => {
+      if (wireframeLineWidth !== value) {
+        localStorage.setItem(StorageKeys.WIREFRAME_LINE_WIDTH, `${value}`);
+        handleSetWireframeLineWidth(value);
+      }
+    },
+    [wireframeLineWidth]
+  );
+
   const contextValue = useMemo<ViewOptions>(
     () => ({
-      showPolygonAddresses,
-      setShowPolygonAddresses,
-      showSceneCursor,
-      setShowSceneCursor,
-      showAxesHelper,
-      setShowAxesHelper,
+      objectAddressesVisible,
+      setObjectAddressesVisible,
+      sceneCursorVisible,
+      setSceneCursorVisible,
+      axesHelperVisible,
+      setAxesHelperVisible,
       meshDisplayMode,
       setMeshDisplayMode,
-      showGuiPanel,
-      setShowGuiPanel
+      guiPanelVisible,
+      setGuiPanelVisible,
+      wireframeLineWidth,
+      setWireframeLineWidth
     }),
     [
-      showPolygonAddresses,
-      setShowPolygonAddresses,
-      showSceneCursor,
-      setShowSceneCursor,
-      showAxesHelper,
-      setShowAxesHelper,
+      objectAddressesVisible,
+      setObjectAddressesVisible,
+      sceneCursorVisible,
+      setSceneCursorVisible,
+      axesHelperVisible,
+      setAxesHelperVisible,
       meshDisplayMode,
       setMeshDisplayMode,
-      showGuiPanel,
-      setShowGuiPanel
+      wireframeLineWidth,
+      setWireframeLineWidth,
+      guiPanelVisible,
+      setGuiPanelVisible
     ]
   );
 

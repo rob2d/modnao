@@ -30,7 +30,7 @@ export default function useSceneKeyboardActions() {
 
   useEffect(() => {
     if (isSlashPressed && isControlPressed) {
-      viewOptions.setShowGuiPanel(!viewOptions.showGuiPanel);
+      viewOptions.setGuiPanelVisible(!viewOptions.guiPanelVisible);
     }
   }, [isSlashPressed, isControlPressed]);
 }
