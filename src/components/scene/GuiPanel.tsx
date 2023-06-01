@@ -323,12 +323,8 @@ export default function GuiPanel() {
             title={
               <div>
                 <p>
-                  Download a blender .obj file to import representing the
-                  current in-scene model.
-                </p>
-                <p>
-                  ⚠️ Note that this feature is WIP. There are known issues with
-                  winding index order on vertices ⚠️
+                  Export an.obj file representing the selected in-scene model
+                  meshes.
                 </p>
               </div>
             }
@@ -340,7 +336,7 @@ export default function GuiPanel() {
               size='small'
               variant='outlined'
             >
-              Export Blender OBJ
+              Export Model .OBJ
             </Button>
           </Tooltip>
         )}
