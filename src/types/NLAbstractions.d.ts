@@ -45,7 +45,7 @@ declare global {
     textureControlValue: number;
     isOpaque: boolean;
     vertexColorModeValue: number;
-    isVertexColorMode: boolean;
+    hasColoredVertices: boolean;
     textureColorFormat: TextureColorFormat;
     textureColorFormatValue: number;
     textureIndex: number;

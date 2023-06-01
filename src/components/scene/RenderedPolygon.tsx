@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei';
-import { DoubleSide, Mesh, MeshBasicMaterial, Texture, Vector3 } from 'three';
+import { Mesh, MeshBasicMaterial, Texture, Vector3 } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
@@ -73,15 +73,19 @@ export default function RenderedPolygon({
 
       uvArray[uvArrayIndex++] = v.uv[0];
       uvArray[uvArrayIndex++] = v.uv[1];
-      iArray.push(i);
 
       if (vertexGroupMode === 'regular') {
-        if (i + 1 < vertexes.length) {
-          iArray.push(i + 1);
+        if (i > vertexes.length - 3) {
+          return;
         }
-        if (i + 2 < vertexes.length) {
-          iArray.push(i + 2);
+
+        if (i % 2 === 0) {
+          iArray.push(i + 1, i, i + 2);
+        } else {
+          iArray.push(i, i + 1, i + 2);
         }
+      } else {
+        iArray.push(i);
       }
     });
 
@@ -98,7 +102,6 @@ export default function RenderedPolygon({
         }
       : {
           map: texture,
-          side: DoubleSide,
           transparent: true,
           opacity: isSelected ? 0.75 : 1
         };

@@ -12,6 +12,7 @@ export type BinFileReadOp =
   | Buffer['readFloatLE']
   | Buffer['readFloatBE']
   | Buffer['readUInt8']
+  | Buffer['readInt8']
   | Buffer['readUInt16LE']
   | Buffer['readInt32LE']
   | Buffer['readInt32BE']
@@ -31,6 +32,7 @@ export type NLPropConversion<T extends ModNaoMemoryObject> = {
 };
 
 const {
+  readInt8,
   readUInt8,
   readUInt16LE,
   readUInt32LE,
@@ -172,7 +174,7 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     readOps: [readInt32LE],
     updates(mesh, [value]) {
       mesh.vertexColorModeValue = value;
-      mesh.isVertexColorMode = value === -3;
+      mesh.hasColoredVertices = value === -3;
     }
   },
   {
@@ -220,7 +222,7 @@ export const nlPolygonConversions: NLPropConversion<NLPolygon>[] = [
   }
 ];
 
-export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
+export const commonVertexConversions: NLPropConversion<NLVertex>[] = [
   {
     targetOffset: O.Vertex.NAN_CONTENT_MODE_FLAG,
     readOps: [readUInt32LE],
@@ -255,6 +257,18 @@ export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
     }
   },
   {
+    targetOffset: (v, address) => (v.contentAddress || address) + O.Vertex.UV,
+    readOps: [readFloatLE, readFloatLE],
+    useOffsetAsBase: true,
+    updates(vertex, values) {
+      vertex.uv = values as NLUV;
+    }
+  }
+];
+
+export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
+  ...commonVertexConversions,
+  {
     targetOffset: (v, address) =>
       (v.contentAddress || address) + O.Vertex.NORMALS,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
@@ -262,13 +276,23 @@ export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
     updates(vertex, values) {
       vertex.normals = values as [number, number, number];
     }
-  },
+  }
+];
+
+export const nlColoredVertexConversions: NLPropConversion<NLVertex>[] = [
+  ...commonVertexConversions,
   {
-    targetOffset: (v, address) => (v.contentAddress || address) + O.Vertex.UV,
-    readOps: [readFloatLE, readFloatLE],
+    targetOffset: (v, address) =>
+      (v.contentAddress || address) + O.Vertex.NORMALS,
+    readOps: [readInt8, readInt8, readInt8],
     useOffsetAsBase: true,
     updates(vertex, values) {
-      vertex.uv = values as NLUV;
+      // normals use a special encoding where we
+      // must convert signed 8 bit numbers into float
+      vertex.normals = values.map((v: number) =>
+        v > 0x7f ? (v - 0x100) / 0x80 : v / 0x7f
+      ) as [number, number, number];
+
     }
   }
 ];

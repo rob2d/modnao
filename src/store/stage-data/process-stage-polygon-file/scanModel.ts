@@ -1,5 +1,6 @@
 import S from '@/constants/StructSizes';
 import {
+  nlColoredVertexConversions,
   nlMeshConversions,
   nlModelConversions,
   nlPolygonConversions,
@@ -97,7 +98,9 @@ export default function scanModel({
           }
 
           const vertex = processNLConversions<NLVertex>(
-            nlVertexConversions,
+            mesh.hasColoredVertices
+              ? nlColoredVertexConversions
+              : nlVertexConversions,
             buffer,
             structAddress
           );
