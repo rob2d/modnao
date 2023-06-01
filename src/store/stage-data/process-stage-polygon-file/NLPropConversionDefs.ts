@@ -7,6 +7,7 @@ import {
   getTextureWrappingFlags
 } from '@/utils/textures/parse';
 import getVertexAddressingMode from './getVertexAddressingMode';
+import { getPolyTypeFlags } from '@/utils/polygons/parse';
 
 export type BinFileReadOp =
   | Buffer['readFloatLE']
@@ -209,6 +210,18 @@ export const nlPolygonConversions: NLPropConversion<NLPolygon>[] = [
 
       const isTripleGroupMode = ((value >> 3) & 1) == 1;
       polygon.vertexGroupMode = !isTripleGroupMode ? 'regular' : 'triple';
+      polygon.flags = getPolyTypeFlags(value);
+    }
+  },
+  {
+    targetOffset: O.Polygon.VERTEX_GROUP_TYPE,
+    readOps: [readUInt32LE],
+    updates(polygon, [value]) {
+      polygon.vertexGroupModeValue = value;
+
+      const isTripleGroupMode = ((value >> 3) & 1) == 1;
+      polygon.vertexGroupMode = !isTripleGroupMode ? 'regular' : 'triple';
+      polygon.flags = getPolyTypeFlags(value);
     }
   },
   {
@@ -292,7 +305,6 @@ export const nlColoredVertexConversions: NLPropConversion<NLVertex>[] = [
       vertex.normals = values.map((v: number) =>
         v > 0x7f ? (v - 0x100) / 0x80 : v / 0x7f
       ) as [number, number, number];
-
     }
   }
 ];

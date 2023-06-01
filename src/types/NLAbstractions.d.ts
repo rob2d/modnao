@@ -16,9 +16,10 @@ declare global {
   };
 
   export type PolyTypeFlags = {
-    frontFaceCulling: boolean;
-    backFaceCulling: boolean;
+    culling: boolean;
+    cullingType: 'front' | 'back';
     spriteQuad: boolean;
+    strip: boolean;
     triangles: boolean;
     superVertexIndex: boolean;
     gouradShading: boolean;
@@ -65,6 +66,7 @@ declare global {
   } & ModNaoMemoryObject;
 
   export type NLPolygon = {
+    flags: PolyTypeFlags;
     vertexes: NLVertex[];
     vertexCount: number;
     actualVertexCount: number;
