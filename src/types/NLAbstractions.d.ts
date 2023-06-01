@@ -39,13 +39,13 @@ declare global {
     position: NLPoint3D;
     color: NLColor;
     alpha: number;
-    textureShadingValue: number;
     polygonDataLength: number;
     textureWrappingValue: number;
     textureWrappingFlags: TextureWrappingFlags;
     textureControlValue: number;
-    textureAlphaControlValue: number;
     isOpaque: boolean;
+    vertexColorModeValue: number;
+    isVertexColorMode: boolean;
     textureColorFormat: TextureColorFormat;
     textureColorFormatValue: number;
     textureIndex: number;

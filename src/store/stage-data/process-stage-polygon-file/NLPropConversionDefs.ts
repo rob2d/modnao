@@ -145,14 +145,6 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
       mesh.textureControlValue = value;
     }
   },
-
-  {
-    targetOffset: O.Mesh.TEXTURE_ALPHA_CONTROL,
-    readOps: [readUInt32LE],
-    updates(mesh: NLMesh, [value]) {
-      mesh.textureAlphaControlValue = value;
-    }
-  },
   {
     targetOffset: O.Mesh.TEXTURE_COLOR_FORMAT,
     readOps: [readUInt8],
@@ -176,10 +168,11 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     }
   },
   {
-    targetOffset: O.Mesh.TEXTURE_SHADING,
-    readOps: [readUInt32LE],
+    targetOffset: O.Mesh.VERTEX_COLOR_MODE,
+    readOps: [readInt32LE],
     updates(mesh, [value]) {
-      mesh.textureShadingValue = value;
+      mesh.vertexColorModeValue = value;
+      mesh.isVertexColorMode = value === -3;
     }
   },
   {
@@ -264,7 +257,7 @@ export const nlVertexConversions: NLPropConversion<NLVertex>[] = [
   {
     targetOffset: (v, address) =>
       (v.contentAddress || address) + O.Vertex.NORMALS,
-    readOps: [readUInt32LE, readUInt32LE, readUInt32LE],
+    readOps: [readFloatLE, readFloatLE, readFloatLE],
     useOffsetAsBase: true,
     updates(vertex, values) {
       vertex.normals = values as [number, number, number];
