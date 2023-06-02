@@ -5,13 +5,13 @@ export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
 export const selectObjectKey = (s: AppState) => s.modelViewer.objectKey;
 
-export const selectStageModels = (s: AppState) => s.stageData.models;
+export const selectStageModels = (s: AppState) => s.modelData.models;
 
-export const selectHasLoadedStageTextureFile = (s: AppState) =>
-  s.stageData.textureFileName;
+export const selectHasLoadedTextureFile = (s: AppState) =>
+  s.modelData.textureFileName;
 
 export const selectHasReplacementTextures = (s: AppState) =>
-  s.stageData.hasReplacementTextures;
+  s.modelData.hasReplacementTextures;
 
 export const selectModelCount = createSelector(
   selectStageModels,
@@ -20,7 +20,9 @@ export const selectModelCount = createSelector(
 export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
-export const selectTextureDefs = (s: AppState) => s.stageData.textureDefs;
+export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
+export const selectPolygonFileName = (s: AppState) =>
+  s.modelData.polygonFileName;
 
 export const selectModel = createSelector(
   selectModelIndex,

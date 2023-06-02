@@ -1,9 +1,7 @@
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import RenderedPolygon from './RenderedPolygon';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { useTexture } from '@react-three/drei';
 import { ClampToEdgeWrapping, RepeatWrapping } from 'three';
-import { useContext } from 'react';
 
 type RenderedMeshProps = {
   objectKey: string;

@@ -130,12 +130,6 @@ export default function RenderedPolygon({
     return [vArray, nArray, uvArray, new Uint16Array(iArray), dArray];
   }, [vertexes, vertexGroupMode]);
 
-  let side: Side = DoubleSide;
-
-  if (flags.culling) {
-    side = flags.cullingType === 'back' ? BackSide : FrontSide;
-  }
-
   const meshModeMaterialProps =
     meshDisplayMode === 'wireframe'
       ? {

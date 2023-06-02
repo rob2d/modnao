@@ -5,10 +5,10 @@
 
 const nonSerializables: {
   stagePolygonFile?: File;
-  stageTextureFile?: File;
+  textureFile?: File;
 } = {
   stagePolygonFile: undefined,
-  stageTextureFile: undefined
+  textureFile: undefined
 };
 
 export default nonSerializables;

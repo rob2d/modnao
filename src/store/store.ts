@@ -7,14 +7,14 @@ import {
 } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
 import modelViewerSlice from './modelViewerSlice';
-import stageDataSlice from './stageDataSlice';
+import modelDataSlice from './modelDataSlice';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 const makeStore = () =>
   configureStore({
     reducer: {
       [modelViewerSlice.name]: modelViewerSlice.reducer,
-      [stageDataSlice.name]: stageDataSlice.reducer
+      [modelDataSlice.name]: modelDataSlice.reducer
     },
     devTools: process.env.NODE_ENV === 'development'
   });

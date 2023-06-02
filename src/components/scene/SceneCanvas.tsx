@@ -1,7 +1,7 @@
 import { useCallback, useContext, useMemo } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
-import { Canvas, ThreeEvent } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import {
   selectModel,
   selectObjectKey,
@@ -45,7 +45,7 @@ export default function SceneCanvas() {
     [objectKey]
   );
 
-  const textureDefs = useAppSelector((s) => s.stageData.textureDefs);
+  const textureDefs = useAppSelector((s) => s.modelData.textureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
 

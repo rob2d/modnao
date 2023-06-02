@@ -44,15 +44,16 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
     ARGB8888: () => 0
   };
 
-export default async function exportStageTextureFile(
-  textureDefs: NLTextureDef[]
+export default async function exportTextureFile(
+  textureDefs: NLTextureDef[],
+  textureFileName = ''
 ): Promise<void> {
-  const { stageTextureFile } = nonSerializables;
-  if (!stageTextureFile) {
+  const { textureFile } = nonSerializables;
+  if (!textureFile) {
     return;
   }
 
-  const buffer = Buffer.from(await stageTextureFile.arrayBuffer());
+  const buffer = Buffer.from(await textureFile.arrayBuffer());
 
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
@@ -84,8 +85,11 @@ export default async function exportStageTextureFile(
   const link = document.createElement('a');
   link.href = window.URL.createObjectURL(output);
 
-  // @TODO: when original filename is available, use that
-  // and format as STG{NN}.modnao.BIN
-  link.download = 'STG00TEX.modnao.BIN';
+  const name = textureFileName.substring(0, textureFileName.lastIndexOf('.'));
+
+  const extension = textureFileName.substring(
+    textureFileName.lastIndexOf('.') + 1
+  );
+  link.download = `${name}.modnao.${extension}`;
   link.click();
 }
