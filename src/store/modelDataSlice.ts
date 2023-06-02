@@ -77,8 +77,8 @@ export const downloadTextureFile = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/downloadTextureFile`, async (_, { getState }) => {
   const state = getState();
-  state.modelData.textureFileName;
-  await exportTextureFile(state.modelData.textureDefs);
+  const { textureDefs, textureFileName } = state.modelData;
+  await exportTextureFile(textureDefs, textureFileName);
 });
 
 const modelDataSlice = createSlice({

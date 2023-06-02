@@ -1,4 +1,5 @@
 import { useSceneContext } from '@/contexts/SceneContext';
+import { useAppSelector } from '@/store';
 import { useCallback } from 'react';
 import { OBJExporter } from 'three/examples/jsm/exporters/OBJExporter.js';
 
@@ -6,6 +7,8 @@ const exporter = new OBJExporter();
 
 export default function useSceneOBJFileDownloader() {
   const { scene } = useSceneContext();
+  const polygonFileName =
+    useAppSelector((s) => s.modelData.polygonFileName) || '';
 
   const onDownloadSceneOBJFile = useCallback(() => {
     if (!scene) {
@@ -17,9 +20,9 @@ export default function useSceneOBJFileDownloader() {
     const file = new Blob([output], { type: 'application/object' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(file);
+    const name = polygonFileName.substring(0, polygonFileName.lastIndexOf('.'));
+    link.download = `${name}.modnao.obj`;
     link.click();
-
-    link.download = 'STG00.modnao.obj';
   }, [scene]);
 
   return onDownloadSceneOBJFile;

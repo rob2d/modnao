@@ -21,6 +21,8 @@ export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
+export const selectPolygonFileName = (s: AppState) =>
+  s.modelData.polygonFileName;
 
 export const selectModel = createSelector(
   selectModelIndex,
