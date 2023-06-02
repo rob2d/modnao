@@ -161,9 +161,7 @@ export default function GuiPanel() {
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
-  const hasLoadedTextureFile = useAppSelector(
-    selectHasLoadedTextureFile
-  );
+  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
 
   const selectedMeshTexture: number = useMemo(() => {
     const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
