@@ -1,11 +1,11 @@
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import processStagePolygonFile from './stage-data/processStagePolygonFile';
-import processStageTextureFile from './stage-data/processStageTextureFile';
+import processPolygonFile from './stage-data/processPolygonFile';
+import processTextureFile from './stage-data/processTextureFile';
+import exportTextureFile from './stage-data/exportTextureFile';
 import { AppState } from './store';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import getImageDimensions from '@/utils/images/getImageDimensions';
-import exportStageTextureFile from './stage-data/exportStageTextureFile';
 
 export interface StageDataState {
   models: NLModel[];
@@ -16,7 +16,7 @@ export interface StageDataState {
   hasReplacementTextures: boolean;
 }
 
-const sliceName = 'stageData';
+const sliceName = 'modelData';
 
 export const initialStageDataState: StageDataState = {
   models: [],
@@ -27,25 +27,25 @@ export const initialStageDataState: StageDataState = {
   replacedTextureDataUrls: {}
 };
 
-export const loadStagePolygonFile = createAsyncThunk<
+export const loadPolygonFile = createAsyncThunk<
   { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
   File
->(`${sliceName}/loadStagePolygonFile`, processStagePolygonFile);
+>(`${sliceName}/loadPolygonFile`, processPolygonFile);
 
-export const loadStageTextureFile = createAsyncThunk<
+export const loadTextureFile = createAsyncThunk<
   { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
   File,
   { state: AppState }
->(`${sliceName}/loadStageTextureFile`, (file, { getState }) => {
+>(`${sliceName}/loadTextureFile`, (file, { getState }) => {
   const state = getState();
-  const { models, textureDefs } = state.stageData;
+  const { models, textureDefs } = state.modelData;
 
   // if no polygon loaded, resolve entry data
-  if (!state.stageData.polygonFileName) {
+  if (!state.modelData.polygonFileName) {
     return Promise.resolve({ models, textureDefs, fileName: undefined });
   }
 
-  return processStageTextureFile(file, models, textureDefs);
+  return processTextureFile(file, models, textureDefs);
 });
 
 export const replaceTextureDataUrl = createAsyncThunk<
@@ -56,7 +56,7 @@ export const replaceTextureDataUrl = createAsyncThunk<
   `${sliceName}/replaceTextureDataUrl`,
   async ({ textureIndex, dataUrl }, { getState }) => {
     const state = getState();
-    const { textureDefs } = state.stageData;
+    const { textureDefs } = state.modelData;
     const def = textureDefs[textureIndex];
 
     const [width, height] = await getImageDimensions(dataUrl);
@@ -71,22 +71,23 @@ export const replaceTextureDataUrl = createAsyncThunk<
   }
 );
 
-export const downloadStageTextureFile = createAsyncThunk<
+export const downloadTextureFile = createAsyncThunk<
   void,
   void,
   { state: AppState }
->(`${sliceName}/downloadStageTextureFile`, async (_, { getState }) => {
+>(`${sliceName}/downloadTextureFile`, async (_, { getState }) => {
   const state = getState();
-  await exportStageTextureFile(state.stageData.textureDefs);
+  state.modelData.textureFileName;
+  await exportTextureFile(state.modelData.textureDefs);
 });
 
-const stageDataSlice = createSlice({
+const modelDataSlice = createSlice({
   name: sliceName,
   initialState: initialStageDataState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(
-      loadStagePolygonFile.fulfilled,
+      loadPolygonFile.fulfilled,
       (
         state: StageDataState,
         { payload: { models, textureDefs, fileName } }
@@ -99,7 +100,7 @@ const stageDataSlice = createSlice({
     );
 
     builder.addCase(
-      loadStageTextureFile.fulfilled,
+      loadTextureFile.fulfilled,
       (
         state: StageDataState,
         { payload: { models, textureDefs, fileName } }
@@ -131,4 +132,4 @@ const stageDataSlice = createSlice({
   }
 });
 
-export default stageDataSlice;
+export default modelDataSlice;

@@ -45,7 +45,7 @@ export default function SceneCanvas() {
     [objectKey]
   );
 
-  const textureDefs = useAppSelector((s) => s.stageData.textureDefs);
+  const textureDefs = useAppSelector((s) => s.modelData.textureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
 

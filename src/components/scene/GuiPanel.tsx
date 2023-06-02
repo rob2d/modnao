@@ -1,6 +1,6 @@
 import {
-  downloadStageTextureFile,
-  selectHasLoadedStageTextureFile,
+  downloadTextureFile,
+  selectHasLoadedTextureFile,
   selectHasReplacementTextures,
   selectModel,
   selectModelCount,
@@ -152,7 +152,7 @@ export default function GuiPanel() {
   const onExportSelectionJson = useModelSelectionExport();
   const onExportOBJFile = useSceneOBJFileDownloader();
   const onExportTextureFile = useCallback(() => {
-    dispatch(downloadStageTextureFile());
+    dispatch(downloadTextureFile());
   }, [dispatch]);
   const modelIndex = useAppSelector(selectModelIndex);
   const modelCount = useAppSelector(selectModelCount);
@@ -161,8 +161,8 @@ export default function GuiPanel() {
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
   const model = useAppSelector(selectModel);
   const textureDefs = useAppSelector(selectTextureDefs);
-  const hasLoadedStageTextureFile = useAppSelector(
-    selectHasLoadedStageTextureFile
+  const hasLoadedTextureFile = useAppSelector(
+    selectHasLoadedTextureFile
   );
 
   const selectedMeshTexture: number = useMemo(() => {
@@ -403,7 +403,7 @@ export default function GuiPanel() {
           onChange={onSetSceneCursorVisible}
         />
       </div>
-      {!hasLoadedStageTextureFile ? undefined : (
+      {!hasLoadedTextureFile ? undefined : (
         <>
           <Divider flexItem>
             <Typography variant='subtitle2' textAlign='left' width='100%'>

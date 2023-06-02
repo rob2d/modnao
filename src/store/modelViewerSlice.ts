@@ -1,6 +1,6 @@
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { loadStagePolygonFile } from './stageDataSlice';
+import { loadPolygonFile } from './modelDataSlice';
 import { AppState } from './store';
 
 export interface ModelViewerState {
@@ -27,7 +27,7 @@ export const setModelViewedIndex = createAsyncThunk<void, number>(
   `${sliceName}/setModelViewedIndexInterface`,
   async (nextIndex: number, { dispatch, getState }) => {
     let modelIndex = Math.max(0, nextIndex);
-    const modelCount = (getState() as AppState).stageData.models.length;
+    const modelCount = (getState() as AppState).modelData.models.length;
     modelIndex = Math.min(modelIndex, modelCount - 1);
 
     const { actions } = modelViewerSlice;
@@ -61,7 +61,7 @@ const modelViewerSlice = createSlice({
     builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
       Object.assign(state, payload)
     );
-    builder.addCase(loadStagePolygonFile.fulfilled, (state) => {
+    builder.addCase(loadPolygonFile.fulfilled, (state) => {
       Object.assign(state, {
         modelIndex: 0,
         objectKey: undefined

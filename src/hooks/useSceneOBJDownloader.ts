@@ -19,8 +19,6 @@ export default function useSceneOBJFileDownloader() {
     link.href = window.URL.createObjectURL(file);
     link.click();
 
-    // @TODO: when original filename is available,
-    // format as STG{NN}.modnao.obj
     link.download = 'STG00.modnao.obj';
   }, [scene]);
 

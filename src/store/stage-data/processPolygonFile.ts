@@ -4,7 +4,7 @@ import scanTextureHeaderData from './process-stage-polygon-file/scanTextureHeade
 import { NLTextureDef } from '@/types/NLAbstractions';
 import nonSerializables from '../nonSerializables';
 
-export default async function processStagePolygonFile(
+export default async function processPolygonFile(
   stagePolygonFile: File
 ): Promise<{
   modelRamOffset: number;

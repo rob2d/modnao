@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
-  loadStagePolygonFile,
-  loadStageTextureFile,
+  loadPolygonFile,
+  loadTextureFile,
   useAppDispatch,
   useAppSelector
 } from '@/store';
@@ -17,8 +17,8 @@ import {
 export default function useSupportedFilePicker(
   onError: (error: string) => void
 ) {
-  const hasLoadedStagePolygonFile = useAppSelector(
-    (s) => s.stageData.polygonFileName
+  const hasLoadedPolygonFile = useAppSelector(
+    (s) => s.modelData.polygonFileName
   );
   const dispatch = useAppDispatch();
   const [openFileSelector, { plainFiles }] = useFilePicker({
@@ -65,12 +65,12 @@ export default function useSupportedFilePicker(
 
     (async () => {
       if (selectedPolygonFile) {
-        await dispatch(loadStagePolygonFile(selectedPolygonFile));
+        await dispatch(loadPolygonFile(selectedPolygonFile));
       }
 
       if (selectedTextureFile) {
-        if (hasLoadedStagePolygonFile || selectedPolygonFile) {
-          dispatch(loadStageTextureFile(selectedTextureFile));
+        if (hasLoadedPolygonFile || selectedPolygonFile) {
+          dispatch(loadTextureFile(selectedTextureFile));
         } else {
           onError(
             'Must load a polygon file along with or before loading a texture file'

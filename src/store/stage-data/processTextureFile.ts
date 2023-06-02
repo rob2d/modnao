@@ -19,7 +19,7 @@ const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
     ARGB8888: unsupportedConversion
   };
 
-export default async function processStageTextureFile(
+export default async function processTextureFile(
   textureFile: File,
   models: NLModel[],
   textureDefs: NLTextureDef[]
@@ -88,7 +88,7 @@ export default async function processStageTextureFile(
     nextTextureDefs.push(updatedTexture);
   }
 
-  nonSerializables.stageTextureFile = textureFile;
+  nonSerializables.textureFile = textureFile;
 
   return Promise.resolve({
     models,

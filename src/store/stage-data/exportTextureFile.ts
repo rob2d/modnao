@@ -44,15 +44,15 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
     ARGB8888: () => 0
   };
 
-export default async function exportStageTextureFile(
+export default async function exportTextureFile(
   textureDefs: NLTextureDef[]
 ): Promise<void> {
-  const { stageTextureFile } = nonSerializables;
-  if (!stageTextureFile) {
+  const { textureFile } = nonSerializables;
+  if (!textureFile) {
     return;
   }
 
-  const buffer = Buffer.from(await stageTextureFile.arrayBuffer());
+  const buffer = Buffer.from(await textureFile.arrayBuffer());
 
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
