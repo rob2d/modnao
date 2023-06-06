@@ -4,11 +4,11 @@
 // data (at least immediate e.g. JSON)
 
 const nonSerializables: {
-  stagePolygonFile?: File;
-  textureFile?: File;
+  polygonBuffer?: Buffer;
+  textureBuffer?: Buffer;
 } = {
-  stagePolygonFile: undefined,
-  textureFile: undefined
+  polygonBuffer: undefined,
+  textureBuffer: undefined
 };
 
 export default nonSerializables;

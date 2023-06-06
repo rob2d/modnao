@@ -48,12 +48,10 @@ export default async function exportTextureFile(
   textureDefs: NLTextureDef[],
   textureFileName = ''
 ): Promise<void> {
-  const { textureFile } = nonSerializables;
-  if (!textureFile) {
+  const { textureBuffer } = nonSerializables;
+  if (!textureBuffer) {
     return;
   }
-
-  const buffer = Buffer.from(await textureFile.arrayBuffer());
 
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
@@ -76,12 +74,14 @@ export default async function exportTextureFile(
         const conversionOp = conversionDict[t.colorFormat];
         const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
 
-        buffer.writeUInt16LE(conversionOp(color), offsetWritten);
+        textureBuffer.writeUInt16LE(conversionOp(color), offsetWritten);
       }
     }
   }
 
-  const output = new Blob([buffer], { type: 'application/octet-stream' });
+  const output = new Blob([textureBuffer], {
+    type: 'application/octet-stream'
+  });
   const link = document.createElement('a');
   link.href = window.URL.createObjectURL(output);
 

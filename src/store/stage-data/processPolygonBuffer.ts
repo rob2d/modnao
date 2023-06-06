@@ -2,17 +2,13 @@ import scanModel from './process-stage-polygon-file/scanModel';
 import scanForModelPointers from './process-stage-polygon-file/scanForModelPointers';
 import scanTextureHeaderData from './process-stage-polygon-file/scanTextureHeaderData';
 import { NLTextureDef } from '@/types/NLAbstractions';
-import nonSerializables from '../nonSerializables';
 
-export default async function processPolygonFile(
-  stagePolygonFile: File
-): Promise<{
+export default async function processPolygonBuffer(buffer: Buffer): Promise<{
   modelRamOffset: number;
   models: NLModel[];
   textureDefs: NLTextureDef[];
-  fileName: string;
+  buffer: Buffer;
 }> {
-  const buffer = Buffer.from(await stagePolygonFile.arrayBuffer());
   const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
 
   // @TODO: run these on separate thread
@@ -24,11 +20,10 @@ export default async function processPolygonFile(
       scanModel({ buffer, address, index }) as NLModel
   );
 
-  nonSerializables.stagePolygonFile = stagePolygonFile;
   return Promise.resolve({
     modelRamOffset,
     models,
     textureDefs,
-    fileName: stagePolygonFile.name
+    buffer
   });
 }

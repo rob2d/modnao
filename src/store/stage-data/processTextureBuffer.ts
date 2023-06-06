@@ -6,7 +6,7 @@ import {
 } from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
-import nonSerializables from '../nonSerializables';
+
 const COLOR_SIZE = 2;
 
 const unsupportedConversion = () => ({ r: 0, g: 0, b: 0, a: 0 });
@@ -19,18 +19,15 @@ const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
     ARGB8888: unsupportedConversion
   };
 
-export default async function processTextureFile(
-  textureFile: File,
+export default async function processTextureBuffer(
+  buffer: Buffer,
   models: NLModel[],
   textureDefs: NLTextureDef[]
 ): Promise<{
   models: NLModel[];
   textureDefs: NLTextureDef[];
-  fileName: string;
 }> {
   const nextTextureDefs: NLTextureDef[] = [];
-
-  const buffer = Buffer.from(await textureFile.arrayBuffer());
 
   for await (const t of textureDefs) {
     const dataUrlTypes = Object.keys(t.dataUrls) as TextureDataUrlType[];
@@ -88,11 +85,8 @@ export default async function processTextureFile(
     nextTextureDefs.push(updatedTexture);
   }
 
-  nonSerializables.textureFile = textureFile;
-
   return Promise.resolve({
     models,
-    textureDefs: nextTextureDefs,
-    fileName: textureFile.name
+    textureDefs: nextTextureDefs
   });
 }
