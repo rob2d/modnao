@@ -1,11 +1,13 @@
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import processPolygonFile from './stage-data/processPolygonFile';
-import processTextureFile from './stage-data/processTextureFile';
+import processPolygonBuffer from './stage-data/processPolygonBuffer';
+import processTextureBuffer from './stage-data/processTextureBuffer';
 import exportTextureFile from './stage-data/exportTextureFile';
 import { AppState } from './store';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import getImageDimensions from '@/utils/images/getImageDimensions';
+import { decompressTextureBuffer } from '@/utils/textures/parse';
+import nonSerializables from './nonSerializables';
 
 export interface StageDataState {
   models: NLModel[];
@@ -30,22 +32,57 @@ export const initialStageDataState: StageDataState = {
 export const loadPolygonFile = createAsyncThunk<
   { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
   File
->(`${sliceName}/loadPolygonFile`, processPolygonFile);
+>(`${sliceName}/loadPolygonFile`, async (file: File) => {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const result = processPolygonBuffer(buffer);
+  nonSerializables.polygonBuffer = buffer;
+  return result;
+});
 
 export const loadTextureFile = createAsyncThunk<
   { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
   File,
   { state: AppState }
->(`${sliceName}/loadTextureFile`, (file, { getState }) => {
+>(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
   const state = getState();
   const { models, textureDefs } = state.modelData;
+
+  const fileName = file.name;
 
   // if no polygon loaded, resolve entry data
   if (!state.modelData.polygonFileName) {
     return Promise.resolve({ models, textureDefs, fileName: undefined });
   }
 
-  return processTextureFile(file, models, textureDefs);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  let result: {
+    models: NLModel[];
+    textureDefs: NLTextureDef[];
+    fileName: string;
+  };
+
+  try {
+    result = {
+      ...(await processTextureBuffer(buffer, models, textureDefs)),
+      fileName
+    };
+  } catch (error) {
+    // if an overflow error occurs, this is an indicator that the
+    // file loaded is compressed; this is common for certain
+    // game texture formats like Capcom vs SNK 2
+    console.error(
+      'Error parsing texture file; suspecting that there ' +
+        'was a buffer overflow attempting to decomrpess texture'
+    );
+    const decompressedBuffer = await decompressTextureBuffer(buffer);
+    result = {
+      ...(await processTextureBuffer(decompressedBuffer, models, textureDefs)),
+      fileName
+    };
+  }
+
+  nonSerializables.textureBuffer = buffer;
+  return result;
 });
 
 export const replaceTextureDataUrl = createAsyncThunk<
