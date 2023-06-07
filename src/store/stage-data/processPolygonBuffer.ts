@@ -7,7 +7,6 @@ export default async function processPolygonBuffer(buffer: Buffer): Promise<{
   modelRamOffset: number;
   models: NLModel[];
   textureDefs: NLTextureDef[];
-  buffer: Buffer;
 }> {
   const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
 
@@ -23,7 +22,6 @@ export default async function processPolygonBuffer(buffer: Buffer): Promise<{
   return Promise.resolve({
     modelRamOffset,
     models,
-    textureDefs,
-    buffer
+    textureDefs
   });
 }
