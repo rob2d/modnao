@@ -30,13 +30,16 @@ export const initialStageDataState: StageDataState = {
 };
 
 export const loadPolygonFile = createAsyncThunk<
-  { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
+  { models: NLModel[]; textureDefs: NLTextureDef[]; fileName: string },
   File
 >(`${sliceName}/loadPolygonFile`, async (file: File) => {
   const buffer = Buffer.from(await file.arrayBuffer());
-  const result = processPolygonBuffer(buffer);
+  const result = await processPolygonBuffer(buffer);
   nonSerializables.polygonBuffer = buffer;
-  return result;
+  return {
+    ...result,
+    fileName: file.name
+  };
 });
 
 export const loadTextureFile = createAsyncThunk<
