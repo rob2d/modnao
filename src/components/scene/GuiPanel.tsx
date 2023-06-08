@@ -19,6 +19,7 @@ import {
   Divider,
   Drawer,
   FormControlLabel,
+  Slider,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -41,6 +42,13 @@ import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { useModelSelectionExport } from '@/hooks';
 import GuiPanelTexture from './GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
+import {
+  mdiAxisArrow,
+  mdiCursorDefaultOutline,
+  mdiHexadecimal,
+  mdiMemory
+} from '@mdi/js';
+import Icon from '@mdi/react';
 
 // @TODO: consider either:
 // (1) breaking this panel into separate components,
@@ -67,7 +75,7 @@ const StyledDrawer = styled(Drawer)(
         max-height: 100vh;
         box-sizing: border-box;
         padding-top: ${theme.spacing(1)};
-        padding-bottom: ${theme.spacing(2)};
+        padding-bottom: 0;
     }
 
     & > .MuiPaper-root .MuiToggleButtonGroup-root:not(:first-item) {
@@ -108,11 +116,16 @@ const StyledDrawer = styled(Drawer)(
       justify-content: flex-end;
     }
 
+    & .settings-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
     & .textures {
       width: 222px;
       flex-grow: 2;
       overflow-y: auto;
-      margin-bottom: ${theme.spacing(1)};
+      margin-bottom: 0;
     }
 
     & > .MuiPaper-root > .MuiDivider-root {
@@ -139,6 +152,11 @@ const StyledDrawer = styled(Drawer)(
 
     & .MuiDivider-root:not(:first-child) {
       padding-top: ${theme.spacing(1)};
+    }
+
+    & .MuiSlider-root {
+      width: calc(100% - 116px);
+      margin-left: ${theme.spacing(2)};
     }
   `
 );
@@ -257,22 +275,12 @@ export default function GuiPanel() {
         <Grid container className={'property-table'}>
           <Grid xs={8}>
             <Typography variant='body1' textAlign='right'>
-              Model Count
+              Models
             </Typography>
           </Grid>
           <Grid xs={4}>
             <Typography variant='button' textAlign='right'>
-              {modelCount}
-            </Typography>
-          </Grid>
-          <Grid xs={8}>
-            <Typography variant='body1' textAlign='right'>
-              Model Index
-            </Typography>
-          </Grid>
-          <Grid xs={4}>
-            <Typography variant='button' textAlign='right'>
-              {modelIndex === -1 ? 'N/A' : modelIndex}
+              {!model ? '--' : `${modelIndex + 1} / ${modelCount}`}
             </Typography>
           </Grid>
           <Grid xs={8}>
@@ -282,7 +290,7 @@ export default function GuiPanel() {
           </Grid>
           <Grid xs={4}>
             <Typography variant='button' textAlign='right'>
-              {!objectKey ? 'N/A' : objectKey}
+              {!objectKey ? '--' : objectKey}
             </Typography>
           </Grid>
           <Grid xs={8}>
@@ -383,23 +391,42 @@ export default function GuiPanel() {
         {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
           <FormControlLabel
             control={<Checkbox checked={viewOptions.objectAddressesVisible} />}
-            label='Addresses'
+            label='Object Address'
             labelPlacement='start'
             onChange={onSetObjectAddressesVisible}
           />
         )}
-        <FormControlLabel
-          control={<Checkbox checked={viewOptions.axesHelperVisible} />}
-          label='Axes Helper'
-          labelPlacement='start'
-          onChange={onSetAxesHelperVisible}
-        />
-        <FormControlLabel
-          control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
-          label='Scene Cursor'
-          labelPlacement='start'
-          onChange={onSetSceneCursorVisible}
-        />
+        {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
+          <FormControlLabel
+            control={
+              <Slider
+                size='small'
+                min={1}
+                max={10}
+                defaultValue={3}
+                aria-label='Small'
+                valueLabelDisplay='auto'
+              />
+            }
+            label='Line Width'
+            labelPlacement='start'
+            onChange={onSetObjectAddressesVisible}
+          />
+        )}
+        <div className='settings-row'>
+          <FormControlLabel
+            control={<Checkbox checked={viewOptions.axesHelperVisible} />}
+            label={<Icon path={mdiAxisArrow} size={1} />}
+            labelPlacement='start'
+            onChange={onSetAxesHelperVisible}
+          />
+          <FormControlLabel
+            control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
+            label={<Icon path={mdiCursorDefaultOutline} size={1} />}
+            labelPlacement='start'
+            onChange={onSetSceneCursorVisible}
+          />
+        </div>
       </div>
       {!hasLoadedTextureFile ? undefined : (
         <>
