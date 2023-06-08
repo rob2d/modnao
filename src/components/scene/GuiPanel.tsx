@@ -407,45 +407,37 @@ export default function GuiPanel() {
             </Grid>
           </Grid>
           {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-            <FormControlLabel
-              control={
-                <Checkbox checked={viewOptions.objectAddressesVisible} />
-              }
-              label='Object Address'
-              labelPlacement='start'
-              onChange={onSetObjectAddressesVisible}
-            />
-          )}
-          {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-            <FormControlLabel
-              control={
-                <Slider
-                  size='small'
-                  min={1}
-                  max={10}
-                  defaultValue={3}
-                  aria-label='Small'
-                  valueLabelDisplay='auto'
-                />
-              }
-              label='Line Width'
-              labelPlacement='start'
-              onChange={onSetObjectAddressesVisible}
-            />
+            <Tooltip
+              title='Toggle selected polygon addresess visibility'
+              placement='top-start'
+            >
+              <FormControlLabel
+                control={
+                  <Checkbox checked={viewOptions.objectAddressesVisible} />
+                }
+                label='Addresses'
+                labelPlacement='start'
+                onChange={onSetObjectAddressesVisible}
+              />
+            </Tooltip>
           )}
           <div className='settings-row'>
-            <FormControlLabel
-              control={<Checkbox checked={viewOptions.axesHelperVisible} />}
-              label={<Icon path={mdiAxisArrow} size={1} />}
-              labelPlacement='start'
-              onChange={onSetAxesHelperVisible}
-            />
-            <FormControlLabel
-              control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
-              label={<Icon path={mdiCursorDefaultOutline} size={1} />}
-              labelPlacement='start'
-              onChange={onSetSceneCursorVisible}
-            />
+            <Tooltip title='Toggle axes helper visibility'>
+              <FormControlLabel
+                control={<Checkbox checked={viewOptions.axesHelperVisible} />}
+                label={<Icon path={mdiAxisArrow} size={1} />}
+                labelPlacement='start'
+                onChange={onSetAxesHelperVisible}
+              />
+            </Tooltip>
+            <Tooltip title='Toggle scene cursor visibility'>
+              <FormControlLabel
+                control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
+                label={<Icon path={mdiCursorDefaultOutline} size={1} />}
+                labelPlacement='start'
+                onChange={onSetSceneCursorVisible}
+              />
+            </Tooltip>
           </div>
         </div>
         {!hasLoadedTextureFile ? undefined : (
