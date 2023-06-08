@@ -10,11 +10,10 @@ const Styled = styled('main')(
   & {
     position: relative;
     display: flex;
-    flex-direction: column;
     justify-content: space-between;
     align-items: center;
     height: 100vh;
-    width: 100vw;
+    flex-basis: 100%;
   }
 `
 );

@@ -17,8 +17,8 @@ import {
   Button,
   Checkbox,
   Divider,
-  Drawer,
   FormControlLabel,
+  Paper,
   Slider,
   ToggleButton,
   ToggleButtonGroup,
@@ -42,31 +42,22 @@ import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { useModelSelectionExport } from '@/hooks';
 import GuiPanelTexture from './GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
-import {
-  mdiAxisArrow,
-  mdiCursorDefaultOutline,
-  mdiHexadecimal,
-  mdiMemory
-} from '@mdi/js';
+import { mdiAxisArrow, mdiCursorDefaultOutline } from '@mdi/js';
 import Icon from '@mdi/react';
+
+const WIDTH = 222;
 
 // @TODO: consider either:
 // (1) breaking this panel into separate components,
 // (2) offload hook functionality since there's quite a lot of cruft
 // (3) abstract the components to eliminate cognitive overhead
 
-const StyledDrawer = styled(Drawer)(
+const StyledPaper = styled(Paper)(
   ({ theme }) => `
-    & > .MuiPaper-root:before {
-      position: relative;
-      content: '""',
-      width: '222px',
-      height: '100%'
-    }
-
-    & > .MuiPaper-root.MuiDrawer-paper.MuiDrawer-paperAnchorRight {
-        position: absolute;
-        width: 222px;
+    &.MuiPaper-root {
+        flex-shrink: 0;
+        width: ${WIDTH}px;
+        height: 100vh;
         top: 0;
         right: 0;
         display: flex;
@@ -78,26 +69,26 @@ const StyledDrawer = styled(Drawer)(
         padding-bottom: 0;
     }
 
-    & > .MuiPaper-root .MuiToggleButtonGroup-root:not(:first-item) {
+    &.MuiPaper-root .MuiToggleButtonGroup-root:not(:first-item) {
       margin-top: ${theme.spacing(1)};
     }
 
-    & > .MuiPaper-root .MuiToggleButtonGroup-root {
+    &.MuiPaper-root .MuiToggleButtonGroup-root {
       margin-bottom: ${theme.spacing(1)};
     }
 
-    & > .MuiPaper-root .MuiToggleButtonGroup-root .MuiButtonBase-root {
+    &.MuiPaper-root .MuiToggleButtonGroup-root .MuiButtonBase-root {
       width: 100%;
       justify-content: center;
     }
 
-    & > .MuiPaper-root > .MuiTypography-subtitle2, & > .MuiPaper-root > :not(.MuiDivider-root) {
+    &.MuiPaper-root > .MuiTypography-subtitle2, &.MuiPaper-root > :not(.MuiDivider-root) {
       width: 100%;
       padding-left: ${theme.spacing(2)};
       padding-right: ${theme.spacing(2)};
     }
 
-    & > .MuiPaper-root > .selection {
+    &.MuiPaper-root > .selection {
       display: flex;
       flex-direction: column;
       align-items: end;
@@ -128,7 +119,7 @@ const StyledDrawer = styled(Drawer)(
       margin-bottom: 0;
     }
 
-    & > .MuiPaper-root > .MuiDivider-root {
+    &.MuiPaper-root > .MuiDivider-root {
       margin-bottom: ${theme.spacing(1)};
     }
 
@@ -265,7 +256,7 @@ export default function GuiPanel() {
   }, [textureDefs && selectedMeshTexture]);
 
   return (
-    <StyledDrawer variant='permanent' anchor='right'>
+    <StyledPaper square>
       <Divider flexItem>
         <Typography variant='subtitle2' textAlign='left' width='100%'>
           Models
@@ -453,6 +444,6 @@ export default function GuiPanel() {
           </Tooltip>
         </div>
       )}
-    </StyledDrawer>
+    </StyledPaper>
   );
 }

@@ -1,4 +1,11 @@
-import { useCallback, useContext, useMemo } from 'react';
+import {
+  MutableRefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef
+} from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
@@ -22,7 +29,7 @@ const Styled = styled('div')(
   () => `
   & {
     position: relative;
-    width: 100%;
+    flex-grow: 1;
     height: 100%;
     display: flex;
     zIndex: -1;
@@ -32,7 +39,7 @@ const Styled = styled('div')(
 
 export default function SceneCanvas() {
   useSceneKeyboardActions();
-
+  const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
   const viewOptions = useContext(ViewOptionsContext);
 
   const dispatch = useAppDispatch();
@@ -51,15 +58,44 @@ export default function SceneCanvas() {
 
   const canvasStyle = useMemo(
     () => ({
+      position: 'absolute' as const,
+      top: '0',
+      left: '0',
       background: theme.palette.scene.background,
       cursor: viewOptions.sceneCursorVisible ? 'default' : 'none'
     }),
     [viewOptions.sceneCursorVisible, theme]
   );
 
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      // Get the new size of the container element
+      const { width, height } = entries[0].contentRect;
+
+      // Update the size of the canvas
+      const canvas = canvasRef.current?.childNodes[0] as HTMLCanvasElement;
+      if (canvas) {
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+      }
+    });
+
+    const containerElement = canvasRef.current;
+    resizeObserver.observe(containerElement);
+
+    return () => {
+      resizeObserver.unobserve(containerElement);
+    };
+  }, []);
+
   return (
     <Styled>
-      <Canvas camera={cameraParams} frameloop='demand' style={canvasStyle}>
+      <Canvas
+        camera={cameraParams}
+        frameloop='demand'
+        style={canvasStyle}
+        ref={canvasRef}
+      >
         <SceneContextSetup />
         <group dispose={null}>
           {!viewOptions.axesHelperVisible ? undefined : (
