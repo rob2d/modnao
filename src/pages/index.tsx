@@ -19,8 +19,6 @@ const Styled = styled('main')(
 );
 
 export default function Home() {
-  const viewOptions = useContext(ViewOptionsContext);
-
   return (
     <>
       <Head>
@@ -34,7 +32,7 @@ export default function Home() {
       </Head>
       <Styled>
         <SceneCanvas />
-        {!viewOptions.guiPanelVisible ? undefined : <GuiPanel />}
+        <GuiPanel />
       </Styled>
       <CssBaseline />
     </>

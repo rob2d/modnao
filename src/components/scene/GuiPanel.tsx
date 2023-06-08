@@ -44,6 +44,7 @@ import GuiPanelTexture from './GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
 import { mdiAxisArrow, mdiCursorDefaultOutline } from '@mdi/js';
 import Icon from '@mdi/react';
+import clsx from 'clsx';
 
 const WIDTH = 222;
 
@@ -52,43 +53,65 @@ const WIDTH = 222;
 // (2) offload hook functionality since there's quite a lot of cruft
 // (3) abstract the components to eliminate cognitive overhead
 
+const TRANSITION_TIME = `0.32s`;
+
 const StyledPaper = styled(Paper)(
+  {
+    shouldForwardProp: (prop: string) =>
+      prop !== 'textColor' && prop !== 'buttonTextColor'
+  },
   ({ theme }) => `
     &.MuiPaper-root {
-        flex-shrink: 0;
-        width: ${WIDTH}px;
-        height: 100vh;
-        top: 0;
-        right: 0;
-        display: flex;
-        flex-direction: column; 
-        align-items: flex-end;
-        max-height: 100vh;
-        box-sizing: border-box;
-        padding-top: ${theme.spacing(1)};
-        padding-bottom: 0;
+      position: relative;
+      width: ${WIDTH}px;
+      height: 100vh;
+      transition: opacity ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease;
+      opacity: 1;
+      pointer-events: all;
     }
 
-    &.MuiPaper-root .MuiToggleButtonGroup-root:not(:first-item) {
+    &.MuiPaper-root:not(.visible) {
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    & .content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: ${WIDTH}px;
+      height: 100vh;
+      flex-shrink: 0;
+      
+      display: flex;
+      flex-direction: column; 
+      align-items: flex-end;
+      box-sizing: border-box;
+      padding-top: ${theme.spacing(1)};
+      padding-bottom: 0;
+    }
+
+    & .content .MuiToggleButtonGroup-root:not(:first-item) {
       margin-top: ${theme.spacing(1)};
     }
 
-    &.MuiPaper-root .MuiToggleButtonGroup-root {
+    & .content .MuiToggleButtonGroup-root {
       margin-bottom: ${theme.spacing(1)};
     }
 
-    &.MuiPaper-root .MuiToggleButtonGroup-root .MuiButtonBase-root {
+    & .content .MuiToggleButtonGroup-root .MuiButtonBase-root {
       width: 100%;
       justify-content: center;
     }
 
-    &.MuiPaper-root > .MuiTypography-subtitle2, &.MuiPaper-root > :not(.MuiDivider-root) {
+    & .content > .MuiTypography-subtitle2, & .content > :not(.MuiDivider-root) {
       width: 100%;
       padding-left: ${theme.spacing(2)};
       padding-right: ${theme.spacing(2)};
     }
 
-    &.MuiPaper-root > .selection {
+    & .content > .selection {
       display: flex;
       flex-direction: column;
       align-items: end;
@@ -119,7 +142,7 @@ const StyledPaper = styled(Paper)(
       margin-bottom: 0;
     }
 
-    &.MuiPaper-root > .MuiDivider-root {
+    & .content > .MuiDivider-root {
       margin-bottom: ${theme.spacing(1)};
     }
 
@@ -256,194 +279,201 @@ export default function GuiPanel() {
   }, [textureDefs && selectedMeshTexture]);
 
   return (
-    <StyledPaper square>
-      <Divider flexItem>
-        <Typography variant='subtitle2' textAlign='left' width='100%'>
-          Models
-        </Typography>
-      </Divider>
-      <div className='selection'>
-        <Grid container className={'property-table'}>
-          <Grid xs={8}>
-            <Typography variant='body1' textAlign='right'>
-              Models
-            </Typography>
-          </Grid>
-          <Grid xs={4}>
-            <Typography variant='button' textAlign='right'>
-              {!model ? '--' : `${modelIndex + 1} / ${modelCount}`}
-            </Typography>
-          </Grid>
-          <Grid xs={8}>
-            <Typography variant='body1' textAlign='right'>
-              Object Key
-            </Typography>
-          </Grid>
-          <Grid xs={4}>
-            <Typography variant='button' textAlign='right'>
-              {!objectKey ? '--' : objectKey}
-            </Typography>
-          </Grid>
-          <Grid xs={8}>
-            <Typography variant='body1' textAlign='right'>
-              Object Type
-            </Typography>
-          </Grid>
-          <Grid xs={4}>
-            <ToggleButtonGroup
-              orientation='vertical'
-              color='secondary'
-              value={objectSelectionType}
-              size='small'
-              exclusive
-              onChange={onSetObjectSelectionType}
-              aria-label='text alignment'
-            >
-              <ToggleButton value='mesh'>mesh</ToggleButton>
-              <ToggleButton value='polygon'>polygon</ToggleButton>
-            </ToggleButtonGroup>
-          </Grid>
-        </Grid>
-        <Tooltip title='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'>
-          <Button
-            onClick={openFileSelector}
-            color='primary'
-            fullWidth
-            size='small'
-            variant='outlined'
-          >
-            Import Stage/Texture
-          </Button>
-        </Tooltip>
-        {!model ? undefined : (
-          <Tooltip
-            title={
-              <div>
-                <p>
-                  Export an.obj file representing the selected in-scene model
-                  meshes.
-                </p>
-              </div>
-            }
-          >
-            <Button
-              onClick={onExportOBJFile}
-              color='secondary'
-              fullWidth
-              size='small'
-              variant='outlined'
-            >
-              Export Model .OBJ
-            </Button>
-          </Tooltip>
-        )}
-        {!model ? undefined : (
-          // @TODO: customize the title and label based on selection-scope
-          <Tooltip title='Export ModNao model .json data. Will narrow data down to the current selection'>
-            <Button
-              fullWidth
-              onClick={onExportSelectionJson}
-              color='secondary'
-              size='small'
-              variant='outlined'
-            >
-              Export Selection JSON
-            </Button>
-          </Tooltip>
-        )}
-      </div>
-      <Divider flexItem>
-        <Typography variant='subtitle2' textAlign='left' width='100%'>
-          View
-        </Typography>
-      </Divider>
-      <div className='view-options'>
-        <Grid container className={'property-table'}>
-          <Grid xs={6}>
-            <Typography variant='body1' textAlign='right'>
-              Mesh Display
-            </Typography>
-          </Grid>
-          <Grid xs={6}>
-            <ToggleButtonGroup
-              orientation='vertical'
-              size='small'
-              color='secondary'
-              value={viewOptions.meshDisplayMode}
-              exclusive
-              onChange={onSetMeshDisplayMode}
-              aria-label='Mesh Display Mode Selection'
-            >
-              <ToggleButton value='wireframe'>wireframe</ToggleButton>
-              <ToggleButton value='textured'>textured</ToggleButton>
-            </ToggleButtonGroup>
-          </Grid>
-        </Grid>
-        {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-          <FormControlLabel
-            control={<Checkbox checked={viewOptions.objectAddressesVisible} />}
-            label='Object Address'
-            labelPlacement='start'
-            onChange={onSetObjectAddressesVisible}
-          />
-        )}
-        {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-          <FormControlLabel
-            control={
-              <Slider
+    <StyledPaper
+      square
+      className={clsx(viewOptions.guiPanelVisible && 'visible')}
+    >
+      <div className='content'>
+        <Divider flexItem>
+          <Typography variant='subtitle2' textAlign='left' width='100%'>
+            Models
+          </Typography>
+        </Divider>
+        <div className='selection'>
+          <Grid container className={'property-table'}>
+            <Grid xs={8}>
+              <Typography variant='body1' textAlign='right'>
+                Models
+              </Typography>
+            </Grid>
+            <Grid xs={4}>
+              <Typography variant='button' textAlign='right'>
+                {!model ? '--' : `${modelIndex + 1} / ${modelCount}`}
+              </Typography>
+            </Grid>
+            <Grid xs={8}>
+              <Typography variant='body1' textAlign='right'>
+                Object Key
+              </Typography>
+            </Grid>
+            <Grid xs={4}>
+              <Typography variant='button' textAlign='right'>
+                {!objectKey ? '--' : objectKey}
+              </Typography>
+            </Grid>
+            <Grid xs={8}>
+              <Typography variant='body1' textAlign='right'>
+                Object Type
+              </Typography>
+            </Grid>
+            <Grid xs={4}>
+              <ToggleButtonGroup
+                orientation='vertical'
+                color='secondary'
+                value={objectSelectionType}
                 size='small'
-                min={1}
-                max={10}
-                defaultValue={3}
-                aria-label='Small'
-                valueLabelDisplay='auto'
-              />
-            }
-            label='Line Width'
-            labelPlacement='start'
-            onChange={onSetObjectAddressesVisible}
-          />
-        )}
-        <div className='settings-row'>
-          <FormControlLabel
-            control={<Checkbox checked={viewOptions.axesHelperVisible} />}
-            label={<Icon path={mdiAxisArrow} size={1} />}
-            labelPlacement='start'
-            onChange={onSetAxesHelperVisible}
-          />
-          <FormControlLabel
-            control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
-            label={<Icon path={mdiCursorDefaultOutline} size={1} />}
-            labelPlacement='start'
-            onChange={onSetSceneCursorVisible}
-          />
-        </div>
-      </div>
-      {!hasLoadedTextureFile ? undefined : (
-        <>
-          <Divider flexItem>
-            <Typography variant='subtitle2' textAlign='left' width='100%'>
-              Textures
-            </Typography>
-          </Divider>
-          <div className='textures'>{textures}</div>
-        </>
-      )}
-      {!hasReplacementTextures ? undefined : (
-        <div>
-          <Tooltip title='Download texture ROM binary with replaced images'>
+                exclusive
+                onChange={onSetObjectSelectionType}
+                aria-label='text alignment'
+              >
+                <ToggleButton value='mesh'>mesh</ToggleButton>
+                <ToggleButton value='polygon'>polygon</ToggleButton>
+              </ToggleButtonGroup>
+            </Grid>
+          </Grid>
+          <Tooltip title='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'>
             <Button
-              onClick={onExportTextureFile}
+              onClick={openFileSelector}
+              color='primary'
               fullWidth
-              color='secondary'
               size='small'
               variant='outlined'
             >
-              Export Textures
+              Import Stage/Texture
             </Button>
           </Tooltip>
+          {!model ? undefined : (
+            <Tooltip
+              title={
+                <div>
+                  <p>
+                    Export an.obj file representing the selected in-scene model
+                    meshes.
+                  </p>
+                </div>
+              }
+            >
+              <Button
+                onClick={onExportOBJFile}
+                color='secondary'
+                fullWidth
+                size='small'
+                variant='outlined'
+              >
+                Export Model .OBJ
+              </Button>
+            </Tooltip>
+          )}
+          {!model ? undefined : (
+            // @TODO: customize the title and label based on selection-scope
+            <Tooltip title='Export ModNao model .json data. Will narrow data down to the current selection'>
+              <Button
+                fullWidth
+                onClick={onExportSelectionJson}
+                color='secondary'
+                size='small'
+                variant='outlined'
+              >
+                Export Selection JSON
+              </Button>
+            </Tooltip>
+          )}
         </div>
-      )}
+        <Divider flexItem>
+          <Typography variant='subtitle2' textAlign='left' width='100%'>
+            View
+          </Typography>
+        </Divider>
+        <div className='view-options'>
+          <Grid container className={'property-table'}>
+            <Grid xs={6}>
+              <Typography variant='body1' textAlign='right'>
+                Mesh Display
+              </Typography>
+            </Grid>
+            <Grid xs={6}>
+              <ToggleButtonGroup
+                orientation='vertical'
+                size='small'
+                color='secondary'
+                value={viewOptions.meshDisplayMode}
+                exclusive
+                onChange={onSetMeshDisplayMode}
+                aria-label='Mesh Display Mode Selection'
+              >
+                <ToggleButton value='wireframe'>wireframe</ToggleButton>
+                <ToggleButton value='textured'>textured</ToggleButton>
+              </ToggleButtonGroup>
+            </Grid>
+          </Grid>
+          {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
+            <FormControlLabel
+              control={
+                <Checkbox checked={viewOptions.objectAddressesVisible} />
+              }
+              label='Object Address'
+              labelPlacement='start'
+              onChange={onSetObjectAddressesVisible}
+            />
+          )}
+          {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
+            <FormControlLabel
+              control={
+                <Slider
+                  size='small'
+                  min={1}
+                  max={10}
+                  defaultValue={3}
+                  aria-label='Small'
+                  valueLabelDisplay='auto'
+                />
+              }
+              label='Line Width'
+              labelPlacement='start'
+              onChange={onSetObjectAddressesVisible}
+            />
+          )}
+          <div className='settings-row'>
+            <FormControlLabel
+              control={<Checkbox checked={viewOptions.axesHelperVisible} />}
+              label={<Icon path={mdiAxisArrow} size={1} />}
+              labelPlacement='start'
+              onChange={onSetAxesHelperVisible}
+            />
+            <FormControlLabel
+              control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
+              label={<Icon path={mdiCursorDefaultOutline} size={1} />}
+              labelPlacement='start'
+              onChange={onSetSceneCursorVisible}
+            />
+          </div>
+        </div>
+        {!hasLoadedTextureFile ? undefined : (
+          <>
+            <Divider flexItem>
+              <Typography variant='subtitle2' textAlign='left' width='100%'>
+                Textures
+              </Typography>
+            </Divider>
+            <div className='textures'>{textures}</div>
+          </>
+        )}
+        {!hasReplacementTextures ? undefined : (
+          <div>
+            <Tooltip title='Download texture ROM binary with replaced images'>
+              <Button
+                onClick={onExportTextureFile}
+                fullWidth
+                color='secondary'
+                size='small'
+                variant='outlined'
+              >
+                Export Textures
+              </Button>
+            </Tooltip>
+          </div>
+        )}
+      </div>
     </StyledPaper>
   );
 }
