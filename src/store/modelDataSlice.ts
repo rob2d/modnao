@@ -36,6 +36,7 @@ export const loadPolygonFile = createAsyncThunk<
   const buffer = Buffer.from(await file.arrayBuffer());
   const result = await processPolygonBuffer(buffer);
   nonSerializables.polygonBuffer = buffer;
+
   return {
     ...result,
     fileName: file.name
@@ -73,10 +74,11 @@ export const loadTextureFile = createAsyncThunk<
     // if an overflow error occurs, this is an indicator that the
     // file loaded is compressed; this is common for certain
     // game texture formats like Capcom vs SNK 2
-    console.error(
-      'Error parsing texture file; suspecting that there ' +
-        'was a buffer overflow attempting to decomrpess texture'
-    );
+
+    if (!(error instanceof RangeError)) {
+      throw error;
+    }
+
     const decompressedBuffer = await decompressTextureBuffer(buffer);
     result = {
       ...(await processTextureBuffer(decompressedBuffer, models, textureDefs)),
