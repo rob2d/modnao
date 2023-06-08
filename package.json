@@ -21,6 +21,8 @@
     "yargs": "^17.7.1"
   },
   "devDependencies": {
+    "@mdi/js": "^7.2.96",
+    "@mdi/react": "^1.6.1",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.12.3",
     "@react-three/drei": "^9.66.1",

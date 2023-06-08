@@ -2,7 +2,8 @@ import { useState, MouseEvent, useMemo, useEffect, useCallback } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Icon from '@mdi/react';
+import { mdiDotsVertical } from '@mdi/js';
 import { styled } from '@mui/material';
 import { useFilePicker } from 'use-file-picker';
 import { replaceTextureDataUrl, useAppDispatch } from '@/store';
@@ -14,7 +15,7 @@ const StyledPanelTextureMenu = styled('div')(
         right: ${theme.spacing(0)};
     }
 
-    & .MuiSvgIcon-root {
+    & .MuiIconButton-root svg {
         color: #fff;
         filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.8));
     }
@@ -91,7 +92,7 @@ export default function GuiPanelTextureMenu({
         aria-haspopup='true'
         onClick={handleClick}
       >
-        <MoreVertIcon />
+        <Icon path={mdiDotsVertical} size={1} />
       </IconButton>
       <Menu
         id='long-menu'
