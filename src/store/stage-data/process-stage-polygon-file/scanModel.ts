@@ -69,11 +69,11 @@ export default function scanModel({
           buffer,
           structAddress
         );
-        polygon.vertexes = [];
+        polygon.vertices = [];
 
         structAddress = polygon.address + S.POLYGON_HEADER;
 
-        // (4) scan vertexes within polygon
+        // (4) scan vertices within polygon
         let detectedMeshEnd = false;
         for (let i = 0; i < polygon.actualVertexCount; i++) {
           // detect modelEnd flag in the vertex position
@@ -106,7 +106,7 @@ export default function scanModel({
           );
 
           vertex.index = i;
-          polygon.vertexes.push(vertex);
+          polygon.vertices.push(vertex);
           structAddress +=
             vertex.addressingMode === 'direct' ? S.VERTEX_A : S.VERTEX_B;
 

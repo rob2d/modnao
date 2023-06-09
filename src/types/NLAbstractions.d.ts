@@ -67,7 +67,7 @@ declare global {
 
   export type NLPolygon = {
     flags: PolyTypeFlags;
-    vertexes: NLVertex[];
+    vertices: NLVertex[];
     vertexCount: number;
     actualVertexCount: number;
     vertexGroupModeValue: number;

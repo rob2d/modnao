@@ -20,7 +20,7 @@ Object {
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
-          "vertexes": Array [
+          "vertices": Array [
             Object {
               "address": 640,
               "addressingMode": "direct",
@@ -148,7 +148,7 @@ Object {
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
-          "vertexes": Array [
+          "vertices": Array [
             Object {
               "address": 856,
               "addressingMode": "direct",
@@ -276,7 +276,7 @@ Object {
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
-          "vertexes": Array [
+          "vertices": Array [
             Object {
               "address": 1072,
               "addressingMode": "direct",
@@ -404,7 +404,7 @@ Object {
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
-          "vertexes": Array [
+          "vertices": Array [
             Object {
               "address": 1288,
               "addressingMode": "direct",
@@ -532,7 +532,7 @@ Object {
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
-          "vertexes": Array [
+          "vertices": Array [
             Object {
               "address": 1504,
               "addressingMode": "direct",
@@ -660,7 +660,7 @@ Object {
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
-          "vertexes": Array [
+          "vertices": Array [
             Object {
               "address": 1720,
               "addressingMode": "direct",

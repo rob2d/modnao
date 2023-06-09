@@ -1,24 +1,17 @@
 import React, { useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei';
-import {
-  Mesh,
-  MeshBasicMaterial,
-  Texture,
-  Vector3,
-  FrontSide,
-  BackSide,
-  DoubleSide,
-  Side
-} from 'three';
+import { Mesh, Texture, Vector3 } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
+import RenderedTexturedPolygon from './RenderedTexturedPolygon';
+import RenderedWireframePolygon from './RenderedWireframePolygon';
 
 type Point3D = [x: number, y: number, z: number];
 
 export default function RenderedPolygon({
   vertexGroupMode,
-  vertexes,
+  vertices,
   address,
   objectKey,
   selectedObjectKey,
@@ -62,95 +55,76 @@ export default function RenderedPolygon({
     }
   });
 
-  const [vertices, normals, uvs, indices, displayPosition] = useMemo(() => {
-    let vArrayIndex = 0;
-    let nArrayIndex = 0;
-    let uvArrayIndex = 0;
+  const [vertexPositions, normals, uvs, indices, displayPosition] =
+    useMemo(() => {
+      let vArrayIndex = 0;
+      let nArrayIndex = 0;
+      let uvArrayIndex = 0;
 
-    const vArray = new Float32Array(vertexes.length * 3);
-    const nArray = new Float32Array(vertexes.length * 3);
-    const iArray: number[] = [];
-    const uvArray = new Float32Array(vertexes.length * 2);
+      const vPositions = new Float32Array(vertices.length * 3);
+      const nArray = new Float32Array(vertices.length * 3);
+      const iArray: number[] = [];
+      const uvArray = new Float32Array(vertices.length * 2);
 
-    // display position is an aggregated weight
-    // @TODO: precalculate
-    let dArray: Point3D = [0, 0, 0];
+      // display position is an aggregated weight
+      // @TODO: precalculate
+      let dArray: Point3D = [0, 0, 0];
 
-    let stripCount = 0;
+      let stripCount = 0;
 
-    vertexes.forEach((v, i) => {
-      v.position.forEach((v, i) => {
-        vArray[vArrayIndex++] = v;
-        dArray[i] += v;
+      vertices.forEach((v, i) => {
+        v.position.forEach((v, i) => {
+          vPositions[vArrayIndex++] = v;
+          dArray[i] += v;
+        });
+
+        nArray[nArrayIndex++] = v.normals[0];
+        nArray[nArrayIndex++] = v.normals[1];
+        nArray[nArrayIndex++] = v.normals[2];
+
+        uvArray[uvArrayIndex++] = v.uv[0];
+        uvArray[uvArrayIndex++] = v.uv[1];
+
+        if (vertexGroupMode === 'regular') {
+          if (i > vertices.length - 3) {
+            return;
+          }
+
+          if (stripCount % 2 === 0) {
+            if (flags.cullingType === 'front') {
+              iArray.push(i + 1, i, i + 2);
+            } else {
+              iArray.push(i, i + 1, i + 2);
+            }
+          } else {
+            if (flags.cullingType === 'front') {
+              iArray.push(i, i + 1, i + 2);
+            } else {
+              iArray.push(i + 1, i, i + 2);
+            }
+          }
+        }
+
+        stripCount += 1;
       });
 
-      nArray[nArrayIndex++] = v.normals[0];
-      nArray[nArrayIndex++] = v.normals[1];
-      nArray[nArrayIndex++] = v.normals[2];
-
-      uvArray[uvArrayIndex++] = v.uv[0];
-      uvArray[uvArrayIndex++] = v.uv[1];
-
-      if (vertexGroupMode === 'regular') {
-        if (i > vertexes.length - 3) {
-          return;
-        }
-
-        if (stripCount % 2 === 0) {
+      if (vertexGroupMode === 'triple') {
+        for (let i = 2; i < vertices.length; i += 3) {
           if (flags.cullingType === 'front') {
-            iArray.push(i + 1, i, i + 2);
+            iArray.push(i - 1, i - 2, i);
           } else {
-            iArray.push(i, i + 1, i + 2);
-          }
-        } else {
-          if (flags.cullingType === 'front') {
-            iArray.push(i, i + 1, i + 2);
-          } else {
-            iArray.push(i + 1, i, i + 2);
+            iArray.push(i - 2, i - 1, i);
           }
         }
+        stripCount += 1;
       }
 
-      stripCount += 1;
-    });
+      dArray = dArray.map((c) => Math.round(c / vertices.length)) as Point3D;
 
-    if (vertexGroupMode === 'triple') {
-      for (let i = 2; i < vertexes.length; i += 3) {
-        if (flags.cullingType === 'front') {
-          iArray.push(i - 1, i - 2, i);
-        } else {
-          iArray.push(i - 2, i - 1, i);
-        }
-      }
-      stripCount += 1;
-    }
-
-    dArray = dArray.map((c) => Math.round(c / vertexes.length)) as Point3D;
-
-    return [vArray, nArray, uvArray, new Uint16Array(iArray), dArray];
-  }, [vertexes, vertexGroupMode]);
-
-  const meshModeMaterialProps =
-    meshDisplayMode === 'wireframe'
-      ? {
-          wireframe: true,
-          wireframeLinewidth: isSelected
-            ? Math.round(wireframeLineWidth * 1.25)
-            : wireframeLineWidth
-        }
-      : {
-          map: texture,
-          transparent: true,
-          opacity: isSelected ? 0.75 : 1
-        };
+      return [vPositions, nArray, uvArray, new Uint16Array(iArray), dArray];
+    }, [vertices, vertexGroupMode]);
 
   const meshAddressText = useMemo(() => {
-    const material = new MeshBasicMaterial({
-      color,
-      transparent: true,
-      opacity: 0.75
-    });
-
     return !isSelected ||
       meshDisplayMode === 'textured' ||
       !objectAddressesVisible ? undefined : (
@@ -159,7 +133,6 @@ export default function RenderedPolygon({
         fontSize={16}
         position={displayPosition}
         ref={textRef}
-        material={material}
       >
         [{objectKey}] {`0x${address.toString(16)}`}
       </Text>
@@ -179,37 +152,28 @@ export default function RenderedPolygon({
         key={`${address}_${meshDisplayMode}_${color}`}
         onClick={handleClick}
       >
-        <meshBasicMaterial
-          color={color}
-          {...meshModeMaterialProps}
-          depthTest={true}
-        />
-        <bufferGeometry attach={'geometry'}>
-          <bufferAttribute
-            attach='attributes-position'
-            count={vertices.length / 3}
-            array={vertices}
-            itemSize={3}
+        {meshDisplayMode === 'textured' ? (
+          <RenderedTexturedPolygon
+            vertexPositions={vertexPositions}
+            normals={normals}
+            uvs={uvs}
+            indices={indices}
+            materialProps={{
+              color,
+              map: texture,
+              transparent: true,
+              opacity: isSelected ? 0.75 : 1
+            }}
           />
-          <bufferAttribute
-            attach='attributes-uv'
-            count={uvs.length / 2}
-            array={uvs}
-            itemSize={2}
+        ) : (
+          <RenderedWireframePolygon
+            isSelected={isSelected}
+            color={color}
+            vertices={vertices}
+            indices={indices}
+            lineWidth={wireframeLineWidth}
           />
-          <bufferAttribute
-            attach='attributes-normal'
-            count={normals.length / 3}
-            array={normals}
-            itemSize={3}
-          />
-          <bufferAttribute
-            array={indices}
-            attach='index'
-            count={indices.length}
-            itemSize={1}
-          />
-        </bufferGeometry>
+        )}
       </mesh>
     </>
   );
