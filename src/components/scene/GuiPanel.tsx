@@ -171,6 +171,7 @@ const StyledPaper = styled(Paper)(
     & .MuiSlider-root {
       width: calc(100% - 116px);
       margin-left: ${theme.spacing(2)};
+      margin-right: ${theme.spacing(2)};
     }
   `
 );
@@ -227,6 +228,14 @@ export default function GuiPanel() {
       viewOptions.setObjectAddressesVisible(value);
     },
     [viewOptions.setObjectAddressesVisible]
+  );
+
+  const onSetWireframeLineWidth = useCallback(
+    (_: Event, v: number | number[]) => {
+      const value = typeof v === 'number' ? v : v[0];
+      viewOptions.setWireframeLineWidth(value);
+    },
+    [viewOptions.setWireframeLineWidth]
   );
 
   const onSetSceneCursorVisible = useCallback(
@@ -420,6 +429,23 @@ export default function GuiPanel() {
                 onChange={onSetObjectAddressesVisible}
               />
             </Tooltip>
+          )}
+          {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
+            <FormControlLabel
+              control={
+                <Slider
+                  size='small'
+                  min={1}
+                  max={4}
+                  defaultValue={3}
+                  aria-label='Small'
+                  valueLabelDisplay='auto'
+                  onChange={onSetWireframeLineWidth}
+                />
+              }
+              label='Line Width'
+              labelPlacement='start'
+            />
           )}
           <div className='settings-row'>
             <Tooltip title='Toggle axes helper visibility'>
