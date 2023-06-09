@@ -440,6 +440,7 @@ export default function GuiPanel() {
                   defaultValue={3}
                   aria-label='Small'
                   valueLabelDisplay='auto'
+                  value={viewOptions.wireframeLineWidth}
                   onChange={onSetWireframeLineWidth}
                 />
               }

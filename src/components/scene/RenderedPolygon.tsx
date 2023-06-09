@@ -167,7 +167,6 @@ export default function RenderedPolygon({
           />
         ) : (
           <RenderedWireframePolygon
-            isSelected={isSelected}
             color={color}
             vertices={vertices}
             indices={indices}
