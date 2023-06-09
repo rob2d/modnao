@@ -69,10 +69,8 @@ export default function SceneCanvas() {
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
-      // Get the new size of the container element
       const { width, height } = entries[0].contentRect;
 
-      // Update the size of the canvas
       const canvas = canvasRef.current?.childNodes[0] as HTMLCanvasElement;
       if (canvas) {
         canvas.style.width = `${width}px`;
@@ -83,9 +81,7 @@ export default function SceneCanvas() {
     const containerElement = canvasRef.current;
     resizeObserver.observe(containerElement);
 
-    return () => {
-      resizeObserver.unobserve(containerElement);
-    };
+    return () => resizeObserver.unobserve(containerElement);
   }, []);
 
   return (
