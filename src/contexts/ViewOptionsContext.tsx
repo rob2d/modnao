@@ -84,7 +84,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
     if (localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) !== null) {
       handleSetWireframeLineWidth(
         Number(
-          localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) || 3
+          localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) || 4
         ) as number
       );
     }
