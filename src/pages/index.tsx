@@ -1,6 +1,6 @@
 import Head from 'next/head';
-import { CssBaseline } from '@mui/material';
 import MainView from '@/components/MainView';
+import { CssBaseline } from '@mui/material';
 
 export default function Home() {
   return (

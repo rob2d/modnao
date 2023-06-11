@@ -102,11 +102,7 @@ export default function GuiPanelTextureMenu({
         onClose={handleClose}
       >
         {options.map((option) => (
-          <MenuItem
-            key={option.label}
-            disabled={option.label === 'Replace'}
-            onClick={option.onClick}
-          >
+          <MenuItem key={option.label} onClick={option.onClick}>
             {option.label}
           </MenuItem>
         ))}
