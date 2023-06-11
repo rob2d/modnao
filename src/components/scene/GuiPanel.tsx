@@ -436,8 +436,8 @@ export default function GuiPanel() {
                 <Slider
                   size='small'
                   min={1}
-                  max={4}
-                  defaultValue={3}
+                  max={10}
+                  defaultValue={4}
                   aria-label='Small'
                   valueLabelDisplay='auto'
                   value={viewOptions.wireframeLineWidth}
