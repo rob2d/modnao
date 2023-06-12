@@ -63,11 +63,15 @@ const StyledPaper = styled(Paper)(
   ({ theme }) => `
     &.MuiPaper-root {
       position: relative;
-      width: ${WIDTH}px;
       height: 100vh;
       transition: opacity ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease;
       opacity: 1;
       pointer-events: all;
+      overflow: hidden;
+    }
+
+    &.MuiPaper-root.visible {
+      width: ${WIDTH}px;
     }
 
     &.MuiPaper-root:not(.visible) {
