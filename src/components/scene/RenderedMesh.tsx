@@ -1,7 +1,7 @@
 import RenderedPolygon from './RenderedPolygon';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { useTexture } from '@react-three/drei';
-import { ClampToEdgeWrapping, RepeatWrapping } from 'three';
+import { ClampToEdgeWrapping, RepeatWrapping, sRGBEncoding } from 'three';
 
 type RenderedMeshProps = {
   objectKey: string;
@@ -28,6 +28,11 @@ export default function RenderedMesh({
   const texture = useTexture(
     textureDef?.dataUrls[isOpaque ? 'opaque' : 'translucent'] || transparent1x1
   );
+
+  // addresses an issue in ThreeJS with
+  // sRGB randomly not applying to textures depending
+  // on how it is created
+  texture.encoding = sRGBEncoding;
 
   texture.wrapS = textureWrappingFlags.hRepeat
     ? RepeatWrapping
