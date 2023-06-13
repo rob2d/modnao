@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle } from '@mui/material';
+import { Dialog, DialogContent } from '@mui/material';
 import AppInfo from './AppInfo';
 
 type Props = {
@@ -8,9 +8,10 @@ type Props = {
 
 export default function AppInfoDialog({ onClose, open }: Props) {
   return (
-    <Dialog onClose={onClose} open={open}>
-      <DialogTitle>ModNao</DialogTitle>
-      <AppInfo />
+    <Dialog onClose={onClose} open={open} fullWidth maxWidth='xl'>
+      <DialogContent>
+        <AppInfo />
+      </DialogContent>
     </Dialog>
   );
 }

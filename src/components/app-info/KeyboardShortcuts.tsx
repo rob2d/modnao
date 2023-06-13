@@ -5,8 +5,8 @@ const Styled = styled('div')(() => `& {}`);
 export default function KeyboardShortcuts() {
   return (
     <Styled>
-      <Typography variant='subtitle1'>Keyboard Shortcuts</Typography>
-      <div>Hello World</div>
+      <Typography variant='h5'>Keyboard Shortcuts</Typography>
+      <Typography variant={'body1'}>TODO</Typography>
     </Styled>
   );
 }
