@@ -1,22 +1,6 @@
 import Head from 'next/head';
-import SceneCanvas from '@/components/scene/SceneCanvas';
-import { CssBaseline, styled } from '@mui/material';
-import GuiPanel from '@/components/scene/GuiPanel';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import { useContext } from 'react';
-
-const Styled = styled('main')(
-  () => `
-  & {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100vh;
-    flex-basis: 100%;
-  }
-`
-);
+import { CssBaseline } from '@mui/material';
+import MainView from '@/components/MainView';
 
 export default function Home() {
   return (
@@ -30,10 +14,7 @@ export default function Home() {
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-      <Styled>
-        <SceneCanvas />
-        <GuiPanel />
-      </Styled>
+      <MainView />
       <CssBaseline />
     </>
   );

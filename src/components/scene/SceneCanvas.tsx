@@ -18,24 +18,12 @@ import { useAppSelector, useAppDispatch, setObjectKey } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardActions } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import { styled, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { SceneContextSetup } from '@/contexts/SceneContext';
 
 THREE.ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
-
-const Styled = styled('div')(
-  () => `
-  & {
-    position: relative;
-    flex-grow: 1;
-    height: 100%;
-    display: flex;
-    zIndex: -1;
-  }
-`
-);
 
 export default function SceneCanvas() {
   useSceneKeyboardActions();
@@ -85,32 +73,30 @@ export default function SceneCanvas() {
   }, []);
 
   return (
-    <Styled>
-      <Canvas
-        camera={cameraParams}
-        frameloop='demand'
-        style={canvasStyle}
-        ref={canvasRef}
-      >
-        <SceneContextSetup />
-        <group dispose={null}>
-          {!viewOptions.axesHelperVisible ? undefined : (
-            <axesHelper args={[50]} />
-          )}
-          {(model?.meshes || []).map((m, i) => (
-            <RenderedMesh
-              key={m.address}
-              {...m}
-              objectKey={`${i}`}
-              selectedObjectKey={objectKey}
-              objectSelectionType={objectSelectionType}
-              onSelectObjectKey={onSelectObjectKey}
-              textureDefs={textureDefs}
-            />
-          ))}
-          <OrbitControls />
-        </group>
-      </Canvas>
-    </Styled>
+    <Canvas
+      camera={cameraParams}
+      frameloop='demand'
+      style={canvasStyle}
+      ref={canvasRef}
+    >
+      <SceneContextSetup />
+      <group dispose={null}>
+        {!viewOptions.axesHelperVisible ? undefined : (
+          <axesHelper args={[50]} />
+        )}
+        {(model?.meshes || []).map((m, i) => (
+          <RenderedMesh
+            key={m.address}
+            {...m}
+            objectKey={`${i}`}
+            selectedObjectKey={objectKey}
+            objectSelectionType={objectSelectionType}
+            onSelectObjectKey={onSelectObjectKey}
+            textureDefs={textureDefs}
+          />
+        ))}
+        <OrbitControls />
+      </group>
+    </Canvas>
   );
 }

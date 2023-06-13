@@ -52,16 +52,6 @@ const themes = Object.fromEntries(
       typography: {
         fontFamily: firaCode.style.fontFamily
       },
-      components: {
-        MuiToggleButton: {
-          styleOverrides: {
-            root: {
-              color:
-                mode === 'dark' ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.65)'
-            }
-          }
-        }
-      },
       palette: {
         mode,
         primary: {
@@ -72,6 +62,9 @@ const themes = Object.fromEntries(
         secondary: {
           main: '#00A5FF',
           contrastText: '#FFF'
+        },
+        info: {
+          main: mode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'
         },
         scene: {
           background: mode === 'dark' ? '#1c121c' : '#efefff'
