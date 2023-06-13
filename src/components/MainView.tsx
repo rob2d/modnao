@@ -1,4 +1,4 @@
-import GuiPanel from './scene/GuiPanel';
+import GuiPanel from './panel/GuiPanel';
 import SceneCanvas from './scene/SceneCanvas';
 import { Button, Tooltip, styled } from '@mui/material';
 import Icon from '@mdi/react';
