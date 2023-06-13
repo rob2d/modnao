@@ -4,8 +4,9 @@ import { Button, Tooltip, styled } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import clsx from 'clsx';
-import { useContext } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import AppInfoDialog from './app-info/AppInfoDialog';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -47,6 +48,16 @@ const Styled = styled('main')(
 );
 
 export default function MainView() {
+  const [infoShown, setInfoShown] = useState(false);
+  const onCloseInfoDialog = useCallback(() => {
+    infoShown && setInfoShown(false);
+  }, [infoShown]);
+
+  const onShowInfoDialog = useCallback(() => {
+    if (!infoShown) {
+      setInfoShown(true);
+    }
+  }, []);
   const { guiPanelVisible } = useContext(ViewOptionsContext);
 
   return (
@@ -58,6 +69,7 @@ export default function MainView() {
           disableInteractive={!guiPanelVisible}
         >
           <Button
+            onClick={onShowInfoDialog}
             className={clsx('info-button', !guiPanelVisible && 'hidden')}
             color='info'
           >
@@ -66,6 +78,7 @@ export default function MainView() {
         </Tooltip>
       </div>
       <GuiPanel />
+      <AppInfoDialog open={infoShown} onClose={onCloseInfoDialog} />
     </Styled>
   );
 }
