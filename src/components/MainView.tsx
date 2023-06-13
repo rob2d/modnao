@@ -48,7 +48,7 @@ const Styled = styled('main')(
 );
 
 export default function MainView() {
-  const [infoShown, setInfoShown] = useState(false);
+  const [infoShown, setInfoShown] = useState(true);
   const onCloseInfoDialog = useCallback(() => {
     infoShown && setInfoShown(false);
   }, [infoShown]);
@@ -57,7 +57,7 @@ export default function MainView() {
     if (!infoShown) {
       setInfoShown(true);
     }
-  }, []);
+  }, [infoShown]);
   const { guiPanelVisible } = useContext(ViewOptionsContext);
 
   return (
