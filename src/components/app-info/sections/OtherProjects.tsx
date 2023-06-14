@@ -36,7 +36,7 @@ export default function OtherProjects() {
         }
       />
       <AppInfoProject
-        url='https://paxtez.zachd.com'
+        url='https://github.com/NaomiMod/blender-NaomiLib'
         title={<>Blender NaomiLib Importer</>}
         body={
           <>
