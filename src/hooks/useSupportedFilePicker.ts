@@ -37,7 +37,7 @@ export default function useSupportedFilePicker(
     let selectedTextureFile: File | undefined = undefined;
 
     plainFiles.forEach((f) => {
-      if (f.name.match(/^(STG|DM)[0-9A-F]{2}POL\.BIN$/)) {
+      if (f.name.match(/^(STG|DM)[0-9A-Z]{2}POL\.BIN$/)) {
         if (!selectedPolygonFile) {
           selectedPolygonFile = f;
         } else {
@@ -46,7 +46,7 @@ export default function useSupportedFilePicker(
         }
       }
 
-      if (f.name.match(/^(STG|DM)[0-9A-F]{2}TEX(.modnao)?\.BIN$/)) {
+      if (f.name.match(/^(STG|DM)[0-9A-Z]{2}TEX(.modnao)?\.BIN$/)) {
         if (!selectedTextureFile) {
           selectedTextureFile = f;
         } else {
