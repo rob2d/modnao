@@ -12,7 +12,10 @@ import nonSerializables from './nonSerializables';
 export interface StageDataState {
   models: NLModel[];
   textureDefs: NLTextureDef[];
-  replacedTextureDataUrls: Record<number, string>;
+  editedTextureDataUrls: {
+    opaque: string;
+    translucent: string;
+  }[];
   polygonFileName?: string;
   textureFileName?: string;
   hasReplacementTextures: boolean;
@@ -23,10 +26,10 @@ const sliceName = 'modelData';
 export const initialStageDataState: StageDataState = {
   models: [],
   textureDefs: [],
+  editedTextureDataUrls: [],
   polygonFileName: undefined,
   textureFileName: undefined,
-  hasReplacementTextures: false,
-  replacedTextureDataUrls: {}
+  hasReplacementTextures: false
 };
 
 export const loadPolygonFile = createAsyncThunk<

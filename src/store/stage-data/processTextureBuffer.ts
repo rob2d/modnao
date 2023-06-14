@@ -6,6 +6,7 @@ import {
 } from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
+import nonSerializables from '../nonSerializables';
 
 const COLOR_SIZE = 2;
 
@@ -29,6 +30,7 @@ export default async function processTextureBuffer(
 }> {
   const nextTextureDefs: NLTextureDef[] = [];
 
+  const i = 0;
   for await (const t of textureDefs) {
     const dataUrlTypes = Object.keys(t.dataUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
@@ -65,6 +67,12 @@ export default async function processTextureBuffer(
       }
 
       context.putImageData(id, 0, 0);
+      nonSerializables.sourceTextureData[i] = nonSerializables
+        .sourceTextureData[i] || {
+        translucent: undefined,
+        opaque: undefined
+      };
+      nonSerializables.sourceTextureData[i][dataUrlType] = id;
 
       const canvas2 = document.createElement('canvas');
       canvas2.width = canvas.width;

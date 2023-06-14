@@ -6,9 +6,11 @@
 const nonSerializables: {
   polygonBuffer?: Buffer;
   textureBuffer?: Buffer;
+  sourceTextureData: { translucent: ImageData; opaque: ImageData }[];
 } = {
   polygonBuffer: undefined,
-  textureBuffer: undefined
+  textureBuffer: undefined,
+  sourceTextureData: []
 };
 
 export default nonSerializables;
