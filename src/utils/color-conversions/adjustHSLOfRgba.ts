@@ -23,7 +23,7 @@ function hueToRGB8Bit(p: number, q: number, t: number) {
   return Math.round(value * 255);
 }
 
-export function adjustHSLOfRgba(
+export function adjustHslOfRgba(
   color: RgbaColor,
   hue: number,
   saturation: number,

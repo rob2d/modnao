@@ -4,17 +4,10 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
-import {
-  Divider,
-  List,
-  ListItem,
-  Slider,
-  Typography,
-  styled
-} from '@mui/material';
+import { Divider, styled } from '@mui/material';
 import { useFilePicker } from 'use-file-picker';
 import { replaceTextureDataUrl, useAppDispatch } from '@/store';
-import GuiPanelMenuSlider from '../GuiPanelMenuSlider';
+import GuiPanelTextureHSLOptions from './GuiPanelTextureHSLOptions';
 
 const StyledPanelTextureMenu = styled('div')(
   ({ theme }) => `& {
@@ -115,29 +108,7 @@ export default function GuiPanelTextureMenu({
           </MenuItem>
         ))}
         <Divider />
-        <List dense className={'hsv-sliders'}>
-          <GuiPanelMenuSlider
-            label={'H'}
-            min={-180}
-            max={180}
-            value={0}
-            onChange={() => undefined}
-          />
-          <GuiPanelMenuSlider
-            label={'S'}
-            min={-180}
-            max={180}
-            value={0}
-            onChange={() => undefined}
-          />
-          <GuiPanelMenuSlider
-            label={'L'}
-            min={-100}
-            max={100}
-            value={0}
-            onChange={() => undefined}
-          />
-        </List>
+        <GuiPanelTextureHSLOptions />
       </Menu>
     </StyledPanelTextureMenu>
   );

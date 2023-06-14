@@ -1,4 +1,12 @@
-import { ListItem, Slider, Typography } from '@mui/material';
+import { ListItem, Slider, Typography, styled } from '@mui/material';
+
+const StyledListItem = styled(ListItem)(
+  ({ theme }) =>
+    `& .MuiSlider-root {
+      margin-left: ${theme.spacing(3)};
+    }
+`
+);
 
 type Props = {
   label: string;
@@ -21,7 +29,7 @@ export default function GuiPanelMenuSlider({
   onChange
 }: Props) {
   return (
-    <ListItem>
+    <StyledListItem>
       <Typography variant='body1'>{label}</Typography>
       <Slider
         size='small'
@@ -34,6 +42,6 @@ export default function GuiPanelMenuSlider({
         value={value}
         onChange={onChange}
       />
-    </ListItem>
+    </StyledListItem>
   );
 }
