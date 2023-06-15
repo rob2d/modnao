@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
+import { NLTextureDef } from '@/types/NLAbstractions';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
@@ -21,6 +22,32 @@ export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
+
+export const selectEditedTextureDataUrls = (s: AppState) =>
+  s.modelData.editedTextureDataUrls;
+
+/**
+ * combines texture defs with any edited data urls
+ * to display on scene in real-time
+ */
+export const selectSceneTextureDefs = createSelector(
+  selectTextureDefs,
+  selectEditedTextureDataUrls,
+  (textureDefs, dataUrlEntries): typeof textureDefs => {
+    const returnTextures = [...textureDefs];
+    Object.entries(dataUrlEntries).forEach(([index, dataUrls]) => {
+      const i = Number.parseInt(index);
+      const entry = returnTextures[i];
+      entry.dataUrls = {
+        ...entry.dataUrls,
+        ...dataUrls
+      };
+      returnTextures[i] = entry;
+    });
+
+    return returnTextures;
+  }
+);
 export const selectPolygonFileName = (s: AppState) =>
   s.modelData.polygonFileName;
 

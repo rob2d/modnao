@@ -13,9 +13,11 @@ export interface StageDataState {
   models: NLModel[];
   textureDefs: NLTextureDef[];
   editedTextureDataUrls: {
-    opaque: string;
-    translucent: string;
-  }[];
+    [key: number]: {
+      opaque: string;
+      translucent: string;
+    };
+  };
   polygonFileName?: string;
   textureFileName?: string;
   hasReplacementTextures: boolean;
@@ -26,7 +28,7 @@ const sliceName = 'modelData';
 export const initialStageDataState: StageDataState = {
   models: [],
   textureDefs: [],
-  editedTextureDataUrls: [],
+  editedTextureDataUrls: {},
   polygonFileName: undefined,
   textureFileName: undefined,
   hasReplacementTextures: false
