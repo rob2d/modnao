@@ -1,11 +1,11 @@
 import { adjustHslOfRgba } from '../color-conversions/adjustHslOfRgba';
+import HslValues from './HSLValues';
 
 export default async function adjustTextureHsl(
   sourceImageData: ImageData,
-  h: number,
-  s: number,
-  l: number
+  hsl: HslValues
 ) {
+  const { h, s, l } = hsl;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   canvas.width = sourceImageData.width;

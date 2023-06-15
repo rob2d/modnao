@@ -8,6 +8,8 @@ import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import getImageDimensions from '@/utils/images/getImageDimensions';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
 import nonSerializables from './nonSerializables';
+import processTextureHsl from '@/utils/textures/adjustTextureHsl';
+import HslValues from '@/utils/textures/HSLValues';
 
 export interface StageDataState {
   models: NLModel[];
@@ -45,6 +47,28 @@ export const loadPolygonFile = createAsyncThunk<
   return {
     ...result,
     fileName: file.name
+  };
+});
+
+export const adjustTextureHsl = createAsyncThunk<
+  {
+    textureIndex: number;
+    hsl: HslValues;
+    textureDataUrls: { translucent: string; opaque: string };
+  },
+  { textureIndex: number; hsl: HslValues }
+>(`${sliceName}/adjustTextureHsl`, async ({ textureIndex, hsl }) => {
+  const sourceTextureData = nonSerializables.sourceTextureData[textureIndex];
+
+  const [translucent, opaque] = await Promise.all([
+    processTextureHsl(sourceTextureData.opaque, hsl),
+    processTextureHsl(sourceTextureData.translucent, hsl)
+  ]);
+
+  return {
+    textureIndex,
+    hsl,
+    textureDataUrls: { translucent, opaque }
   };
 });
 
@@ -170,6 +194,16 @@ const modelDataSlice = createSlice({
         });
 
         state.hasReplacementTextures = true;
+      }
+    );
+
+    builder.addCase(
+      adjustTextureHsl.fulfilled,
+      (
+        state: StageDataState,
+        { payload: { textureIndex, textureDataUrls } }
+      ) => {
+        state.editedTextureDataUrls[textureIndex] = textureDataUrls;
       }
     );
 

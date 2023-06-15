@@ -1,6 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
-import { NLTextureDef } from '@/types/NLAbstractions';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
