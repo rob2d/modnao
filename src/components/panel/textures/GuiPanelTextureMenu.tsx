@@ -3,13 +3,13 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Icon from '@mdi/react';
-import { mdiDotsVertical } from '@mdi/js';
-import { Divider, styled } from '@mui/material';
+import { mdiDotsVertical, mdiFileDownload, mdiFileReplace } from '@mdi/js';
+import { Divider, Tooltip, styled } from '@mui/material';
 import { useFilePicker } from 'use-file-picker';
 import { replaceTextureDataUrl, useAppDispatch } from '@/store';
-import GuiPanelTextureHSLOptions from './GuiPanelTextureHslOptions';
+import GuiPanelTextureHSLOptions from './GuiPanelTextureColorOptions';
 
-const StyledPanelTextureMenu = styled('div')(
+const StyledMenuButtonContainer = styled('div')(
   ({ theme }) => `& {
         position: absolute;
         top: ${theme.spacing(1)};
@@ -22,6 +22,22 @@ const StyledPanelTextureMenu = styled('div')(
     }
     `
 );
+
+const StyledMenu = styled(Menu)(
+  ({ theme }) => `
+    li.MuiMenuItem-root > svg {
+      margin-right: ${theme.spacing(2)};
+    }
+    `
+);
+
+/**
+ * menu sits on a Popper, so it is a bit cleaner
+ * to keep things modular and just use style constant here
+ */
+const MENU_OFFSET_STYLE = { transform: 'translateX(-200px)' } as const;
+
+const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 
 function useTextureReplacementPicker(textureIndex: number) {
   const dispatch = useAppDispatch();
@@ -61,11 +77,19 @@ export default function GuiPanelTextureMenu({
     setAnchorEl(null);
   }, [setAnchorEl]);
 
-  const options = useMemo(
+  const options = useMemo<
+    { label: JSX.Element | string; tooltip: string; onClick: () => void }[]
+  >(
     () => [
       {
-        label: 'Download',
-        onClick: () => {
+        label: (
+          <>
+            <Icon path={mdiFileDownload} size={1} />
+            Download
+          </>
+        ),
+        tooltip: 'Download this texture as a PNG',
+        onClick() {
           const a = document.createElement('a');
           a.download = `modnao-texture-${textureIndex}.png`;
           a.href = dataUrl;
@@ -74,8 +98,15 @@ export default function GuiPanelTextureMenu({
         }
       },
       {
-        label: 'Replace (Preview)',
-        onClick: () => {
+        label: (
+          <>
+            <Icon path={mdiFileReplace} size={1} />
+            Replace
+          </>
+        ),
+        tooltip:
+          'Replace this texture with another image file that is the same size',
+        onClick() {
           openFileSelector();
           handleClose();
         }
@@ -85,31 +116,25 @@ export default function GuiPanelTextureMenu({
   );
 
   return (
-    <StyledPanelTextureMenu>
-      <IconButton
-        color='primary'
-        aria-controls={open ? 'long-menu' : undefined}
-        aria-expanded={open ? 'true' : undefined}
-        aria-haspopup='true'
-        onClick={handleClick}
-      >
+    <StyledMenuButtonContainer>
+      <IconButton color='primary' aria-haspopup='true' onClick={handleClick}>
         <Icon path={mdiDotsVertical} size={1} />
       </IconButton>
-      <Menu
-        id='long-menu'
-        MenuListProps={{ 'aria-labelledby': 'long-button' }}
+      <StyledMenu
+        style={MENU_OFFSET_STYLE}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        anchorOrigin={MENU_ANCHOR_ORIGIN}
       >
-        {options.map((option) => (
-          <MenuItem key={option.label} onClick={option.onClick}>
-            {option.label}
-          </MenuItem>
+        {options.map((option, i) => (
+          <Tooltip title={option.tooltip} key={i}>
+            <MenuItem onClick={option.onClick}>{option.label}</MenuItem>
+          </Tooltip>
         ))}
         <Divider />
         <GuiPanelTextureHSLOptions textureIndex={textureIndex} />
-      </Menu>
-    </StyledPanelTextureMenu>
+      </StyledMenu>
+    </StyledMenuButtonContainer>
   );
 }

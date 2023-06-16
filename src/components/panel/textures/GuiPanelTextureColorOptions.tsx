@@ -1,11 +1,11 @@
-import { useDebounce } from 'use-debounce';
-import { List } from '@mui/material';
-import GuiPanelMenuSlider from '../GuiPanelMenuSlider';
 import { useCallback, useEffect, useState } from 'react';
+import { List, ListSubheader } from '@mui/material';
+import { useDebounce } from 'use-debounce';
 import HslValues from '@/utils/textures/HslValues';
 import { adjustTextureHsl, useAppDispatch } from '@/store';
+import GuiPanelMenuSlider from '../GuiPanelMenuSlider';
 
-export default function GuiPanelTextureHslOptions({
+export default function GuiPanelTextureColorOptions({
   textureIndex
 }: {
   textureIndex: number;
@@ -52,7 +52,15 @@ export default function GuiPanelTextureHslOptions({
   }, [debouncedHsl]);
 
   return (
-    <List dense className={'hsv-sliders'}>
+    <List
+      dense
+      className={'hsv-sliders'}
+      subheader={
+        <ListSubheader component='div' id='nested-list-subheader'>
+          Color Adjustment
+        </ListSubheader>
+      }
+    >
       <GuiPanelMenuSlider
         label={'H'}
         min={-180}
@@ -62,15 +70,15 @@ export default function GuiPanelTextureHslOptions({
       />
       <GuiPanelMenuSlider
         label={'S'}
-        min={-180}
-        max={180}
+        min={-100}
+        max={100}
         value={hsl.s}
         onChange={onSetS}
       />
       <GuiPanelMenuSlider
         label={'L'}
-        min={-100}
-        max={100}
+        min={-50}
+        max={50}
         value={hsl.l}
         onChange={onSetL}
       />

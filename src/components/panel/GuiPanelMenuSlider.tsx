@@ -4,6 +4,8 @@ const StyledListItem = styled(ListItem)(
   ({ theme }) =>
     `& .MuiSlider-root {
       margin-left: ${theme.spacing(3)};
+      /* for tooltip popover since there are conflicts in Mui subheaders */
+      z-index: 1;
     }
 `
 );
