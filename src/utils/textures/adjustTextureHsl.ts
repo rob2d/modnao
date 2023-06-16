@@ -1,5 +1,6 @@
 import adjustHslOfRgba from '../color-conversions/adjustHslOfRgba';
 import HslValues from './HslValues';
+import { RgbaColor } from './RgbaColor';
 
 export default async function adjustTextureHsl(
   sourceImageData: ImageData,
@@ -13,6 +14,14 @@ export default async function adjustTextureHsl(
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const sourceData = sourceImageData.data;
 
+  /**
+   * colors tend to be within ranges, so create a
+   * cache of hashed rgba hsl values (`r,g,b`) to
+   * value to prevent re-calculation of hsl.
+   *
+   **/
+  const conversions = new Map<string, RgbaColor>();
+
   for (let i = 0; i < sourceData.length; i += 4) {
     const color = {
       r: sourceData[i],
@@ -22,11 +31,17 @@ export default async function adjustTextureHsl(
     };
 
     const data = imageData.data;
-    const newRgba = adjustHslOfRgba(color, h, s, l);
+    const rgbHash = `${color.r},${color.g},${color.b}`;
+    if (!conversions.has(rgbHash)) {
+      conversions.set(rgbHash, adjustHslOfRgba(color, h, s, l));
+    }
+    const newRgba = conversions.get(rgbHash) as RgbaColor;
     data[i] = newRgba.r;
     data[i + 1] = newRgba.g;
     data[i + 2] = newRgba.b;
-    data[i + 3] = newRgba.a;
+    // hash disregards alpha since this doesn't change;
+    // saves possible ops/RAM of cache'ing
+    data[i + 3] = color.a;
   }
 
   ctx.putImageData(imageData, 0, 0);
