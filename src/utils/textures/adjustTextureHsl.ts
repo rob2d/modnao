@@ -31,5 +31,17 @@ export default async function adjustTextureHsl(
 
   ctx.putImageData(imageData, 0, 0);
 
-  return canvas.toDataURL();
+  // data is rotated in Naomi texture format compared to
+  // mapping and this is not adjusted at root for
+  // ease-of-export on this first iteration
+  const rotatedCanvas = document.createElement('canvas');
+  rotatedCanvas.width = canvas.width;
+  rotatedCanvas.height = canvas.height;
+  const rotatedCtx = rotatedCanvas.getContext('2d') as CanvasRenderingContext2D;
+  rotatedCtx.translate(canvas.width / 2, canvas.height / 2);
+
+  rotatedCtx.rotate((-90 * Math.PI) / 180);
+  rotatedCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+
+  return rotatedCanvas.toDataURL();
 }
