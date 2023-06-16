@@ -41,8 +41,8 @@ export default function rgbToHsl(r: number, g: number, b: number): HslValues {
     s = (max - min) / (2 - max - min);
   }
 
-  s = Math.round(s * 100); // Convert saturation to percentage
-  l = Math.round(l * 100); // Convert lightness to percentage
+  s = s * 100; // Convert saturation to percentage
+  l = l * 100; // Convert lightness to percentage
 
   return { h, s, l };
 }

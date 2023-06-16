@@ -15,9 +15,9 @@ export default function adjustHslOfRgba(
   const hsl = rgbToHsl(rgba.r, rgba.g, rgba.b);
   const color: RgbaColor = {
     ...hslToRgb({
-      h: h + (hsl.h % 360),
-      s: s + clamp(hsl.s + s, -100, 100),
-      l: l + clamp(hsl.l + l, -100, 100)
+      h: (h + hsl.h) % 360,
+      s: clamp(hsl.s + s, 0, 100),
+      l: clamp(hsl.l + l, -100, 100)
     }),
     a: rgba.a
   };

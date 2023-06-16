@@ -79,8 +79,8 @@ export default function GuiPanelTextureColorOptions({
       />
       <GuiPanelMenuSlider
         label={'L'}
-        min={-50}
-        max={50}
+        min={-100}
+        max={100}
         value={hsl.l}
         onChange={onSetL}
       />
