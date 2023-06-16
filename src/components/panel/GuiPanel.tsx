@@ -352,7 +352,7 @@ export default function GuiPanel() {
               size='small'
               variant='outlined'
             >
-              Import Stage/Texture
+              Import Model/Texture
             </Button>
           </Tooltip>
           {!model ? undefined : (
