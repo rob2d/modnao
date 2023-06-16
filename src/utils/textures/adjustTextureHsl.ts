@@ -1,4 +1,4 @@
-import { adjustHslOfRgba } from '../color-conversions/adjustHslOfRgba';
+import adjustHslOfRgba from '../color-conversions/adjustHslOfRgba';
 import HslValues from './HslValues';
 
 export default async function adjustTextureHsl(
@@ -22,11 +22,11 @@ export default async function adjustTextureHsl(
     };
 
     const data = imageData.data;
-    const [hslR, hslG, hslB, hslA] = adjustHslOfRgba(color, h, s, l);
-    data[i] = hslR;
-    data[i + 1] = hslG;
-    data[i + 2] = hslB;
-    data[i + 3] = hslA;
+    const newRgba = adjustHslOfRgba(color, h, s, l);
+    data[i] = newRgba.r;
+    data[i + 1] = newRgba.g;
+    data[i + 2] = newRgba.b;
+    data[i + 3] = newRgba.a;
   }
 
   ctx.putImageData(imageData, 0, 0);

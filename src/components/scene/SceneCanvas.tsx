@@ -12,7 +12,8 @@ import { Canvas } from '@react-three/fiber';
 import {
   selectModel,
   selectObjectKey,
-  selectObjectSelectionType
+  selectObjectSelectionType,
+  selectSceneTextureDefs
 } from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectKey } from '@/store';
 import RenderedMesh from './RenderedMesh';
@@ -40,7 +41,7 @@ export default function SceneCanvas() {
     [objectKey]
   );
 
-  const textureDefs = useAppSelector((s) => s.modelData.textureDefs);
+  const textureDefs = useAppSelector(selectSceneTextureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
 
