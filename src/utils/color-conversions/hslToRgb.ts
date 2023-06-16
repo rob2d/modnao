@@ -10,22 +10,16 @@ const hueToRgb = (p: number, q: number, t: number) => {
 };
 
 export default function hslToRgb({ h, s, l }: HslValues) {
-  let r, g, b;
-
   h /= 360;
   s /= 100;
   l /= 100;
 
-  if (s === 0) {
-    r = g = b = l; // Achromatic
-  } else {
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
 
-    r = Math.round(hueToRgb(p, q, h + 1 / 3) * 255);
-    g = Math.round(hueToRgb(p, q, h) * 255);
-    b = Math.round(hueToRgb(p, q, h - 1 / 3) * 255);
-  }
+  const r = Math.round(hueToRgb(p, q, h + 1 / 3) * 255);
+  const g = Math.round(hueToRgb(p, q, h) * 255);
+  const b = Math.round(hueToRgb(p, q, h - 1 / 3) * 255);
 
   return { r, g, b };
 }

@@ -128,7 +128,7 @@ export default function GuiPanelTextureMenu({
         anchorOrigin={MENU_ANCHOR_ORIGIN}
       >
         {options.map((option, i) => (
-          <Tooltip title={option.tooltip} key={i}>
+          <Tooltip title={option.tooltip} key={i} placement='left'>
             <MenuItem onClick={option.onClick}>{option.label}</MenuItem>
           </Tooltip>
         ))}
