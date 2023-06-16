@@ -9,7 +9,7 @@ import getImageDimensions from '@/utils/images/getImageDimensions';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
 import nonSerializables from './nonSerializables';
 import processTextureHsl from '@/utils/textures/adjustTextureHsl';
-import HslValues from '@/utils/textures/HSLValues';
+import HslValues from '@/utils/textures/HslValues';
 
 export interface StageDataState {
   models: NLModel[];
@@ -60,16 +60,25 @@ export const adjustTextureHsl = createAsyncThunk<
 >(`${sliceName}/adjustTextureHsl`, async ({ textureIndex, hsl }) => {
   const sourceTextureData = nonSerializables.sourceTextureData[textureIndex];
 
-  const [translucent, opaque] = await Promise.all([
-    processTextureHsl(sourceTextureData.opaque, hsl),
-    processTextureHsl(sourceTextureData.translucent, hsl)
-  ]);
+  try {
+    const [opaque, translucent] = await Promise.all([
+      processTextureHsl(sourceTextureData.opaque, hsl),
+      processTextureHsl(sourceTextureData.translucent, hsl)
+    ]);
 
-  return {
-    textureIndex,
-    hsl,
-    textureDataUrls: { translucent, opaque }
-  };
+    return {
+      textureIndex,
+      hsl,
+      textureDataUrls: { translucent, opaque }
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      textureIndex,
+      hsl,
+      textureDataUrls: { translucent: '', opaque: '' }
+    };
+  }
 });
 
 export const loadTextureFile = createAsyncThunk<

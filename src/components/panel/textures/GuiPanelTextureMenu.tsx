@@ -7,7 +7,7 @@ import { mdiDotsVertical } from '@mdi/js';
 import { Divider, styled } from '@mui/material';
 import { useFilePicker } from 'use-file-picker';
 import { replaceTextureDataUrl, useAppDispatch } from '@/store';
-import GuiPanelTextureHSLOptions from './GuiPanelTextureHSLOptions';
+import GuiPanelTextureHSLOptions from './GuiPanelTextureHslOptions';
 
 const StyledPanelTextureMenu = styled('div')(
   ({ theme }) => `& {
@@ -108,7 +108,7 @@ export default function GuiPanelTextureMenu({
           </MenuItem>
         ))}
         <Divider />
-        <GuiPanelTextureHSLOptions />
+        <GuiPanelTextureHSLOptions textureIndex={textureIndex} />
       </Menu>
     </StyledPanelTextureMenu>
   );

@@ -8,7 +8,7 @@ import {
   selectObjectKey,
   selectObjectMeshIndex,
   selectObjectSelectionType,
-  selectTextureDefs,
+  selectSceneTextureDefs,
   setObjectType,
   useAppDispatch,
   useAppSelector
@@ -197,7 +197,7 @@ export default function GuiPanel() {
   const meshIndex = useAppSelector(selectObjectMeshIndex);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
   const model = useAppSelector(selectModel);
-  const textureDefs = useAppSelector(selectTextureDefs);
+  const textureDefs = useAppSelector(selectSceneTextureDefs);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
 
   const selectedMeshTexture: number = useMemo(() => {

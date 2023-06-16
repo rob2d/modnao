@@ -30,7 +30,7 @@ export default async function processTextureBuffer(
 }> {
   const nextTextureDefs: NLTextureDef[] = [];
 
-  const i = 0;
+  let i = 0;
   for await (const t of textureDefs) {
     const dataUrlTypes = Object.keys(t.dataUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
@@ -91,6 +91,7 @@ export default async function processTextureBuffer(
     }
 
     nextTextureDefs.push(updatedTexture);
+    i++;
   }
 
   return Promise.resolve({

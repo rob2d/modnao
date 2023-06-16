@@ -1,5 +1,5 @@
 import { adjustHslOfRgba } from '../color-conversions/adjustHslOfRgba';
-import HslValues from './HSLValues';
+import HslValues from './HslValues';
 
 export default async function adjustTextureHsl(
   sourceImageData: ImageData,

@@ -1,25 +1,55 @@
+import { useDebounce } from 'use-debounce';
 import { List } from '@mui/material';
 import GuiPanelMenuSlider from '../GuiPanelMenuSlider';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import HslValues from '@/utils/textures/HslValues';
+import { adjustTextureHsl, useAppDispatch } from '@/store';
 
-export default function GuiPanelTextureHSLEditor() {
+export default function GuiPanelTextureHslOptions({
+  textureIndex
+}: {
+  textureIndex: number;
+}) {
+  const dispatch = useAppDispatch();
   // @TODO DRY setters
-  const [h, setH] = useState(() => 0);
-  const [s, setS] = useState(() => 0);
-  const [l, setL] = useState(() => 0);
+  const [hsl, setHsl] = useState<HslValues>(() => ({
+    h: 0,
+    s: 0,
+    l: 0
+  }));
 
   const onSetH = useCallback(
-    (_: Event, h: number | number[]) => setH(Array.isArray(h) ? h[0] : h),
-    []
+    (_: Event, v: number | number[]) =>
+      setHsl({
+        ...hsl,
+        h: Array.isArray(v) ? v[0] : v
+      }),
+    [hsl]
   );
+
   const onSetS = useCallback(
-    (_: Event, s: number | number[]) => setS(Array.isArray(s) ? s[0] : s),
-    []
+    (_: Event, v: number | number[]) =>
+      setHsl({
+        ...hsl,
+        s: Array.isArray(v) ? v[0] : v
+      }),
+    [hsl]
   );
+
   const onSetL = useCallback(
-    (_: Event, l: number | number[]) => setL(Array.isArray(l) ? l[0] : l),
-    []
+    (_: Event, v: number | number[]) =>
+      setHsl({
+        ...hsl,
+        l: Array.isArray(v) ? v[0] : v
+      }),
+    [hsl]
   );
+
+  const [debouncedHsl] = useDebounce(hsl, 100);
+
+  useEffect(() => {
+    dispatch(adjustTextureHsl({ hsl: debouncedHsl, textureIndex }));
+  }, [debouncedHsl]);
 
   return (
     <List dense className={'hsv-sliders'}>
@@ -27,21 +57,21 @@ export default function GuiPanelTextureHSLEditor() {
         label={'H'}
         min={-180}
         max={180}
-        value={h}
+        value={hsl.h}
         onChange={onSetH}
       />
       <GuiPanelMenuSlider
         label={'S'}
         min={-180}
         max={180}
-        value={s}
+        value={hsl.s}
         onChange={onSetS}
       />
       <GuiPanelMenuSlider
         label={'L'}
         min={-100}
         max={100}
-        value={l}
+        value={hsl.l}
         onChange={onSetL}
       />
     </List>

@@ -36,7 +36,7 @@ export const selectSceneTextureDefs = createSelector(
     const returnTextures = [...textureDefs];
     Object.entries(dataUrlEntries).forEach(([index, dataUrls]) => {
       const i = Number.parseInt(index);
-      const entry = returnTextures[i];
+      const entry = { ...returnTextures[i] };
       entry.dataUrls = {
         ...entry.dataUrls,
         ...dataUrls
