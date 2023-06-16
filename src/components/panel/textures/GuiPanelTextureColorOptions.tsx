@@ -26,35 +26,19 @@ export default function GuiPanelTextureColorOptions({
   textureIndex: number;
 }) {
   const dispatch = useAppDispatch();
-  // @TODO DRY setters
   const [hsl, setHsl] = useState<HslValues>(() => DEFAULT_HSL);
-
-  const onSetH = useCallback(
-    (_: Event, v: number | number[]) =>
+  const getHslSetter = useCallback(
+    (key: keyof HslValues) => (_: Event, v: number | number[]) =>
       setHsl({
         ...hsl,
-        h: Array.isArray(v) ? v[0] : v
+        [key]: Array.isArray(v) ? v[0] : v
       }),
     [hsl]
   );
 
-  const onSetS = useCallback(
-    (_: Event, v: number | number[]) =>
-      setHsl({
-        ...hsl,
-        s: Array.isArray(v) ? v[0] : v
-      }),
-    [hsl]
-  );
-
-  const onSetL = useCallback(
-    (_: Event, v: number | number[]) =>
-      setHsl({
-        ...hsl,
-        l: Array.isArray(v) ? v[0] : v
-      }),
-    [hsl]
-  );
+  const onSetH = getHslSetter('h');
+  const onSetS = getHslSetter('s');
+  const onSetL = getHslSetter('l');
 
   const [debouncedHsl] = useDebounce(hsl, 100);
 
