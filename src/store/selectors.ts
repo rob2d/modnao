@@ -10,8 +10,8 @@ export const selectStageModels = (s: AppState) => s.modelData.models;
 export const selectHasLoadedTextureFile = (s: AppState) =>
   s.modelData.textureFileName;
 
-export const selectHasReplacementTextures = (s: AppState) =>
-  s.modelData.hasReplacementTextures;
+export const selectHasEditedTextures = (s: AppState) =>
+  s.modelData.hasEditedTextures;
 
 export const selectModelCount = createSelector(
   selectStageModels,

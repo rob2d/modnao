@@ -11,6 +11,7 @@ import nonSerializables from './nonSerializables';
 import processTextureHsl from '@/utils/textures/adjustTextureHsl';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
+import storeSourceTextureData from './stage-data/storeSourceTextureData';
 
 export interface StageDataState {
   models: NLModel[];
@@ -23,7 +24,7 @@ export interface StageDataState {
   };
   polygonFileName?: string;
   textureFileName?: string;
-  hasReplacementTextures: boolean;
+  hasEditedTextures: boolean;
 }
 
 const sliceName = 'modelData';
@@ -34,7 +35,7 @@ export const initialStageDataState: StageDataState = {
   editedTextureDataUrls: {},
   polygonFileName: undefined,
   textureFileName: undefined,
-  hasReplacementTextures: false
+  hasEditedTextures: false
 };
 
 export const loadPolygonFile = createAsyncThunk<
@@ -152,6 +153,11 @@ export const replaceTextureDataUrl = createAsyncThunk<
       );
     }
 
+    // @TODO process both opaque and non-opaque textures
+    // and then update state for both in action
+
+    await storeSourceTextureData(dataUrl, textureIndex);
+
     return { textureIndex, dataUrl };
   }
 );
@@ -221,7 +227,7 @@ const modelDataSlice = createSlice({
           state.editedTextureDataUrls = Object.fromEntries(filteredEntries);
         }
 
-        state.hasReplacementTextures = true;
+        state.hasEditedTextures = true;
       }
     );
 
@@ -232,6 +238,7 @@ const modelDataSlice = createSlice({
         { payload: { textureIndex, textureDataUrls } }
       ) => {
         state.editedTextureDataUrls[textureIndex] = textureDataUrls;
+        state.hasEditedTextures = true;
       }
     );
 

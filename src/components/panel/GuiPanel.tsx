@@ -1,7 +1,7 @@
 import {
   downloadTextureFile,
   selectHasLoadedTextureFile,
-  selectHasReplacementTextures,
+  selectHasEditedTextures,
   selectModel,
   selectModelCount,
   selectModelIndex,
@@ -278,7 +278,7 @@ export default function GuiPanel() {
     return images;
   }, [model, textureDefs, selectedMeshTexture]);
 
-  const hasReplacementTextures = useAppSelector(selectHasReplacementTextures);
+  const hasEditedTextures = useAppSelector(selectHasEditedTextures);
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
@@ -481,7 +481,7 @@ export default function GuiPanel() {
             <div className='textures'>{textures}</div>
           </>
         )}
-        {!hasReplacementTextures ? undefined : (
+        {!hasEditedTextures ? undefined : (
           <div>
             <Tooltip title='Download texture ROM binary with replaced images'>
               <Button
