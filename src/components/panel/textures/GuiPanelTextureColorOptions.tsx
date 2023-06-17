@@ -31,7 +31,15 @@ export default function GuiPanelTextureColorOptions({
   textureIndex: number;
 }) {
   const dispatch = useAppDispatch();
-  const [hsl, setHsl] = useState<HslValues>(() => DEFAULT_HSL);
+  const editedTextures = useAppSelector(selectEditedTextures);
+  const [hsl, setHsl] = useState<HslValues>(() => {
+    if (!editedTextures[textureIndex]?.hsl) {
+      return DEFAULT_HSL;
+    }
+
+    const { h, s, l } = editedTextures[textureIndex].hsl;
+    return h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL;
+  });
   const getHslSetter = useCallback(
     (key: keyof HslValues) => (_: Event, v: number | number[]) =>
       setHsl({
@@ -41,8 +49,6 @@ export default function GuiPanelTextureColorOptions({
       }),
     [hsl]
   );
-
-  const editedTextures = useAppSelector(selectEditedTextures);
 
   const onSetH = getHslSetter('h');
   const onSetS = getHslSetter('s');
@@ -55,14 +61,6 @@ export default function GuiPanelTextureColorOptions({
   }, [debouncedHsl]);
 
   const onResetValues = useCallback(() => setHsl(DEFAULT_HSL), [setHsl]);
-  useLayoutEffect(() => {
-    if (editedTextures[textureIndex]) {
-      const { h, s, l } = editedTextures[textureIndex].hsl;
-      if (h || s || l) {
-        setHsl(editedTextures[textureIndex].hsl);
-      }
-    }
-  }, []);
 
   const hasChanges =
     DEFAULT_HSL.h !== hsl.h ||
