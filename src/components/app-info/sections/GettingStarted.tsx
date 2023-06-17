@@ -29,7 +29,7 @@ export default function GettingStarted() {
             size='small'
             variant='outlined'
           >
-            Import Stage/Texture
+            Import Model/Texture
           </Button>{' '}
           button to load a file.
         </Typography>

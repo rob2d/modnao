@@ -10,8 +10,8 @@ export const selectStageModels = (s: AppState) => s.modelData.models;
 export const selectHasLoadedTextureFile = (s: AppState) =>
   s.modelData.textureFileName;
 
-export const selectHasReplacementTextures = (s: AppState) =>
-  s.modelData.hasReplacementTextures;
+export const selectHasEditedTextures = (s: AppState) =>
+  s.modelData.hasEditedTextures;
 
 export const selectModelCount = createSelector(
   selectStageModels,
@@ -21,6 +21,32 @@ export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
+
+export const selectEditedTextureDataUrls = (s: AppState) =>
+  s.modelData.editedTextureDataUrls;
+
+/**
+ * combines texture defs with any edited data urls
+ * to display on scene in real-time
+ */
+export const selectSceneTextureDefs = createSelector(
+  selectTextureDefs,
+  selectEditedTextureDataUrls,
+  (textureDefs, dataUrlEntries): typeof textureDefs => {
+    const returnTextures = [...textureDefs];
+    Object.entries(dataUrlEntries).forEach(([index, dataUrls]) => {
+      const i = Number.parseInt(index);
+      const entry = { ...returnTextures[i] };
+      entry.dataUrls = {
+        ...entry.dataUrls,
+        ...dataUrls
+      };
+      returnTextures[i] = entry;
+    });
+
+    return returnTextures;
+  }
+);
 export const selectPolygonFileName = (s: AppState) =>
   s.modelData.polygonFileName;
 

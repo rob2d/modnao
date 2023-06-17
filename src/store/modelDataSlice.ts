@@ -8,14 +8,23 @@ import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import getImageDimensions from '@/utils/images/getImageDimensions';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
 import nonSerializables from './nonSerializables';
+import processTextureHsl from '@/utils/textures/adjustTextureHsl';
+import HslValues from '@/utils/textures/HslValues';
+import { selectSceneTextureDefs } from './selectors';
+import storeSourceTextureData from './stage-data/storeSourceTextureData';
 
 export interface StageDataState {
   models: NLModel[];
   textureDefs: NLTextureDef[];
-  replacedTextureDataUrls: Record<number, string>;
+  editedTextureDataUrls: {
+    [key: number]: {
+      opaque: string;
+      translucent: string;
+    };
+  };
   polygonFileName?: string;
   textureFileName?: string;
-  hasReplacementTextures: boolean;
+  hasEditedTextures: boolean;
 }
 
 const sliceName = 'modelData';
@@ -23,10 +32,10 @@ const sliceName = 'modelData';
 export const initialStageDataState: StageDataState = {
   models: [],
   textureDefs: [],
+  editedTextureDataUrls: {},
   polygonFileName: undefined,
   textureFileName: undefined,
-  hasReplacementTextures: false,
-  replacedTextureDataUrls: {}
+  hasEditedTextures: false
 };
 
 export const loadPolygonFile = createAsyncThunk<
@@ -43,8 +52,43 @@ export const loadPolygonFile = createAsyncThunk<
   };
 });
 
+export const adjustTextureHsl = createAsyncThunk<
+  {
+    textureIndex: number;
+    hsl: HslValues;
+    textureDataUrls: { translucent: string; opaque: string };
+  },
+  { textureIndex: number; hsl: HslValues }
+>(`${sliceName}/adjustTextureHsl`, async ({ textureIndex, hsl }) => {
+  const sourceTextureData = nonSerializables.sourceTextureData[textureIndex];
+
+  try {
+    const [opaque, translucent] = await Promise.all([
+      processTextureHsl(sourceTextureData.opaque, hsl),
+      processTextureHsl(sourceTextureData.translucent, hsl)
+    ]);
+
+    return {
+      textureIndex,
+      hsl,
+      textureDataUrls: { translucent, opaque }
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      textureIndex,
+      hsl,
+      textureDataUrls: { translucent: '', opaque: '' }
+    };
+  }
+});
+
 export const loadTextureFile = createAsyncThunk<
-  { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
+  {
+    models: NLModel[];
+    textureDefs: NLTextureDef[];
+    fileName?: string;
+  },
   File,
   { state: AppState }
 >(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
@@ -109,6 +153,11 @@ export const replaceTextureDataUrl = createAsyncThunk<
       );
     }
 
+    // @TODO process both opaque and non-opaque textures
+    // and then update state for both in action
+
+    await storeSourceTextureData(dataUrl, textureIndex);
+
     return { textureIndex, dataUrl };
   }
 );
@@ -119,7 +168,8 @@ export const downloadTextureFile = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/downloadTextureFile`, async (_, { getState }) => {
   const state = getState();
-  const { textureDefs, textureFileName } = state.modelData;
+  const { textureFileName } = state.modelData;
+  const textureDefs = selectSceneTextureDefs(state);
   await exportTextureFile(textureDefs, textureFileName);
 });
 
@@ -136,6 +186,7 @@ const modelDataSlice = createSlice({
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
+        state.editedTextureDataUrls = [];
         state.polygonFileName = fileName;
         state.textureFileName = undefined;
       }
@@ -149,6 +200,7 @@ const modelDataSlice = createSlice({
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
+        state.editedTextureDataUrls = [];
         state.textureFileName = fileName;
       }
     );
@@ -164,7 +216,29 @@ const modelDataSlice = createSlice({
           state.textureDefs[textureIndex].dataUrls[key] = dataUrl;
         });
 
-        state.hasReplacementTextures = true;
+        // remove existing edited textures since these
+        // take precedence on rendering scenes
+
+        if (state.editedTextureDataUrls[textureIndex]) {
+          const filteredEntries = Object.entries(
+            state.editedTextureDataUrls
+          ).filter(([i]) => Number(i) !== textureIndex);
+
+          state.editedTextureDataUrls = Object.fromEntries(filteredEntries);
+        }
+
+        state.hasEditedTextures = true;
+      }
+    );
+
+    builder.addCase(
+      adjustTextureHsl.fulfilled,
+      (
+        state: StageDataState,
+        { payload: { textureIndex, textureDataUrls } }
+      ) => {
+        state.editedTextureDataUrls[textureIndex] = textureDataUrls;
+        state.hasEditedTextures = true;
       }
     );
 

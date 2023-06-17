@@ -1,14 +1,14 @@
 import {
   downloadTextureFile,
   selectHasLoadedTextureFile,
-  selectHasReplacementTextures,
+  selectHasEditedTextures,
   selectModel,
   selectModelCount,
   selectModelIndex,
   selectObjectKey,
   selectObjectMeshIndex,
   selectObjectSelectionType,
-  selectTextureDefs,
+  selectSceneTextureDefs,
   setObjectType,
   useAppDispatch,
   useAppSelector
@@ -40,7 +40,7 @@ import ViewOptionsContext, {
 
 import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { useModelSelectionExport } from '@/hooks';
-import GuiPanelTexture from './GuiPanelTexture';
+import GuiPanelTexture from './textures/GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
 import { mdiAxisArrow, mdiCursorDefaultOutline } from '@mdi/js';
 import Icon from '@mdi/react';
@@ -197,7 +197,7 @@ export default function GuiPanel() {
   const meshIndex = useAppSelector(selectObjectMeshIndex);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
   const model = useAppSelector(selectModel);
-  const textureDefs = useAppSelector(selectTextureDefs);
+  const textureDefs = useAppSelector(selectSceneTextureDefs);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
 
   const selectedMeshTexture: number = useMemo(() => {
@@ -278,7 +278,7 @@ export default function GuiPanel() {
     return images;
   }, [model, textureDefs, selectedMeshTexture]);
 
-  const hasReplacementTextures = useAppSelector(selectHasReplacementTextures);
+  const hasEditedTextures = useAppSelector(selectHasEditedTextures);
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
@@ -352,7 +352,7 @@ export default function GuiPanel() {
               size='small'
               variant='outlined'
             >
-              Import Stage/Texture
+              Import Model/Texture
             </Button>
           </Tooltip>
           {!model ? undefined : (
@@ -481,7 +481,7 @@ export default function GuiPanel() {
             <div className='textures'>{textures}</div>
           </>
         )}
-        {!hasReplacementTextures ? undefined : (
+        {!hasEditedTextures ? undefined : (
           <div>
             <Tooltip title='Download texture ROM binary with replaced images'>
               <Button
