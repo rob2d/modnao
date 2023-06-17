@@ -84,6 +84,33 @@ export default function GuiPanelTextureColorOptions({
     });
   }, [hsl, textureIndex]);
 
+  const ButtonOption = useCallback(
+    ({
+      tooltip,
+      onClick,
+      label
+    }: {
+      tooltip: string;
+      onClick: () => void;
+      label: JSX.Element | string;
+    }) => (
+      <ListItem>
+        <Tooltip title={tooltip} placement='left-start'>
+          <StyledButton
+            onClick={onClick}
+            color='secondary'
+            size='small'
+            variant='outlined'
+            fullWidth
+          >
+            {label}
+          </StyledButton>
+        </Tooltip>
+      </ListItem>
+    ),
+    []
+  );
+
   const hasChanges =
     DEFAULT_HSL.h !== hsl.h ||
     DEFAULT_HSL.s !== hsl.s ||
@@ -121,41 +148,23 @@ export default function GuiPanelTextureColorOptions({
         onChange={onSetL}
       />
       {!hasChanges ? undefined : (
-        <ListItem>
-          <Tooltip
-            title='Reset color changes to this texture'
-            placement='left-start'
-          >
-            <StyledButton
-              onClick={onResetValues}
-              color='secondary'
-              size='small'
-              variant='outlined'
-              fullWidth
-            >
+        <ButtonOption
+          tooltip='Reset color changes to this texture'
+          onClick={onResetValues}
+          label={
+            <>
               <Icon path={mdiRefresh} size={1} />
               RESET
-            </StyledButton>
-          </Tooltip>
-        </ListItem>
+            </>
+          }
+        />
       )}
       {!hasChanges ? undefined : (
-        <ListItem>
-          <Tooltip
-            title='Apply color changes to all loaded textures'
-            placement='left-start'
-          >
-            <StyledButton
-              onClick={onApplyToAll}
-              color='secondary'
-              size='small'
-              variant='outlined'
-              fullWidth
-            >
-              APPLY TO ALL
-            </StyledButton>
-          </Tooltip>
-        </ListItem>
+        <ButtonOption
+          tooltip='Apply color changes to all loaded textures'
+          onClick={onApplyToAll}
+          label={'APPLY TO ALL'}
+        />
       )}
     </List>
   );
