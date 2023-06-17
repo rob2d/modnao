@@ -10,6 +10,7 @@ import { decompressTextureBuffer } from '@/utils/textures/parse';
 import nonSerializables from './nonSerializables';
 import processTextureHsl from '@/utils/textures/adjustTextureHsl';
 import HslValues from '@/utils/textures/HslValues';
+import { selectSceneTextureDefs } from './selectors';
 
 export interface StageDataState {
   models: NLModel[];
@@ -82,7 +83,11 @@ export const adjustTextureHsl = createAsyncThunk<
 });
 
 export const loadTextureFile = createAsyncThunk<
-  { models: NLModel[]; textureDefs: NLTextureDef[]; fileName?: string },
+  {
+    models: NLModel[];
+    textureDefs: NLTextureDef[];
+    fileName?: string;
+  },
   File,
   { state: AppState }
 >(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
@@ -157,7 +162,8 @@ export const downloadTextureFile = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/downloadTextureFile`, async (_, { getState }) => {
   const state = getState();
-  const { textureDefs, textureFileName } = state.modelData;
+  const { textureFileName } = state.modelData;
+  const textureDefs = selectSceneTextureDefs(state);
   await exportTextureFile(textureDefs, textureFileName);
 });
 
@@ -174,6 +180,7 @@ const modelDataSlice = createSlice({
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
+        state.editedTextureDataUrls = [];
         state.polygonFileName = fileName;
         state.textureFileName = undefined;
       }
@@ -187,6 +194,7 @@ const modelDataSlice = createSlice({
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
+        state.editedTextureDataUrls = [];
         state.textureFileName = fileName;
       }
     );
@@ -201,6 +209,17 @@ const modelDataSlice = createSlice({
         dataUrlTypes.forEach((key) => {
           state.textureDefs[textureIndex].dataUrls[key] = dataUrl;
         });
+
+        // remove existing edited textures since these
+        // take precedence on rendering scenes
+
+        if (state.editedTextureDataUrls[textureIndex]) {
+          const filteredEntries = Object.entries(
+            state.editedTextureDataUrls
+          ).filter(([i]) => Number(i) !== textureIndex);
+
+          state.editedTextureDataUrls = Object.fromEntries(filteredEntries);
+        }
 
         state.hasReplacementTextures = true;
       }
