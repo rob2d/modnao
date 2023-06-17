@@ -1,8 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { Button, List, ListItem, ListSubheader, styled } from '@mui/material';
 import { useDebounce } from 'use-debounce';
 import HslValues from '@/utils/textures/HslValues';
-import { adjustTextureHsl, useAppDispatch } from '@/store';
+import {
+  adjustTextureHsl,
+  selectEditedTextures,
+  useAppDispatch,
+  useAppSelector
+} from '@/store';
 import GuiPanelMenuSlider from '../GuiPanelMenuSlider';
 import Icon from '@mdi/react';
 import { mdiRefresh } from '@mdi/js';
@@ -30,11 +35,14 @@ export default function GuiPanelTextureColorOptions({
   const getHslSetter = useCallback(
     (key: keyof HslValues) => (_: Event, v: number | number[]) =>
       setHsl({
+        ...DEFAULT_HSL,
         ...hsl,
         [key]: Array.isArray(v) ? v[0] : v
       }),
     [hsl]
   );
+
+  const editedTextures = useAppSelector(selectEditedTextures);
 
   const onSetH = getHslSetter('h');
   const onSetS = getHslSetter('s');
@@ -47,6 +55,14 @@ export default function GuiPanelTextureColorOptions({
   }, [debouncedHsl]);
 
   const onResetValues = useCallback(() => setHsl(DEFAULT_HSL), [setHsl]);
+  useLayoutEffect(() => {
+    if (editedTextures[textureIndex]) {
+      const { h, s, l } = editedTextures[textureIndex].hsl;
+      if (h || s || l) {
+        setHsl(editedTextures[textureIndex].hsl);
+      }
+    }
+  }, []);
 
   const hasChanges =
     DEFAULT_HSL.h !== hsl.h ||
