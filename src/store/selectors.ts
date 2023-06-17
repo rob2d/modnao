@@ -22,8 +22,7 @@ export const selectObjectSelectionType = (s: AppState) =>
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
 
-export const selectEditedTextureDataUrls = (s: AppState) =>
-  s.modelData.editedTextureDataUrls;
+export const selectEditedTextures = (s: AppState) => s.modelData.editedTextures;
 
 /**
  * combines texture defs with any edited data urls
@@ -31,7 +30,7 @@ export const selectEditedTextureDataUrls = (s: AppState) =>
  */
 export const selectSceneTextureDefs = createSelector(
   selectTextureDefs,
-  selectEditedTextureDataUrls,
+  selectEditedTextures,
   (textureDefs, dataUrlEntries): typeof textureDefs => {
     const returnTextures = [...textureDefs];
     Object.entries(dataUrlEntries).forEach(([index, dataUrls]) => {

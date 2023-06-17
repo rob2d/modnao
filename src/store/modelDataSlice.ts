@@ -16,10 +16,11 @@ import storeSourceTextureData from './stage-data/storeSourceTextureData';
 export interface StageDataState {
   models: NLModel[];
   textureDefs: NLTextureDef[];
-  editedTextureDataUrls: {
+  editedTextures: {
     [key: number]: {
       opaque: string;
       translucent: string;
+      hsl: HslValues;
     };
   };
   polygonFileName?: string;
@@ -32,7 +33,7 @@ const sliceName = 'modelData';
 export const initialStageDataState: StageDataState = {
   models: [],
   textureDefs: [],
-  editedTextureDataUrls: {},
+  editedTextures: {},
   polygonFileName: undefined,
   textureFileName: undefined,
   hasEditedTextures: false
@@ -186,7 +187,7 @@ const modelDataSlice = createSlice({
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
-        state.editedTextureDataUrls = [];
+        state.editedTextures = [];
         state.polygonFileName = fileName;
         state.textureFileName = undefined;
       }
@@ -200,7 +201,7 @@ const modelDataSlice = createSlice({
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
-        state.editedTextureDataUrls = [];
+        state.editedTextures = [];
         state.textureFileName = fileName;
       }
     );
@@ -219,12 +220,12 @@ const modelDataSlice = createSlice({
         // remove existing edited textures since these
         // take precedence on rendering scenes
 
-        if (state.editedTextureDataUrls[textureIndex]) {
-          const filteredEntries = Object.entries(
-            state.editedTextureDataUrls
-          ).filter(([i]) => Number(i) !== textureIndex);
+        if (state.editedTextures[textureIndex]) {
+          const filteredEntries = Object.entries(state.editedTextures).filter(
+            ([i]) => Number(i) !== textureIndex
+          );
 
-          state.editedTextureDataUrls = Object.fromEntries(filteredEntries);
+          state.editedTextures = Object.fromEntries(filteredEntries);
         }
 
         state.hasEditedTextures = true;
@@ -235,10 +236,21 @@ const modelDataSlice = createSlice({
       adjustTextureHsl.fulfilled,
       (
         state: StageDataState,
-        { payload: { textureIndex, textureDataUrls } }
+        { payload: { textureIndex, textureDataUrls, hsl } }
       ) => {
-        state.editedTextureDataUrls[textureIndex] = textureDataUrls;
-        state.hasEditedTextures = true;
+        if (hsl.h != 0 || hsl.s != 0 || hsl.l != 0) {
+          state.editedTextures[textureIndex] = {
+            ...textureDataUrls,
+            hsl
+          };
+        } else {
+          const entries = Object.entries(state.editedTextures).filter(
+            ([k]) => Number(k) !== textureIndex
+          );
+
+          state.editedTextures = Object.fromEntries(entries);
+        }
+        state.hasEditedTextures = Object.keys(state.editedTextures).length > 0;
       }
     );
 
