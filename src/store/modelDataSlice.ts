@@ -180,9 +180,9 @@ export const downloadTextureFile = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/downloadTextureFile`, async (_, { getState }) => {
   const state = getState();
-  const { textureFileName } = state.modelData;
+  const { textureFileName, hasCompressedTextures } = state.modelData;
   const textureDefs = selectSceneTextureDefs(state);
-  await exportTextureFile(textureDefs, textureFileName);
+  await exportTextureFile(textureDefs, textureFileName, hasCompressedTextures);
 });
 
 const modelDataSlice = createSlice({
