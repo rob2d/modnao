@@ -125,6 +125,7 @@ export const loadTextureFile = createAsyncThunk<
       fileName,
       hasCompressedTextures: false
     };
+    nonSerializables.textureBuffer = buffer;
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
     // file loaded is compressed; this is common for certain
@@ -140,9 +141,9 @@ export const loadTextureFile = createAsyncThunk<
       fileName,
       hasCompressedTextures: true
     };
+    nonSerializables.textureBuffer = decompressedBuffer;
   }
 
-  nonSerializables.textureBuffer = buffer;
   return result;
 });
 
@@ -182,7 +183,15 @@ export const downloadTextureFile = createAsyncThunk<
   const state = getState();
   const { textureFileName, hasCompressedTextures } = state.modelData;
   const textureDefs = selectSceneTextureDefs(state);
-  await exportTextureFile(textureDefs, textureFileName, hasCompressedTextures);
+  try {
+    await exportTextureFile(
+      textureDefs,
+      textureFileName,
+      hasCompressedTextures
+    );
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 const modelDataSlice = createSlice({
