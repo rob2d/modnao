@@ -26,6 +26,7 @@ export interface StageDataState {
   polygonFileName?: string;
   textureFileName?: string;
   hasEditedTextures: boolean;
+  hasCompressedTextures: boolean;
 }
 
 const sliceName = 'modelData';
@@ -36,7 +37,8 @@ export const initialStageDataState: StageDataState = {
   editedTextures: {},
   polygonFileName: undefined,
   textureFileName: undefined,
-  hasEditedTextures: false
+  hasEditedTextures: false,
+  hasCompressedTextures: false
 };
 
 export const loadPolygonFile = createAsyncThunk<
@@ -89,6 +91,7 @@ export const loadTextureFile = createAsyncThunk<
     models: NLModel[];
     textureDefs: NLTextureDef[];
     fileName?: string;
+    hasCompressedTextures: boolean;
   },
   File,
   { state: AppState }
@@ -100,7 +103,12 @@ export const loadTextureFile = createAsyncThunk<
 
   // if no polygon loaded, resolve entry data
   if (!state.modelData.polygonFileName) {
-    return Promise.resolve({ models, textureDefs, fileName: undefined });
+    return Promise.resolve({
+      models,
+      textureDefs,
+      fileName: undefined,
+      hasCompressedTextures: false
+    });
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -108,12 +116,14 @@ export const loadTextureFile = createAsyncThunk<
     models: NLModel[];
     textureDefs: NLTextureDef[];
     fileName: string;
+    hasCompressedTextures: boolean;
   };
 
   try {
     result = {
       ...(await processTextureBuffer(buffer, models, textureDefs)),
-      fileName
+      fileName,
+      hasCompressedTextures: false
     };
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
@@ -127,7 +137,8 @@ export const loadTextureFile = createAsyncThunk<
     const decompressedBuffer = await decompressTextureBuffer(buffer);
     result = {
       ...(await processTextureBuffer(decompressedBuffer, models, textureDefs)),
-      fileName
+      fileName,
+      hasCompressedTextures: true
     };
   }
 
@@ -197,12 +208,13 @@ const modelDataSlice = createSlice({
       loadTextureFile.fulfilled,
       (
         state: StageDataState,
-        { payload: { models, textureDefs, fileName } }
+        { payload: { models, textureDefs, fileName, hasCompressedTextures } }
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
         state.editedTextures = [];
         state.textureFileName = fileName;
+        state.hasCompressedTextures = hasCompressedTextures;
       }
     );
 
