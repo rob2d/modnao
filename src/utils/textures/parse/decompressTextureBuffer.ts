@@ -1,6 +1,6 @@
 const WORD_SIZE = 2;
 
-const BIT_FLAG = 0b1000000000000000;
+const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
 export default function decompressTextureBuffer(buffer: Buffer) {
   const output: number[] = [];
@@ -23,7 +23,7 @@ export default function decompressTextureBuffer(buffer: Buffer) {
 
     // reset this to be diffed on each loop
     extraWordCount = 0;
-    const isCompressed = bitmask & (BIT_FLAG >> chunk);
+    const isCompressed = bitmask & (COMPRESSION_FLAG >> chunk);
 
     if (!isCompressed) {
       output.push(value);
@@ -64,9 +64,9 @@ export default function decompressTextureBuffer(buffer: Buffer) {
         output.push(nextOutput[j % nextOutput.length]);
       }
     }
-
     chunk += 1;
 
+    // chunk loops every 2 bytes
     if (chunk == 0x10) {
       chunk = 0;
       applyBitMask = true;
@@ -79,15 +79,10 @@ export default function decompressTextureBuffer(buffer: Buffer) {
   // for convenience, so need to split up the bytes again since JS API
   // Uint16Array does not store 16-bit values into buffer (instead will
   // truncate to 8-bit in the Buffer)
-  output.forEach((v, i) => {
-    const bytes = [];
-    for (let i = 0; i < 2; i++) {
-      bytes.push(v & 255);
-      v >>= 8;
-    }
 
-    outputBuffer.set(bytes, i * 2);
-  });
+  for (let i = 0; i < output.length; i++) {
+    outputBuffer.writeUInt16LE(output[i], i * WORD_SIZE);
+  }
 
   return outputBuffer;
 }
