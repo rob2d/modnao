@@ -1,13 +1,15 @@
 const WORD_SIZE = 2;
 
+const BIT_FLAG = 0b1000000000000000;
+
 export default function decompressTextureBuffer(buffer: Buffer) {
   const output: number[] = [];
   let applyBitMask = true;
 
   let bitmask = 0b0;
   let wordsBackCount = 0;
-  let grabWordsCount = 0;
-  let extraWordsCount = 0;
+  let grabWordCount = 0;
+  let extraWordCount = 0;
   let chunk = 0;
 
   for (let i = 0; i < buffer.length / WORD_SIZE; i++) {
@@ -20,53 +22,47 @@ export default function decompressTextureBuffer(buffer: Buffer) {
     }
 
     // reset this to be diffed on each loop
-    extraWordsCount = 0;
-    const isCompressed = (bitmask & (0x8000 >> chunk)) != 0;
-    if (isCompressed) {
-      if (value === 0) {
-        break;
-      }
+    extraWordCount = 0;
+    const isCompressed = bitmask & (BIT_FLAG >> chunk);
 
-      // advance 4 bytes
-      if ((value & 0x7ff) === value) {
+    if (!isCompressed) {
+      output.push(value);
+    } else if (value === 0) {
+      break;
+    } else {
+      // check that only the lower 11-bits are used;
+      // this says it is a 4 byte value, where the number
+      // of words back to go is value & 0x7ff
+      const is32Bit = (value & 0b0111_1111_1111) === value;
+
+      if (!is32Bit) {
+        grabWordCount = (value >> 11) & 0b1111_1;
+        wordsBackCount = value & 0b0111_1111_1111;
+      } else {
         wordsBackCount = value;
 
-        try {
-          if (i * WORD_SIZE > buffer.length) {
-            console.error('ACCESSING BAD INDEX @', i);
-          }
-          i++;
-          grabWordsCount = buffer.readUInt16LE(i * WORD_SIZE);
-        } catch (error) {
-          console.error('ERROR grabbing px @', i);
-        }
-        value = (value << 16) | grabWordsCount;
-      }
-      // advance 2 bytes
-      else {
-        grabWordsCount = (value & 0xf800) >> 11;
-        wordsBackCount = value & 0x07ff;
+        // advance/read an extra 2 bytes
+        grabWordCount = buffer.readUInt16LE(++i * WORD_SIZE);
+
+        // value now becomes 32-bit
+        value = (value << 16) | grabWordCount;
       }
 
-      if (wordsBackCount < grabWordsCount) {
-        extraWordsCount = grabWordsCount - wordsBackCount;
-        grabWordsCount = wordsBackCount;
+      if (wordsBackCount < grabWordCount) {
+        extraWordCount = grabWordCount - wordsBackCount;
+        grabWordCount = wordsBackCount;
       }
 
       const offset = output.length - wordsBackCount;
       const nextOutput = [];
 
-      for (let j = 0; j < grabWordsCount; j++) {
+      for (let j = 0; j < grabWordCount; j++) {
         nextOutput.push(output[offset + j]);
       }
 
-      for (let j = 0; j < grabWordsCount + extraWordsCount; j++) {
+      for (let j = 0; j < grabWordCount + extraWordCount; j++) {
         output.push(nextOutput[j % nextOutput.length]);
       }
-    }
-
-    if (!isCompressed) {
-      output.push(value);
     }
 
     chunk += 1;
