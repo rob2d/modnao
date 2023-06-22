@@ -75,11 +75,6 @@ export default function decompressTextureBuffer(buffer: Buffer) {
 
   const outputBuffer = Buffer.from(new Uint8Array(output.length * 2));
 
-  // we were working with 16-bit unsigned integers as source abstraction
-  // for convenience, so need to split up the bytes again since JS API
-  // Uint16Array does not store 16-bit values into buffer (instead will
-  // truncate to 8-bit in the Buffer)
-
   for (let i = 0; i < output.length; i++) {
     outputBuffer.writeUInt16LE(output[i], i * WORD_SIZE);
   }
