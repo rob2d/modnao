@@ -11,7 +11,8 @@ import {
   selectSceneTextureDefs,
   setObjectType,
   useAppDispatch,
-  useAppSelector
+  useAppSelector,
+  selectHasCompressedTextures
 } from '@/store';
 import {
   Button,
@@ -278,7 +279,7 @@ export default function GuiPanel() {
     return images;
   }, [model, textureDefs, selectedMeshTexture]);
 
-  const hasEditedTextures = useAppSelector(selectHasEditedTextures);
+  const hasCompressedTextures = useAppSelector(selectHasCompressedTextures);
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
@@ -481,7 +482,7 @@ export default function GuiPanel() {
             <div className='textures'>{textures}</div>
           </>
         )}
-        {!hasEditedTextures ? undefined : (
+        {!hasLoadedTextureFile || hasCompressedTextures ? undefined : (
           <div>
             <Tooltip title='Download texture ROM binary with replaced images'>
               <Button
