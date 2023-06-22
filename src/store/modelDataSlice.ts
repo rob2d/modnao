@@ -271,7 +271,9 @@ const modelDataSlice = createSlice({
 
           state.editedTextures = Object.fromEntries(entries);
         }
-        state.hasEditedTextures = Object.keys(state.editedTextures).length > 0;
+        state.hasEditedTextures =
+          state.hasEditedTextures ||
+          Object.keys(state.editedTextures).length > 0;
       }
     );
 
