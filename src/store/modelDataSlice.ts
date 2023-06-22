@@ -1,8 +1,8 @@
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import processPolygonBuffer from './stage-data/processPolygonBuffer';
-import processTextureBuffer from './stage-data/processTextureBuffer';
-import exportTextureFile from './stage-data/exportTextureFile';
+import processPolygonBuffer from './model-data/processPolygonBuffer';
+import processTextureBuffer from './model-data/processTextureBuffer';
+import exportTextureFile from './model-data/exportTextureFile';
 import { AppState } from './store';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import getImageDimensions from '@/utils/images/getImageDimensions';
@@ -11,9 +11,9 @@ import nonSerializables from './nonSerializables';
 import processTextureHsl from '@/utils/textures/adjustTextureHsl';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
-import storeSourceTextureData from './stage-data/storeSourceTextureData';
+import storeSourceTextureData from './model-data/storeSourceTextureData';
 
-export interface StageDataState {
+export interface ModelDataState {
   models: NLModel[];
   textureDefs: NLTextureDef[];
   editedTextures: {
@@ -31,7 +31,7 @@ export interface StageDataState {
 
 const sliceName = 'modelData';
 
-export const initialStageDataState: StageDataState = {
+export const initialModelDataState: ModelDataState = {
   models: [],
   textureDefs: [],
   editedTextures: {},
@@ -196,13 +196,13 @@ export const downloadTextureFile = createAsyncThunk<
 
 const modelDataSlice = createSlice({
   name: sliceName,
-  initialState: initialStageDataState,
+  initialState: initialModelDataState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(
       loadPolygonFile.fulfilled,
       (
-        state: StageDataState,
+        state: ModelDataState,
         { payload: { models, textureDefs, fileName } }
       ) => {
         state.models = models;
@@ -216,7 +216,7 @@ const modelDataSlice = createSlice({
     builder.addCase(
       loadTextureFile.fulfilled,
       (
-        state: StageDataState,
+        state: ModelDataState,
         { payload: { models, textureDefs, fileName, hasCompressedTextures } }
       ) => {
         state.models = models;
@@ -229,7 +229,7 @@ const modelDataSlice = createSlice({
 
     builder.addCase(
       replaceTextureDataUrl.fulfilled,
-      (state: StageDataState, { payload: { textureIndex, dataUrl } }) => {
+      (state: ModelDataState, { payload: { textureIndex, dataUrl } }) => {
         const dataUrlTypes = Object.keys(
           state.textureDefs[textureIndex].dataUrls
         ) as TextureDataUrlType[];
@@ -256,7 +256,7 @@ const modelDataSlice = createSlice({
     builder.addCase(
       adjustTextureHsl.fulfilled,
       (
-        state: StageDataState,
+        state: ModelDataState,
         { payload: { textureIndex, textureDataUrls, hsl } }
       ) => {
         if (hsl.h != 0 || hsl.s != 0 || hsl.l != 0) {
