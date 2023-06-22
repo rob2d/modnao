@@ -481,21 +481,19 @@ export default function GuiPanel() {
             <div className='textures'>{textures}</div>
           </>
         )}
-        {!hasEditedTextures ? undefined : (
-          <div>
-            <Tooltip title='Download texture ROM binary with replaced images'>
-              <Button
-                onClick={onExportTextureFile}
-                fullWidth
-                color='secondary'
-                size='small'
-                variant='outlined'
-              >
-                Export Textures
-              </Button>
-            </Tooltip>
-          </div>
-        )}
+        <div>
+          <Tooltip title='Download texture ROM binary with replaced images'>
+            <Button
+              onClick={onExportTextureFile}
+              fullWidth
+              color='secondary'
+              size='small'
+              variant='outlined'
+            >
+              Export Textures
+            </Button>
+          </Tooltip>
+        </div>
       </div>
     </StyledPaper>
   );
