@@ -1,5 +1,6 @@
 const WORD_SIZE = 2;
 
+/** starts at F000 and shifted for a mask check based on the chunk */
 const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
 export default function decompressTextureBuffer(buffer: Buffer) {
@@ -36,7 +37,9 @@ export default function decompressTextureBuffer(buffer: Buffer) {
       const is32Bit = (value & 0b0111_1111_1111) === value;
 
       if (!is32Bit) {
+        // the number of words to grab are in the 5 MSb
         grabWordCount = (value >> 11) & 0b1111_1;
+        // the number of words to go back are in the 11 LSb */
         wordsBackCount = value & 0b0111_1111_1111;
       } else {
         wordsBackCount = value;
@@ -53,15 +56,14 @@ export default function decompressTextureBuffer(buffer: Buffer) {
         grabWordCount = wordsBackCount;
       }
 
-      const offset = output.length - wordsBackCount;
-      const nextOutput = [];
+      const nextWordPattern = [];
 
       for (let j = 0; j < grabWordCount; j++) {
-        nextOutput.push(output[offset + j]);
+        nextWordPattern.push(output[output.length - wordsBackCount + j]);
       }
 
       for (let j = 0; j < grabWordCount + extraWordCount; j++) {
-        output.push(nextOutput[j % nextOutput.length]);
+        output.push(nextWordPattern[j % nextWordPattern.length]);
       }
     }
     chunk += 1;
