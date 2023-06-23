@@ -6,7 +6,6 @@ import {
 } from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
-import nonSerializables from '../nonSerializables';
 
 const COLOR_SIZE = 2;
 
@@ -21,26 +20,27 @@ const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
   };
 
 export default async function processTextureBuffer(
-  buffer: Buffer,
-  models: NLModel[],
+  bufferPassed: Buffer,
   textureDefs: NLTextureDef[]
 ): Promise<{
-  models: NLModel[];
   textureDefs: NLTextureDef[];
+  sourceTextureData: { translucent: ImageData; opaque: ImageData }[];
 }> {
+  const buffer = Buffer.from(bufferPassed);
   const nextTextureDefs: NLTextureDef[] = [];
+  const sourceTextureData: { translucent: ImageData; opaque: ImageData }[] = [];
 
   let i = 0;
-  for await (const t of textureDefs) {
+  for (const t of textureDefs) {
     const dataUrlTypes = Object.keys(t.dataUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
 
-    for await (const dataUrlType of dataUrlTypes) {
-      const canvas = document.createElement('canvas');
-      canvas.width = t.width;
-      canvas.height = t.height;
+    for (const dataUrlType of dataUrlTypes) {
+      const canvas = new OffscreenCanvas(t.width, t.height);
 
-      const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+      const context = canvas.getContext(
+        '2d'
+      ) as OffscreenCanvasRenderingContext2D;
       const id = context.getImageData(0, 0, t.width, t.height) as ImageData;
       const pixels = id.data;
 
@@ -67,23 +67,34 @@ export default async function processTextureBuffer(
       }
 
       context.putImageData(id, 0, 0);
-      nonSerializables.sourceTextureData[i] = nonSerializables
-        .sourceTextureData[i] || {
+      /* @TODO: add this to part of return
+       * for assignment on main UI thread
+       */
+      sourceTextureData[i] = sourceTextureData[i] || {
         translucent: undefined,
         opaque: undefined
       };
-      nonSerializables.sourceTextureData[i][dataUrlType] = id;
+      sourceTextureData[i][dataUrlType] = id;
 
-      const canvas2 = document.createElement('canvas');
-      canvas2.width = canvas.width;
-      canvas2.height = canvas.height;
+      const canvas2 = new OffscreenCanvas(canvas.width, canvas.height);
 
-      const context2 = canvas2.getContext('2d') as CanvasRenderingContext2D;
+      const context2 = canvas2.getContext(
+        '2d'
+      ) as OffscreenCanvasRenderingContext2D;
       context2.translate(canvas.width / 2, canvas.height / 2);
       context2.rotate((-90 * Math.PI) / 180);
       context2.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
 
-      const dataUrl = canvas2.toDataURL('image/png');
+      const blob = await canvas2.convertToBlob();
+      const reader = new FileReader();
+
+      const readFile = new Promise<string>(
+        (resolve) => (reader.onloadend = () => resolve(reader.result as string))
+      );
+
+      reader.readAsDataURL(blob);
+      const dataUrl = await readFile;
+
       updatedTexture.dataUrls = {
         ...updatedTexture.dataUrls,
         [dataUrlType]: dataUrl
@@ -94,8 +105,8 @@ export default async function processTextureBuffer(
     i++;
   }
 
-  return Promise.resolve({
-    models,
-    textureDefs: nextTextureDefs
-  });
+  return {
+    textureDefs: nextTextureDefs,
+    sourceTextureData
+  };
 }

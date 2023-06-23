@@ -1,7 +1,6 @@
 import {
   downloadTextureFile,
   selectHasLoadedTextureFile,
-  selectHasEditedTextures,
   selectModel,
   selectModelCount,
   selectModelIndex,

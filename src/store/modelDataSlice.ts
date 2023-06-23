@@ -1,17 +1,58 @@
-import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  AnyAction,
+  createAction,
+  createAsyncThunk,
+  createSlice
+} from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import processPolygonBuffer from './model-data/processPolygonBuffer';
-import processTextureBuffer from './model-data/processTextureBuffer';
 import exportTextureFile from './model-data/exportTextureFile';
-import { AppState } from './store';
+import { AppState, store } from './store';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import getImageDimensions from '@/utils/images/getImageDimensions';
-import { decompressTextureBuffer } from '@/utils/textures/parse';
 import nonSerializables from './nonSerializables';
 import processTextureHsl from '@/utils/textures/adjustTextureHsl';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
 import storeSourceTextureData from './model-data/storeSourceTextureData';
+import { WorkerEvent } from '@/worker';
+
+let worker: Worker;
+
+if (globalThis.Worker) {
+  worker = new Worker('../worker.ts', { type: 'module' });
+
+  worker.onmessage = (event: MessageEvent<WorkerEvent>) => {
+    switch (event.data.type) {
+      case 'loadTextureFile': {
+        const {
+          payload: {
+            buffer,
+            textureDefs,
+            fileName,
+            hasCompressedTextures,
+            sourceTextureData
+          }
+        } = event.data;
+
+        // store textureBuffer for ops
+        nonSerializables.textureBuffer = buffer;
+
+        // store sourceTextureData for color edits
+        nonSerializables.sourceTextureData = sourceTextureData;
+
+        store.dispatch(
+          loadTexture({
+            textureDefs,
+            fileName,
+            hasCompressedTextures
+          })
+        );
+        break;
+      }
+    }
+  };
+}
 
 export interface ModelDataState {
   models: NLModel[];
@@ -86,66 +127,30 @@ export const adjustTextureHsl = createAsyncThunk<
   }
 });
 
-export const loadTextureFile = createAsyncThunk<
-  {
-    models: NLModel[];
-    textureDefs: NLTextureDef[];
-    fileName?: string;
-    hasCompressedTextures: boolean;
-  },
+export const loadTextureFileOnWorker = createAsyncThunk<
+  void,
   File,
   { state: AppState }
->(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
+>(`${sliceName}/loadTextureFileOnWorker`, async (file, { getState }) => {
   const state = getState();
   const { models, textureDefs } = state.modelData;
-
   const fileName = file.name;
-
-  // if no polygon loaded, resolve entry data
-  if (!state.modelData.polygonFileName) {
-    return Promise.resolve({
-      models,
-      textureDefs,
-      fileName: undefined,
-      hasCompressedTextures: false
-    });
-  }
-
   const buffer = Buffer.from(await file.arrayBuffer());
-  let result: {
-    models: NLModel[];
+
+  worker.postMessage({
+    type: 'loadTextureFile',
+    payload: { fileName, models, textureDefs, buffer }
+  });
+});
+
+export const loadTexture = createAction<
+  {
     textureDefs: NLTextureDef[];
     fileName: string;
     hasCompressedTextures: boolean;
-  };
-
-  try {
-    result = {
-      ...(await processTextureBuffer(buffer, models, textureDefs)),
-      fileName,
-      hasCompressedTextures: false
-    };
-    nonSerializables.textureBuffer = buffer;
-  } catch (error) {
-    // if an overflow error occurs, this is an indicator that the
-    // file loaded is compressed; this is common for certain
-    // game texture formats like Capcom vs SNK 2
-
-    if (!(error instanceof RangeError)) {
-      throw error;
-    }
-
-    const decompressedBuffer = await decompressTextureBuffer(buffer);
-    result = {
-      ...(await processTextureBuffer(decompressedBuffer, models, textureDefs)),
-      fileName,
-      hasCompressedTextures: true
-    };
-    nonSerializables.textureBuffer = decompressedBuffer;
-  }
-
-  return result;
-});
+  },
+  `${typeof sliceName}/loadTexture`
+>(`${sliceName}/loadTexture`);
 
 export const replaceTextureDataUrl = createAsyncThunk<
   { textureIndex: number; dataUrl: string },
@@ -214,12 +219,11 @@ const modelDataSlice = createSlice({
     );
 
     builder.addCase(
-      loadTextureFile.fulfilled,
+      loadTexture,
       (
         state: ModelDataState,
-        { payload: { models, textureDefs, fileName, hasCompressedTextures } }
+        { payload: { textureDefs, fileName, hasCompressedTextures } }
       ) => {
-        state.models = models;
         state.textureDefs = textureDefs;
         state.editedTextures = [];
         state.textureFileName = fileName;
