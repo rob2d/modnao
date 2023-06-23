@@ -12,26 +12,26 @@ export type WorkerEvent = {
   };
 };
 
-addEventListener(
-  'message',
-  async ({ data: { type, payload } }: MessageEvent<WorkerEvent>) => {
-    switch (type) {
-      case 'loadTextureFile': {
-        const { buffer, models, textureDefs, fileName } = payload;
 
-        const result = await loadTextureFile({
-          buffer,
-          fileName,
-          models,
-          textureDefs
-        });
+addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
+  const { type, payload } = data;
+  switch (type) {
+    case 'loadTextureFile': {
+      const { buffer, models, textureDefs, fileName } = payload;
 
-        postMessage(result);
-        break;
-      }
-      default: {
-        break;
-      }
+      const result = await loadTextureFile({
+        buffer,
+        fileName,
+        models,
+        textureDefs
+      });
+
+
+      postMessage({ type: 'loadTextureFile', payload: result });
+      break;
+    }
+    default: {
+      break;
     }
   }
-);
+});

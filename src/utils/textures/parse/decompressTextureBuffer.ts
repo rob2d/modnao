@@ -3,7 +3,8 @@ const WORD_SIZE = 2;
 /** starts at F000 and shifted for a mask check based on the chunk */
 const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
-export default function decompressTextureBuffer(buffer: Buffer) {
+export default function decompressTextureBuffer(bufferPassed: Buffer) {
+  const buffer = Buffer.from(bufferPassed);
   const output: number[] = [];
   let applyBitMask = true;
 

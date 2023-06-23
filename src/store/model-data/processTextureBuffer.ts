@@ -20,13 +20,14 @@ const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
   };
 
 export default async function processTextureBuffer(
-  buffer: Buffer,
+  bufferPassed: Buffer,
   models: NLModel[],
   textureDefs: NLTextureDef[]
 ): Promise<{
   models: NLModel[];
   textureDefs: NLTextureDef[];
 }> {
+  const buffer = Buffer.from(bufferPassed);
   const nextTextureDefs: NLTextureDef[] = [];
 
   let i = 0;
