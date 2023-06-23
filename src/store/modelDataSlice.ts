@@ -17,7 +17,40 @@ import { selectSceneTextureDefs } from './selectors';
 import storeSourceTextureData from './model-data/storeSourceTextureData';
 import { WorkerEvent } from '@/worker';
 
-const worker = new Worker(new URL('@/worker.ts', import.meta.url));
+let worker: Worker;
+
+if (globalThis.Worker) {
+  worker = new Worker(new URL('../worker.ts', import.meta.url));
+
+  worker.onmessage = (event: MessageEvent<WorkerEvent>) => {
+    switch (event.data.type) {
+      case 'loadTextureFile': {
+        const {
+          payload: {
+            buffer,
+            models,
+            textureDefs,
+            fileName,
+            hasCompressedTextures
+          }
+        } = event.data;
+
+        // store textureBuffer for ops
+        nonSerializables.textureBuffer = buffer;
+
+        store.dispatch(
+          loadTexture({
+            models,
+            textureDefs,
+            fileName,
+            hasCompressedTextures
+          })
+        );
+        break;
+      }
+    }
+  };
+}
 
 export interface ModelDataState {
   models: NLModel[];
@@ -91,35 +124,6 @@ export const adjustTextureHsl = createAsyncThunk<
     };
   }
 });
-
-worker.onmessage = (event: MessageEvent<WorkerEvent>) => {
-  switch (event.data.type) {
-    case 'loadTextureFile': {
-      const {
-        payload: {
-          buffer,
-          models,
-          textureDefs,
-          fileName,
-          hasCompressedTextures
-        }
-      } = event.data;
-
-      // store textureBuffer for ops
-      nonSerializables.textureBuffer = buffer;
-
-      store.dispatch(
-        loadTexture({
-          models,
-          textureDefs,
-          fileName,
-          hasCompressedTextures
-        })
-      );
-      break;
-    }
-  }
-};
 
 export const loadTextureFileOnWorker = createAsyncThunk<
   void,
