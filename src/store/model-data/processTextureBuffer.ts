@@ -21,14 +21,14 @@ const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
 
 export default async function processTextureBuffer(
   bufferPassed: Buffer,
-  models: NLModel[],
   textureDefs: NLTextureDef[]
 ): Promise<{
-  models: NLModel[];
   textureDefs: NLTextureDef[];
+  sourceTextureData: { translucent: ImageData; opaque: ImageData }[];
 }> {
   const buffer = Buffer.from(bufferPassed);
   const nextTextureDefs: NLTextureDef[] = [];
+  const sourceTextureData: { translucent: ImageData; opaque: ImageData }[] = [];
 
   let i = 0;
   for (const t of textureDefs) {
@@ -69,13 +69,12 @@ export default async function processTextureBuffer(
       context.putImageData(id, 0, 0);
       /* @TODO: add this to part of return
        * for assignment on main UI thread
-      nonSerializables.sourceTextureData[i] = nonSerializables
-        .sourceTextureData[i] || {
+       */
+      sourceTextureData[i] = sourceTextureData[i] || {
         translucent: undefined,
         opaque: undefined
       };
-      nonSerializables.sourceTextureData[i][dataUrlType] = id;
-      */
+      sourceTextureData[i][dataUrlType] = id;
 
       const canvas2 = new OffscreenCanvas(canvas.width, canvas.height);
 
@@ -107,7 +106,7 @@ export default async function processTextureBuffer(
   }
 
   return {
-    models,
-    textureDefs: nextTextureDefs
+    textureDefs: nextTextureDefs,
+    sourceTextureData
   };
 }

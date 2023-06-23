@@ -5,27 +5,24 @@ export type WorkerEvent = {
   type: 'loadTextureFile';
   payload: {
     buffer: Buffer;
-    models: NLModel[];
     textureDefs: NLTextureDef[];
     fileName: string;
     hasCompressedTextures: boolean;
+    sourceTextureData: { translucent: ImageData; opaque: ImageData }[];
   };
 };
-
 
 addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
   const { type, payload } = data;
   switch (type) {
     case 'loadTextureFile': {
-      const { buffer, models, textureDefs, fileName } = payload;
+      const { buffer, textureDefs, fileName } = payload;
 
       const result = await loadTextureFile({
         buffer,
         fileName,
-        models,
         textureDefs
       });
-
 
       postMessage({ type: 'loadTextureFile', payload: result });
       break;

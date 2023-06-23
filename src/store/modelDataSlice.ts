@@ -20,7 +20,7 @@ import { WorkerEvent } from '@/worker';
 let worker: Worker;
 
 if (globalThis.Worker) {
-  worker = new Worker(new URL('../worker.ts', import.meta.url));
+  worker = new Worker('../worker.ts', { type: 'module' });
 
   worker.onmessage = (event: MessageEvent<WorkerEvent>) => {
     switch (event.data.type) {
@@ -28,19 +28,21 @@ if (globalThis.Worker) {
         const {
           payload: {
             buffer,
-            models,
             textureDefs,
             fileName,
-            hasCompressedTextures
+            hasCompressedTextures,
+            sourceTextureData
           }
         } = event.data;
 
         // store textureBuffer for ops
         nonSerializables.textureBuffer = buffer;
 
+        // store sourceTextureData for color edits
+        nonSerializables.sourceTextureData = sourceTextureData;
+
         store.dispatch(
           loadTexture({
-            models,
             textureDefs,
             fileName,
             hasCompressedTextures
@@ -143,7 +145,6 @@ export const loadTextureFileOnWorker = createAsyncThunk<
 
 export const loadTexture = createAction<
   {
-    models: NLModel[];
     textureDefs: NLTextureDef[];
     fileName: string;
     hasCompressedTextures: boolean;
@@ -221,9 +222,8 @@ const modelDataSlice = createSlice({
       loadTexture,
       (
         state: ModelDataState,
-        { payload: { models, textureDefs, fileName, hasCompressedTextures } }
+        { payload: { textureDefs, fileName, hasCompressedTextures } }
       ) => {
-        state.models = models;
         state.textureDefs = textureDefs;
         state.editedTextures = [];
         state.textureFileName = fileName;

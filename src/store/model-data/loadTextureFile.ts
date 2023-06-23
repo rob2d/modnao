@@ -4,28 +4,31 @@ import { decompressTextureBuffer } from '@/utils/textures/parse';
 
 export default async function loadTextureFile({
   buffer,
-  models,
   textureDefs,
   fileName
 }: {
-  models: NLModel[];
   textureDefs: NLTextureDef[];
   fileName: string;
   buffer: Buffer;
 }) {
   let result: {
-    models: NLModel[];
     textureDefs: NLTextureDef[];
     fileName: string;
     hasCompressedTextures: boolean;
     buffer: Buffer;
+    sourceTextureData: { translucent: ImageData; opaque: ImageData }[];
   };
+
   try {
+    const { textureDefs: nextTextureDefs, sourceTextureData } =
+      await processTextureBuffer(buffer, textureDefs);
+
     result = {
-      ...(await processTextureBuffer(buffer, models, textureDefs)),
-      fileName,
+      textureDefs: nextTextureDefs,
       hasCompressedTextures: false,
-      buffer
+      fileName,
+      buffer,
+      sourceTextureData
     };
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
@@ -37,11 +40,16 @@ export default async function loadTextureFile({
     }
 
     const decompressedBuffer = decompressTextureBuffer(buffer);
+
+    const { textureDefs: nextTextureDefs, sourceTextureData } =
+      await processTextureBuffer(decompressedBuffer, textureDefs);
+
     result = {
-      ...(await processTextureBuffer(decompressedBuffer, models, textureDefs)),
+      textureDefs: nextTextureDefs,
       fileName,
       hasCompressedTextures: true,
-      buffer: decompressedBuffer
+      buffer: decompressedBuffer,
+      sourceTextureData
     };
   }
 
