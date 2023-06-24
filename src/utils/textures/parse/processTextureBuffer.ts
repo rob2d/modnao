@@ -1,11 +1,12 @@
+import { encodeZMortonPosition } from '@/utils/textures/parse';
 import {
   rgb565ToRgba8888,
   argb1555ToRgba8888,
-  argb4444ToRgba8888,
-  encodeZMortonPosition
-} from '@/utils/textures/parse';
+  argb4444ToRgba8888
+} from '@/utils/color-conversions';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
+import offscreenCanvasToDataUrl from '@/utils/offscreenCanvasToDataUrl';
 
 const COLOR_SIZE = 2;
 
@@ -85,15 +86,7 @@ export default async function processTextureBuffer(
       context2.rotate((-90 * Math.PI) / 180);
       context2.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
 
-      const blob = await canvas2.convertToBlob();
-      const reader = new FileReader();
-
-      const readFile = new Promise<string>(
-        (resolve) => (reader.onloadend = () => resolve(reader.result as string))
-      );
-
-      reader.readAsDataURL(blob);
-      const dataUrl = await readFile;
+      const dataUrl = await offscreenCanvasToDataUrl(canvas2);
 
       updatedTexture.dataUrls = {
         ...updatedTexture.dataUrls,

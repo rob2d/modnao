@@ -1,9 +1,9 @@
 import { NLTextureDef } from '@/types/NLAbstractions';
-import nonSerializables from '../nonSerializables';
+import nonSerializables from '../../../store/nonSerializables';
 import decodeZMortonPosition from '@/utils/textures/serialize/decodeZMortonPosition';
-import rgbaToRgb565 from '@/utils/textures/serialize/rgbaToRgb565';
-import rgbaToArgb1555 from '@/utils/textures/serialize/rgbaToArgb1555';
-import rgbaToArgb4444 from '@/utils/textures/serialize/rgbaToArgb4444';
+import rgbaToRgb565 from '@/utils/color-conversions/rgbaToRgb565';
+import rgbaToArgb1555 from '@/utils/color-conversions/rgbaToArgb1555';
+import rgbaToArgb4444 from '@/utils/color-conversions/rgbaToArgb4444';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import loadImageFromDataUrl from '@/utils/images/loadImageFromDataUrl';
 import { compressTextureBuffer } from '@/utils/textures/parse';

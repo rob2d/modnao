@@ -6,27 +6,28 @@ import {
 } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import processPolygonBuffer from './model-data/processPolygonBuffer';
-import exportTextureFile from './model-data/exportTextureFile';
+import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState, store } from './store';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import getImageDimensions from '@/utils/images/getImageDimensions';
 import nonSerializables from './nonSerializables';
-import processTextureHsl from '@/utils/textures/adjustTextureHsl';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
 import storeSourceTextureData from './model-data/storeSourceTextureData';
-import { WorkerEvent } from '@/worker';
+import { WorkerEvent, WorkerResponses } from '@/worker';
 
 let worker: Worker;
 
 if (globalThis.Worker) {
-  worker = new Worker('../worker.ts', { type: 'module' });
+  worker = new Worker(new URL('../worker.ts', import.meta.url), {
+    type: 'module'
+  });
 
-  worker.onmessage = (event: MessageEvent<WorkerEvent>) => {
+  worker.onmessage = (event: MessageEvent<WorkerResponses>) => {
     switch (event.data.type) {
       case 'loadTextureFile': {
         const {
-          payload: {
+          result: {
             buffer,
             textureDefs,
             fileName,
@@ -42,10 +43,24 @@ if (globalThis.Worker) {
         nonSerializables.sourceTextureData = sourceTextureData;
 
         store.dispatch(
-          loadTexture({
+          loadTextureFromThread({
             textureDefs,
             fileName,
             hasCompressedTextures
+          })
+        );
+        break;
+      }
+      case 'adjustTextureHsl': {
+        const {
+          result: { hsl, textureIndex, textureDataUrls }
+        } = event.data;
+
+        store.dispatch(
+          adjustTextureHslFromThread({
+            hsl,
+            textureIndex,
+            textureDataUrls
           })
         );
         break;
@@ -97,60 +112,50 @@ export const loadPolygonFile = createAsyncThunk<
 });
 
 export const adjustTextureHsl = createAsyncThunk<
-  {
-    textureIndex: number;
-    hsl: HslValues;
-    textureDataUrls: { translucent: string; opaque: string };
-  },
+  void,
   { textureIndex: number; hsl: HslValues }
 >(`${sliceName}/adjustTextureHsl`, async ({ textureIndex, hsl }) => {
   const sourceTextureData = nonSerializables.sourceTextureData[textureIndex];
 
-  try {
-    const [opaque, translucent] = await Promise.all([
-      processTextureHsl(sourceTextureData.opaque, hsl),
-      processTextureHsl(sourceTextureData.translucent, hsl)
-    ]);
-
-    return {
-      textureIndex,
-      hsl,
-      textureDataUrls: { translucent, opaque }
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      textureIndex,
-      hsl,
-      textureDataUrls: { translucent: '', opaque: '' }
-    };
-  }
+  worker.postMessage({
+    type: 'adjustTextureHsl',
+    payload: { hsl, textureIndex, sourceTextureData }
+  } as WorkerEvent);
 });
 
-export const loadTextureFileOnWorker = createAsyncThunk<
+export const adjustTextureHslFromThread = createAction<
+  {
+    hsl: HslValues;
+    textureIndex: number;
+    textureDataUrls: { translucent: string; opaque: string };
+  },
+  `${typeof sliceName}/adjustTextureHslFromThread`
+>(`${sliceName}/adjustTextureHslFromThread`);
+
+export const loadTextureFile = createAsyncThunk<
   void,
   File,
   { state: AppState }
->(`${sliceName}/loadTextureFileOnWorker`, async (file, { getState }) => {
+>(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
   const state = getState();
-  const { models, textureDefs } = state.modelData;
+  const { textureDefs } = state.modelData;
   const fileName = file.name;
   const buffer = Buffer.from(await file.arrayBuffer());
 
   worker.postMessage({
     type: 'loadTextureFile',
-    payload: { fileName, models, textureDefs, buffer }
-  });
+    payload: { fileName, textureDefs, buffer }
+  } as WorkerEvent);
 });
 
-export const loadTexture = createAction<
+export const loadTextureFromThread = createAction<
   {
     textureDefs: NLTextureDef[];
     fileName: string;
     hasCompressedTextures: boolean;
   },
-  `${typeof sliceName}/loadTexture`
->(`${sliceName}/loadTexture`);
+  `${typeof sliceName}/loadTextureFromThread`
+>(`${sliceName}/loadTextureFromThread`);
 
 export const replaceTextureDataUrl = createAsyncThunk<
   { textureIndex: number; dataUrl: string },
@@ -219,7 +224,7 @@ const modelDataSlice = createSlice({
     );
 
     builder.addCase(
-      loadTexture,
+      loadTextureFromThread,
       (
         state: ModelDataState,
         { payload: { textureDefs, fileName, hasCompressedTextures } }
@@ -258,7 +263,7 @@ const modelDataSlice = createSlice({
     );
 
     builder.addCase(
-      adjustTextureHsl.fulfilled,
+      adjustTextureHslFromThread,
       (
         state: ModelDataState,
         { payload: { textureIndex, textureDataUrls, hsl } }
