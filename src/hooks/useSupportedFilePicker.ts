@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
   loadPolygonFile,
-  loadTextureFileOnWorker,
+  loadTextureFile,
   useAppDispatch,
   useAppSelector
 } from '@/store';
@@ -70,7 +70,7 @@ export default function useSupportedFilePicker(
 
       if (selectedTextureFile) {
         if (hasLoadedPolygonFile || selectedPolygonFile) {
-          dispatch(loadTextureFileOnWorker(selectedTextureFile));
+          dispatch(loadTextureFile(selectedTextureFile));
         } else {
           onError(
             'Must load a polygon file along with or before loading a texture file'

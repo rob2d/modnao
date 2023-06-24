@@ -1,18 +1,20 @@
 import adjustHslOfRgba from '../color-conversions/adjustHslOfRgba';
+import offscreenCanvasToDataUrl from '../offscreenCanvasToDataUrl';
 import HslValues from './HslValues';
 import { RgbaColor } from './RgbaColor';
 
 export default async function adjustTextureHsl(
-  sourceImageData: ImageData,
+  sourceTextureData: ImageData,
   hsl: HslValues
 ) {
   const { h, s, l } = hsl;
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-  canvas.width = sourceImageData.width;
-  canvas.height = sourceImageData.height;
+  const canvas = new OffscreenCanvas(
+    sourceTextureData.width,
+    sourceTextureData.height
+  );
+  const ctx = canvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const sourceData = sourceImageData.data;
+  const sourceData = sourceTextureData.data;
 
   /**
    * colors tend to be within ranges, so create a
@@ -49,14 +51,11 @@ export default async function adjustTextureHsl(
   // data is rotated in Naomi texture format compared to
   // mapping and this is not adjusted at root for
   // ease-of-export on this first iteration
-  const rotatedCanvas = document.createElement('canvas');
-  rotatedCanvas.width = canvas.width;
-  rotatedCanvas.height = canvas.height;
-  const rotatedCtx = rotatedCanvas.getContext('2d') as CanvasRenderingContext2D;
-  rotatedCtx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.translate(canvas.width / 2, canvas.height / 2);
 
-  rotatedCtx.rotate((-90 * Math.PI) / 180);
-  rotatedCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+  ctx.rotate((-90 * Math.PI) / 180);
+  ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
 
-  return rotatedCanvas.toDataURL();
+  const dataUrl = await offscreenCanvasToDataUrl(canvas);
+  return dataUrl;
 }
