@@ -11,13 +11,15 @@ import {
   setObjectType,
   useAppDispatch,
   useAppSelector,
-  selectHasCompressedTextures
+  selectHasCompressedTextures,
+  setModelViewedIndex
 } from '@/store';
 import {
   Button,
   Checkbox,
   Divider,
   FormControlLabel,
+  IconButton,
   Paper,
   Slider,
   ToggleButton,
@@ -42,7 +44,12 @@ import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { useModelSelectionExport } from '@/hooks';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
-import { mdiAxisArrow, mdiCursorDefaultOutline } from '@mdi/js';
+import {
+  mdiAxisArrow,
+  mdiCursorDefaultOutline,
+  mdiMenuLeftOutline,
+  mdiMenuRightOutline
+} from '@mdi/js';
 import Icon from '@mdi/react';
 import clsx from 'clsx';
 
@@ -312,6 +319,18 @@ export default function GuiPanel() {
     }
   }, [model, objectSelectionType, objectKey, onExportSelectionJson]);
 
+  const onPrevModelNav = useCallback(() => {
+    if (modelIndex > 0) {
+      dispatch(setModelViewedIndex(modelIndex - 1));
+    }
+  }, [modelIndex]);
+
+  const onNextModelNav = useCallback(() => {
+    if (modelIndex < modelCount - 1) {
+      dispatch(setModelViewedIndex(modelIndex + 1));
+    }
+  }, [modelIndex, modelCount]);
+
   return (
     <StyledPaper
       square
@@ -325,15 +344,33 @@ export default function GuiPanel() {
         </Divider>
         <div className='selection'>
           <Grid container className={'property-table'}>
-            <Grid xs={8}>
+            <Grid xs={4}>
               <Typography variant='body1' textAlign='right'>
                 Models
               </Typography>
             </Grid>
-            <Grid xs={4}>
+            <Grid xs={8}>
+              <IconButton
+                className='model-nav-button'
+                color='primary'
+                aria-haspopup='true'
+                onClick={onPrevModelNav}
+                disabled={!model || modelIndex === 0}
+              >
+                <Icon path={mdiMenuLeftOutline} size={1} />
+              </IconButton>
               <Typography variant='button' textAlign='right'>
                 {!model ? '--' : `${modelIndex + 1} / ${modelCount}`}
               </Typography>
+              <IconButton
+                className='model-nav-button'
+                color='primary'
+                aria-haspopup='true'
+                onClick={onNextModelNav}
+                disabled={!model || modelIndex === modelCount - 1}
+              >
+                <Icon path={mdiMenuRightOutline} size={1} />
+              </IconButton>
             </Grid>
             <Grid xs={8}>
               <Typography variant='body1' textAlign='right'>
