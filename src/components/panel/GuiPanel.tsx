@@ -286,6 +286,32 @@ export default function GuiPanel() {
     }
   }, [textureDefs && selectedMeshTexture]);
 
+  const exportSelectionButton = useMemo(() => {
+    {
+      let title = 'Export Model JSON';
+
+      if (objectKey) {
+        title = `Export ${
+          objectSelectionType === 'mesh' ? 'Mesh' : 'Polygon'
+        } JSON`;
+      }
+
+      return !model ? undefined : (
+        <Tooltip title='Export ModNao .json data. Will narrow data down to the current selection'>
+          <Button
+            fullWidth
+            onClick={onExportSelectionJson}
+            color='secondary'
+            size='small'
+            variant='outlined'
+          >
+            {title}
+          </Button>
+        </Tooltip>
+      );
+    }
+  }, [model, objectSelectionType, objectKey, onExportSelectionJson]);
+
   return (
     <StyledPaper
       square
@@ -372,20 +398,7 @@ export default function GuiPanel() {
               </Button>
             </Tooltip>
           )}
-          {!model ? undefined : (
-            // @TODO: customize the title and label based on selection-scope
-            <Tooltip title='Export ModNao model .json data. Will narrow data down to the current selection'>
-              <Button
-                fullWidth
-                onClick={onExportSelectionJson}
-                color='secondary'
-                size='small'
-                variant='outlined'
-              >
-                Export Selection JSON
-              </Button>
-            </Tooltip>
-          )}
+          {exportSelectionButton}
         </div>
         <Divider flexItem>
           <Typography variant='subtitle2' textAlign='left' width='100%'>
