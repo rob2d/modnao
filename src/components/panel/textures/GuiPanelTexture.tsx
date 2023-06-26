@@ -14,7 +14,7 @@ const StyledPanelTexture = styled('div')(
       background-color: ${theme.palette.panelTexture.background};
   }
 
-  & .MuiTypography-root.deemphasized {
+  & .MuiTypography-root {
     opacity: 0.5;
   }
       
@@ -34,16 +34,14 @@ const StyledPanelTexture = styled('div')(
   & img {
     width: 100%;
     height: auto;
-    border-color: ${theme.palette.secondary.main};
-    border-width: 1px;
+    border-color: transparent;
+    border-width: 2px;
     border-style: solid;
     opacity: 1.0;
-    transition: opacity 0.35s ease;
   }
 
-  & img.deemphasized {
-    filter: saturate(0.5);
-    opacity: 0.25;
+  & .selected img {
+    border-color: ${theme.palette.primary.main};
   }
 
   & .size-notation {
@@ -53,22 +51,18 @@ const StyledPanelTexture = styled('div')(
     color: #fff;
     text-shadow: 1px 1px 1px black;
   }
-
-  & .size-notation.deemphasized {
-    filter: invert(1);
-  }
   `
 );
 
 export type GuiPanelTextureProps = {
-  isDeemphasized: boolean;
+  selected: boolean;
   textureDef: NLTextureDef;
   textureSize: TextureSize;
   textureIndex: number;
 };
 
 export default function GuiPanelTexture({
-  isDeemphasized,
+  selected,
   textureIndex,
   textureDef,
   textureSize
@@ -77,23 +71,20 @@ export default function GuiPanelTexture({
   const dataUrl =
     textureDef.dataUrls.opaque || textureDef.dataUrls.translucent || '';
 
-  const deemphasizedClass = clsx(isDeemphasized && 'deemphasized');
-
   return (
     <StyledPanelTexture>
-      <div className='image-area'>
+      <div className={clsx(selected && 'selected', 'image-area')}>
         <Image
           src={dataUrl}
           id={`debug-panel-t-${textureIndex}`}
           alt={`Texture # ${textureIndex}`}
           width={Number(width)}
           height={Number(height)}
-          className={deemphasizedClass}
         />
         <Typography
           variant='subtitle2'
           textAlign='right'
-          className={clsx(deemphasizedClass, 'size-notation')}
+          className={'size-notation'}
         >
           {textureSize[0]}x{textureSize[0]} [index: {textureIndex}]
         </Typography>
