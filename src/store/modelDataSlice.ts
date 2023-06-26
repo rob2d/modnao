@@ -37,7 +37,7 @@ if (globalThis.Worker) {
         } = event.data;
 
         // store textureBuffer for ops
-        nonSerializables.textureBuffer = buffer;
+        nonSerializables.textureBuffer = Buffer.from(buffer);
 
         // store sourceTextureData for color edits
         nonSerializables.sourceTextureData = sourceTextureData;
