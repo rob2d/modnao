@@ -264,12 +264,7 @@ export default function GuiPanel() {
             textureDef={textureDef}
             textureIndex={m.textureIndex}
             textureSize={m.textureSize}
-            isDeemphasized={
-              !(
-                selectedMeshTexture === -1 ||
-                selectedMeshTexture === m.textureIndex
-              )
-            }
+            selected={selectedMeshTexture === m.textureIndex}
           />
         );
       }

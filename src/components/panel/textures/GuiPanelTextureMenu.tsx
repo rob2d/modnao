@@ -17,7 +17,7 @@ const StyledMenuButtonContainer = styled('div')(
     }
 
     & .MuiIconButton-root svg {
-        color: #fff;
+        color: ${theme.palette.primary.contrastText};
         filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.8));
     }
     `

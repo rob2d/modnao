@@ -13,10 +13,6 @@ const StyledPanelTexture = styled('div')(
       width: 100%;
       background-color: ${theme.palette.panelTexture.background};
   }
-
-  & .MuiTypography-root.deemphasized {
-    opacity: 0.5;
-  }
       
   & .image-area {
     position: relative;
@@ -34,41 +30,36 @@ const StyledPanelTexture = styled('div')(
   & img {
     width: 100%;
     height: auto;
-    border-color: ${theme.palette.secondary.main};
-    border-width: 1px;
+    border-color: transparent;
+    border-width: 2px;
     border-style: solid;
     opacity: 1.0;
-    transition: opacity 0.35s ease;
   }
 
-  & img.deemphasized {
-    filter: saturate(0.5);
-    opacity: 0.25;
+  & .selected img {
+    border-color: ${theme.palette.primary.main};
   }
 
   & .size-notation {
     position: absolute;
     right: ${theme.spacing(1)};
     bottom: 0;
-    color: #fff;
+    color: ${theme.palette.primary.contrastText};
     text-shadow: 1px 1px 1px black;
-  }
-
-  & .size-notation.deemphasized {
-    filter: invert(1);
+    filter: drop-shadow(3px 3px 1px black);
   }
   `
 );
 
 export type GuiPanelTextureProps = {
-  isDeemphasized: boolean;
+  selected: boolean;
   textureDef: NLTextureDef;
   textureSize: TextureSize;
   textureIndex: number;
 };
 
 export default function GuiPanelTexture({
-  isDeemphasized,
+  selected,
   textureIndex,
   textureDef,
   textureSize
@@ -77,25 +68,22 @@ export default function GuiPanelTexture({
   const dataUrl =
     textureDef.dataUrls.opaque || textureDef.dataUrls.translucent || '';
 
-  const deemphasizedClass = clsx(isDeemphasized && 'deemphasized');
-
   return (
     <StyledPanelTexture>
-      <div className='image-area'>
+      <div className={clsx(selected && 'selected', 'image-area')}>
         <Image
           src={dataUrl}
           id={`debug-panel-t-${textureIndex}`}
           alt={`Texture # ${textureIndex}`}
           width={Number(width)}
           height={Number(height)}
-          className={deemphasizedClass}
         />
         <Typography
           variant='subtitle2'
           textAlign='right'
-          className={clsx(deemphasizedClass, 'size-notation')}
+          className={'size-notation'}
         >
-          {textureSize[0]}x{textureSize[0]} [index: {textureIndex}]
+          {textureSize[0]}x{textureSize[0]} [{textureIndex}]
         </Typography>
         <GuiPanelTextureMenu textureIndex={textureIndex} dataUrl={dataUrl} />
       </div>
