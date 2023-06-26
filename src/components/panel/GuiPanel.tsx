@@ -11,13 +11,15 @@ import {
   setObjectType,
   useAppDispatch,
   useAppSelector,
-  selectHasCompressedTextures
+  selectHasCompressedTextures,
+  setModelViewedIndex
 } from '@/store';
 import {
   Button,
   Checkbox,
   Divider,
   FormControlLabel,
+  IconButton,
   Paper,
   Slider,
   ToggleButton,
@@ -42,7 +44,12 @@ import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { useModelSelectionExport } from '@/hooks';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
-import { mdiAxisArrow, mdiCursorDefaultOutline } from '@mdi/js';
+import {
+  mdiAxisArrow,
+  mdiCursorDefaultOutline,
+  mdiMenuLeftOutline,
+  mdiMenuRightOutline
+} from '@mdi/js';
 import Icon from '@mdi/react';
 import clsx from 'clsx';
 
@@ -173,9 +180,19 @@ const StyledPaper = styled(Paper)(
     }
 
     & .MuiSlider-root {
-      width: calc(100% - 116px);
+      width: calc(100% - 124px);
       margin-left: ${theme.spacing(2)};
-      margin-right: ${theme.spacing(2)};
+      margin-right: ${theme.spacing(1)};
+    }
+
+    & .MuiIconButton-root.model-nav-button {
+      width: 32px;
+    }
+
+    & .display-mode {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
     }
   `
 );
@@ -286,6 +303,44 @@ export default function GuiPanel() {
     }
   }, [textureDefs && selectedMeshTexture]);
 
+  const exportSelectionButton = useMemo(() => {
+    {
+      let title = 'Export Model JSON';
+
+      if (objectKey) {
+        title = `Export ${
+          objectSelectionType === 'mesh' ? 'Mesh' : 'Polygon'
+        } JSON`;
+      }
+
+      return !model ? undefined : (
+        <Tooltip title='Export ModNao .json data. Will narrow data down to the current selection'>
+          <Button
+            fullWidth
+            onClick={onExportSelectionJson}
+            color='secondary'
+            size='small'
+            variant='outlined'
+          >
+            {title}
+          </Button>
+        </Tooltip>
+      );
+    }
+  }, [model, objectSelectionType, objectKey, onExportSelectionJson]);
+
+  const onPrevModelNav = useCallback(() => {
+    if (modelIndex > 0) {
+      dispatch(setModelViewedIndex(modelIndex - 1));
+    }
+  }, [modelIndex]);
+
+  const onNextModelNav = useCallback(() => {
+    if (modelIndex < modelCount - 1) {
+      dispatch(setModelViewedIndex(modelIndex + 1));
+    }
+  }, [modelIndex, modelCount]);
+
   return (
     <StyledPaper
       square
@@ -298,16 +353,34 @@ export default function GuiPanel() {
           </Typography>
         </Divider>
         <div className='selection'>
-          <Grid container className={'property-table'}>
-            <Grid xs={8}>
+          <Grid container className='property-table'>
+            <Grid xs={4}>
               <Typography variant='body1' textAlign='right'>
                 Models
               </Typography>
             </Grid>
-            <Grid xs={4}>
+            <Grid xs={8}>
+              <IconButton
+                className='model-nav-button'
+                color='primary'
+                aria-haspopup='true'
+                onClick={onPrevModelNav}
+                disabled={!model || modelIndex === 0}
+              >
+                <Icon path={mdiMenuLeftOutline} size={1} />
+              </IconButton>
               <Typography variant='button' textAlign='right'>
                 {!model ? '--' : `${modelIndex + 1} / ${modelCount}`}
               </Typography>
+              <IconButton
+                className='model-nav-button'
+                color='primary'
+                aria-haspopup='true'
+                onClick={onNextModelNav}
+                disabled={!model || modelIndex === modelCount - 1}
+              >
+                <Icon path={mdiMenuRightOutline} size={1} />
+              </IconButton>
             </Grid>
             <Grid xs={8}>
               <Typography variant='body1' textAlign='right'>
@@ -372,20 +445,7 @@ export default function GuiPanel() {
               </Button>
             </Tooltip>
           )}
-          {!model ? undefined : (
-            // @TODO: customize the title and label based on selection-scope
-            <Tooltip title='Export ModNao model .json data. Will narrow data down to the current selection'>
-              <Button
-                fullWidth
-                onClick={onExportSelectionJson}
-                color='secondary'
-                size='small'
-                variant='outlined'
-              >
-                Export Selection JSON
-              </Button>
-            </Tooltip>
-          )}
+          {exportSelectionButton}
         </div>
         <Divider flexItem>
           <Typography variant='subtitle2' textAlign='left' width='100%'>
@@ -393,15 +453,10 @@ export default function GuiPanel() {
           </Typography>
         </Divider>
         <div className='view-options'>
-          <Grid container className={'property-table'}>
-            <Grid xs={6}>
-              <Typography variant='body1' textAlign='right'>
-                Mesh Display
-              </Typography>
-            </Grid>
-            <Grid xs={6}>
+          <Grid container className='property-table'>
+            <Grid xs={12} className='display-mode'>
               <ToggleButtonGroup
-                orientation='vertical'
+                orientation='horizontal'
                 size='small'
                 color='secondary'
                 value={viewOptions.meshDisplayMode}
