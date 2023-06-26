@@ -52,6 +52,15 @@ const themes = Object.fromEntries(
       typography: {
         fontFamily: firaCode.style.fontFamily
       },
+      components: {
+        MuiListSubheader: {
+          styleOverrides: {
+            root: {
+              backgroundColor: 'inherit'
+            }
+          }
+        }
+      },
       palette: {
         mode,
         primary: {
