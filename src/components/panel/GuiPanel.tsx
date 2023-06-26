@@ -180,9 +180,19 @@ const StyledPaper = styled(Paper)(
     }
 
     & .MuiSlider-root {
-      width: calc(100% - 116px);
+      width: calc(100% - 124px);
       margin-left: ${theme.spacing(2)};
-      margin-right: ${theme.spacing(2)};
+      margin-right: ${theme.spacing(1)};
+    }
+
+    & .MuiIconButton-root.model-nav-button {
+      width: 32px;
+    }
+
+    & .display-mode {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
     }
   `
 );
@@ -343,7 +353,7 @@ export default function GuiPanel() {
           </Typography>
         </Divider>
         <div className='selection'>
-          <Grid container className={'property-table'}>
+          <Grid container className='property-table'>
             <Grid xs={4}>
               <Typography variant='body1' textAlign='right'>
                 Models
@@ -443,15 +453,10 @@ export default function GuiPanel() {
           </Typography>
         </Divider>
         <div className='view-options'>
-          <Grid container className={'property-table'}>
-            <Grid xs={6}>
-              <Typography variant='body1' textAlign='right'>
-                Mesh Display
-              </Typography>
-            </Grid>
-            <Grid xs={6}>
+          <Grid container className='property-table'>
+            <Grid xs={12} className='display-mode'>
               <ToggleButtonGroup
-                orientation='vertical'
+                orientation='horizontal'
                 size='small'
                 color='secondary'
                 value={viewOptions.meshDisplayMode}
