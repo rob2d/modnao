@@ -13,10 +13,6 @@ const StyledPanelTexture = styled('div')(
       width: 100%;
       background-color: ${theme.palette.panelTexture.background};
   }
-
-  & .MuiTypography-root {
-    opacity: 0.5;
-  }
       
   & .image-area {
     position: relative;
@@ -48,8 +44,9 @@ const StyledPanelTexture = styled('div')(
     position: absolute;
     right: ${theme.spacing(1)};
     bottom: 0;
-    color: #fff;
+    color: ${theme.palette.primary.contrastText};
     text-shadow: 1px 1px 1px black;
+    filter: drop-shadow(3px 3px 1px black);
   }
   `
 );
@@ -86,7 +83,7 @@ export default function GuiPanelTexture({
           textAlign='right'
           className={'size-notation'}
         >
-          {textureSize[0]}x{textureSize[0]} [index: {textureIndex}]
+          {textureSize[0]}x{textureSize[0]} [{textureIndex}]
         </Typography>
         <GuiPanelTextureMenu textureIndex={textureIndex} dataUrl={dataUrl} />
       </div>
