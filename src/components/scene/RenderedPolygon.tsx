@@ -6,6 +6,7 @@ import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
 import RenderedTexturedPolygon from './RenderedTexturedPolygon';
 import RenderedWireframePolygon from './RenderedWireframePolygon';
+import { Select } from '@react-three/postprocessing';
 
 type Point3D = [x: number, y: number, z: number];
 
@@ -148,32 +149,33 @@ export default function RenderedPolygon({
   return (
     <>
       {meshAddressText}
-      <mesh
-        key={`${address}_${meshDisplayMode}_${color}`}
-        onClick={handleClick}
-      >
-        {meshDisplayMode === 'textured' ? (
-          <RenderedTexturedPolygon
-            vertexPositions={vertexPositions}
-            normals={normals}
-            uvs={uvs}
-            indices={indices}
-            materialProps={{
-              color,
-              map: texture,
-              transparent: true,
-              opacity: isSelected ? 0.75 : 1
-            }}
-          />
-        ) : (
-          <RenderedWireframePolygon
-            color={color}
-            vertices={vertices}
-            indices={indices}
-            lineWidth={wireframeLineWidth}
-          />
-        )}
-      </mesh>
+      <Select enabled={isSelected}>
+        <mesh
+          key={`${address}_${meshDisplayMode}_${color}`}
+          onClick={handleClick}
+        >
+          {meshDisplayMode === 'textured' ? (
+            <RenderedTexturedPolygon
+              vertexPositions={vertexPositions}
+              normals={normals}
+              uvs={uvs}
+              indices={indices}
+              materialProps={{
+                map: texture,
+                transparent: true,
+                opacity: isSelected ? 0.65 : 1
+              }}
+            />
+          ) : (
+            <RenderedWireframePolygon
+              color={color}
+              vertices={vertices}
+              indices={indices}
+              lineWidth={wireframeLineWidth}
+            />
+          )}
+        </mesh>
+      </Select>
     </>
   );
 }

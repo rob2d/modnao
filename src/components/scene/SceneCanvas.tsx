@@ -21,6 +21,12 @@ import { useSceneKeyboardActions } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
 import { SceneContextSetup } from '@/contexts/SceneContext';
+import {
+  EffectComposer,
+  Outline,
+  Selection
+} from '@react-three/postprocessing';
+import { BlendFunction } from 'postprocessing';
 
 THREE.ColorManagement.enabled = true;
 
@@ -80,24 +86,38 @@ export default function SceneCanvas() {
       style={canvasStyle}
       ref={canvasRef}
     >
-      <SceneContextSetup />
-      <group dispose={null}>
-        {!viewOptions.axesHelperVisible ? undefined : (
-          <axesHelper args={[50]} />
-        )}
-        {(model?.meshes || []).map((m, i) => (
-          <RenderedMesh
-            key={m.address}
-            {...m}
-            objectKey={`${i}`}
-            selectedObjectKey={objectKey}
-            objectSelectionType={objectSelectionType}
-            onSelectObjectKey={onSelectObjectKey}
-            textureDefs={textureDefs}
+      <Selection>
+        <EffectComposer autoClear={false}>
+          <Outline
+            edgeStrength={20}
+            blendFunction={BlendFunction.ALPHA}
+            visibleEdgeColor={
+              theme.palette.sceneMesh.selected as unknown as number
+            }
+            hiddenEdgeColor={
+              theme.palette.sceneMesh.selected as unknown as number
+            }
           />
-        ))}
-        <OrbitControls />
-      </group>
+        </EffectComposer>
+        <SceneContextSetup />
+        <group dispose={null}>
+          {!viewOptions.axesHelperVisible ? undefined : (
+            <axesHelper args={[50]} />
+          )}
+          {(model?.meshes || []).map((m, i) => (
+            <RenderedMesh
+              key={m.address}
+              {...m}
+              objectKey={`${i}`}
+              selectedObjectKey={objectKey}
+              objectSelectionType={objectSelectionType}
+              onSelectObjectKey={onSelectObjectKey}
+              textureDefs={textureDefs}
+            />
+          ))}
+          <OrbitControls />
+        </group>
+      </Selection>
     </Canvas>
   );
 }

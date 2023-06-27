@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['@mui/material', '@mui/system', '@mui/icons-material'],
+  transpilePackages: [
+    '@mui/material',
+    '@mui/system',
+    '@mui/icons-material',
+    'three'
+  ],
   modularizeImports: {
     '@mui/icons-material/?(((\\w*)?/?)*)': {
       transform: '@mui/icons-material/{{ matches.[1] }}/{{member}}'

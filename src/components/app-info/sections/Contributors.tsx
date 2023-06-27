@@ -31,13 +31,13 @@ export default function Contributors() {
           Various Model & Texture Format / R.E. Details
         </Typography>
         <Typography variant={'h6'}>
-          VincentNL, egregiousguy, zocker-160, <br />
-          mountainmanjed, bankbank
+          VincentNL, egregiousguy, zocker-160, bankbank, TVIndustries,
+          mountainmanjed
         </Typography>
         <Typography variant={'subtitle1'}>
           Early User Testing & Feedback
         </Typography>
-        <Typography variant={'h6'}>Magnetro2K</Typography>
+        <Typography variant={'h6'}>Magnetro2K, Paxtez</Typography>
       </StyledContent>
     </div>
   );
