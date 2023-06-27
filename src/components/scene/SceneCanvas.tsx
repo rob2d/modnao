@@ -91,12 +91,8 @@ export default function SceneCanvas() {
           <Outline
             edgeStrength={20}
             blendFunction={BlendFunction.ALPHA}
-            visibleEdgeColor={
-              theme.palette.sceneMesh.selected as unknown as number
-            }
-            hiddenEdgeColor={
-              theme.palette.sceneMesh.selected as unknown as number
-            }
+            visibleEdgeColor={theme.palette.primary.main as unknown as number}
+            hiddenEdgeColor={theme.palette.primary.main as unknown as number}
           />
         </EffectComposer>
         <SceneContextSetup />
