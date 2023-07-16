@@ -53,6 +53,7 @@ const themes = Object.fromEntries(
         fontFamily: firaCode.style.fontFamily
       },
       components: {
+        MuiCssBaseline: {},
         MuiListSubheader: {
           styleOverrides: {
             root: {
