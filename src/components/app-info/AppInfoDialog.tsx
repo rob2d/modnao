@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from '@mui/material';
+import { Dialog, DialogContent, styled } from '@mui/material';
 import AppInfo from './AppInfo';
 
 type Props = {
@@ -6,12 +6,20 @@ type Props = {
   onClose?: (reason: string) => void;
 };
 
+const StyledDialog = styled(Dialog)(
+  () => `
+& .MuiDialogContent-root {
+  display: flex;
+}
+`
+);
+
 export default function AppInfoDialog({ onClose, open }: Props) {
   return (
-    <Dialog onClose={onClose} open={open} fullWidth maxWidth='xl'>
+    <StyledDialog onClose={onClose} open={open} fullWidth maxWidth='xl'>
       <DialogContent>
         <AppInfo />
       </DialogContent>
-    </Dialog>
+    </StyledDialog>
   );
 }
