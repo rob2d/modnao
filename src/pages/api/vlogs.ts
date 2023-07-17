@@ -15,6 +15,7 @@ export interface YTPlaylistItem {
     title: string;
     description: string;
     tags: string;
+    publishedAt: string;
     thumbnails: {
       standard: {
         url: string;
@@ -31,13 +32,24 @@ export default async function handler(
   const response = await (await fetch(URL)).json();
   if (Array.isArray(response.items)) {
     res.status(200).json(
-      response.items.map((i: YTPlaylistItem) => ({
-        id: i.contentDetails.videoId,
-        title: i.snippet.title,
-        description: i.snippet.description,
-        thumbnailUrl: i.snippet.thumbnails.standard.url,
-        source: i
-      }))
+      response.items.reverse().map((i: YTPlaylistItem) => {
+        const { title: sourceTitle } = i.snippet;
+        const [preTitle, vlogNumber] = sourceTitle.match(
+          /ModNao #([0-9]+)\s?:\s?/
+        ) as [string, string];
+        const title = sourceTitle.substring(preTitle.length);
+
+        return {
+          id: i.contentDetails.videoId,
+          vlogNumber: Number(vlogNumber),
+          videoTitle: i.snippet.title,
+          title,
+          description: i.snippet.description,
+          thumbnailUrl: i.snippet.thumbnails.standard.url,
+          publishedAt: i.snippet.publishedAt,
+          source: i
+        };
+      })
     );
   } else {
     res.status(500).json({ error: 'Failed to fetch videos' });

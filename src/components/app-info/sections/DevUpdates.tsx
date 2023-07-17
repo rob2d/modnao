@@ -1,6 +1,16 @@
-import { styled } from '@mui/material';
-import AppInfoSectionHeader from '../AppInfoSectionHeader';
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  styled
+} from '@mui/material';
+import AppInfoSectionHeader from '../AppInfoSectionHeader';
+dayjs.extend(advancedFormat);
 
 const StyledContent = styled('div')(
   () => `
@@ -34,6 +44,7 @@ const useVlogApi = () => {
     const fetchData = async () => {
       const response = await (await fetch(`${origin}/api/vlogs`)).json();
       setVlogs(response);
+      console.log('respoinse ->', response);
       hasFetched = true;
     };
 
@@ -54,12 +65,37 @@ export default function DevUpdates() {
 
   return (
     <StyledContent className='app-info-section'>
-      <AppInfoSectionHeader>Dev Updates</AppInfoSectionHeader>
+      <AppInfoSectionHeader>Development Updates</AppInfoSectionHeader>
       <div>
         {vlogs.map((v) => (
-          <div key={v.id}>
-            <p>{JSON.stringify(v.title)}</p>
-          </div>
+          <Card sx={{ display: 'flex', marginBottom: '16px' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                flexBasis: '85%'
+              }}
+            >
+              <CardContent>
+                <Typography component='div' variant='h6'>
+                  {v.title}
+                </Typography>
+                <Typography
+                  variant='subtitle1'
+                  color='text.secondary'
+                  component='div'
+                >
+                  {dayjs(v.publishedAt).format('MMM Do, YYYY')}
+                </Typography>
+              </CardContent>
+            </Box>
+            <CardMedia
+              component='img'
+              image={`${v.thumbnailUrl}`}
+              alt={`Watch ${v.vlogNumber} now`}
+              style={{ width: '15%', height: 'auto' }}
+            />
+          </Card>
         ))}
       </div>
     </StyledContent>
