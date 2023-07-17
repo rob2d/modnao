@@ -1,4 +1,4 @@
-import { Grid, styled } from '@mui/material';
+import { styled } from '@mui/material';
 import Contributors from './sections/Contributors';
 import KeyboardShortcuts from './sections/KeyboardShortcuts';
 import SceneNavigationHints from './sections/SceneNavigationHints';
@@ -6,28 +6,60 @@ import DevUpdates from './sections/DevUpdates';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
 
-const StyledGrid = styled(Grid)(
+const Styled = styled('div')(
   ({ theme }) => `
+    & {
+      display: inline-grid;
+      grid-template-columns: 4fr 7fr 4fr;
+      gap: ${theme.spacing(2)};
+    }
+
+    ${theme.breakpoints.down('md')} {
+      & {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    & > * {
+      overflow-y: auto;
+    }
+
     & .app-info-section:not(:last-child) {
-      margin-bottom: ${theme.spacing(3)}
+      margin-bottom: ${theme.spacing(3)};
+    }
+
+    .updates-and-projects {
+      max-height: 100%;
+    }
+
+    
+    ${theme.breakpoints.up('md')} {
+      & .updates-and-projects > * {
+        max-height: 50%;
+        overflow-y: auto;
+      }
+
+      & .updates-and-projects {
+        overflow-y: hidden;
+      }
     }`
 );
 
 export default function AppInfo() {
   return (
-    <StyledGrid container spacing={8}>
-      <Grid item xs={12} md={4}>
+    <Styled>
+      <div>
         <GettingStarted />
         <KeyboardShortcuts />
         <SceneNavigationHints />
-      </Grid>
-      <Grid item xs={12} md={4}>
+      </div>
+      <div className='updates-and-projects'>
         <DevUpdates />
         <OtherProjects />
-      </Grid>
-      <Grid item xs={12} md={4}>
+      </div>
+      <div>
         <Contributors />
-      </Grid>
-    </StyledGrid>
+      </div>
+    </Styled>
   );
 }

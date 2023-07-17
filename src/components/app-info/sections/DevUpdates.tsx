@@ -1,23 +1,127 @@
-import { Typography, styled } from '@mui/material';
+import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import {
+  ButtonBase,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  styled
+} from '@mui/material';
 import AppInfoSectionHeader from '../AppInfoSectionHeader';
+dayjs.extend(advancedFormat);
 
-const StyledContent = styled('div')(() => `& {}`);
+type Vlog = {
+  id: string;
+  vlogNumber: number;
+  videoTitle: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  publishedAt: string;
+};
+
+const StyledContent = styled('div')(
+  ({ theme }) => `
+& {}
+
+& .vlog-entry {
+  width: 100%;
+  height: auto;
+}
+
+& .vlog-entry-iframe {
+  width: 100%;
+  height: auto;
+}
+
+& > div:nth-child(2) {
+  overflow-y: auto;
+  padding: 0 ${theme.spacing(1)};
+}
+
+& .MuiCard-root {
+  display: flex; 
+  margin-bottom: 16px;
+}
+
+& .MuiCardContent-root {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 85%;
+  text-align: left;
+}
+
+& .MuiCardMedia-root {
+  width: 15%; 
+  height: 100%;
+}
+`
+);
+
+const origin =
+  typeof window !== 'undefined' && window.location.origin
+    ? window.location.origin
+    : '';
+
+let hasFetched = false;
+const useVlogApi = () => {
+  const [vlogs, setVlogs] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await (await fetch(`${origin}/api/vlogs`)).json();
+      setVlogs(response);
+      console.log('respoinse ->', response);
+      hasFetched = true;
+    };
+
+    if (!hasFetched) {
+      fetchData();
+    }
+
+    return () => {
+      hasFetched = false;
+    };
+  }, []);
+
+  return vlogs;
+};
 
 export default function DevUpdates() {
+  const vlogs: Vlog[] = useVlogApi();
+
   return (
     <StyledContent className='app-info-section'>
-      <AppInfoSectionHeader>Dev Updates</AppInfoSectionHeader>
+      <AppInfoSectionHeader>Development Updates / Vlog</AppInfoSectionHeader>
       <div>
-        <a
-          href='https://www.youtube.com/playlist?list=PLnnyx7NBPs_KhtZzHC0UiWhppDkUmzkYy'
-          target='_new'
-        >
-          Check out the most recent updates in Vlog format... nao
-        </a>
-        <br />
-        <Typography variant={'caption'}>
-          Note: this Section is W.I.P. but your support is appreciated.
-        </Typography>
+        {vlogs.map((v) => (
+          <Card key={v.id} elevation={2}>
+            <ButtonBase
+              onClick={() =>
+                window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
+              }
+            >
+              <CardContent>
+                <Typography component='div' variant='h6'>
+                  {v.title}
+                </Typography>
+                <Typography
+                  variant='subtitle1'
+                  color='text.secondary'
+                  component='div'
+                >
+                  {dayjs(v.publishedAt).format('MMM Do, YYYY')}
+                </Typography>
+              </CardContent>
+              <CardMedia
+                component='img'
+                image={`${v.thumbnailUrl}`}
+                alt={`Watch ${v.vlogNumber} now`}
+              />
+            </ButtonBase>
+          </Card>
+        ))}
       </div>
     </StyledContent>
   );
