@@ -1,5 +1,4 @@
 import { styled } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import Contributors from './sections/Contributors';
 import KeyboardShortcuts from './sections/KeyboardShortcuts';
 import SceneNavigationHints from './sections/SceneNavigationHints';
@@ -11,8 +10,14 @@ const Styled = styled('div')(
   ({ theme }) => `
     & {
       display: inline-grid;
-      grid-template-columns: 4fr 5fr 3fr;
+      grid-template-columns: 4fr 7fr 4fr;
       gap: ${theme.spacing(2)};
+    }
+
+    ${theme.breakpoints.down('md')} {
+      & {
+        grid-template-columns: 1fr;
+      }
     }
 
     & > * {
@@ -20,17 +25,23 @@ const Styled = styled('div')(
     }
 
     & .app-info-section:not(:last-child) {
-      margin-bottom: ${theme.spacing(3)}
+      margin-bottom: ${theme.spacing(3)};
     }
 
     .updates-and-projects {
       max-height: 100%;
-      overflow-y: hidden;
     }
+
     
-    & .updates-and-projects > * {
-      max-height: 50%;
-      overflow-y: auto;
+    ${theme.breakpoints.up('md')} {
+      & .updates-and-projects > * {
+        max-height: 50%;
+        overflow-y: auto;
+      }
+
+      & .updates-and-projects {
+        overflow-y: hidden;
+      }
     }`
 );
 

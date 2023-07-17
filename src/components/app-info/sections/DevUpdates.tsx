@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import {
-  Box,
+  ButtonBase,
   Card,
   CardContent,
   CardMedia,
@@ -12,10 +12,19 @@ import {
 import AppInfoSectionHeader from '../AppInfoSectionHeader';
 dayjs.extend(advancedFormat);
 
+type Vlog = {
+  id: string;
+  vlogNumber: number;
+  videoTitle: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  publishedAt: string;
+};
+
 const StyledContent = styled('div')(
-  () => `
-& {
-}
+  ({ theme }) => `
+& {}
 
 & .vlog-entry {
   width: 100%;
@@ -29,7 +38,26 @@ const StyledContent = styled('div')(
 
 & > div:nth-child(2) {
   overflow-y: auto;
-}`
+  padding: 0 ${theme.spacing(1)};
+}
+
+& .MuiCard-root {
+  display: flex; 
+  margin-bottom: 16px;
+}
+
+& .MuiCardContent-root {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 85%;
+  text-align: left;
+}
+
+& .MuiCardMedia-root {
+  width: 15%; 
+  height: 100%;
+}
+`
 );
 
 const origin =
@@ -61,20 +89,18 @@ const useVlogApi = () => {
 };
 
 export default function DevUpdates() {
-  const vlogs = useVlogApi();
+  const vlogs: Vlog[] = useVlogApi();
 
   return (
     <StyledContent className='app-info-section'>
-      <AppInfoSectionHeader>Development Updates</AppInfoSectionHeader>
+      <AppInfoSectionHeader>Development Updates / Vlog</AppInfoSectionHeader>
       <div>
         {vlogs.map((v) => (
-          <Card sx={{ display: 'flex', marginBottom: '16px' }}>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                flexBasis: '85%'
-              }}
+          <Card key={v.id} elevation={2}>
+            <ButtonBase
+              onClick={() =>
+                window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
+              }
             >
               <CardContent>
                 <Typography component='div' variant='h6'>
@@ -88,13 +114,12 @@ export default function DevUpdates() {
                   {dayjs(v.publishedAt).format('MMM Do, YYYY')}
                 </Typography>
               </CardContent>
-            </Box>
-            <CardMedia
-              component='img'
-              image={`${v.thumbnailUrl}`}
-              alt={`Watch ${v.vlogNumber} now`}
-              style={{ width: '15%', height: 'auto' }}
-            />
+              <CardMedia
+                component='img'
+                image={`${v.thumbnailUrl}`}
+                alt={`Watch ${v.vlogNumber} now`}
+              />
+            </ButtonBase>
           </Card>
         ))}
       </div>

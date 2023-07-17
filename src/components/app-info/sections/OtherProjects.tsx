@@ -8,8 +8,9 @@ const Styled = styled('div')(
     flex-shrink: 0;
   }
 
-  & > div:nth-item(2) {
+  & > div:nth-child(2) {
     overflow-y: auto;
+    padding: 0 ${theme.spacing(1)};
   }
   & .MuiCard-root:not(:last-of-type) {
     margin-bottom: ${theme.spacing(3)};

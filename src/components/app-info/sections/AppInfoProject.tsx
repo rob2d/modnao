@@ -9,7 +9,7 @@ type Props = {
 
 export default function AppInfoProject({ url, title, body }: Props) {
   return (
-    <Card>
+    <Card elevation={2}>
       <ButtonBase onClick={() => window.open(url, 'new')}>
         <CardContent>
           <Typography variant='h6' textAlign='left'>
