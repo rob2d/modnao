@@ -30,26 +30,33 @@ export default async function handler(
 ) {
   const URL = `${YT_API_URL}?${Q.Playlist}&${Q.ApiKey}&maxResults=50&part=snippet,contentDetails`;
   const response = await (await fetch(URL)).json();
+  console.log('response ->', response);
   if (Array.isArray(response.items)) {
     res.status(200).json(
-      response.items.reverse().map((i: YTPlaylistItem) => {
-        const { title: sourceTitle } = i.snippet;
-        const [preTitle, vlogNumber] = sourceTitle.match(
-          /ModNao #([0-9]+)\s?:\s?/
-        ) as [string, string];
-        const title = sourceTitle.substring(preTitle.length);
+      response.items
+        .reverse()
+        .map((i: YTPlaylistItem) => {
+          const { title: sourceTitle } = i.snippet;
+          const results = sourceTitle.match(/ModNao #(\d{0,3})\s?:\s?/);
+          if (!results || (results?.length && results.length < 2)) {
+            return false;
+          }
 
-        return {
-          id: i.contentDetails.videoId,
-          vlogNumber: Number(vlogNumber),
-          videoTitle: i.snippet.title,
-          title,
-          description: i.snippet.description,
-          thumbnailUrl: i.snippet.thumbnails.standard.url,
-          publishedAt: i.snippet.publishedAt,
-          source: i
-        };
-      })
+          const [preTitle, vlogNumber] = results as RegExpMatchArray;
+          const title = sourceTitle.substring(preTitle.length);
+
+          return {
+            id: i.contentDetails.videoId,
+            vlogNumber: Number(vlogNumber),
+            videoTitle: i.snippet.title,
+            title,
+            description: i.snippet.description,
+            thumbnailUrl: i.snippet.thumbnails.standard.url,
+            publishedAt: i.snippet.publishedAt,
+            source: i
+          };
+        })
+        .filter(Boolean)
     );
   } else {
     res.status(500).json({ error: 'Failed to fetch videos' });

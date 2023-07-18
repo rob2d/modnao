@@ -72,7 +72,6 @@ const useVlogApi = () => {
     const fetchData = async () => {
       const response = await (await fetch(`${origin}/api/vlogs`)).json();
       setVlogs(response);
-      console.log('respoinse ->', response);
       hasFetched = true;
     };
 
