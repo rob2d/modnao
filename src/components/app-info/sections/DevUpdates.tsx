@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  CircularProgress,
   Typography,
   styled
 } from '@mui/material';
@@ -24,7 +25,21 @@ type Vlog = {
 
 const StyledContent = styled('div')(
   ({ theme }) => `
-& {}
+& {
+  display: flex;
+  flex-direction: column;
+}
+
+& .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+& .MuiButtonBase-root {
+  width: 100%;
+}
 
 & .vlog-entry {
   width: 100%;
@@ -37,6 +52,9 @@ const StyledContent = styled('div')(
 }
 
 & > div:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow-y: auto;
   padding: 0 ${theme.spacing(1)};
 }
@@ -44,6 +62,7 @@ const StyledContent = styled('div')(
 & .MuiCard-root {
   display: flex; 
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 & .MuiCardContent-root {
@@ -67,7 +86,7 @@ const origin =
 
 let hasFetched = false;
 const useVlogApi = () => {
-  const [vlogs, setVlogs] = useState([]);
+  const [vlogs, setVlogs] = useState<Vlog[] | undefined>(undefined);
   useEffect(() => {
     const fetchData = async () => {
       const response = await (await fetch(`${origin}/api/vlogs`)).json();
@@ -88,39 +107,45 @@ const useVlogApi = () => {
 };
 
 export default function DevUpdates() {
-  const vlogs: Vlog[] = useVlogApi();
+  const vlogs = useVlogApi();
 
   return (
     <StyledContent className='app-info-section'>
       <AppInfoSectionHeader>Development Updates / Vlog</AppInfoSectionHeader>
       <div>
-        {vlogs.map((v) => (
-          <Card key={v.id} elevation={2}>
-            <ButtonBase
-              onClick={() =>
-                window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
-              }
-            >
-              <CardContent>
-                <Typography component='div' variant='h6'>
-                  {v.title}
-                </Typography>
-                <Typography
-                  variant='subtitle1'
-                  color='text.secondary'
-                  component='div'
-                >
-                  {dayjs(v.publishedAt).format('MMM Do, YYYY')}
-                </Typography>
-              </CardContent>
-              <CardMedia
-                component='img'
-                image={`${v.thumbnailUrl}`}
-                alt={`Watch ${v.vlogNumber} now`}
-              />
-            </ButtonBase>
-          </Card>
-        ))}
+        {!vlogs ? (
+          <div className='loading'>
+            <CircularProgress />
+          </div>
+        ) : (
+          vlogs.map((v: Vlog) => (
+            <Card key={v.id} elevation={2}>
+              <ButtonBase
+                onClick={() =>
+                  window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
+                }
+              >
+                <CardContent>
+                  <Typography component='div' variant='h6'>
+                    {v.title}
+                  </Typography>
+                  <Typography
+                    variant='subtitle1'
+                    color='text.secondary'
+                    component='div'
+                  >
+                    {dayjs(v.publishedAt).format('MMM Do, YYYY')}
+                  </Typography>
+                </CardContent>
+                <CardMedia
+                  component='img'
+                  image={`${v.thumbnailUrl}`}
+                  alt={`Watch ${v.vlogNumber} now`}
+                />
+              </ButtonBase>
+            </Card>
+          ))
+        )}
       </div>
     </StyledContent>
   );

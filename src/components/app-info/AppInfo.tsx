@@ -25,17 +25,21 @@ const Styled = styled('div')(
     }
 
     & .app-info-section:not(:last-child) {
-      margin-bottom: ${theme.spacing(3)};
+      padding-bottom: ${theme.spacing(3)};
     }
 
     .updates-and-projects {
       max-height: 100%;
     }
 
+    .updates-and-projects > :nth-child(2) {
+      display: flex;
+      flex-direction: column;
+    }   
     
     ${theme.breakpoints.up('md')} {
       & .updates-and-projects > * {
-        max-height: 50%;
+        height: 50%;
         overflow-y: auto;
       }
 
