@@ -186,7 +186,7 @@ const StyledPaper = styled(Paper)(
     }
 
     & .MuiIconButton-root.model-nav-button {
-      width: 32px;
+      width: 28px;
     }
 
     & .display-mode {
