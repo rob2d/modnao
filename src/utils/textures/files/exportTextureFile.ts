@@ -76,7 +76,11 @@ export default async function exportTextureFile(
         const conversionOp = conversionDict[t.colorFormat];
         const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
 
-        textureBuffer.writeUInt16LE(conversionOp(color), offsetWritten);
+        // note: it is possible for textures to point out of bounds
+        // of the file since it targets RAM in-game; hence the check
+        if (offsetWritten + COLOR_SIZE < textureBuffer.length) {
+          textureBuffer.writeUInt16LE(conversionOp(color), offsetWritten);
+        }
       }
     }
   }
