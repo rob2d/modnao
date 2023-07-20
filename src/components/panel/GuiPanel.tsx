@@ -341,6 +341,13 @@ export default function GuiPanel() {
     }
   }, [modelIndex, modelCount]);
 
+  let modelIndexAndCount = '--';
+
+  if (model) {
+    const sp = modelCount > 99 && modelIndex > 98 ? '' : ' ';
+    modelIndexAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
+  }
+
   return (
     <StyledPaper
       square
@@ -370,7 +377,7 @@ export default function GuiPanel() {
                 <Icon path={mdiMenuLeftOutline} size={1} />
               </IconButton>
               <Typography variant='button' textAlign='right'>
-                {!model ? '--' : `${modelIndex + 1} / ${modelCount}`}
+                {modelIndexAndCount}
               </Typography>
               <IconButton
                 className='model-nav-button'
