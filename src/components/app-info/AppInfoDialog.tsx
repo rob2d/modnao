@@ -18,7 +18,7 @@ export default function AppInfoDialog({ onClose, open }: Props) {
   return (
     <StyledDialog onClose={onClose} open={open} fullWidth maxWidth='xl'>
       <DialogContent>
-        <AppInfo />
+        <AppInfo onCloseDialog={onClose} />
       </DialogContent>
     </StyledDialog>
   );
