@@ -6,7 +6,7 @@ import { setModelViewedIndex } from '@/store';
 import { AnyAction } from '@reduxjs/toolkit';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
-export default function useSceneKeyboardActions() {
+export default function useSceneKeyboardControls() {
   const dispatch = useDispatch();
   const viewOptions = useContext(ViewOptionsContext);
   const modelIndex = useSelector(selectModelIndex);
