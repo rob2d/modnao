@@ -59,14 +59,15 @@ export default function GettingStarted() {
                 texture file.
               </Typography>
               <Typography>
-                Supported model files are in the format: "STG
+                Supported model files are in the format: &quot;STG
                 <i>XY</i>
-                POL.BIN" or "DM<i>XY</i>.BIN". Also optionally with an "STG
+                POL.BIN&quot; or &quot;DM<i>XY</i>.BIN&quot;. Also optionally
+                with an &quot;STG
                 <i>XY</i>
-                TEX.BIN" or "DM
-                <i>XY</i>TEX.BIN", representing the texture data associated with
-                that polygon file (where <b>XY</b> here is the number of the
-                polygon or texture). Hold control to multi select files.
+                TEX.BIN&quot; or &quot;DM
+                <i>XY</i>TEX.BIN&quot;, representing the texture data associated
+                with that polygon file (where <b>XY</b> here is the number of
+                the polygon or texture). Hold control to multi select files.
               </Typography>
             </StepContent>
           </Step>
@@ -77,7 +78,7 @@ export default function GettingStarted() {
                 Browse Models using arrow keys or model navigation buttons.
               </Typography>
               <Typography>
-                Click a polygon to highlight it's texture, then hit the 3 dot
+                Click a polygon to highlight its texture, then hit the 3 dot
                 menu icon. Edit the texture color sliders or replace the image
                 with one of equal size.
               </Typography>
@@ -87,8 +88,8 @@ export default function GettingStarted() {
             <StepLabel>Export Textures and Build</StepLabel>
             <StepContent>
               <Typography>
-                Once textures are edited, click "Export Textures" to export.
-                Rebuild your files using&nbsp;
+                Once textures are edited, click &quot;Export Textures&quot; to
+                export. Rebuild your files using&nbsp;
                 <Link
                   href='https://projects.sappharad.com/tools/gdibuilder13_win32.zip'
                   target='_new'
