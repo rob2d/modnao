@@ -126,7 +126,7 @@ export default function DevUpdates() {
                 }
               >
                 <CardContent>
-                  <Typography component='div' variant='h6'>
+                  <Typography component='div' variant='subtitle1'>
                     {v.title}
                   </Typography>
                   <Typography

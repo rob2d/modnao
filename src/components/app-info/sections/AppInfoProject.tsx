@@ -12,7 +12,7 @@ export default function AppInfoProject({ url, title, body }: Props) {
     <Card elevation={2}>
       <ButtonBase onClick={() => window.open(url, 'new')}>
         <CardContent>
-          <Typography variant='h6' textAlign='left'>
+          <Typography variant='subtitle1' textAlign='left'>
             {title}
           </Typography>
           <Typography variant='body2' color='text.secondary' textAlign='left'>
