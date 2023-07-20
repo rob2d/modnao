@@ -12,7 +12,9 @@ import {
   useAppDispatch,
   useAppSelector,
   selectHasCompressedTextures,
-  setModelViewedIndex
+  setModelViewedIndex,
+  navToPrevModel,
+  navToNextModel
 } from '@/store';
 import {
   Button,
@@ -41,7 +43,7 @@ import ViewOptionsContext, {
 } from '@/contexts/ViewOptionsContext';
 
 import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
-import { useModelSelectionExport } from '@/hooks';
+import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
 import {
@@ -329,17 +331,29 @@ export default function GuiPanel() {
     }
   }, [model, objectSelectionType, objectKey, onExportSelectionJson]);
 
-  const onPrevModelNav = useCallback(() => {
-    if (modelIndex > 0) {
-      dispatch(setModelViewedIndex(modelIndex - 1));
-    }
+  const [onStartPrevModelNav, onStopPrevModelNav] = useHeldRepetitionTimer();
+  const [onStartNextModelNav, onStopNextModelNav] = useHeldRepetitionTimer();
+
+  useEffect(() => {
+    window.addEventListener('mouseup', onStopPrevModelNav);
+    window.addEventListener('mouseup', onStopNextModelNav);
+    return () => {
+      window.removeEventListener('mouseup', onStopPrevModelNav);
+      window.removeEventListener('mouseup', onStopNextModelNav);
+    };
+  }, []);
+
+  const onStartModelPrevClick = useCallback(() => {
+    onStartPrevModelNav(() => {
+      dispatch(navToPrevModel());
+    });
   }, [modelIndex]);
 
-  const onNextModelNav = useCallback(() => {
-    if (modelIndex < modelCount - 1) {
-      dispatch(setModelViewedIndex(modelIndex + 1));
-    }
-  }, [modelIndex, modelCount]);
+  const onStartModelNextClick = useCallback(() => {
+    onStartNextModelNav(() => {
+      dispatch(navToNextModel());
+    });
+  }, [modelIndex]);
 
   let modelIndexAndCount = '--';
 
@@ -371,7 +385,8 @@ export default function GuiPanel() {
                 className='model-nav-button'
                 color='primary'
                 aria-haspopup='true'
-                onClick={onPrevModelNav}
+                onMouseDown={onStartModelPrevClick}
+                onMouseUp={onStopPrevModelNav}
                 disabled={!model || modelIndex === 0}
               >
                 <Icon path={mdiMenuLeftOutline} size={1} />
@@ -383,7 +398,8 @@ export default function GuiPanel() {
                 className='model-nav-button'
                 color='primary'
                 aria-haspopup='true'
-                onClick={onNextModelNav}
+                onMouseDown={onStartModelNextClick}
+                onMouseUp={onStopNextModelNav}
                 disabled={!model || modelIndex === modelCount - 1}
               >
                 <Icon path={mdiMenuRightOutline} size={1} />
