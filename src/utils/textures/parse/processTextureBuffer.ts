@@ -50,10 +50,15 @@ export default async function processTextureBuffer(
 
         for (let offset = yOffset; offset < yOffset + t.width; offset += 1) {
           const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
-          const colorValue = buffer.readUInt16LE(
-            t.baseLocation - t.ramOffset + offsetDrawn * COLOR_SIZE
-          );
+          const readOffset =
+            t.baseLocation - t.ramOffset + offsetDrawn * COLOR_SIZE;
+          // textures may point out of bounds (this would be
+          // to RAM elswhere in-game)
+          if (readOffset >= buffer.length) {
+            break;
+          }
 
+          const colorValue = buffer.readUInt16LE(readOffset);
           const conversionOp = conversionDict[t.colorFormat];
 
           const color = conversionOp(colorValue);
