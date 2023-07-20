@@ -17,7 +17,7 @@ import {
 } from '@/store/selectors';
 import { useAppSelector, useAppDispatch, setObjectKey } from '@/store';
 import RenderedMesh from './RenderedMesh';
-import { useSceneKeyboardActions } from '@/hooks';
+import { useSceneKeyboardControls } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
 import { SceneContextSetup } from '@/contexts/SceneContext';
@@ -33,7 +33,7 @@ THREE.ColorManagement.enabled = true;
 const cameraParams = { far: 5000000 };
 
 export default function SceneCanvas() {
-  useSceneKeyboardActions();
+  useSceneKeyboardControls();
   const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
   const viewOptions = useContext(ViewOptionsContext);
 
