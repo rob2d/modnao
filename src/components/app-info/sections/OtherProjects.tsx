@@ -38,9 +38,8 @@ export default function OtherProjects() {
           title={<>PalMod</>}
           body={
             <>
-              <b>Pal</b>ette <b>mod</b>ification tool for fighting games; for
-              the Naomi games Capcom vs SNK 2 and Marvel vs Capcom 2 this can
-              modify character sprite palettes.
+              <b>Pal</b>ette <b>mod</b>ification tool for fighting games; this
+              can modify character sprite palettes of MVC2/CVS2.
             </>
           }
         />
@@ -50,8 +49,8 @@ export default function OtherProjects() {
           body={
             <>
               Plugin for importing NL models into Blender. The folks behind this
-              were a great help when starting this project and getting help with
-              the binary format.
+              were a great help when starting this project for the binary
+              format.
             </>
           }
         />

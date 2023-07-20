@@ -10,7 +10,7 @@ const Styled = styled('div')(
   ({ theme }) => `
     & {
       display: inline-grid;
-      grid-template-columns: 4fr 7fr 4fr;
+      grid-template-columns: 5fr 7fr 5fr;
       gap: ${theme.spacing(2)};
     }
 
@@ -54,8 +54,6 @@ export default function AppInfo() {
     <Styled>
       <div>
         <GettingStarted />
-        <KeyboardShortcuts />
-        <SceneNavigationHints />
       </div>
       <div className='updates-and-projects'>
         <DevUpdates />
@@ -63,6 +61,8 @@ export default function AppInfo() {
       </div>
       <div>
         <Contributors />
+        <KeyboardShortcuts />
+        <SceneNavigationHints />
       </div>
     </Styled>
   );
