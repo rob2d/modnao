@@ -23,7 +23,11 @@ const sliceName = 'modelViewer';
  * interfacing action for actual setModelViewedIndex
  * for toolkit thunk api access
  */
-export const setModelViewedIndex = createAsyncThunk<void, number>(
+export const setModelViewedIndex = createAsyncThunk<
+  void,
+  number,
+  { state: AppState }
+>(
   `${sliceName}/setModelViewedIndexInterface`,
   async (nextIndex: number, { dispatch, getState }) => {
     let modelIndex = Math.max(0, nextIndex);
@@ -34,6 +38,31 @@ export const setModelViewedIndex = createAsyncThunk<void, number>(
     dispatch(actions.setModelViewedIndex(modelIndex));
   }
 );
+
+export const navToNextModel = createAsyncThunk<
+  void,
+  undefined,
+  { state: AppState }
+>(`${sliceName}/navToNextModel`, async (_, { dispatch, getState }) => {
+  const state = getState();
+  const modelCount = state.modelData.models.length;
+  const modelIndex = Math.min(state.modelViewer.modelIndex + 1, modelCount - 1);
+
+  const { actions } = modelViewerSlice;
+  dispatch(actions.setModelViewedIndex(modelIndex));
+});
+
+export const navToPrevModel = createAsyncThunk<
+  void,
+  undefined,
+  { state: AppState }
+>(`${sliceName}/navToPrevModel`, async (_, { dispatch, getState }) => {
+  const state = getState();
+  const modelIndex = Math.max(state.modelViewer.modelIndex - 1, 0);
+
+  const { actions } = modelViewerSlice;
+  dispatch(actions.setModelViewedIndex(modelIndex));
+});
 
 const modelViewerSlice = createSlice({
   name: 'modelViewer',
