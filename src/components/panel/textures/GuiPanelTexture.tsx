@@ -31,7 +31,7 @@ const StyledPanelTexture = styled('div')(
     width: 100%;
     height: auto;
     border-color: transparent;
-    border-width: 2px;
+    border-width: 3px;
     border-style: solid;
     opacity: 1.0;
   }

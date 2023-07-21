@@ -12,18 +12,14 @@ import {
   useAppDispatch,
   useAppSelector,
   selectHasCompressedTextures,
-  setModelViewedIndex,
   navToPrevModel,
   navToNextModel
 } from '@/store';
 import {
   Button,
-  Checkbox,
   Divider,
-  FormControlLabel,
   IconButton,
   Paper,
-  Slider,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -31,29 +27,18 @@ import {
   styled
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
-import {
-  useMemo,
-  useEffect,
-  useCallback,
-  useContext,
-  SyntheticEvent
-} from 'react';
-import ViewOptionsContext, {
-  MeshDisplayMode
-} from '@/contexts/ViewOptionsContext';
+import { useMemo, useEffect, useCallback, useContext } from 'react';
+import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
-import {
-  mdiAxisArrow,
-  mdiCursorDefaultOutline,
-  mdiMenuLeftOutline,
-  mdiMenuRightOutline
-} from '@mdi/js';
+import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import Icon from '@mdi/react';
 import clsx from 'clsx';
+import GuiPanelViewOptions from './GuiPanelViewOptions';
+import GuiPanelButton from './GuiPanelButton';
 
 const WIDTH = 222;
 
@@ -127,7 +112,7 @@ const StyledPaper = styled(Paper)(
     & .content > .selection {
       display: flex;
       flex-direction: column;
-      align-items: end;
+      align-items: flex-end;
       width: 100%;    
     }
 
@@ -137,7 +122,7 @@ const StyledPaper = styled(Paper)(
       justify-content: flex-start;
     }
 
-    & .property-table > *:nth-child(even) {
+    & .property-table *:nth-child(even) {
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -166,7 +151,8 @@ const StyledPaper = styled(Paper)(
     & .view-options {
       display: flex;
       flex-direction: column;
-      flex-grow: 1;
+      flex-shrink: 0;
+      flex-grow: 0;
     }
 
     & .MuiButton-root.MuiButton-outlined {
@@ -177,24 +163,16 @@ const StyledPaper = styled(Paper)(
       margin-bottom: ${theme.spacing(1)};
     }
 
+    & .export-texture-button-container {
+      margin-top: ${theme.spacing(1)};
+    }
+
     & .MuiDivider-root:not(:first-child) {
       padding-top: ${theme.spacing(1)};
     }
 
-    & .MuiSlider-root {
-      width: calc(100% - 124px);
-      margin-left: ${theme.spacing(2)};
-      margin-right: ${theme.spacing(1)};
-    }
-
     & .MuiIconButton-root.model-nav-button {
       width: 28px;
-    }
-
-    & .display-mode {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
     }
   `
 );
@@ -230,42 +208,6 @@ export default function GuiPanel() {
       type && dispatch(setObjectType(type));
     },
     [objectSelectionType]
-  );
-
-  const onSetMeshDisplayMode = useCallback(
-    (_: React.MouseEvent<HTMLElement>, mode: MeshDisplayMode) => {
-      mode && viewOptions.setMeshDisplayMode(mode);
-    },
-    [viewOptions.setMeshDisplayMode]
-  );
-
-  const onSetAxesHelperVisible = useCallback(
-    (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setAxesHelperVisible(value);
-    },
-    [viewOptions.setAxesHelperVisible]
-  );
-
-  const onSetObjectAddressesVisible = useCallback(
-    (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setObjectAddressesVisible(value);
-    },
-    [viewOptions.setObjectAddressesVisible]
-  );
-
-  const onSetWireframeLineWidth = useCallback(
-    (_: Event, v: number | number[]) => {
-      const value = typeof v === 'number' ? v : v[0];
-      viewOptions.setWireframeLineWidth(value);
-    },
-    [viewOptions.setWireframeLineWidth]
-  );
-
-  const onSetSceneCursorVisible = useCallback(
-    (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setSceneCursorVisible(value);
-    },
-    [viewOptions.setSceneCursorVisible]
   );
 
   const textures = useMemo(() => {
@@ -435,20 +377,15 @@ export default function GuiPanel() {
               </ToggleButtonGroup>
             </Grid>
           </Grid>
-          <Tooltip title='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'>
-            <Button
-              onClick={openFileSelector}
-              color='primary'
-              fullWidth
-              size='small'
-              variant='outlined'
-            >
-              Import Model/Texture
-            </Button>
-          </Tooltip>
+          <GuiPanelButton
+            tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
+            onClick={openFileSelector}
+          >
+            Import Model/Texture
+          </GuiPanelButton>
           {!model ? undefined : (
-            <Tooltip
-              title={
+            <GuiPanelButton
+              tooltip={
                 <div>
                   <p>
                     Export an.obj file representing the selected in-scene model
@@ -456,93 +393,13 @@ export default function GuiPanel() {
                   </p>
                 </div>
               }
+              onClick={onExportOBJFile}
+              color='secondary'
             >
-              <Button
-                onClick={onExportOBJFile}
-                color='secondary'
-                fullWidth
-                size='small'
-                variant='outlined'
-              >
-                Export Model .OBJ
-              </Button>
-            </Tooltip>
+              Export Model .OBJ
+            </GuiPanelButton>
           )}
           {exportSelectionButton}
-        </div>
-        <Divider flexItem>
-          <Typography variant='subtitle2' textAlign='left' width='100%'>
-            View
-          </Typography>
-        </Divider>
-        <div className='view-options'>
-          <Grid container className='property-table'>
-            <Grid xs={12} className='display-mode'>
-              <ToggleButtonGroup
-                orientation='horizontal'
-                size='small'
-                color='secondary'
-                value={viewOptions.meshDisplayMode}
-                exclusive
-                onChange={onSetMeshDisplayMode}
-                aria-label='Mesh Display Mode Selection'
-              >
-                <ToggleButton value='wireframe'>wireframe</ToggleButton>
-                <ToggleButton value='textured'>textured</ToggleButton>
-              </ToggleButtonGroup>
-            </Grid>
-          </Grid>
-          {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-            <Tooltip
-              title='Toggle selected polygon addresess visibility'
-              placement='top-start'
-            >
-              <FormControlLabel
-                control={
-                  <Checkbox checked={viewOptions.objectAddressesVisible} />
-                }
-                label='Addresses'
-                labelPlacement='start'
-                onChange={onSetObjectAddressesVisible}
-              />
-            </Tooltip>
-          )}
-          {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-            <FormControlLabel
-              control={
-                <Slider
-                  size='small'
-                  min={1}
-                  max={10}
-                  defaultValue={4}
-                  aria-label='Small'
-                  valueLabelDisplay='auto'
-                  value={viewOptions.wireframeLineWidth}
-                  onChange={onSetWireframeLineWidth}
-                />
-              }
-              label='Line Width'
-              labelPlacement='start'
-            />
-          )}
-          <div className='settings-row'>
-            <Tooltip title='Toggle axes helper visibility'>
-              <FormControlLabel
-                control={<Checkbox checked={viewOptions.axesHelperVisible} />}
-                label={<Icon path={mdiAxisArrow} size={1} />}
-                labelPlacement='start'
-                onChange={onSetAxesHelperVisible}
-              />
-            </Tooltip>
-            <Tooltip title='Toggle scene cursor visibility'>
-              <FormControlLabel
-                control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
-                label={<Icon path={mdiCursorDefaultOutline} size={1} />}
-                labelPlacement='start'
-                onChange={onSetSceneCursorVisible}
-              />
-            </Tooltip>
-          </div>
         </div>
         {!hasLoadedTextureFile ? undefined : (
           <>
@@ -555,20 +412,17 @@ export default function GuiPanel() {
           </>
         )}
         {!hasLoadedTextureFile || hasCompressedTextures ? undefined : (
-          <div>
-            <Tooltip title='Download texture ROM binary with replaced images'>
-              <Button
-                onClick={onExportTextureFile}
-                fullWidth
-                color='secondary'
-                size='small'
-                variant='outlined'
-              >
-                Export Textures
-              </Button>
-            </Tooltip>
+          <div className='export-texture-button-container'>
+            <GuiPanelButton
+              tooltip='Download texture ROM binary with replaced images'
+              onClick={onExportTextureFile}
+              color='secondary'
+            >
+              Export Textures
+            </GuiPanelButton>
           </div>
         )}
+        <GuiPanelViewOptions />
       </div>
     </StyledPaper>
   );
