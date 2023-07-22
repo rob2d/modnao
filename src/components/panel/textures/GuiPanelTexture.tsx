@@ -19,10 +19,6 @@ const StyledPanelTexture = styled('div')(
     width: 100%;
   }
 
-  &:not(:last-child) .image-area {
-    margin-bottom: ${theme.spacing(1)};
-  }
-
   & .image-overlay {
     position: absolute;
     left: 0;
@@ -47,7 +43,7 @@ const StyledPanelTexture = styled('div')(
   & .size-notation {
     position: absolute;
     right: ${theme.spacing(1)};
-    bottom: 0;
+    bottom: ${theme.spacing(2)};
     color: ${theme.palette.primary.contrastText};
     text-shadow: 1px 1px 1px black;
     filter: drop-shadow(3px 3px 1px black);
