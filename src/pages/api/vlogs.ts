@@ -30,7 +30,6 @@ export default async function handler(
 ) {
   const URL = `${YT_API_URL}?${Q.Playlist}&${Q.ApiKey}&maxResults=50&part=snippet,contentDetails`;
   const response = await (await fetch(URL)).json();
-  console.log('response ->', response);
   if (Array.isArray(response.items)) {
     res.status(200).json(
       response.items

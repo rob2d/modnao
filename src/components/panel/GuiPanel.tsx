@@ -1,23 +1,17 @@
 import {
-  downloadTextureFile,
-  selectHasLoadedTextureFile,
   selectModel,
   selectModelCount,
   selectModelIndex,
   selectObjectKey,
-  selectObjectMeshIndex,
   selectObjectSelectionType,
-  selectSceneTextureDefs,
   setObjectType,
   useAppDispatch,
   useAppSelector,
-  selectHasCompressedTextures,
   navToPrevModel,
   navToNextModel
 } from '@/store';
 import {
   Button,
-  Divider,
   IconButton,
   Paper,
   ToggleButton,
@@ -32,13 +26,14 @@ import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
-import GuiPanelTexture from './textures/GuiPanelTexture';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import Icon from '@mdi/react';
 import clsx from 'clsx';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
 import GuiPanelButton from './GuiPanelButton';
+import GuiPanelSection from './GuiPanelSection';
+import GuiPanelTextures from './GuiPanelTextures';
 
 const WIDTH = 222;
 
@@ -185,67 +180,17 @@ export default function GuiPanel() {
   const dispatch = useAppDispatch();
   const onExportSelectionJson = useModelSelectionExport();
   const onExportOBJFile = useSceneOBJFileDownloader();
-  const onExportTextureFile = useCallback(() => {
-    dispatch(downloadTextureFile());
-  }, [dispatch]);
   const modelIndex = useAppSelector(selectModelIndex);
   const modelCount = useAppSelector(selectModelCount);
   const objectKey = useAppSelector(selectObjectKey);
-  const meshIndex = useAppSelector(selectObjectMeshIndex);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
   const model = useAppSelector(selectModel);
-  const textureDefs = useAppSelector(selectSceneTextureDefs);
-  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
-
-  const selectedMeshTexture: number = useMemo(() => {
-    const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
-
-    return typeof textureIndex === 'number' ? textureIndex : -1;
-  }, [model, objectKey, meshIndex]);
-
   const onSetObjectSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
       type && dispatch(setObjectType(type));
     },
     [objectSelectionType]
   );
-
-  const textures = useMemo(() => {
-    const images: JSX.Element[] = [];
-    const textureSet = new Set<number>();
-
-    (model?.meshes || []).forEach((m, i) => {
-      if (!textureSet.has(m.textureIndex) && textureDefs?.[m.textureIndex]) {
-        textureSet.add(m.textureIndex);
-        const textureDef = textureDefs?.[m.textureIndex];
-
-        images.push(
-          <GuiPanelTexture
-            key={`${m.textureIndex}_${i}`}
-            textureDef={textureDef}
-            textureIndex={m.textureIndex}
-            textureSize={m.textureSize}
-            selected={selectedMeshTexture === m.textureIndex}
-          />
-        );
-      }
-    });
-
-    return images;
-  }, [model, textureDefs, selectedMeshTexture]);
-
-  const hasCompressedTextures = useAppSelector(selectHasCompressedTextures);
-
-  // when selecting a texture, scroll to the item
-  useEffect(() => {
-    const textureEl = document.getElementById(
-      `debug-panel-t-${selectedMeshTexture}`
-    );
-
-    if (textureEl) {
-      textureEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [textureDefs && selectedMeshTexture]);
 
   const exportSelectionButton = useMemo(() => {
     {
@@ -310,118 +255,95 @@ export default function GuiPanel() {
       className={clsx(viewOptions.guiPanelVisible && 'visible')}
     >
       <div className='content'>
-        <Divider flexItem>
-          <Typography variant='subtitle2' textAlign='left' width='100%'>
-            Models
-          </Typography>
-        </Divider>
-        <div className='selection'>
-          <Grid container className='property-table'>
-            <Grid xs={4}>
-              <Typography variant='body1' textAlign='right'>
-                Models
-              </Typography>
+        <GuiPanelSection title='Models'>
+          <div className='selection'>
+            <Grid container className='property-table'>
+              <Grid xs={4}>
+                <Typography variant='body1' textAlign='right'>
+                  Models
+                </Typography>
+              </Grid>
+              <Grid xs={8}>
+                <IconButton
+                  className='model-nav-button'
+                  color='primary'
+                  aria-haspopup='true'
+                  onMouseDown={onStartModelPrevClick}
+                  onMouseUp={onStopPrevModelNav}
+                  disabled={!model || modelIndex === 0}
+                >
+                  <Icon path={mdiMenuLeftOutline} size={1} />
+                </IconButton>
+                <Typography variant='button' textAlign='right'>
+                  {modelIndexAndCount}
+                </Typography>
+                <IconButton
+                  className='model-nav-button'
+                  color='primary'
+                  aria-haspopup='true'
+                  onMouseDown={onStartModelNextClick}
+                  onMouseUp={onStopNextModelNav}
+                  disabled={!model || modelIndex === modelCount - 1}
+                >
+                  <Icon path={mdiMenuRightOutline} size={1} />
+                </IconButton>
+              </Grid>
+              <Grid xs={8}>
+                <Typography variant='body1' textAlign='right'>
+                  Object Key
+                </Typography>
+              </Grid>
+              <Grid xs={4}>
+                <Typography variant='button' textAlign='right'>
+                  {!objectKey ? '--' : objectKey}
+                </Typography>
+              </Grid>
+              <Grid xs={8}>
+                <Typography variant='body1' textAlign='right'>
+                  Object Type
+                </Typography>
+              </Grid>
+              <Grid xs={4}>
+                <ToggleButtonGroup
+                  orientation='vertical'
+                  color='secondary'
+                  value={objectSelectionType}
+                  size='small'
+                  exclusive
+                  onChange={onSetObjectSelectionType}
+                  aria-label='text alignment'
+                >
+                  <ToggleButton value='mesh'>mesh</ToggleButton>
+                  <ToggleButton value='polygon'>polygon</ToggleButton>
+                </ToggleButtonGroup>
+              </Grid>
             </Grid>
-            <Grid xs={8}>
-              <IconButton
-                className='model-nav-button'
-                color='primary'
-                aria-haspopup='true'
-                onMouseDown={onStartModelPrevClick}
-                onMouseUp={onStopPrevModelNav}
-                disabled={!model || modelIndex === 0}
-              >
-                <Icon path={mdiMenuLeftOutline} size={1} />
-              </IconButton>
-              <Typography variant='button' textAlign='right'>
-                {modelIndexAndCount}
-              </Typography>
-              <IconButton
-                className='model-nav-button'
-                color='primary'
-                aria-haspopup='true'
-                onMouseDown={onStartModelNextClick}
-                onMouseUp={onStopNextModelNav}
-                disabled={!model || modelIndex === modelCount - 1}
-              >
-                <Icon path={mdiMenuRightOutline} size={1} />
-              </IconButton>
-            </Grid>
-            <Grid xs={8}>
-              <Typography variant='body1' textAlign='right'>
-                Object Key
-              </Typography>
-            </Grid>
-            <Grid xs={4}>
-              <Typography variant='button' textAlign='right'>
-                {!objectKey ? '--' : objectKey}
-              </Typography>
-            </Grid>
-            <Grid xs={8}>
-              <Typography variant='body1' textAlign='right'>
-                Object Type
-              </Typography>
-            </Grid>
-            <Grid xs={4}>
-              <ToggleButtonGroup
-                orientation='vertical'
+            <GuiPanelButton
+              tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
+              onClick={openFileSelector}
+            >
+              Import Model/Texture
+            </GuiPanelButton>
+            {!model ? undefined : (
+              <GuiPanelButton
+                tooltip={
+                  <div>
+                    <p>
+                      Export an.obj file representing the selected in-scene
+                      model meshes.
+                    </p>
+                  </div>
+                }
+                onClick={onExportOBJFile}
                 color='secondary'
-                value={objectSelectionType}
-                size='small'
-                exclusive
-                onChange={onSetObjectSelectionType}
-                aria-label='text alignment'
               >
-                <ToggleButton value='mesh'>mesh</ToggleButton>
-                <ToggleButton value='polygon'>polygon</ToggleButton>
-              </ToggleButtonGroup>
-            </Grid>
-          </Grid>
-          <GuiPanelButton
-            tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
-            onClick={openFileSelector}
-          >
-            Import Model/Texture
-          </GuiPanelButton>
-          {!model ? undefined : (
-            <GuiPanelButton
-              tooltip={
-                <div>
-                  <p>
-                    Export an.obj file representing the selected in-scene model
-                    meshes.
-                  </p>
-                </div>
-              }
-              onClick={onExportOBJFile}
-              color='secondary'
-            >
-              Export Model .OBJ
-            </GuiPanelButton>
-          )}
-          {exportSelectionButton}
-        </div>
-        {!hasLoadedTextureFile ? undefined : (
-          <>
-            <Divider flexItem>
-              <Typography variant='subtitle2' textAlign='left' width='100%'>
-                Textures
-              </Typography>
-            </Divider>
-            <div className='textures'>{textures}</div>
-          </>
-        )}
-        {!hasLoadedTextureFile || hasCompressedTextures ? undefined : (
-          <div className='export-texture-button-container'>
-            <GuiPanelButton
-              tooltip='Download texture ROM binary with replaced images'
-              onClick={onExportTextureFile}
-              color='secondary'
-            >
-              Export Textures
-            </GuiPanelButton>
+                Export Model .OBJ
+              </GuiPanelButton>
+            )}
+            {exportSelectionButton}
           </div>
-        )}
+        </GuiPanelSection>
+        <GuiPanelTextures />
         <GuiPanelViewOptions />
       </div>
     </StyledPaper>

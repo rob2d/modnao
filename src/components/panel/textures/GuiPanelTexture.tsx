@@ -73,7 +73,7 @@ export default function GuiPanelTexture({
       <div className={clsx(selected && 'selected', 'image-area')}>
         <Image
           src={dataUrl}
-          id={`debug-panel-t-${textureIndex}`}
+          id={`gui-panel-t-${textureIndex}`}
           alt={`Texture # ${textureIndex}`}
           width={Number(width)}
           height={Number(height)}
