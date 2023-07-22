@@ -32,7 +32,7 @@ const Styled = styled('div')(
       max-height: 100%;
     }
 
-    .updates-and-projects > :nth-child(2) {
+    .updates-and-projects > :nth-of-type(2) {
       display: flex;
       flex-direction: column;
     }   

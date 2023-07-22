@@ -1,51 +1,13 @@
-import {
-  downloadTextureFile,
-  selectHasLoadedTextureFile,
-  selectModel,
-  selectModelCount,
-  selectModelIndex,
-  selectObjectKey,
-  selectObjectMeshIndex,
-  selectObjectSelectionType,
-  selectSceneTextureDefs,
-  setObjectType,
-  useAppDispatch,
-  useAppSelector,
-  selectHasCompressedTextures,
-  navToPrevModel,
-  navToNextModel
-} from '@/store';
-import {
-  Button,
-  Divider,
-  IconButton,
-  Paper,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-  Typography,
-  styled
-} from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
-import { useMemo, useEffect, useCallback, useContext } from 'react';
+import { Divider, Paper, styled } from '@mui/material';
+import { useContext } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-
-import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
-import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
-import GuiPanelTexture from './textures/GuiPanelTexture';
-import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
-import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
-import Icon from '@mdi/react';
 import clsx from 'clsx';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
-import GuiPanelButton from './GuiPanelButton';
+import GuiPanelTextures from './GuiPanelTextures';
+import GuiPanelModels from './GuiPanelModels';
+import { selectHasLoadedTextureFile, useAppSelector } from '@/store';
 
 const WIDTH = 222;
-
-// @TODO: consider either:
-// (1) breaking this panel into separate components,
-// (2) offload hook functionality since there's quite a lot of cruft
-// (3) abstract the components to eliminate cognitive overhead
 
 const TRANSITION_TIME = `0.32s`;
 
@@ -116,13 +78,7 @@ const StyledPaper = styled(Paper)(
       width: 100%;    
     }
 
-    & *:nth-child(odd) {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-    }
-
-    & .property-table *:nth-child(even) {
+    & .property-table *:nth-of-type(even) {
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -142,10 +98,6 @@ const StyledPaper = styled(Paper)(
 
     & .content > .MuiDivider-root {
       margin-bottom: ${theme.spacing(1)};
-    }
-
-    & > .textures *:not(:last-child) {
-      margin-bottom: ${theme.spacing(1)}
     }
 
     & .view-options {
@@ -174,135 +126,18 @@ const StyledPaper = styled(Paper)(
     & .MuiIconButton-root.model-nav-button {
       width: 28px;
     }
+
+    & .grid-control-label {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
   `
 );
 
 export default function GuiPanel() {
-  // @TODO use a more standard error dialog vs using window.alert here
-  const openFileSelector = useSupportedFilePicker(globalThis.alert);
-
   const viewOptions = useContext(ViewOptionsContext);
-  const dispatch = useAppDispatch();
-  const onExportSelectionJson = useModelSelectionExport();
-  const onExportOBJFile = useSceneOBJFileDownloader();
-  const onExportTextureFile = useCallback(() => {
-    dispatch(downloadTextureFile());
-  }, [dispatch]);
-  const modelIndex = useAppSelector(selectModelIndex);
-  const modelCount = useAppSelector(selectModelCount);
-  const objectKey = useAppSelector(selectObjectKey);
-  const meshIndex = useAppSelector(selectObjectMeshIndex);
-  const objectSelectionType = useAppSelector(selectObjectSelectionType);
-  const model = useAppSelector(selectModel);
-  const textureDefs = useAppSelector(selectSceneTextureDefs);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
-
-  const selectedMeshTexture: number = useMemo(() => {
-    const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
-
-    return typeof textureIndex === 'number' ? textureIndex : -1;
-  }, [model, objectKey, meshIndex]);
-
-  const onSetObjectSelectionType = useCallback(
-    (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
-      type && dispatch(setObjectType(type));
-    },
-    [objectSelectionType]
-  );
-
-  const textures = useMemo(() => {
-    const images: JSX.Element[] = [];
-    const textureSet = new Set<number>();
-
-    (model?.meshes || []).forEach((m, i) => {
-      if (!textureSet.has(m.textureIndex) && textureDefs?.[m.textureIndex]) {
-        textureSet.add(m.textureIndex);
-        const textureDef = textureDefs?.[m.textureIndex];
-
-        images.push(
-          <GuiPanelTexture
-            key={`${m.textureIndex}_${i}`}
-            textureDef={textureDef}
-            textureIndex={m.textureIndex}
-            textureSize={m.textureSize}
-            selected={selectedMeshTexture === m.textureIndex}
-          />
-        );
-      }
-    });
-
-    return images;
-  }, [model, textureDefs, selectedMeshTexture]);
-
-  const hasCompressedTextures = useAppSelector(selectHasCompressedTextures);
-
-  // when selecting a texture, scroll to the item
-  useEffect(() => {
-    const textureEl = document.getElementById(
-      `debug-panel-t-${selectedMeshTexture}`
-    );
-
-    if (textureEl) {
-      textureEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [textureDefs && selectedMeshTexture]);
-
-  const exportSelectionButton = useMemo(() => {
-    {
-      let title = 'Export Model JSON';
-
-      if (objectKey) {
-        title = `Export ${
-          objectSelectionType === 'mesh' ? 'Mesh' : 'Polygon'
-        } JSON`;
-      }
-
-      return !model ? undefined : (
-        <Tooltip title='Export ModNao .json data. Will narrow data down to the current selection'>
-          <Button
-            fullWidth
-            onClick={onExportSelectionJson}
-            color='secondary'
-            size='small'
-            variant='outlined'
-          >
-            {title}
-          </Button>
-        </Tooltip>
-      );
-    }
-  }, [model, objectSelectionType, objectKey, onExportSelectionJson]);
-
-  const [onStartPrevModelNav, onStopPrevModelNav] = useHeldRepetitionTimer();
-  const [onStartNextModelNav, onStopNextModelNav] = useHeldRepetitionTimer();
-
-  useEffect(() => {
-    window.addEventListener('mouseup', onStopPrevModelNav);
-    window.addEventListener('mouseup', onStopNextModelNav);
-    return () => {
-      window.removeEventListener('mouseup', onStopPrevModelNav);
-      window.removeEventListener('mouseup', onStopNextModelNav);
-    };
-  }, []);
-
-  const onStartModelPrevClick = useCallback(() => {
-    onStartPrevModelNav(() => {
-      dispatch(navToPrevModel());
-    });
-  }, [modelIndex]);
-
-  const onStartModelNextClick = useCallback(() => {
-    onStartNextModelNav(() => {
-      dispatch(navToNextModel());
-    });
-  }, [modelIndex]);
-
-  let modelIndexAndCount = '--';
-
-  if (model) {
-    const sp = modelCount > 99 && modelIndex > 98 ? '' : ' ';
-    modelIndexAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
-  }
 
   return (
     <StyledPaper
@@ -310,118 +145,10 @@ export default function GuiPanel() {
       className={clsx(viewOptions.guiPanelVisible && 'visible')}
     >
       <div className='content'>
-        <Divider flexItem>
-          <Typography variant='subtitle2' textAlign='left' width='100%'>
-            Models
-          </Typography>
-        </Divider>
-        <div className='selection'>
-          <Grid container className='property-table'>
-            <Grid xs={4}>
-              <Typography variant='body1' textAlign='right'>
-                Models
-              </Typography>
-            </Grid>
-            <Grid xs={8}>
-              <IconButton
-                className='model-nav-button'
-                color='primary'
-                aria-haspopup='true'
-                onMouseDown={onStartModelPrevClick}
-                onMouseUp={onStopPrevModelNav}
-                disabled={!model || modelIndex === 0}
-              >
-                <Icon path={mdiMenuLeftOutline} size={1} />
-              </IconButton>
-              <Typography variant='button' textAlign='right'>
-                {modelIndexAndCount}
-              </Typography>
-              <IconButton
-                className='model-nav-button'
-                color='primary'
-                aria-haspopup='true'
-                onMouseDown={onStartModelNextClick}
-                onMouseUp={onStopNextModelNav}
-                disabled={!model || modelIndex === modelCount - 1}
-              >
-                <Icon path={mdiMenuRightOutline} size={1} />
-              </IconButton>
-            </Grid>
-            <Grid xs={8}>
-              <Typography variant='body1' textAlign='right'>
-                Object Key
-              </Typography>
-            </Grid>
-            <Grid xs={4}>
-              <Typography variant='button' textAlign='right'>
-                {!objectKey ? '--' : objectKey}
-              </Typography>
-            </Grid>
-            <Grid xs={8}>
-              <Typography variant='body1' textAlign='right'>
-                Object Type
-              </Typography>
-            </Grid>
-            <Grid xs={4}>
-              <ToggleButtonGroup
-                orientation='vertical'
-                color='secondary'
-                value={objectSelectionType}
-                size='small'
-                exclusive
-                onChange={onSetObjectSelectionType}
-                aria-label='text alignment'
-              >
-                <ToggleButton value='mesh'>mesh</ToggleButton>
-                <ToggleButton value='polygon'>polygon</ToggleButton>
-              </ToggleButtonGroup>
-            </Grid>
-          </Grid>
-          <GuiPanelButton
-            tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
-            onClick={openFileSelector}
-          >
-            Import Model/Texture
-          </GuiPanelButton>
-          {!model ? undefined : (
-            <GuiPanelButton
-              tooltip={
-                <div>
-                  <p>
-                    Export an.obj file representing the selected in-scene model
-                    meshes.
-                  </p>
-                </div>
-              }
-              onClick={onExportOBJFile}
-              color='secondary'
-            >
-              Export Model .OBJ
-            </GuiPanelButton>
-          )}
-          {exportSelectionButton}
-        </div>
-        {!hasLoadedTextureFile ? undefined : (
-          <>
-            <Divider flexItem>
-              <Typography variant='subtitle2' textAlign='left' width='100%'>
-                Textures
-              </Typography>
-            </Divider>
-            <div className='textures'>{textures}</div>
-          </>
-        )}
-        {!hasLoadedTextureFile || hasCompressedTextures ? undefined : (
-          <div className='export-texture-button-container'>
-            <GuiPanelButton
-              tooltip='Download texture ROM binary with replaced images'
-              onClick={onExportTextureFile}
-              color='secondary'
-            >
-              Export Textures
-            </GuiPanelButton>
-          </div>
-        )}
+        <GuiPanelModels />
+        <Divider flexItem />
+        {!hasLoadedTextureFile ? undefined : <GuiPanelTextures />}
+        {!hasLoadedTextureFile ? undefined : <Divider flexItem />}
         <GuiPanelViewOptions />
       </div>
     </StyledPaper>

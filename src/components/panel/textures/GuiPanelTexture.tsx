@@ -43,7 +43,7 @@ const StyledPanelTexture = styled('div')(
   & .size-notation {
     position: absolute;
     right: ${theme.spacing(1)};
-    bottom: 0;
+    bottom: ${theme.spacing(2)};
     color: ${theme.palette.primary.contrastText};
     text-shadow: 1px 1px 1px black;
     filter: drop-shadow(3px 3px 1px black);
@@ -73,7 +73,7 @@ export default function GuiPanelTexture({
       <div className={clsx(selected && 'selected', 'image-area')}>
         <Image
           src={dataUrl}
-          id={`debug-panel-t-${textureIndex}`}
+          id={`gui-panel-t-${textureIndex}`}
           alt={`Texture # ${textureIndex}`}
           width={Number(width)}
           height={Number(height)}
