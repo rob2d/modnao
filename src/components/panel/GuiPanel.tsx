@@ -120,7 +120,7 @@ const StyledPaper = styled(Paper)(
     }
 
     & .MuiDivider-root:not(:first-child) {
-      padding-top: ${theme.spacing(2)};
+      padding-top: ${theme.spacing(1)};
     }
 
     & .MuiIconButton-root.model-nav-button {

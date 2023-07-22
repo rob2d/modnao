@@ -8,6 +8,7 @@ import {
   selectObjectKey,
   selectObjectMeshIndex,
   selectSceneTextureDefs,
+  selectTextureFileName,
   useAppDispatch,
   useAppSelector
 } from '@/store';
@@ -21,6 +22,7 @@ export default function GuiPanelViewOptions() {
   const hasCompressedTextures = useAppSelector(selectHasCompressedTextures);
   const textureDefs = useAppSelector(selectSceneTextureDefs);
   const objectKey = useAppSelector(selectObjectKey);
+  const textureFileName = useAppSelector(selectTextureFileName);
 
   const selectedMeshTexture: number = useMemo(() => {
     const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
@@ -68,7 +70,7 @@ export default function GuiPanelViewOptions() {
   }, [model, textureDefs, selectedMeshTexture]);
 
   return (
-    <GuiPanelSection title='Textures'>
+    <GuiPanelSection title='Textures' subtitle={textureFileName}>
       <div className='textures'>{textures}</div>
       {hasCompressedTextures ? undefined : (
         <div className='export-texture-button-container'>

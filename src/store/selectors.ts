@@ -52,6 +52,9 @@ export const selectSceneTextureDefs = createSelector(
 export const selectPolygonFileName = (s: AppState) =>
   s.modelData.polygonFileName;
 
+export const selectTextureFileName = (s: AppState) =>
+  s.modelData.textureFileName;
+
 export const selectModel = createSelector(
   selectModelIndex,
   selectStageModels,

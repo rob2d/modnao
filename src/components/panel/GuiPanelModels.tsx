@@ -19,6 +19,7 @@ import {
   selectModelIndex,
   selectObjectKey,
   selectObjectSelectionType,
+  selectPolygonFileName,
   setObjectType,
   useAppDispatch,
   useAppSelector
@@ -44,6 +45,7 @@ export default function GuiPanelModels() {
     [objectSelectionType]
   );
 
+  const polygonFileName = useAppSelector(selectPolygonFileName);
   const modelIndex = useAppSelector(selectModelIndex);
   const modelCount = useAppSelector(selectModelCount);
   const model = useAppSelector(selectModel);
@@ -105,7 +107,7 @@ export default function GuiPanelModels() {
   }
 
   return (
-    <GuiPanelSection title='Models'>
+    <GuiPanelSection title='Models' subtitle={polygonFileName}>
       <div className='selection'>
         <Grid container className='property-table'>
           <Grid xs={4} className='grid-control-label'>
