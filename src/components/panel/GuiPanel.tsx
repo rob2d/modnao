@@ -1,10 +1,11 @@
-import { Paper, styled } from '@mui/material';
+import { Divider, Paper, styled } from '@mui/material';
 import { useContext } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import clsx from 'clsx';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
 import GuiPanelTextures from './GuiPanelTextures';
 import GuiPanelModels from './GuiPanelModels';
+import { selectHasLoadedTextureFile, useAppSelector } from '@/store';
 
 const WIDTH = 222;
 
@@ -77,13 +78,7 @@ const StyledPaper = styled(Paper)(
       width: 100%;    
     }
 
-    & *:nth-child(odd) {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-    }
-
-    & .property-table *:nth-child(even) {
+    & .property-table *:nth-of-type(even) {
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -103,10 +98,6 @@ const StyledPaper = styled(Paper)(
 
     & .content > .MuiDivider-root {
       margin-bottom: ${theme.spacing(1)};
-    }
-
-    & > .textures *:not(:last-child) {
-      margin-bottom: ${theme.spacing(1)}
     }
 
     & .view-options {
@@ -129,17 +120,24 @@ const StyledPaper = styled(Paper)(
     }
 
     & .MuiDivider-root:not(:first-child) {
-      padding-top: ${theme.spacing(1)};
+      padding-top: ${theme.spacing(2)};
     }
 
     & .MuiIconButton-root.model-nav-button {
       width: 28px;
+    }
+
+    & .grid-control-label {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
     }
   `
 );
 
 export default function GuiPanel() {
   const viewOptions = useContext(ViewOptionsContext);
+  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
 
   return (
     <StyledPaper
@@ -148,7 +146,9 @@ export default function GuiPanel() {
     >
       <div className='content'>
         <GuiPanelModels />
-        <GuiPanelTextures />
+        <Divider flexItem />
+        {!hasLoadedTextureFile ? undefined : <GuiPanelTextures />}
+        {!hasLoadedTextureFile ? undefined : <Divider flexItem />}
         <GuiPanelViewOptions />
       </div>
     </StyledPaper>

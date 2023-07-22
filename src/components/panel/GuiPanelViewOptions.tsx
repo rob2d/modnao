@@ -1,13 +1,13 @@
 import {
   Checkbox,
   FormControlLabel,
-  Grid,
   Slider,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
   styled
 } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import GuiPanelSection from './GuiPanelSection';
 import { SyntheticEvent, useCallback, useContext } from 'react';
 import ViewOptionsContext, {
@@ -93,21 +93,6 @@ export default function GuiPanelViewOptions() {
           </Grid>
         </Grid>
         {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-          <Tooltip
-            title='Toggle selected polygon addresess visibility'
-            placement='top-start'
-          >
-            <FormControlLabel
-              control={
-                <Checkbox checked={viewOptions.objectAddressesVisible} />
-              }
-              label='Addresses'
-              labelPlacement='start'
-              onChange={onSetObjectAddressesVisible}
-            />
-          </Tooltip>
-        )}
-        {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
           <FormControlLabel
             control={
               <Slider
@@ -124,6 +109,21 @@ export default function GuiPanelViewOptions() {
             label='Line Width'
             labelPlacement='start'
           />
+        )}
+        {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
+          <Tooltip
+            title='Toggle selected polygon addresess visibility'
+            placement='top-start'
+          >
+            <FormControlLabel
+              control={
+                <Checkbox checked={viewOptions.objectAddressesVisible} />
+              }
+              label='Addresses'
+              labelPlacement='start'
+              onChange={onSetObjectAddressesVisible}
+            />
+          </Tooltip>
         )}
         <div className='settings-row'>
           <Tooltip title='Toggle axes helper visibility'>

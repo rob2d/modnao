@@ -51,7 +51,7 @@ const StyledContent = styled('div')(
   height: auto;
 }
 
-& > div:nth-child(2) {
+& > div:nth-of-type(2) {
   display: flex;
   flex-direction: column;
   height: 100%;

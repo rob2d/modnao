@@ -8,7 +8,7 @@ const Styled = styled('div')(
     flex-shrink: 0;
   }
 
-  & > div:nth-child(2) {
+  & > div:nth-of-type(2) {
     overflow-y: auto;
     padding: 0 ${theme.spacing(1)};
   }

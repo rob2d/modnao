@@ -18,7 +18,6 @@ export default function GuiPanelViewOptions() {
   const dispatch = useAppDispatch();
   const model = useAppSelector(selectModel);
   const meshIndex = useAppSelector(selectObjectMeshIndex);
-  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const hasCompressedTextures = useAppSelector(selectHasCompressedTextures);
   const textureDefs = useAppSelector(selectSceneTextureDefs);
   const objectKey = useAppSelector(selectObjectKey);
@@ -68,7 +67,7 @@ export default function GuiPanelViewOptions() {
     return images;
   }, [model, textureDefs, selectedMeshTexture]);
 
-  return !hasLoadedTextureFile ? null : (
+  return (
     <GuiPanelSection title='Textures'>
       <div className='textures'>{textures}</div>
       {hasCompressedTextures ? undefined : (

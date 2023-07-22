@@ -19,6 +19,10 @@ const StyledPanelTexture = styled('div')(
     width: 100%;
   }
 
+  &:not(:last-child) .image-area {
+    margin-bottom: ${theme.spacing(1)};
+  }
+
   & .image-overlay {
     position: absolute;
     left: 0;

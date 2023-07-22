@@ -108,7 +108,7 @@ export default function GuiPanelModels() {
     <GuiPanelSection title='Models'>
       <div className='selection'>
         <Grid container className='property-table'>
-          <Grid xs={4}>
+          <Grid xs={4} className='grid-control-label'>
             <Typography variant='body1' textAlign='right'>
               Models
             </Typography>
@@ -138,7 +138,7 @@ export default function GuiPanelModels() {
               <Icon path={mdiMenuRightOutline} size={1} />
             </IconButton>
           </Grid>
-          <Grid xs={8}>
+          <Grid xs={8} className='grid-control-label'>
             <Typography variant='body1' textAlign='right'>
               Object Key
             </Typography>
@@ -148,7 +148,7 @@ export default function GuiPanelModels() {
               {!objectKey ? '--' : objectKey}
             </Typography>
           </Grid>
-          <Grid xs={8}>
+          <Grid xs={8} className='grid-control-label'>
             <Typography variant='body1' textAlign='right'>
               Object Type
             </Typography>
