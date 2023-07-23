@@ -61,7 +61,9 @@ const StyledContent = styled('div')(
 
 & .MuiCard-root {
   display: flex; 
-  margin-bottom: 16px;
+  margin-bottom: ${theme.spacing(2)};
+  margin-left: ${theme.spacing(1)};
+  margin-right: ${theme.spacing(1)};
   flex-shrink: 0;
 }
 

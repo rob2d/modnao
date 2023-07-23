@@ -12,6 +12,12 @@ const Styled = styled('div')(
     overflow-y: auto;
     padding: 0 ${theme.spacing(1)};
   }
+
+  & .MuiCard-root {
+    margin-left: ${theme.spacing(1)};
+    margin-right: ${theme.spacing(1)};
+  }
+
   & .MuiCard-root:not(:last-of-type) {
     margin-bottom: ${theme.spacing(3)};
   }
