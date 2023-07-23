@@ -1,4 +1,6 @@
-import { styled } from '@mui/material';
+import { Button, styled } from '@mui/material';
+import Icon from '@mdi/react';
+import { mdiChevronDoubleRight } from '@mdi/js';
 import Contributors from './sections/Contributors';
 import KeyboardShortcuts from './sections/KeyboardShortcuts';
 import SceneNavigationHints from './sections/SceneNavigationHints';
@@ -12,6 +14,12 @@ const Styled = styled('div')(
       display: inline-grid;
       grid-template-columns: 5fr 7fr 5fr;
       gap: ${theme.spacing(2)};
+    }
+
+    & .ok-button {
+      position: absolute;
+      bottom: ${theme.spacing(2)};
+      right: ${theme.spacing(2)};
     }
 
     ${theme.breakpoints.down('md')} {
@@ -49,7 +57,8 @@ const Styled = styled('div')(
     }`
 );
 
-export default function AppInfo() {
+type Props = { onCloseDialog: ((reason: string) => void) | undefined };
+export default function AppInfo({ onCloseDialog }: Props) {
   return (
     <Styled>
       <div>
@@ -63,6 +72,13 @@ export default function AppInfo() {
         <Contributors />
         <KeyboardShortcuts />
         <SceneNavigationHints />
+        <Button
+          variant='outlined'
+          className='ok-button'
+          onClick={onCloseDialog as () => void}
+        >
+          OK <Icon path={mdiChevronDoubleRight} size={1} />
+        </Button>
       </div>
     </Styled>
   );

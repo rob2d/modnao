@@ -9,11 +9,32 @@ import {
   styled
 } from '@mui/material';
 import AppInfoSectionHeader from '../AppInfoSectionHeader';
+import Icon from '@mdi/react';
+import { mdiDotsVertical } from '@mdi/js';
 
 const Styled = styled('div')(
-  () => `& {
+  ({ theme }) => `& {
   .MuiButton-root {
     pointer-events: none;
+  }
+
+  & .highlight {
+    font-weight: bold;
+  }
+
+  & .MuiTypography-root {
+    text-wrap: balance;
+  }
+
+  .burger-menu-icon {
+    position: relative;
+    top: 6px;
+  }
+
+  .model-no-highlight {
+    font-weight: bold;
+    border-bottom: 2px solid ${theme.palette.secondary.main};
+    margin: 0 1px;
   }
 }`
 );
@@ -59,15 +80,30 @@ export default function GettingStarted() {
                 texture file.
               </Typography>
               <Typography>
-                Supported model files are in the format: &quot;STG
-                <i>XY</i>
-                POL.BIN&quot; or &quot;DM<i>XY</i>.BIN&quot;. Also optionally
-                with an &quot;STG
-                <i>XY</i>
-                TEX.BIN&quot; or &quot;DM
-                <i>XY</i>TEX.BIN&quot;, representing the texture data associated
-                with that polygon file (where <b>XY</b> here is the number of
-                the polygon or texture). Hold control to multi select files.
+                Model files accepted are in the format:&nbsp;
+                <span className='highlight'>
+                  STG
+                  <span className='model-no-highlight'>XY</span>
+                  POL.BIN
+                </span>
+                &nbsp;or&nbsp;
+                <span className='highlight'>
+                  DM<span className='model-no-highlight'>XY</span>.BIN
+                </span>
+                , with optional associated texture files as&nbsp;
+                <span className='highlight'>
+                  STG
+                  <span className='model-no-highlight'>XY</span>
+                  TEX.BIN
+                </span>
+                &nbsp;or&nbsp;
+                <span className='highlight'>
+                  DM
+                  <span className='model-no-highlight'>XY</span>TEX.BIN
+                </span>
+                , representing the texture data associated with that polygon
+                file (where <span className='model-no-highlight'>XY</span> is
+                the number of the model). Hold control to multi select files.
               </Typography>
             </StepContent>
           </Step>
@@ -78,8 +114,13 @@ export default function GettingStarted() {
                 Browse Models using arrow keys or model navigation buttons.
               </Typography>
               <Typography>
-                Click a polygon to highlight its texture, then hit the 3 dot
-                menu icon. Edit the texture color sliders or replace the image
+                Click a polygon to highlight its texture, then hit the&nbsp;
+                <Icon
+                  path={mdiDotsVertical}
+                  size={1}
+                  className='burger-menu-icon'
+                />
+                &nbsp;icon. Edit the texture color sliders or replace the image
                 with one of equal size.
               </Typography>
             </StepContent>
@@ -88,8 +129,16 @@ export default function GettingStarted() {
             <StepLabel>Export Textures and Build</StepLabel>
             <StepContent>
               <Typography>
-                Once textures are edited, click &quot;Export Textures&quot; to
-                export. Rebuild your files using&nbsp;
+                Once textures are edited, click&nbsp;
+                <Button
+                  onClick={noop}
+                  color='secondary'
+                  size='small'
+                  variant='outlined'
+                >
+                  Export Textures
+                </Button>
+                &nbsp;to export. Rebuild your files using&nbsp;
                 <Link
                   href='https://projects.sappharad.com/tools/gdibuilder13_win32.zip'
                   target='_new'
