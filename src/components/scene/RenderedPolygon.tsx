@@ -163,7 +163,7 @@ export default function RenderedPolygon({
               materialProps={{
                 map: texture,
                 transparent: true,
-                opacity: isSelected ? 0.65 : 1
+                opacity: isSelected ? 0.85 : 1
               }}
             />
           ) : (
