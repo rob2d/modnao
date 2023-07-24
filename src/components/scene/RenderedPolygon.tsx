@@ -140,6 +140,16 @@ export default function RenderedPolygon({
     );
   }, [color, objectAddressesVisible, meshDisplayMode, isSelected]);
 
+  const texturedMaterialProps = useMemo(
+    () => ({
+      map: texture,
+      transparent: true,
+      opacity: isSelected ? 0.75 : 1,
+      alphaTest: isSelected ? 0 : 1
+    }),
+    [texture, isSelected]
+  );
+
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.nativeEvent.stopPropagation();
     e.stopPropagation();
@@ -151,7 +161,7 @@ export default function RenderedPolygon({
       {meshAddressText}
       <Select enabled={isSelected}>
         <mesh
-          key={`${address}_${meshDisplayMode}_${color}`}
+          key={`${address}_${meshDisplayMode}_${color}_${isSelected}`}
           onClick={handleClick}
         >
           {meshDisplayMode === 'textured' ? (
@@ -160,11 +170,7 @@ export default function RenderedPolygon({
               normals={normals}
               uvs={uvs}
               indices={indices}
-              materialProps={{
-                map: texture,
-                transparent: true,
-                opacity: isSelected ? 0.85 : 1
-              }}
+              materialProps={texturedMaterialProps}
             />
           ) : (
             <RenderedWireframePolygon
