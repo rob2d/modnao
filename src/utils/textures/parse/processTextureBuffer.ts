@@ -7,6 +7,7 @@ import {
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import offscreenCanvasToDataUrl from '@/utils/offscreenCanvasToDataUrl';
+import { SourceTextureData } from '../SourceTextureData';
 
 const COLOR_SIZE = 2;
 
@@ -25,11 +26,11 @@ export default async function processTextureBuffer(
   textureDefs: NLTextureDef[]
 ): Promise<{
   textureDefs: NLTextureDef[];
-  sourceTextureData: { translucent: ImageData; opaque: ImageData }[];
+  sourceTextureData: SourceTextureData[];
 }> {
   const buffer = Buffer.from(bufferPassed);
   const nextTextureDefs: NLTextureDef[] = [];
-  const sourceTextureData: { translucent: ImageData; opaque: ImageData }[] = [];
+  const sourceTextureData: SourceTextureData[] = [];
 
   let i = 0;
   for (const t of textureDefs) {

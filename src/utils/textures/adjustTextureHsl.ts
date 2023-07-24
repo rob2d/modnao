@@ -4,17 +4,17 @@ import HslValues from './HslValues';
 import { RgbaColor } from './RgbaColor';
 
 export default async function adjustTextureHsl(
-  sourceTextureData: ImageData,
+  sourceImageData: ImageData,
   hsl: HslValues
 ) {
   const { h, s, l } = hsl;
   const canvas = new OffscreenCanvas(
-    sourceTextureData.width,
-    sourceTextureData.height
+    sourceImageData.width,
+    sourceImageData.height
   );
   const ctx = canvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const sourceData = sourceTextureData.data;
+  const sourceData = sourceImageData.data;
 
   /**
    * colors tend to be within ranges, so create a
