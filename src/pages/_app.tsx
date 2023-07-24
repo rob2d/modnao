@@ -2,7 +2,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import createEmotionCache from '../createEmotionCache';
 import type { AppProps } from 'next/app';
-import useModedTheme from '@/theming/useModedTheme';
+import useUserTheme from '@/theming/useUserTheme';
 import { wrapper } from '@/store';
 import { ViewOptionsContextProvider } from '@/contexts/ViewOptionsContext';
 import { SceneContextProvider } from '@/contexts/SceneContext';
@@ -16,7 +16,7 @@ interface ThisAppProps extends AppProps {
 
 export default function App({ Component, ...theseProps }: ThisAppProps) {
   const { emotionCache = clientSideEmotionCache } = theseProps;
-  const theme = useModedTheme();
+  const theme = useUserTheme({});
   const { store, props } = wrapper.useWrappedStore(theseProps);
 
   return (
