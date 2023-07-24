@@ -60,14 +60,17 @@ export type GuiPanelTextureProps = {
   textureIndex: number;
 };
 
+// @TODO: calculate which dataUrl to show (opaque vs transparent) in parent
+// so that all textures don't include a selector to run on renders
+
 export default function GuiPanelTexture({
   selected,
   textureIndex,
   textureDef,
   textureSize
 }: GuiPanelTextureProps) {
+  const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
   const [width, height] = textureSize;
-  const isDisplayedMeshOpaque = useSelector(selectIsMeshOpaque);
 
   // always take actions on translucent texture if possible */
   const actionableDataUrl =
@@ -75,9 +78,10 @@ export default function GuiPanelTexture({
 
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
-  const displayedDataUrl = !isDisplayedMeshOpaque
-    ? actionableDataUrl
-    : textureDef.dataUrls.opaque || textureDef.dataUrls.translucent || '';
+  const displayedDataUrl =
+    (selected && isSelectedMeshOpaque
+      ? textureDef.dataUrls.opaque || textureDef.dataUrls.translucent
+      : actionableDataUrl) || '';
 
   return (
     <StyledPanelTexture>
