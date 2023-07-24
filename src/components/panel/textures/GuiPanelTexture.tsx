@@ -4,6 +4,8 @@ import { Typography, styled } from '@mui/material';
 import clsx from 'clsx';
 import Image from 'next/image';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
+import { useSelector } from 'react-redux';
+import { selectIsMeshOpaque } from '@/store';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -65,14 +67,23 @@ export default function GuiPanelTexture({
   textureSize
 }: GuiPanelTextureProps) {
   const [width, height] = textureSize;
-  const dataUrl =
-    textureDef.dataUrls.opaque || textureDef.dataUrls.translucent || '';
+  const isDisplayedMeshOpaque = useSelector(selectIsMeshOpaque);
+
+  // always take actions on translucent texture if possible */
+  const actionableDataUrl =
+    textureDef.dataUrls.translucent || textureDef.dataUrls.opaque || '';
+
+  // if there's a currently selected mesh and it's opaque, prioritize opaque,
+  // otherwise fallback to actionable dataUrl
+  const displayedDataUrl = !isDisplayedMeshOpaque
+    ? actionableDataUrl
+    : textureDef.dataUrls.opaque || textureDef.dataUrls.translucent || '';
 
   return (
     <StyledPanelTexture>
       <div className={clsx(selected && 'selected', 'image-area')}>
         <Image
-          src={dataUrl}
+          src={displayedDataUrl}
           id={`gui-panel-t-${textureIndex}`}
           alt={`Texture # ${textureIndex}`}
           width={Number(width)}
@@ -85,7 +96,10 @@ export default function GuiPanelTexture({
         >
           {textureSize[0]}x{textureSize[0]} [{textureIndex}]
         </Typography>
-        <GuiPanelTextureMenu textureIndex={textureIndex} dataUrl={dataUrl} />
+        <GuiPanelTextureMenu
+          textureIndex={textureIndex}
+          dataUrl={actionableDataUrl}
+        />
       </div>
     </StyledPanelTexture>
   );
