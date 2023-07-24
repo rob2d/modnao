@@ -2,6 +2,7 @@ import loadTextureFile from './utils/textures/parse/loadTextureFile';
 import { NLTextureDef } from './types/NLAbstractions';
 import HslValues from './utils/textures/HslValues';
 import adjustTextureHsl from './utils/textures/adjustTextureHsl';
+import { SourceTextureData } from './utils/textures/SourceTextureData';
 
 export type WorkerEvent =
   | {
@@ -10,7 +11,7 @@ export type WorkerEvent =
         buffer: Buffer;
         textureDefs: NLTextureDef[];
         fileName: string;
-        sourceTextureData: { translucent: ImageData; opaque: ImageData };
+        sourceTextureData: SourceTextureData;
       };
     }
   | {
@@ -18,10 +19,7 @@ export type WorkerEvent =
       payload: {
         textureIndex: number;
         hsl: HslValues;
-        sourceTextureData: {
-          translucent: ImageData;
-          opaque: ImageData;
-        };
+        sourceTextureData: SourceTextureData;
       };
     };
 
@@ -33,7 +31,7 @@ export type WorkerResponses =
         textureDefs: NLTextureDef[];
         fileName: string;
         hasCompressedTextures: boolean;
-        sourceTextureData: { translucent: ImageData; opaque: ImageData }[];
+        sourceTextureData: SourceTextureData[];
       };
     }
   | {
@@ -49,13 +47,7 @@ addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
   const { type, payload } = data;
   switch (type) {
     case 'loadTextureFile': {
-      const { buffer, textureDefs, fileName } = payload;
-
-      const result = await loadTextureFile({
-        buffer,
-        fileName,
-        textureDefs
-      });
+      const result = await loadTextureFile(payload);
 
       postMessage({ type: 'loadTextureFile', result });
       break;

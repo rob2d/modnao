@@ -2,27 +2,38 @@ import loadImageFromDataUrl from '@/utils/images/loadImageFromDataUrl';
 import nonSerializables from '../nonSerializables';
 
 export default async function storeSourceTextureData(
-  dataUrl: string,
+  dataUrls: { opaque?: string; translucent?: string },
   textureIndex: number
 ) {
-  const image = await loadImageFromDataUrl(dataUrl);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-  const width = image.width;
-  const height = image.height;
-  canvas.width = width;
-  canvas.height = height;
-  ctx.drawImage(image, 0, 0);
+  for (const [, dataUrl] of Object.entries(dataUrls)) {
+    const image = await loadImageFromDataUrl(dataUrl);
+    const canvas = document.createElement('canvas');
+    const width = image.width;
+    const height = image.height;
+    canvas.width = width;
+    canvas.height = height;
 
-  ctx.translate(canvas.width / 2, canvas.height / 2);
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+    ctx.drawImage(image, 0, 0);
 
-  ctx.rotate((90 * Math.PI) / 180);
-  ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-  const imageData = ctx.getImageData(0, 0, width, height);
+    const rotatedCanvas = document.createElement('canvas');
+    rotatedCanvas.width = width;
+    rotatedCanvas.height = height;
+    const rotatedCtx = rotatedCanvas.getContext(
+      '2d'
+    ) as CanvasRenderingContext2D;
 
-  // @TODO process both translucent and opaque data variants
-  nonSerializables.sourceTextureData[textureIndex] = {
-    opaque: imageData,
-    translucent: imageData
-  };
+    rotatedCtx.translate(canvas.width / 2, canvas.height / 2);
+
+    rotatedCtx.rotate((90 * Math.PI) / 180);
+    rotatedCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+
+    const imageData = rotatedCtx.getImageData(0, 0, width, height);
+
+    // @TODO process both translucent and opaque data variants
+    nonSerializables.sourceTextureData[textureIndex] = {
+      opaque: imageData,
+      translucent: imageData
+    };
+  }
 }

@@ -1,6 +1,7 @@
 import { NLTextureDef } from '@/types/NLAbstractions';
 import processTextureBuffer from './processTextureBuffer';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
+import { SourceTextureData } from '../SourceTextureData';
 
 export default async function loadTextureFile({
   buffer,
@@ -16,19 +17,17 @@ export default async function loadTextureFile({
     fileName: string;
     hasCompressedTextures: boolean;
     buffer: Buffer;
-    sourceTextureData: { translucent: ImageData; opaque: ImageData }[];
+    sourceTextureData: SourceTextureData[];
   };
 
   try {
-    const { textureDefs: nextTextureDefs, sourceTextureData } =
-      await processTextureBuffer(buffer, textureDefs);
+    const textureBufferData = await processTextureBuffer(buffer, textureDefs);
 
     result = {
-      textureDefs: nextTextureDefs,
       hasCompressedTextures: false,
       fileName,
       buffer,
-      sourceTextureData
+      ...textureBufferData
     };
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
@@ -41,15 +40,16 @@ export default async function loadTextureFile({
 
     const decompressedBuffer = decompressTextureBuffer(buffer);
 
-    const { textureDefs: nextTextureDefs, sourceTextureData } =
-      await processTextureBuffer(decompressedBuffer, textureDefs);
+    const textureBufferData = await processTextureBuffer(
+      decompressedBuffer,
+      textureDefs
+    );
 
     result = {
-      textureDefs: nextTextureDefs,
       fileName,
       hasCompressedTextures: true,
       buffer: decompressedBuffer,
-      sourceTextureData
+      ...textureBufferData
     };
   }
 

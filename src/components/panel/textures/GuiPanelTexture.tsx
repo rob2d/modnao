@@ -4,6 +4,8 @@ import { Typography, styled } from '@mui/material';
 import clsx from 'clsx';
 import Image from 'next/image';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
+import { useSelector } from 'react-redux';
+import { selectIsMeshOpaque } from '@/store';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -58,21 +60,34 @@ export type GuiPanelTextureProps = {
   textureIndex: number;
 };
 
+// @TODO: calculate which dataUrl to show (opaque vs transparent) in parent
+// so that all textures don't include a selector to run on renders
+
 export default function GuiPanelTexture({
   selected,
   textureIndex,
   textureDef,
   textureSize
 }: GuiPanelTextureProps) {
+  const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
   const [width, height] = textureSize;
-  const dataUrl =
-    textureDef.dataUrls.opaque || textureDef.dataUrls.translucent || '';
+
+  // always take actions on translucent texture if possible */
+  const actionableDataUrl =
+    textureDef.dataUrls.translucent || textureDef.dataUrls.opaque || '';
+
+  // if there's a currently selected mesh and it's opaque, prioritize opaque,
+  // otherwise fallback to actionable dataUrl
+  const displayedDataUrl =
+    (selected && isSelectedMeshOpaque
+      ? textureDef.dataUrls.opaque || textureDef.dataUrls.translucent
+      : actionableDataUrl) || '';
 
   return (
     <StyledPanelTexture>
       <div className={clsx(selected && 'selected', 'image-area')}>
         <Image
-          src={dataUrl}
+          src={displayedDataUrl}
           id={`gui-panel-t-${textureIndex}`}
           alt={`Texture # ${textureIndex}`}
           width={Number(width)}
@@ -85,7 +100,10 @@ export default function GuiPanelTexture({
         >
           {textureSize[0]}x{textureSize[0]} [{textureIndex}]
         </Typography>
-        <GuiPanelTextureMenu textureIndex={textureIndex} dataUrl={dataUrl} />
+        <GuiPanelTextureMenu
+          textureIndex={textureIndex}
+          dataUrl={actionableDataUrl}
+        />
       </div>
     </StyledPanelTexture>
   );

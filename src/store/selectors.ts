@@ -67,3 +67,9 @@ export const selectObjectMeshIndex = createSelector(
   (objectKey: string | undefined) =>
     !objectKey ? -1 : Number(objectKey.split('-')[0])
 );
+
+export const selectIsMeshOpaque = createSelector(
+  selectModel,
+  selectObjectMeshIndex,
+  (model, meshIndex) => model?.meshes[meshIndex]?.isOpaque
+);

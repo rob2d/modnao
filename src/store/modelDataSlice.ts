@@ -179,7 +179,13 @@ export const replaceTextureDataUrl = createAsyncThunk<
     // @TODO process both opaque and non-opaque textures
     // and then update state for both in action
 
-    await storeSourceTextureData(dataUrl, textureIndex);
+    await storeSourceTextureData(
+      {
+        opaque: dataUrl,
+        translucent: dataUrl
+      },
+      textureIndex
+    );
 
     return { textureIndex, dataUrl };
   }
