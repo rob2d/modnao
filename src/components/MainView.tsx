@@ -5,8 +5,10 @@ import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import clsx from 'clsx';
 import { useCallback, useContext, useState } from 'react';
+import { useContext } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import AppInfoDialog from './app-info/AppInfoDialog';
+import { useDialogState } from '@/hooks/useDialogState';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -48,16 +50,7 @@ const Styled = styled('main')(
 );
 
 export default function MainView() {
-  const [infoShown, setInfoShown] = useState(true);
-  const onCloseInfoDialog = useCallback(() => {
-    infoShown && setInfoShown(false);
-  }, [infoShown]);
-
-  const onShowInfoDialog = useCallback(() => {
-    if (!infoShown) {
-      setInfoShown(true);
-    }
-  }, [infoShown]);
+  const [infoShown, onShowInfoDialog, onCloseInfoDialog] = useDialogState();
   const { guiPanelVisible } = useContext(ViewOptionsContext);
 
   return (
