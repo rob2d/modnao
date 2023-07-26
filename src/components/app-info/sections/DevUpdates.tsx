@@ -10,7 +10,7 @@ import {
   Typography,
   styled
 } from '@mui/material';
-import AppInfoSectionHeader from '../AppInfoSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 dayjs.extend(advancedFormat);
 
 type Vlog = {
@@ -113,7 +113,7 @@ export default function DevUpdates() {
 
   return (
     <StyledContent className='app-info-section'>
-      <AppInfoSectionHeader>Development Updates / Vlog</AppInfoSectionHeader>
+      <DialogSectionHeader>Development Updates / Vlog</DialogSectionHeader>
       <div>
         {!vlogs ? (
           <div className='loading'>

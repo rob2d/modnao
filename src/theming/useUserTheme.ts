@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import themes from '@/theming/themes';
 import { Theme, useMediaQuery, createTheme, ScenePalette } from '@mui/material';
-import { Palette, ThemeOptions } from '@mui/material/styles';
+import { ThemeOptions } from '@mui/material/styles';
 
 let hasInitialized = false;
 
@@ -36,7 +36,7 @@ export default function useUserTheme(scenePalette: Partial<ScenePalette>) {
       return;
     }
     setThemeApplied(setupThemeOptions(isDarkMode, scenePalette));
-  }, [isDarkMode]);
+  }, [isDarkMode, scenePalette]);
 
   return themeApplied;
 }

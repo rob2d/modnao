@@ -1,10 +1,10 @@
 import { Typography } from '@mui/material';
-import AppInfoSectionHeader from '../AppInfoSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 
 export default function KeyboardShortcuts() {
   return (
     <div className='app-info-section'>
-      <AppInfoSectionHeader>Scene Navigation</AppInfoSectionHeader>
+      <DialogSectionHeader>Scene Navigation</DialogSectionHeader>
       <div>
         <Typography variant={'body1'}>
           <b>Mouse Click & Drag</b>&nbsp;&nbsp; Rotate Camera

@@ -8,7 +8,7 @@ import {
   Typography,
   styled
 } from '@mui/material';
-import AppInfoSectionHeader from '../AppInfoSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
 
@@ -44,7 +44,7 @@ const noop = () => undefined;
 export default function GettingStarted() {
   return (
     <div className='app-info-section'>
-      <AppInfoSectionHeader>Getting Started</AppInfoSectionHeader>
+      <DialogSectionHeader>Getting Started</DialogSectionHeader>
       <Styled>
         <Stepper orientation='vertical' nonLinear>
           <Step key='Extract Game Files' active={true}>

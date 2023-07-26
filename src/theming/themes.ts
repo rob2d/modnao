@@ -10,13 +10,11 @@ export const firaCode = Fira_Code({
 const modes: PaletteMode[] = ['dark', 'light'];
 
 declare module '@mui/material' {
-  type ScenePalette = {
+  export type ScenePalette = {
     background: CSSProperties['color'];
     default: CSSProperties['color'];
     selected: CSSProperties['color'];
     flagged: CSSProperties['color'];
-    textureDefault: CSSProperties['color'];
-    textureSelected: CSSProperties['color'];
   };
 
   interface PanelTexturePalette {
@@ -75,9 +73,7 @@ const themes = Object.fromEntries(
           background: mode === 'dark' ? '#1c121c' : '#efefff',
           default: mode === 'dark' ? '#683C62' : '#AAC',
           selected: mode === 'dark' ? '#FF00F2' : '#e98df5',
-          flagged: '#9BF',
-          textureDefault: '#fff',
-          textureSelected: mode === 'dark' ? '#9cf' : '#f9c'
+          flagged: '#9BF'
         },
         panelTexture: {
           background: mode === 'dark' ? '#1d1b1d' : '#efefff'

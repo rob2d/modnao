@@ -7,6 +7,7 @@ import React, {
   useEffect
 } from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
+import { ScenePalette } from '@mui/material';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
 
@@ -17,12 +18,14 @@ export type ViewOptions = {
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
   wireframeLineWidth: number;
+  scenePalette?: ScenePalette;
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
+  setScenePalette: (_: ScenePalette | undefined) => void;
 };
 
 export const ViewOptionsContext = React.createContext<ViewOptions>({
@@ -32,12 +35,14 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
   wireframeLineWidth: 3,
+  scenePalette: undefined,
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
   setGuiPanelVisible: (_: boolean) => null,
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
-  setWireframeLineWidth: (_: number) => null
+  setWireframeLineWidth: (_: number) => null,
+  setScenePalette: (_: ScenePalette | undefined) => null
 });
 
 type Props = { children: ReactNode };
@@ -51,6 +56,10 @@ export function ViewOptionsContextProvider({ children }: Props) {
     useState<MeshDisplayMode>('wireframe');
   const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(true);
   const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(3);
+
+  const [scenePalette, handleSetScenePalette] = useState<
+    ScenePalette | undefined
+  >(undefined);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -86,6 +95,14 @@ export function ViewOptionsContextProvider({ children }: Props) {
         Number(
           localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) || 4
         ) as number
+      );
+    }
+
+    if (localStorage.getItem(StorageKeys.SCENE_PALETTE) !== null) {
+      handleSetScenePalette(
+        JSON.parse(
+          localStorage.getItem(StorageKeys.SCENE_PALETTE) || 'undefined'
+        ) as ScenePalette | undefined
       );
     }
   }, []);
@@ -148,6 +165,16 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [wireframeLineWidth]
   );
 
+  const setScenePalette = useCallback(
+    (value: ScenePalette | undefined) => {
+      if (scenePalette !== value) {
+        localStorage.setItem(StorageKeys.SCENE_PALETTE, JSON.stringify(value));
+        handleSetScenePalette(value);
+      }
+    },
+    [scenePalette]
+  );
+
   const contextValue = useMemo<ViewOptions>(
     () => ({
       objectAddressesVisible,
@@ -161,7 +188,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
       guiPanelVisible,
       setGuiPanelVisible,
       wireframeLineWidth,
-      setWireframeLineWidth
+      setWireframeLineWidth,
+      scenePalette,
+      setScenePalette
     }),
     [
       objectAddressesVisible,
@@ -175,7 +204,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
       wireframeLineWidth,
       setWireframeLineWidth,
       guiPanelVisible,
-      setGuiPanelVisible
+      setGuiPanelVisible,
+      scenePalette,
+      setScenePalette
     ]
   );
 
