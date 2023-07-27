@@ -55,7 +55,7 @@ const paletteKeyMap = new Map<string, string>([
   ['selected', 'Selections']
 ]);
 
-export default function PaletteEditor() {
+export default function SceneScenePaletteEditor() {
   const {
     palette: { scene: scenePalette },
     spacing
