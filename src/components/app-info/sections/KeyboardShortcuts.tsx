@@ -1,12 +1,12 @@
 import { Typography, styled } from '@mui/material';
-import AppInfoSectionHeader from '../AppInfoSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 
 const Styled = styled('div')(() => `& {}`);
 
 export default function KeyboardShortcuts() {
   return (
     <div className='app-info-section'>
-      <AppInfoSectionHeader>Keyboard Shortcuts</AppInfoSectionHeader>
+      <DialogSectionHeader>Keyboard Shortcuts</DialogSectionHeader>
       <Styled>
         <Typography variant={'body1'}>
           <b>Left, Right</b>&nbsp;&nbsp; Toggle Model Viewed

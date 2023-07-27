@@ -1,6 +1,6 @@
 import { styled } from '@mui/material';
-import AppInfoSectionHeader from '../AppInfoSectionHeader';
-import AppInfoProject from './AppInfoProject';
+import DialogSectionHeader from '../../DialogSectionHeader';
+import AppInfoProject from '../AppInfoProject';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -27,7 +27,7 @@ const Styled = styled('div')(
 export default function OtherProjects() {
   return (
     <Styled className='section'>
-      <AppInfoSectionHeader>Other Notable Projects</AppInfoSectionHeader>
+      <DialogSectionHeader>Other Notable Projects</DialogSectionHeader>
       <div>
         <AppInfoProject
           url='https://paxtez.zachd.com'

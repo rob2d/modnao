@@ -2,21 +2,36 @@ import { ThemeProvider } from '@mui/material/styles';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import createEmotionCache from '../createEmotionCache';
 import type { AppProps } from 'next/app';
-import useModedTheme from '@/theming/useModedTheme';
+import useUserTheme from '@/theming/useUserTheme';
 import { wrapper } from '@/store';
-import { ViewOptionsContextProvider } from '@/contexts/ViewOptionsContext';
+import ViewOptionsContext, {
+  ViewOptionsContextProvider
+} from '@/contexts/ViewOptionsContext';
 import { SceneContextProvider } from '@/contexts/SceneContext';
 import { Analytics } from '@vercel/analytics/react';
 import { Provider } from 'react-redux';
+import { useContext } from 'react';
 
 const clientSideEmotionCache = createEmotionCache();
 interface ThisAppProps extends AppProps {
   emotionCache?: EmotionCache;
 }
 
+const defaultTheme = {};
+
+const ThemedApp = ({ Component, ...props }: ThisAppProps) => {
+  const viewOptions = useContext(ViewOptionsContext);
+  const theme = useUserTheme(viewOptions.scenePalette || defaultTheme);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Component {...props} />
+    </ThemeProvider>
+  );
+};
+
 export default function App({ Component, ...theseProps }: ThisAppProps) {
   const { emotionCache = clientSideEmotionCache } = theseProps;
-  const theme = useModedTheme();
   const { store, props } = wrapper.useWrappedStore(theseProps);
 
   return (
@@ -24,9 +39,7 @@ export default function App({ Component, ...theseProps }: ThisAppProps) {
       <ViewOptionsContextProvider>
         <SceneContextProvider>
           <Provider store={store}>
-            <ThemeProvider theme={theme}>
-              <Component {...props} />
-            </ThemeProvider>
+            <ThemedApp {...props} Component={Component} />
           </Provider>
           <Analytics
             mode={

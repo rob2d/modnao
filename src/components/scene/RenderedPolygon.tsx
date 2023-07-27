@@ -35,15 +35,13 @@ export default function RenderedPolygon({
   const textRef = useRef();
   const theme = useTheme();
 
-  const { sceneMesh: colors } = theme.palette;
+  const { scene: colors } = theme.palette;
   let color: React.CSSProperties['color'];
 
   const isSelected = objectKey === selectedObjectKey;
 
   if (meshDisplayMode === 'wireframe') {
     color = isSelected ? colors.selected : colors.default;
-  } else {
-    color = isSelected ? colors.textureSelected : undefined;
   }
 
   useFrame(({ camera }) => {

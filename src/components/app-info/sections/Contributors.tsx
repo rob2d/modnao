@@ -1,5 +1,5 @@
 import { Typography, styled } from '@mui/material';
-import AppInfoSectionHeader from '../AppInfoSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 
 const StyledContent = styled('div')(
   ({ theme }) => `
@@ -23,7 +23,7 @@ const StyledContent = styled('div')(
 export default function Contributors() {
   return (
     <div className='app-info-section'>
-      <AppInfoSectionHeader>Contributions</AppInfoSectionHeader>
+      <DialogSectionHeader>Contributions</DialogSectionHeader>
       <StyledContent>
         <Typography variant={'subtitle1'}>Design/Development</Typography>
         <Typography variant={'h6'}>Rob2D</Typography>

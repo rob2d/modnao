@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { PaletteMode, Theme, createTheme } from '@mui/material';
+import { PaletteMode, Theme } from '@mui/material';
 import { Fira_Code } from 'next/font/google';
 
 export const firaCode = Fira_Code({
@@ -10,16 +10,11 @@ export const firaCode = Fira_Code({
 const modes: PaletteMode[] = ['dark', 'light'];
 
 declare module '@mui/material' {
-  type ScenePalette = {
+  export type ScenePalette = {
     background: CSSProperties['color'];
-  };
-
-  type SceneMeshPalette = {
     default: CSSProperties['color'];
     selected: CSSProperties['color'];
     flagged: CSSProperties['color'];
-    textureDefault: CSSProperties['color'];
-    textureSelected: CSSProperties['color'];
   };
 
   interface PanelTexturePalette {
@@ -28,7 +23,6 @@ declare module '@mui/material' {
 
   interface PaletteOptions {
     scene: ScenePalette;
-    sceneMesh: SceneMeshPalette;
     panelTexture: PanelTexturePalette;
   }
 
@@ -36,7 +30,6 @@ declare module '@mui/material' {
   // perhaps should post an issue
   interface Palette {
     scene: ScenePalette;
-    sceneMesh: SceneMeshPalette;
     panelTexture: PanelTexturePalette;
   }
 }
@@ -48,7 +41,7 @@ export type AppThemes = {
 const themes = Object.fromEntries(
   modes.map((mode) => [
     mode,
-    createTheme({
+    {
       typography: {
         fontFamily: firaCode.style.fontFamily
       },
@@ -77,20 +70,16 @@ const themes = Object.fromEntries(
           main: mode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'
         },
         scene: {
-          background: mode === 'dark' ? '#1c121c' : '#efefff'
-        },
-        sceneMesh: {
+          background: mode === 'dark' ? '#1c121c' : '#efefff',
           default: mode === 'dark' ? '#683C62' : '#AAC',
           selected: mode === 'dark' ? '#FF00F2' : '#e98df5',
-          flagged: '#9BF',
-          textureDefault: '#fff',
-          textureSelected: mode === 'dark' ? '#9cf' : '#f9c'
+          flagged: '#9BF'
         },
         panelTexture: {
           background: mode === 'dark' ? '#1d1b1d' : '#efefff'
         }
       }
-    })
+    }
   ])
 );
 
