@@ -21,7 +21,10 @@ const defaultTheme = {};
 
 const ThemedApp = ({ Component, ...props }: ThisAppProps) => {
   const viewOptions = useContext(ViewOptionsContext);
-  const theme = useUserTheme(viewOptions.scenePalette || defaultTheme);
+  const theme = useUserTheme(
+    viewOptions.scenePalette || defaultTheme,
+    viewOptions.themeKey
+  );
 
   return (
     <ThemeProvider theme={theme}>

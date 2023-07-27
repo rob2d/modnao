@@ -37,7 +37,9 @@ export default function Contributors() {
         <Typography variant={'subtitle1'}>
           Early User Testing & Feedback
         </Typography>
-        <Typography variant={'h6'}>Magnetro2K, Paxtez, DJ Clayface</Typography>
+        <Typography variant={'h6'}>
+          Magnetro2K, Paxtez, DJ Clayface, Toan
+        </Typography>
       </StyledContent>
     </div>
   );

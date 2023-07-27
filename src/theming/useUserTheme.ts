@@ -24,10 +24,18 @@ const setupThemeOptions = (
   return createTheme(themeOptions);
 };
 
-export default function useUserTheme(scenePalette: Partial<ScenePalette>) {
+export default function useUserTheme(
+  scenePalette: Partial<ScenePalette>,
+  lightOrDark?: 'light' | 'dark'
+) {
   const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [themeApplied, setThemeApplied] = useState<Theme>(
-    createTheme(setupThemeOptions(isDarkMode, scenePalette))
+    createTheme(
+      setupThemeOptions(
+        lightOrDark !== undefined ? lightOrDark === 'dark' : isDarkMode,
+        scenePalette
+      )
+    )
   );
 
   useEffect(() => {
@@ -36,8 +44,13 @@ export default function useUserTheme(scenePalette: Partial<ScenePalette>) {
       return;
     }
 
-    setThemeApplied(setupThemeOptions(isDarkMode, scenePalette));
-  }, [isDarkMode, scenePalette]);
+    setThemeApplied(
+      setupThemeOptions(
+        lightOrDark !== undefined ? lightOrDark === 'dark' : isDarkMode,
+        scenePalette
+      )
+    );
+  }, [isDarkMode, scenePalette, lightOrDark]);
 
   return themeApplied;
 }

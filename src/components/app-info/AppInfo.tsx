@@ -1,4 +1,4 @@
-import { Button, styled } from '@mui/material';
+import { Button, Divider, styled } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiChevronDoubleRight } from '@mdi/js';
 import Contributors from './sections/Contributors';
@@ -32,7 +32,7 @@ const Styled = styled('div')(
       overflow-y: auto;
     }
 
-    & .app-info-section:not(:last-child) {
+    & .app-info-section:not(:last-child):not(.MuiDivider-root) {
       padding-bottom: ${theme.spacing(3)};
     }
 
@@ -40,13 +40,17 @@ const Styled = styled('div')(
       max-height: 100%;
     }
 
-    .updates-and-projects > :nth-of-type(2) {
+    .updates-and-projects > :nth-of-type(3) {
       display: flex;
       flex-direction: column;
-    }   
+    }
+
+    .howto-and-contributions .MuiDivider-root {
+      margin-bottom: ${theme.spacing(2)};
+    }
     
     ${theme.breakpoints.up('md')} {
-      & .updates-and-projects > * {
+      & .updates-and-projects > *:not(.MuiDivider-root) {
         height: 50%;
         overflow-y: auto;
       }
@@ -66,12 +70,15 @@ export default function AppInfo({ onCloseDialog }: Props) {
       </div>
       <div className='updates-and-projects'>
         <DevUpdates />
+        <Divider flexItem />
         <OtherProjects />
       </div>
-      <div>
-        <Contributors />
+      <div className='howto-and-contributions'>
         <KeyboardShortcuts />
+        <Divider />
         <SceneNavigationHints />
+        <Divider />
+        <Contributors />
         <Button
           variant='outlined'
           className='ok-button'

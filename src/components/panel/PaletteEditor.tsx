@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { SketchPicker } from 'react-color';
 import {
   ButtonBase,
+  IconButton,
   Popover,
   ScenePalette,
   Tooltip,
@@ -10,6 +11,8 @@ import {
 } from '@mui/material';
 import clsx from 'clsx';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import Icon from '@mdi/react';
+import { mdiThemeLightDark } from '@mdi/js';
 
 const Styled = styled('div')(
   ({ theme }) =>
@@ -29,9 +32,9 @@ const Styled = styled('div')(
       margin-right: ${theme.spacing(1)};
     }
 
-    & div.palette {
+    & div.buttons {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
 
       & .color.selected .MuiTypography-button {
         color: ${theme.palette.primary.main};
@@ -85,41 +88,51 @@ const Styled = styled('div')(
     `
 );
 
-const paletteKeyMap = new Map<string, string>([
+const buttonsKeyMap = new Map<string, string>([
   ['background', 'Background'],
   ['default', 'Wireframe'],
   ['selected', 'Selections']
 ]);
 
-export default function ScenePaletteEditor() {
+const POPOVER_ANCHOR_ORIGIN = {
+  vertical: 'top',
+  horizontal: 'left'
+} as const;
+
+const POPOVER_TRANSFORM_ORIGIN = {
+  vertical: 'bottom',
+  horizontal: 'left'
+} as const;
+
+export default function PaletteEditor() {
   const {
     palette: { scene: scenePalette }
   } = useTheme();
 
   const viewOptions = useContext(ViewOptionsContext);
 
-  const [paletteKey, setPaletteKey] = useState<keyof ScenePalette | undefined>(
+  const [buttonsKey, setPaletteKey] = useState<keyof ScenePalette | undefined>(
     () => undefined
   );
 
   const onCloseColorPicker = useCallback(() => {
     setPaletteKey(undefined);
     setPickerAnchorEl(null);
-  }, [paletteKey]);
+  }, [buttonsKey]);
 
   const onChangeColor = useCallback(
     ({ hex }: { hex: string }) => {
-      if ((paletteKey && scenePalette[paletteKey] === hex) || !paletteKey) {
+      if ((buttonsKey && scenePalette[buttonsKey] === hex) || !buttonsKey) {
         return;
       }
       viewOptions.setScenePalette({
         ...scenePalette,
-        [paletteKey]: hex
+        [buttonsKey]: hex
       });
 
       return false;
     },
-    [scenePalette, paletteKey]
+    [scenePalette, buttonsKey]
   );
 
   const [pickerAnchorEl, setPickerAnchorEl] = useState<
@@ -129,7 +142,7 @@ export default function ScenePaletteEditor() {
   const colorBoxStyles = useMemo(
     () =>
       Object.fromEntries(
-        [...paletteKeyMap.keys()].map((key) => [
+        [...buttonsKeyMap.keys()].map((key) => [
           key,
           {
             backgroundColor: scenePalette[key as keyof ScenePalette]
@@ -141,11 +154,11 @@ export default function ScenePaletteEditor() {
 
   return (
     <Styled>
-      <div className='palette'>
-        {[...paletteKeyMap.entries()].map(([key, label]) => (
+      <div className='buttons'>
+        {[...buttonsKeyMap.entries()].map(([key, label]) => (
           <Tooltip title={label} key={key}>
             <ButtonBase
-              className={clsx('color', key === paletteKey && 'selected')}
+              className={clsx('color', key === buttonsKey && 'selected')}
               onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                 setPaletteKey(key as keyof ScenePalette);
                 setPickerAnchorEl(event.currentTarget);
@@ -155,24 +168,23 @@ export default function ScenePaletteEditor() {
             </ButtonBase>
           </Tooltip>
         ))}
+        <Tooltip title='Reset or toggle light/dark theme'>
+          <IconButton onClick={viewOptions.toggleLightDarkTheme}>
+            <Icon path={mdiThemeLightDark} size={1} />
+          </IconButton>
+        </Tooltip>
       </div>
-      {!paletteKey ? undefined : (
+      {!buttonsKey ? undefined : (
         <Popover
           open={Boolean(pickerAnchorEl)}
           anchorEl={pickerAnchorEl}
           onClose={onCloseColorPicker}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'left'
-          }}
-          transformOrigin={{
-            horizontal: 'right',
-            vertical: 'top'
-          }}
+          anchorOrigin={POPOVER_ANCHOR_ORIGIN}
+          transformOrigin={POPOVER_TRANSFORM_ORIGIN}
         >
           <SketchPicker
             className='picker'
-            color={paletteKey && scenePalette[paletteKey]}
+            color={buttonsKey && scenePalette[buttonsKey]}
             onChange={onChangeColor}
           />
         </Popover>
