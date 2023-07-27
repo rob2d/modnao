@@ -74,6 +74,7 @@ export default function GuiPanelViewOptions() {
     },
     [viewOptions.setSceneCursorVisible]
   );
+
   return (
     <GuiPanelSection title='View Options'>
       <Styled className='view-options'>

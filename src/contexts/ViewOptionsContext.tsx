@@ -19,6 +19,7 @@ export type ViewOptions = {
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
   wireframeLineWidth: number;
+  themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
@@ -27,6 +28,7 @@ export type ViewOptions = {
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
   setScenePalette: (_: ScenePalette | undefined) => void;
+  setThemeKey: (theme: 'light' | 'dark') => void;
   toggleLightDarkTheme: () => void;
 };
 
@@ -37,6 +39,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
   wireframeLineWidth: 3,
+  themeKey: undefined,
   scenePalette: undefined,
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
@@ -45,6 +48,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
   setWireframeLineWidth: (_: number) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
+  setThemeKey: (_: 'light' | 'dark') => null,
   toggleLightDarkTheme: () => null
 });
 
@@ -59,6 +63,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
     useState<MeshDisplayMode>('wireframe');
   const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(true);
   const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(3);
+  const [themeKey, handleSetThemeKey] = useState<'light' | 'dark' | undefined>(
+    undefined
+  );
 
   const [scenePalette, handleSetScenePalette] = useState<
     ScenePalette | undefined
@@ -98,6 +105,14 @@ export function ViewOptionsContextProvider({ children }: Props) {
         Number(
           localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) || 4
         ) as number
+      );
+    }
+
+    if (localStorage.getItem(StorageKeys.THEME_KEY) !== null) {
+      handleSetThemeKey(
+        JSON.parse(
+          localStorage.getItem(StorageKeys.THEME_KEY) || 'undefined'
+        ) as 'light' | 'dark'
       );
     }
 
@@ -179,6 +194,13 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [scenePalette]
   );
 
+  const setThemeKey = useCallback((value: 'light' | 'dark') => {
+    if (themeKey !== value) {
+      localStorage.setItem(StorageKeys.THEME_KEY, JSON.stringify(value));
+      handleSetThemeKey(value);
+    }
+  }, []);
+
   /**
    * toggles between light or dark theme, or performs a reset
    * if the theme has been edited by the user
@@ -192,8 +214,10 @@ export function ViewOptionsContextProvider({ children }: Props) {
 
     if ((!isThemeCurrent && !isThemeAlt) || isThemeAlt) {
       setScenePalette(currentSceneTheme);
+      setThemeKey(isDarkMode ? 'dark' : 'light');
     } else {
       setScenePalette(altSceneTheme);
+      setThemeKey(isDarkMode ? 'light' : 'dark');
     }
   }, [scenePalette, isDarkMode]);
 
@@ -213,6 +237,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setWireframeLineWidth,
       scenePalette,
       setScenePalette,
+      themeKey,
+      setThemeKey,
       toggleLightDarkTheme
     }),
     [
@@ -230,6 +256,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setGuiPanelVisible,
       scenePalette,
       setScenePalette,
+      themeKey,
+      setThemeKey,
       toggleLightDarkTheme
     ]
   );

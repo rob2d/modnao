@@ -9,5 +9,6 @@ export const StorageKeys = {
   OBJECT_ADDRESSES_VISIBLE: 'objectAddressesVisible',
   SCENE_CURSOR_VISIBLE: 'sceneCursorVisible',
   GUI_PANEL_VISIBLE: 'guiPanelVisible',
+  THEME_KEY: 'themeKey',
   SCENE_PALETTE: 'scenePalette'
 } as const;
