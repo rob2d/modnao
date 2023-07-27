@@ -2,13 +2,12 @@ import GuiPanel from './panel/GuiPanel';
 import SceneCanvas from './scene/SceneCanvas';
 import { Button, Tooltip, styled } from '@mui/material';
 import Icon from '@mdi/react';
-import { mdiInformationOutline, mdiPalette } from '@mdi/js';
+import { mdiInformationOutline } from '@mdi/js';
 import clsx from 'clsx';
 import { useContext } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import AppDialog from './AppDialog';
 import AppInfo from './app-info/AppInfo';
-import PaletteEditor from './palette-editor/PaletteEditor';
 import { useDialogState } from '@/hooks';
 
 const Styled = styled('main')(
@@ -59,34 +58,12 @@ const Styled = styled('main')(
 
 export default function MainView() {
   const [infoShown, onShowInfoDialog, onCloseInfoDialog] = useDialogState(true);
-  const [
-    paletteEditorShown,
-    onShowPaletteEditorDialog,
-    onClosePaletteEditorDialog
-  ] = useDialogState(false);
   const { guiPanelVisible } = useContext(ViewOptionsContext);
 
   return (
     <Styled>
       <div>
         <SceneCanvas />
-        <Tooltip
-          title='Customize scene palette'
-          disableInteractive={!guiPanelVisible}
-          placement='left'
-        >
-          <Button
-            onClick={onShowPaletteEditorDialog}
-            className={clsx(
-              'scene-button',
-              'palette-button',
-              !guiPanelVisible && 'hidden'
-            )}
-            color='info'
-          >
-            <Icon path={mdiPalette} size={1.5} />
-          </Button>
-        </Tooltip>
         <Tooltip
           title='View app info and usage tips'
           disableInteractive={!guiPanelVisible}
@@ -108,10 +85,6 @@ export default function MainView() {
       <GuiPanel />
       <AppDialog open={infoShown} onClose={onCloseInfoDialog} fullWidth>
         <AppInfo onCloseDialog={onCloseInfoDialog} />
-      </AppDialog>
-
-      <AppDialog open={paletteEditorShown} onClose={onClosePaletteEditorDialog}>
-        <PaletteEditor />
       </AppDialog>
     </Styled>
   );
