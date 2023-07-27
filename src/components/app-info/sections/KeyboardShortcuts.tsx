@@ -12,7 +12,7 @@ export default function KeyboardShortcuts() {
           <b>Left, Right</b>&nbsp;&nbsp; Toggle Model Viewed
         </Typography>
         <Typography variant={'body1'}>
-          <b>Ctrl + \</b>&nbsp;&nbsp; Toggle Gui Panel Visibility
+          <b>Ctrl + \</b>&nbsp;&nbsp; Toggle Interface Visibility
         </Typography>
       </Styled>
     </div>
