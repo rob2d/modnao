@@ -86,13 +86,18 @@ export default function SceneCanvas() {
       style={canvasStyle}
       ref={canvasRef}
     >
-      <Selection>
-        <EffectComposer autoClear={false}>
+      <Selection
+        enabled={
+          viewOptions.meshDisplayMode === 'textured' && Boolean(objectKey)
+        }
+      >
+        <EffectComposer autoClear={false} key={objectKey}>
           <Outline
-            edgeStrength={20}
-            blendFunction={BlendFunction.ALPHA}
-            visibleEdgeColor={theme.palette.primary.main as unknown as number}
-            hiddenEdgeColor={theme.palette.primary.main as unknown as number}
+            edgeStrength={30}
+            pulseSpeed={1}
+            blendFunction={BlendFunction.SCREEN}
+            visibleEdgeColor={theme.palette.scene.selected as unknown as number}
+            hiddenEdgeColor={theme.palette.scene.selected as unknown as number}
           />
         </EffectComposer>
         <SceneContextSetup />

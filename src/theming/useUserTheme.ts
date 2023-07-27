@@ -35,6 +35,7 @@ export default function useUserTheme(scenePalette: Partial<ScenePalette>) {
       hasInitialized = true;
       return;
     }
+
     setThemeApplied(setupThemeOptions(isDarkMode, scenePalette));
   }, [isDarkMode, scenePalette]);
 

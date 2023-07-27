@@ -69,10 +69,9 @@ export default function PaletteEditor() {
 
   const onChangeColor = useCallback(
     ({ hex }: { hex: string }) => {
-      console.log('setting scene palette ->', paletteKey, {
-        ...scenePalette,
-        [paletteKey]: hex
-      });
+      if (scenePalette[paletteKey] === hex) {
+        return;
+      }
       viewOptions.setScenePalette({
         ...scenePalette,
         [paletteKey]: hex

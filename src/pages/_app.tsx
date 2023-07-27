@@ -10,7 +10,7 @@ import ViewOptionsContext, {
 import { SceneContextProvider } from '@/contexts/SceneContext';
 import { Analytics } from '@vercel/analytics/react';
 import { Provider } from 'react-redux';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 
 const clientSideEmotionCache = createEmotionCache();
 interface ThisAppProps extends AppProps {
@@ -19,10 +19,19 @@ interface ThisAppProps extends AppProps {
 
 const defaultTheme = {};
 
-export default function App({ Component, ...theseProps }: ThisAppProps) {
-  const { emotionCache = clientSideEmotionCache } = theseProps;
+const ThemedApp = ({ Component, ...props }: ThisAppProps) => {
   const viewOptions = useContext(ViewOptionsContext);
   const theme = useUserTheme(viewOptions.scenePalette || defaultTheme);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Component {...props} />
+    </ThemeProvider>
+  );
+};
+
+export default function App({ Component, ...theseProps }: ThisAppProps) {
+  const { emotionCache = clientSideEmotionCache } = theseProps;
   const { store, props } = wrapper.useWrappedStore(theseProps);
 
   return (
@@ -30,9 +39,7 @@ export default function App({ Component, ...theseProps }: ThisAppProps) {
       <ViewOptionsContextProvider>
         <SceneContextProvider>
           <Provider store={store}>
-            <ThemeProvider theme={theme}>
-              <Component {...props} />
-            </ThemeProvider>
+            <ThemedApp {...props} Component={Component} />
           </Provider>
           <Analytics
             mode={
