@@ -171,19 +171,17 @@ export const replaceTextureDataUrl = createAsyncThunk<
     const [width, height] = await getImageDimensions(dataUrl);
 
     if (width !== def.width || height !== def.height) {
-      throw new Error(
-        `size of texture must match the original (${width} x ${height})}`
-      );
+      const errorMessage = `size of texture must match the original (${width} x ${height})`;
+      // window alert is not great but better than "?" for 1st iteration
+      window.alert(errorMessage);
+      throw new Error(errorMessage);
     }
 
     // @TODO process both opaque and non-opaque textures
     // and then update state for both in action
 
     await storeSourceTextureData(
-      {
-        opaque: dataUrl,
-        translucent: dataUrl
-      },
+      { opaque: dataUrl, translucent: dataUrl },
       textureIndex
     );
 

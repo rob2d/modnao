@@ -6,7 +6,6 @@ import Icon from '@mdi/react';
 import { mdiDotsVertical, mdiFileDownload, mdiFileReplace } from '@mdi/js';
 import { Divider, Tooltip, styled } from '@mui/material';
 import { useFilePicker } from 'use-file-picker';
-import { replaceTextureDataUrl, useAppDispatch } from '@/store';
 import GuiPanelTextureHSLOptions from './GuiPanelTextureColorOptions';
 
 const StyledMenuButtonContainer = styled('div')(
@@ -36,37 +35,44 @@ const StyledMenu = styled(Menu)(
  * to keep things modular and just use style constant here
  */
 const MENU_OFFSET_STYLE = { transform: 'translateX(-200px)' } as const;
-
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 
-function useTextureReplacementPicker(textureIndex: number) {
-  const dispatch = useAppDispatch();
-  const [openFileSelector, { filesContent }] = useFilePicker({
+function useTextureReplacementPicker(
+  onReplaceImageFile: (dataUrl: string) => void
+) {
+  const [
+    openFileSelector,
+    {
+      filesContent: [file]
+    }
+  ] = useFilePicker({
     multiple: false,
     readAs: 'DataURL',
     accept: ['image/*']
   });
 
   useEffect(() => {
-    if (!filesContent[0]) {
+    if (!file) {
       return;
     }
-    const [file] = filesContent;
+
     const dataUrl = file.content;
-    dispatch(replaceTextureDataUrl({ dataUrl, textureIndex }));
-  }, [filesContent]);
+    onReplaceImageFile(dataUrl);
+  }, [file]);
 
   return openFileSelector;
 }
 
 export default function GuiPanelTextureMenu({
   textureIndex,
-  dataUrl
+  dataUrl,
+  onReplaceImageFile
 }: {
   textureIndex: number;
   dataUrl: string;
+  onReplaceImageFile: (dataUrl: string) => void;
 }) {
-  const openFileSelector = useTextureReplacementPicker(textureIndex);
+  const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: MouseEvent<HTMLElement>) => {

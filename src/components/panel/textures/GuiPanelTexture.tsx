@@ -1,16 +1,25 @@
+import clsx from 'clsx';
+import { useSelector } from 'react-redux';
+import { Typography, styled } from '@mui/material';
+import Image from 'next/image';
 import { TextureSize } from '@/utils/textures/TextureSize';
 import { NLTextureDef } from '@/types/NLAbstractions';
-import { Typography, styled } from '@mui/material';
-import clsx from 'clsx';
-import Image from 'next/image';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
-import { useSelector } from 'react-redux';
-import { selectIsMeshOpaque } from '@/store';
+import {
+  replaceTextureDataUrl,
+  selectIsMeshOpaque,
+  useAppDispatch
+} from '@/store';
+import { useCallback } from 'react';
+import loadDataUrlFromImageFile from '@/utils/images/loadDataUrlFromImageFile';
+import { useDropzone } from 'react-dropzone';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
     `& {
       display: flex;
+      align-items: center;
+      justify-content: center;
       flex-direction: column;
       width: 100%;
       background-color: ${theme.palette.panelTexture.background};
@@ -18,7 +27,22 @@ const StyledPanelTexture = styled('div')(
       
   & .image-area {
     position: relative;
+    display: flex;
     width: 100%;
+  }
+
+  & .image-area.active:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: ${theme.palette.secondary.light};
+    border: 3px solid ${theme.palette.secondary.main};
+    mix-blend-mode: hard-light;
+    opacity: 0.75;
+    pointer-events: none;
   }
 
   & .image-overlay {
@@ -45,7 +69,7 @@ const StyledPanelTexture = styled('div')(
   & .size-notation {
     position: absolute;
     right: ${theme.spacing(1)};
-    bottom: ${theme.spacing(2)};
+    bottom: ${theme.spacing(1)};
     color: ${theme.palette.primary.contrastText};
     text-shadow: 1px 1px 1px black;
     filter: drop-shadow(3px 3px 1px black);
@@ -69,7 +93,35 @@ export default function GuiPanelTexture({
   textureDef,
   textureSize
 }: GuiPanelTextureProps) {
+  const dispatch = useAppDispatch();
+  const onSelectNewImageFile = useCallback(
+    (dataUrl: string) => {
+      dispatch(replaceTextureDataUrl({ dataUrl, textureIndex }));
+    },
+    [textureIndex]
+  );
+
   const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
+
+  const onDrop = useCallback(
+    async ([file]: File[]) => {
+      const dataUrl = await loadDataUrlFromImageFile(file);
+      onSelectNewImageFile(dataUrl);
+    },
+    [onSelectNewImageFile]
+  );
+
+  const { getRootProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    noClick: true,
+    accept: {
+      'image/bmp': ['.bmp'],
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/gif': ['.gif']
+    }
+  });
   const [width, height] = textureSize;
 
   // always take actions on translucent texture if possible */
@@ -85,7 +137,14 @@ export default function GuiPanelTexture({
 
   return (
     <StyledPanelTexture>
-      <div className={clsx(selected && 'selected', 'image-area')}>
+      <div
+        className={clsx(
+          'image-area',
+          selected && 'selected',
+          isDragActive && 'active'
+        )}
+        {...getRootProps()}
+      >
         <Image
           src={displayedDataUrl}
           id={`gui-panel-t-${textureIndex}`}
@@ -103,6 +162,7 @@ export default function GuiPanelTexture({
         <GuiPanelTextureMenu
           textureIndex={textureIndex}
           dataUrl={actionableDataUrl}
+          onReplaceImageFile={onSelectNewImageFile}
         />
       </div>
     </StyledPanelTexture>
