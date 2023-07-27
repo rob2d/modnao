@@ -6,7 +6,6 @@ import Icon from '@mdi/react';
 import { mdiDotsVertical, mdiFileDownload, mdiFileReplace } from '@mdi/js';
 import { Divider, Tooltip, styled } from '@mui/material';
 import { useFilePicker } from 'use-file-picker';
-import { replaceTextureDataUrl, useAppDispatch } from '@/store';
 import GuiPanelTextureHSLOptions from './GuiPanelTextureColorOptions';
 
 const StyledMenuButtonContainer = styled('div')(

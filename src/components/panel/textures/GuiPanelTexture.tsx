@@ -18,6 +18,8 @@ const StyledPanelTexture = styled('div')(
   ({ theme }) =>
     `& {
       display: flex;
+      align-items: center;
+      justify-content: center;
       flex-direction: column;
       width: 100%;
       background-color: ${theme.palette.panelTexture.background};
@@ -25,6 +27,7 @@ const StyledPanelTexture = styled('div')(
       
   & .image-area {
     position: relative;
+    display: flex;
     width: 100%;
   }
 
@@ -35,8 +38,10 @@ const StyledPanelTexture = styled('div')(
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: ${theme.palette.primary.main};
-    opacity: 0.25;
+    background-color: ${theme.palette.secondary.light};
+    border: 3px solid ${theme.palette.secondary.main};
+    mix-blend-mode: hard-light;
+    opacity: 0.75;
     pointer-events: none;
   }
 
@@ -64,7 +69,7 @@ const StyledPanelTexture = styled('div')(
   & .size-notation {
     position: absolute;
     right: ${theme.spacing(1)};
-    bottom: ${theme.spacing(2)};
+    bottom: ${theme.spacing(1)};
     color: ${theme.palette.primary.contrastText};
     text-shadow: 1px 1px 1px black;
     filter: drop-shadow(3px 3px 1px black);
