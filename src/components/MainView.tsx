@@ -2,13 +2,12 @@ import GuiPanel from './panel/GuiPanel';
 import SceneCanvas from './scene/SceneCanvas';
 import { Button, Tooltip, styled } from '@mui/material';
 import Icon from '@mdi/react';
-import { mdiInformationOutline, mdiPalette } from '@mdi/js';
+import { mdiInformationOutline } from '@mdi/js';
 import clsx from 'clsx';
 import { useContext } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import AppDialog from './AppDialog';
 import AppInfo from './app-info/AppInfo';
-import ScenePaletteEditor from './palette-editor/ScenePaletteEditor';
 import { useDialogState } from '@/hooks';
 
 const Styled = styled('main')(
