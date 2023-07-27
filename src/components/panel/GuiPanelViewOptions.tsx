@@ -15,7 +15,7 @@ import ViewOptionsContext, {
 } from '@/contexts/ViewOptionsContext';
 import { mdiAxisArrow, mdiCursorDefaultOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import ScenePaletteEditor from './ScenePaletteEditor';
+import PaletteEditor from './PaletteEditor';
 
 const Styled = styled('div')(
   {
@@ -93,7 +93,7 @@ export default function GuiPanelViewOptions() {
             </ToggleButtonGroup>
           </Grid>
         </Grid>
-        <ScenePaletteEditor />
+        <PaletteEditor />
         {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
           <FormControlLabel
             control={

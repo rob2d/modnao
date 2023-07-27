@@ -7,7 +7,8 @@ import React, {
   useEffect
 } from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
-import { ScenePalette } from '@mui/material';
+import { ScenePalette, useMediaQuery } from '@mui/material';
+import themes from '@/theming/themes';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
 
@@ -26,6 +27,7 @@ export type ViewOptions = {
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
   setScenePalette: (_: ScenePalette | undefined) => void;
+  toggleLightDarkTheme: () => void;
 };
 
 export const ViewOptionsContext = React.createContext<ViewOptions>({
@@ -42,7 +44,8 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
   setWireframeLineWidth: (_: number) => null,
-  setScenePalette: (_: ScenePalette | undefined) => null
+  setScenePalette: (_: ScenePalette | undefined) => null,
+  toggleLightDarkTheme: () => null
 });
 
 type Props = { children: ReactNode };
@@ -165,6 +168,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [wireframeLineWidth]
   );
 
+  const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const setScenePalette = useCallback(
     (value: ScenePalette | undefined) => {
       if (scenePalette !== value) {
@@ -174,6 +178,24 @@ export function ViewOptionsContextProvider({ children }: Props) {
     },
     [scenePalette]
   );
+
+  /**
+   * toggles between light or dark theme, or performs a reset
+   * if the theme has been edited by the user
+   */
+  const toggleLightDarkTheme = useCallback(() => {
+    const currentSceneTheme =
+      themes[isDarkMode ? 'dark' : 'light'].palette.scene;
+    const altSceneTheme = themes[isDarkMode ? 'light' : 'dark'].palette.scene;
+    const isThemeCurrent = scenePalette === currentSceneTheme;
+    const isThemeAlt = scenePalette === altSceneTheme;
+
+    if ((!isThemeCurrent && !isThemeAlt) || isThemeAlt) {
+      setScenePalette(currentSceneTheme);
+    } else {
+      setScenePalette(altSceneTheme);
+    }
+  }, [scenePalette, isDarkMode]);
 
   const contextValue = useMemo<ViewOptions>(
     () => ({
@@ -190,7 +212,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       wireframeLineWidth,
       setWireframeLineWidth,
       scenePalette,
-      setScenePalette
+      setScenePalette,
+      toggleLightDarkTheme
     }),
     [
       objectAddressesVisible,
@@ -206,7 +229,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       guiPanelVisible,
       setGuiPanelVisible,
       scenePalette,
-      setScenePalette
+      setScenePalette,
+      toggleLightDarkTheme
     ]
   );
 
