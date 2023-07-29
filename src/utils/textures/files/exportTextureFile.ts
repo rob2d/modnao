@@ -22,15 +22,7 @@ async function getPixelsFromDataUrlImage(dataUrl: string) {
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   ctx.drawImage(image, 0, 0);
 
-  const rotatedCanvas = document.createElement('canvas');
-  rotatedCanvas.width = width;
-  rotatedCanvas.height = height;
-  const rotatedCtx = rotatedCanvas.getContext('2d') as CanvasRenderingContext2D;
-  rotatedCtx.translate(canvas.width / 2, canvas.height / 2);
-
-  rotatedCtx.rotate((90 * Math.PI) / 180);
-  rotatedCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-  const imageData = rotatedCtx.getImageData(0, 0, width, height);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   return imageData.data;
 }
 
@@ -55,6 +47,7 @@ export default async function exportTextureFile(
     return;
   }
 
+  let i = 0;
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
 
@@ -73,6 +66,16 @@ export default async function exportTextureFile(
           a: pixelColors[colorOffset + 3]
         };
 
+        // workaround in interrim of black colors in scenario where rgb
+        // that get lost on premultiplied alpha: preserve the source texture
+        // rgb colors when alpha is zero
+        if (color.a === 0) {
+          const o = nonSerializables.sourceTextureData[i].translucent.data;
+          color.r = o[colorOffset];
+          color.g = o[colorOffset + 1];
+          color.b = o[colorOffset + 2];
+        }
+
         const conversionOp = conversionDict[t.colorFormat];
         const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
 
@@ -83,6 +86,7 @@ export default async function exportTextureFile(
         }
       }
     }
+    i++;
   }
 
   const outputBuffer = !hasCompressedTextures
