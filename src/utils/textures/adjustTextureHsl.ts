@@ -1,7 +1,6 @@
 import adjustHslOfRgba from '../color-conversions/adjustHslOfRgba';
 import offscreenCanvasToDataUrl from '../offscreenCanvasToDataUrl';
 import HslValues from './HslValues';
-import { RgbaColor } from './RgbaColor';
 
 export default async function adjustTextureHsl(
   sourceImageData: ImageData,
@@ -22,48 +21,44 @@ export default async function adjustTextureHsl(
    * value to prevent re-calculation of hsl.
    *
    **/
-  const conversions = new Map<string, RgbaColor>();
+  const conversions = new Map<string, { r: number; g: number; b: number }>();
 
   for (let i = 0; i < sourceData.length; i += 4) {
-    const color = {
-      r: sourceData[i],
-      g: sourceData[i + 1],
-      b: sourceData[i + 2],
-      a: sourceData[i + 3]
-    };
-
     const data = imageData.data;
-    const rgbHash = `${color.r},${color.g},${color.b}`;
+    const rgbHash = `${sourceData[i]},${sourceData[i + 1]},${
+      sourceData[i + 2]
+    }`;
     if (!conversions.has(rgbHash)) {
-      conversions.set(rgbHash, adjustHslOfRgba(color, h, s, l));
+      conversions.set(
+        rgbHash,
+        adjustHslOfRgba(
+          sourceData[i],
+          sourceData[i + 1],
+          sourceData[i + 2],
+          h,
+          s,
+          l
+        )
+      );
     }
-    const newRgba = conversions.get(rgbHash) as RgbaColor;
+    const newRgba = conversions.get(rgbHash) as {
+      r: number;
+      g: number;
+      b: number;
+    };
     data[i] = newRgba.r;
     data[i + 1] = newRgba.g;
     data[i + 2] = newRgba.b;
-    // hash disregards alpha since this doesn't change;
-    // saves possible ops/RAM of cache'ing
-    data[i + 3] = color.a;
+    data[i + 3] = sourceData[i + 3];
   }
 
-  ctx.putImageData(imageData, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.rotate((-90 * Math.PI) / 180);
 
-  // data must be rotated for Naomi format
-  // @TODO considerations for precalculating this in pipeline
+  const createdData = await createImageBitmap(imageData);
+  ctx.drawImage(createdData, -canvas.width / 2, -canvas.height / 2);
 
-  const rotatedCanvas = new OffscreenCanvas(
-    sourceImageData.width,
-    sourceImageData.height
-  );
-  const rotatedCtx = rotatedCanvas.getContext(
-    '2d'
-  ) as OffscreenCanvasRenderingContext2D;
-
-  rotatedCtx.translate(canvas.width / 2, canvas.height / 2);
-
-  rotatedCtx.rotate((-90 * Math.PI) / 180);
-  rotatedCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-
-  const dataUrl = await offscreenCanvasToDataUrl(rotatedCanvas);
+  const dataUrl = await offscreenCanvasToDataUrl(canvas);
   return dataUrl;
 }

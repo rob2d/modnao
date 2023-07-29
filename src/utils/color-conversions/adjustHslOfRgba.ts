@@ -1,4 +1,3 @@
-import { RgbaColor } from '../textures';
 import hslToRgb from './hslToRgb';
 import rgbToHsl from './rgbToHsl';
 
@@ -7,19 +6,20 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export default function adjustHslOfRgba(
-  rgba: RgbaColor,
+  r: number,
+  g: number,
+  b: number,
   h: number,
   s: number,
   l: number
 ) {
-  const hsl = rgbToHsl(rgba.r, rgba.g, rgba.b);
-  const color: RgbaColor = {
-    ...hslToRgb({
-      h: (h + hsl.h) % 360,
-      s: clamp(hsl.s + s, 0, 100),
-      l: clamp(hsl.l + l, -100, 100)
-    }),
-    a: rgba.a
+  const hsl = rgbToHsl(r, g, b);
+  const color = {
+    ...hslToRgb(
+      (h + hsl.h) % 360,
+      clamp(hsl.s + s, 0, 100),
+      clamp(hsl.l + l, -100, 100)
+    )
   };
   return color;
 }
