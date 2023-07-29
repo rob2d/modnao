@@ -9,7 +9,7 @@ import processPolygonBuffer from './model-data/processPolygonBuffer';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState, store } from './store';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
-import getImageDimensions from '@/utils/images/getImageDimensions';
+import getImageDimensionsFromDataUrl from '@/utils/images/getImageDimensionsFromDataUrl';
 import nonSerializables from './nonSerializables';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
@@ -168,20 +168,22 @@ export const replaceTextureDataUrl = createAsyncThunk<
     const { textureDefs } = state.modelData;
     const def = textureDefs[textureIndex];
 
-    const [width, height] = await getImageDimensions(dataUrl);
+    const [width, height] = await getImageDimensionsFromDataUrl(dataUrl);
 
     if (width !== def.width || height !== def.height) {
-      const errorMessage = `size of texture must match the original (${width} x ${height})`;
-      // window alert is not great but better than "?" for 1st iteration
-      window.alert(errorMessage);
-      throw new Error(errorMessage);
+      throw new Error(
+        `size of texture must match the original (${width} x ${height})}`
+      );
     }
 
     // @TODO process both opaque and non-opaque textures
     // and then update state for both in action
 
     await storeSourceTextureData(
-      { opaque: dataUrl, translucent: dataUrl },
+      {
+        opaque: dataUrl,
+        translucent: dataUrl
+      },
       textureIndex
     );
 
