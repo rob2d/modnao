@@ -47,6 +47,7 @@ export default async function exportTextureFile(
     return;
   }
 
+  let i = 0;
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
 
@@ -65,6 +66,16 @@ export default async function exportTextureFile(
           a: pixelColors[colorOffset + 3]
         };
 
+        // workaround in interrim of black colors in scenario where rgb
+        // that get lost on premultiplied alpha: preserve the source texture
+        // rgb colors when alpha is zero
+        if (color.a === 0) {
+          const o = nonSerializables.sourceTextureData[i].translucent.data;
+          color.r = o[colorOffset];
+          color.g = o[colorOffset + 1];
+          color.b = o[colorOffset + 2];
+        }
+
         const conversionOp = conversionDict[t.colorFormat];
         const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
 
@@ -75,6 +86,7 @@ export default async function exportTextureFile(
         }
       }
     }
+    i++;
   }
 
   const outputBuffer = !hasCompressedTextures
