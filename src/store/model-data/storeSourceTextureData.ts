@@ -16,24 +16,18 @@ export default async function storeSourceTextureData(
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     ctx.drawImage(image, 0, 0);
 
-    const rotatedCanvas = document.createElement('canvas');
-    rotatedCanvas.width = width;
-    rotatedCanvas.height = height;
-    const rotatedCtx = rotatedCanvas.getContext(
-      '2d'
-    ) as CanvasRenderingContext2D;
-
-    rotatedCtx.translate(canvas.width / 2, canvas.height / 2);
-
-    rotatedCtx.rotate((90 * Math.PI) / 180);
-    rotatedCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-
-    const imageData = rotatedCtx.getImageData(0, 0, width, height);
+    const imageData = ctx.getImageData(0, 0, width, height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((90 * Math.PI) / 180);
+    const createdData = await createImageBitmap(imageData);
+    ctx.drawImage(createdData, -canvas.width / 2, -canvas.height / 2);
+    const rotatedImageData = ctx.getImageData(0, 0, width, height);
 
     // @TODO process both translucent and opaque data variants
     nonSerializables.sourceTextureData[textureIndex] = {
-      opaque: imageData,
-      translucent: imageData
+      opaque: rotatedImageData,
+      translucent: rotatedImageData
     };
   }
 }
