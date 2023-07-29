@@ -17,17 +17,11 @@ export default async function storeSourceTextureData(
     ctx.drawImage(image, 0, 0);
 
     const imageData = ctx.getImageData(0, 0, width, height);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate((90 * Math.PI) / 180);
-    const createdData = await createImageBitmap(imageData);
-    ctx.drawImage(createdData, -canvas.width / 2, -canvas.height / 2);
-    const rotatedImageData = ctx.getImageData(0, 0, width, height);
 
     // @TODO process both translucent and opaque data variants
     nonSerializables.sourceTextureData[textureIndex] = {
-      opaque: rotatedImageData,
-      translucent: rotatedImageData
+      opaque: imageData,
+      translucent: imageData
     };
   }
 }

@@ -1,7 +1,12 @@
 import RenderedPolygon from './RenderedPolygon';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { useTexture } from '@react-three/drei';
-import { ClampToEdgeWrapping, RepeatWrapping, sRGBEncoding } from 'three';
+import {
+  ClampToEdgeWrapping,
+  RepeatWrapping,
+  sRGBEncoding,
+  Vector2
+} from 'three';
 
 type RenderedMeshProps = {
   objectKey: string;
@@ -12,6 +17,9 @@ type RenderedMeshProps = {
 } & NLMesh;
 
 const transparent1x1 = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==`;
+
+const TEXTURE_ROTATION = (90 * Math.PI) / 180;
+const TEXTURE_CENTER = new Vector2(0.5, 0.5);
 
 export default function RenderedMesh({
   objectKey,
@@ -28,6 +36,8 @@ export default function RenderedMesh({
   const texture = useTexture(
     textureDef?.dataUrls[isOpaque ? 'opaque' : 'translucent'] || transparent1x1
   );
+  texture.rotation = TEXTURE_ROTATION;
+  texture.center = TEXTURE_CENTER;
 
   // addresses an issue in ThreeJS with
   // sRGB randomly not applying to textures depending

@@ -52,12 +52,8 @@ export default async function adjustTextureHsl(
     data[i + 3] = sourceData[i + 3];
   }
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate((-90 * Math.PI) / 180);
-
   const createdData = await createImageBitmap(imageData);
-  ctx.drawImage(createdData, -canvas.width / 2, -canvas.height / 2);
+  ctx.drawImage(createdData, 0, 0);
 
   const dataUrl = await offscreenCanvasToDataUrl(canvas);
   return dataUrl;

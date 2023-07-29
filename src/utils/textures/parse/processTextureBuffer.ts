@@ -83,16 +83,7 @@ export default async function processTextureBuffer(
       };
       sourceTextureData[i][dataUrlType] = id;
 
-      const canvas2 = new OffscreenCanvas(canvas.width, canvas.height);
-
-      const context2 = canvas2.getContext(
-        '2d'
-      ) as OffscreenCanvasRenderingContext2D;
-      context2.translate(canvas.width / 2, canvas.height / 2);
-      context2.rotate((-90 * Math.PI) / 180);
-      context2.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-
-      const dataUrl = await offscreenCanvasToDataUrl(canvas2);
+      const dataUrl = await offscreenCanvasToDataUrl(canvas);
 
       updatedTexture.dataUrls = {
         ...updatedTexture.dataUrls,

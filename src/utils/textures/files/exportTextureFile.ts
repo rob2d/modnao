@@ -23,13 +23,6 @@ async function getPixelsFromDataUrlImage(dataUrl: string) {
   ctx.drawImage(image, 0, 0);
 
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate((90 * Math.PI) / 180);
-
-  const createdData = await createImageBitmap(imageData);
-  ctx.drawImage(createdData, -canvas.width / 2, -canvas.height / 2);
-
   return imageData.data;
 }
 
