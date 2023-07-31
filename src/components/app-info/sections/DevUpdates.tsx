@@ -7,6 +7,7 @@ import {
   CardContent,
   CardMedia,
   CircularProgress,
+  Skeleton,
   Typography,
   styled
 } from '@mui/material';
@@ -115,39 +116,51 @@ export default function DevUpdates() {
     <StyledContent className='app-info-section'>
       <DialogSectionHeader>Development Updates / Vlog</DialogSectionHeader>
       <div>
-        {!vlogs ? (
-          <div className='loading'>
-            <CircularProgress />
-          </div>
-        ) : (
-          vlogs.map((v: Vlog) => (
-            <Card key={v.id} elevation={2}>
-              <ButtonBase
-                onClick={() =>
-                  window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
-                }
-              >
+        {!vlogs
+          ? [1, 2, 3, 4, 5, 6].map((_, i) => (
+              <Card key={i} elevation={2}>
                 <CardContent>
                   <Typography component='div' variant='subtitle1'>
-                    {v.title}
+                    <Skeleton height={60} />
                   </Typography>
                   <Typography
                     variant='subtitle1'
                     color='text.secondary'
                     component='div'
                   >
-                    {dayjs(v.publishedAt).format('MMM Do, YYYY')}
+                    <Skeleton />
                   </Typography>
                 </CardContent>
-                <CardMedia
-                  component='img'
-                  image={`${v.thumbnailUrl}`}
-                  alt={`Watch ${v.vlogNumber} now`}
-                />
-              </ButtonBase>
-            </Card>
-          ))
-        )}
+                <Skeleton variant='rectangular' width={100} height={120} />
+              </Card>
+            ))
+          : vlogs.map((v: Vlog) => (
+              <Card key={v.id} elevation={2}>
+                <ButtonBase
+                  onClick={() =>
+                    window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
+                  }
+                >
+                  <CardContent>
+                    <Typography component='div' variant='subtitle1'>
+                      {v.title}
+                    </Typography>
+                    <Typography
+                      variant='subtitle1'
+                      color='text.secondary'
+                      component='div'
+                    >
+                      {dayjs(v.publishedAt).format('MMM Do, YYYY')}
+                    </Typography>
+                  </CardContent>
+                  <CardMedia
+                    component='img'
+                    image={`${v.thumbnailUrl}`}
+                    alt={`Watch ${v.vlogNumber} now`}
+                  />
+                </ButtonBase>
+              </Card>
+            ))}
       </div>
     </StyledContent>
   );
