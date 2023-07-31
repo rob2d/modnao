@@ -60,6 +60,7 @@ const StyledPanelTexture = styled('div')(
     border-width: 3px;
     border-style: solid;
     opacity: 1.0;
+    transform: rotate(-90deg);
   }
 
   & .selected img {
