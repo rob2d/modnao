@@ -7,6 +7,7 @@ import rgbaToArgb4444 from '@/utils/color-conversions/rgbaToArgb4444';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import loadImageFromDataUrl from '@/utils/images/loadImageFromDataUrl';
 import { compressTextureBuffer } from '@/utils/textures/parse';
+import { objectUrlToBuffer } from '@/utils/data';
 
 /**
  * gets rotated pixels from a provided dataUrl string
@@ -40,9 +41,10 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
 export default async function exportTextureFile(
   textureDefs: NLTextureDef[],
   textureFileName = '',
-  hasCompressedTextures: boolean
+  hasCompressedTextures: boolean,
+  textureBufferUrl: string
 ): Promise<void> {
-  const { textureBuffer } = nonSerializables;
+  const textureBuffer = Buffer.from(await objectUrlToBuffer(textureBufferUrl));
   if (!textureBuffer) {
     return;
   }
