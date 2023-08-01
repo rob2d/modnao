@@ -6,7 +6,7 @@ import { TextureSize } from '@/utils/textures/TextureSize';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import {
-  replaceTextureDataUrl,
+  replaceTextureDataWithImageUrl,
   selectIsMeshOpaque,
   useAppDispatch
 } from '@/store';
@@ -96,8 +96,8 @@ export default function GuiPanelTexture({
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
   const onSelectNewImageFile = useCallback(
-    (dataUrl: string) => {
-      dispatch(replaceTextureDataUrl({ dataUrl, textureIndex }));
+    (url: string) => {
+      dispatch(replaceTextureDataWithImageUrl({ url, textureIndex }));
     },
     [textureIndex]
   );
@@ -126,15 +126,15 @@ export default function GuiPanelTexture({
   const [width, height] = textureSize;
 
   // always take actions on translucent texture if possible */
-  const actionableDataUrl =
-    textureDef.dataUrls.translucent || textureDef.dataUrls.opaque || '';
+  const actionableTextureUrl =
+    textureDef.bufferUrls.translucent || textureDef.bufferUrls.opaque || '';
 
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
   const displayedDataUrl =
     (selected && isSelectedMeshOpaque
-      ? textureDef.dataUrls.opaque || textureDef.dataUrls.translucent
-      : actionableDataUrl) || '';
+      ? textureDef.bufferUrls.opaque || textureDef.bufferUrls.translucent
+      : actionableTextureUrl) || '';
 
   return (
     <StyledPanelTexture>
@@ -162,7 +162,7 @@ export default function GuiPanelTexture({
         </Typography>
         <GuiPanelTextureMenu
           textureIndex={textureIndex}
-          dataUrl={actionableDataUrl}
+          dataUrl={actionableTextureUrl}
           onReplaceImageFile={onSelectNewImageFile}
         />
       </div>

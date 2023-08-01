@@ -1,19 +1,14 @@
 import adjustHslOfRgba from '../color-conversions/adjustHslOfRgba';
-import offscreenCanvasToDataUrl from '../offscreenCanvasToDataUrl';
+import { bufferToObjectUrl, objectUrlToBuffer } from '../data';
 import HslValues from './HslValues';
 
 export default async function adjustTextureHsl(
-  sourceImageData: ImageData,
+  sourceUrl: string,
   hsl: HslValues
 ) {
   const { h, s, l } = hsl;
-  const canvas = new OffscreenCanvas(
-    sourceImageData.width,
-    sourceImageData.height
-  );
-  const ctx = canvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const sourceData = sourceImageData.data;
+  const sourceData = Buffer.from(await objectUrlToBuffer(sourceUrl));
+  const imageData = new Uint8ClampedArray(sourceData.length);
 
   /**
    * colors tend to be within ranges, so create a
@@ -24,7 +19,6 @@ export default async function adjustTextureHsl(
   const conversions = new Map<string, { r: number; g: number; b: number }>();
 
   for (let i = 0; i < sourceData.length; i += 4) {
-    const data = imageData.data;
     const rgbHash = `${sourceData[i]},${sourceData[i + 1]},${
       sourceData[i + 2]
     }`;
@@ -46,15 +40,12 @@ export default async function adjustTextureHsl(
       g: number;
       b: number;
     };
-    data[i] = newRgba.r;
-    data[i + 1] = newRgba.g;
-    data[i + 2] = newRgba.b;
-    data[i + 3] = sourceData[i + 3];
+    imageData[i] = newRgba.r;
+    imageData[i + 1] = newRgba.g;
+    imageData[i + 2] = newRgba.b;
+    imageData[i + 3] = sourceData[i + 3];
   }
 
-  const createdData = await createImageBitmap(imageData);
-  ctx.drawImage(createdData, 0, 0);
-
-  const dataUrl = await offscreenCanvasToDataUrl(canvas);
+  const dataUrl = await bufferToObjectUrl(imageData);
   return dataUrl;
 }

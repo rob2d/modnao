@@ -7,6 +7,7 @@ import {
   nlVertexConversions
 } from './NLPropConversionDefs';
 import { processNLConversions as processNLConversions } from './processNLConversions';
+import TransferrableBuffer from '@/types/TransferrableBuffer';
 
 export default function scanModel({
   address,
@@ -14,13 +15,14 @@ export default function scanModel({
   index
 }: {
   address: number;
-  buffer: Buffer;
+  buffer: TransferrableBuffer;
   index: number;
 }) {
+  const wBuffer = Buffer.from(buffer);
   // (1) scan base model props
   const model = processNLConversions<NLModel>(
     nlModelConversions,
-    buffer,
+    wBuffer,
     address
   );
 
@@ -38,18 +40,18 @@ export default function scanModel({
     let detectedModelEnd = false;
     let structAddress = address + S.MODEL_HEADER;
 
-    while (structAddress < buffer.length && !detectedModelEnd) {
-      if (buffer.readUInt32LE(structAddress) === 0) {
+    while (structAddress < wBuffer.length && !detectedModelEnd) {
+      if (wBuffer.readUInt32LE(structAddress) === 0) {
         detectedModelEnd = true;
         structAddress += 4;
-        model.totalVertexCount = buffer.readUInt32LE(structAddress);
+        model.totalVertexCount = wBuffer.readUInt32LE(structAddress);
         structAddress += 4;
         break;
       }
 
       const mesh = processNLConversions<NLMesh>(
         nlMeshConversions,
-        buffer,
+        wBuffer,
         structAddress
       );
 
@@ -61,12 +63,12 @@ export default function scanModel({
       // (3) scan polygons within mesh
       while (
         structAddress < meshEndAddress &&
-        structAddress + S.VERTEX_B < buffer.length &&
+        structAddress + S.VERTEX_B < wBuffer.length &&
         !detectedModelEnd
       ) {
         const polygon = processNLConversions<NLPolygon>(
           nlPolygonConversions,
-          buffer,
+          wBuffer,
           structAddress
         );
         polygon.vertices = [];
@@ -77,11 +79,11 @@ export default function scanModel({
         let detectedMeshEnd = false;
         for (let i = 0; i < polygon.actualVertexCount; i++) {
           // detect modelEnd flag in the vertex position
-          if (buffer.readUInt32LE(structAddress) === 0) {
+          if (wBuffer.readUInt32LE(structAddress) === 0) {
             detectedModelEnd = true;
             detectedMeshEnd = true;
             structAddress += 4;
-            model.totalVertexCount = buffer.readUInt32LE(structAddress);
+            model.totalVertexCount = wBuffer.readUInt32LE(structAddress);
             structAddress += 4;
             break;
           }
@@ -90,9 +92,9 @@ export default function scanModel({
             break;
           }
 
-          if (structAddress + S.VERTEX_B >= buffer.length) {
+          if (structAddress + S.VERTEX_B >= wBuffer.length) {
             console.log(
-              `invalid logic in parser occurred somewhere near ${structAddress}; went beyond buffer length of ${buffer.length}`
+              `invalid logic in parser occurred somewhere near ${structAddress}; went beyond buffer length of ${wBuffer.length}`
             );
             break;
           }
@@ -101,7 +103,7 @@ export default function scanModel({
             mesh.hasColoredVertices
               ? nlColoredVertexConversions
               : nlVertexConversions,
-            buffer,
+            wBuffer,
             structAddress
           );
 

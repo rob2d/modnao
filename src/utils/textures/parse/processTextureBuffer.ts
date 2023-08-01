@@ -7,7 +7,7 @@ import {
 } from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { SourceTextureData } from '../SourceTextureData';
-import offscreenCanvasToDataUrl from '@/utils/offscreenCanvasToDataUrl';
+import { bufferToObjectUrl } from '@/utils/data';
 
 const COLOR_SIZE = 2;
 
@@ -34,17 +34,11 @@ export default async function processTextureBuffer(
 
   let i = 0;
   for (const t of textureDefs) {
-    const dataUrlTypes = Object.keys(t.dataUrls) as TextureDataUrlType[];
+    const urlTypes = Object.keys(t.bufferUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
 
-    for (const dataUrlType of dataUrlTypes) {
-      const canvas = new OffscreenCanvas(t.width, t.height);
-
-      const context = canvas.getContext(
-        '2d'
-      ) as OffscreenCanvasRenderingContext2D;
-      const id = context.getImageData(0, 0, t.width, t.height) as ImageData;
-      const pixels = id.data;
+    for (const objectUrlType of urlTypes) {
+      const pixels = new Uint8ClampedArray(t.width * t.height * 4);
 
       for (let y = 0; y < t.height; y++) {
         const yOffset = t.width * y;
@@ -61,7 +55,6 @@ export default async function processTextureBuffer(
 
           const colorValue = buffer.readUInt16LE(readOffset);
           const conversionOp = conversionDict[t.colorFormat];
-
           const color = conversionOp(colorValue);
 
           const canvasOffset = offset * 4;
@@ -69,11 +62,10 @@ export default async function processTextureBuffer(
           pixels[canvasOffset + 1] = color.g;
           pixels[canvasOffset + 2] = color.b;
           pixels[canvasOffset + 3] =
-            dataUrlType === 'translucent' ? color.a : 255;
+            objectUrlType === 'translucent' ? color.a : 255;
         }
       }
 
-      context.putImageData(id, 0, 0);
       /* @TODO: add this to part of return
        * for assignment on main UI thread
        */
@@ -81,13 +73,12 @@ export default async function processTextureBuffer(
         translucent: undefined,
         opaque: undefined
       };
-      sourceTextureData[i][dataUrlType] = id;
 
-      const dataUrl = await offscreenCanvasToDataUrl(canvas);
+      const objectUrl = await bufferToObjectUrl(pixels);
 
-      updatedTexture.dataUrls = {
-        ...updatedTexture.dataUrls,
-        [dataUrlType]: dataUrl
+      updatedTexture.bufferUrls = {
+        ...updatedTexture.bufferUrls,
+        [objectUrlType]: objectUrl
       };
     }
 

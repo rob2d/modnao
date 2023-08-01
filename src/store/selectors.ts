@@ -34,18 +34,19 @@ export const selectEditedTextures = (s: AppState) => s.modelData.editedTextures;
 export const selectSceneTextureDefs = createSelector(
   selectTextureDefs,
   selectEditedTextures,
-  (textureDefs, dataUrlEntries): typeof textureDefs => {
+  (textureDefs, bufferUrlEntries): typeof textureDefs => {
     const returnTextures = [...textureDefs];
-    Object.entries(dataUrlEntries).forEach(([index, dataUrls]) => {
+    Object.entries(bufferUrlEntries).forEach(([index, { bufferUrls }]) => {
       const i = Number.parseInt(index);
       const entry = { ...returnTextures[i] };
-      entry.dataUrls = {
-        ...entry.dataUrls,
-        ...dataUrls
+      entry.bufferUrls = {
+        ...entry.bufferUrls,
+        ...bufferUrls
       };
       returnTextures[i] = entry;
     });
 
+    console.log('returnTextures ->', returnTextures);
     return returnTextures;
   }
 );

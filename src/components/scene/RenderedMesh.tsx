@@ -34,7 +34,8 @@ export default function RenderedMesh({
 }: RenderedMeshProps) {
   const textureDef = textureDefs?.[textureIndex];
   const texture = useTexture(
-    textureDef?.dataUrls[isOpaque ? 'opaque' : 'translucent'] || transparent1x1
+    textureDef?.bufferUrls[isOpaque ? 'opaque' : 'translucent'] ||
+      transparent1x1
   );
   texture.rotation = TEXTURE_ROTATION;
   texture.center = TEXTURE_CENTER;
