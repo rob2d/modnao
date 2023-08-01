@@ -1,12 +1,9 @@
-// @TODO: migrate usage of nonserializables to store
-// via object URLs
+// @TODO: migrate nonserializables to app-state via object URLs
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 
 const nonSerializables: {
-  polygonBuffer?: Buffer;
   sourceTextureData: SourceTextureData[];
 } = {
-  polygonBuffer: undefined,
   sourceTextureData: []
 };
 

@@ -83,8 +83,9 @@ export interface ModelDataState {
   polygonFileName?: string;
   textureFileName?: string;
   hasEditedTextures: boolean;
-  textureBufferUrl?: string;
   hasCompressedTextures: boolean;
+  textureBufferUrl?: string;
+  polygonBufferUrl?: string;
 }
 
 const sliceName = 'modelData';
@@ -100,16 +101,28 @@ export const initialModelDataState: ModelDataState = {
 };
 
 export const loadPolygonFile = createAsyncThunk<
-  { models: NLModel[]; textureDefs: NLTextureDef[]; fileName: string },
-  File
->(`${sliceName}/loadPolygonFile`, async (file: File) => {
+  {
+    models: NLModel[];
+    textureDefs: NLTextureDef[];
+    fileName: string;
+    polygonBufferUrl: string;
+  },
+  File,
+  { state: AppState }
+>(`${sliceName}/loadPolygonFile`, async (file: File, { getState }) => {
   const buffer = Buffer.from(await file.arrayBuffer());
   const result = await processPolygonBuffer(buffer);
-  nonSerializables.polygonBuffer = buffer;
+  const polygonBufferUrl = await bufferToObjectUrl(buffer);
+  const state = getState();
+
+  if (state.modelData.polygonBufferUrl) {
+    URL.revokeObjectURL(state.modelData.polygonBufferUrl);
+  }
 
   return {
     ...result,
-    fileName: file.name
+    fileName: file.name,
+    polygonBufferUrl
   };
 });
 
@@ -146,11 +159,16 @@ export const loadTextureFile = createAsyncThunk<
 
   // deallocate existing blob
   if (state.modelData.textureBufferUrl) {
+    URL.revokeObjectURL(state.modelData.textureBufferUrl);
   }
 
   worker.postMessage({
     type: 'loadTextureFile',
-    payload: { fileName, textureDefs, buffer }
+    payload: {
+      fileName,
+      textureDefs,
+      buffer
+    }
   } as WorkerEvent);
 });
 
@@ -242,13 +260,14 @@ const modelDataSlice = createSlice({
       loadPolygonFile.fulfilled,
       (
         state: ModelDataState,
-        { payload: { models, textureDefs, fileName } }
+        { payload: { models, textureDefs, fileName, polygonBufferUrl } }
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
         state.editedTextures = [];
         state.polygonFileName = fileName;
         state.textureFileName = undefined;
+        state.polygonBufferUrl = polygonBufferUrl;
       }
     );
 
