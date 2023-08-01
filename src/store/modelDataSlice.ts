@@ -207,11 +207,8 @@ export const replaceTextureDataWithImageUrl = createAsyncThunk<
   { state: AppState }
 >(
   `${sliceName}/replaceTextureDataWithImageUrl`,
-  async ({ textureIndex, url }, { getState }) => {
+  async ({ textureIndex, url }) => {
     //@TODO: refactor from dataUrl
-    const state = getState();
-    const { textureDefs } = state.modelData;
-    const def = textureDefs[textureIndex];
 
     /*
 
