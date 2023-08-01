@@ -1,4 +1,4 @@
-import { ListItem, Slider, Typography, styled } from '@mui/material';
+import { ListItem, Slider, styled, Typography } from '@mui/material';
 
 const StyledListItem = styled(ListItem)(
   ({ theme }) =>

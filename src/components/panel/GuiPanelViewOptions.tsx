@@ -2,10 +2,10 @@ import {
   Checkbox,
   FormControlLabel,
   Slider,
+  styled,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip,
-  styled
+  Tooltip
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import GuiPanelSection from './GuiPanelSection';

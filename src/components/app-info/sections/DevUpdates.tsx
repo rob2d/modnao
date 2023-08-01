@@ -8,8 +8,8 @@ import {
   CardMedia,
   CircularProgress,
   Skeleton,
-  Typography,
-  styled
+  styled,
+  Typography
 } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
 dayjs.extend(advancedFormat);

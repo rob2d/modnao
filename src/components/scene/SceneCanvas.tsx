@@ -15,7 +15,7 @@ import {
   selectObjectSelectionType,
   selectSceneTextureDefs
 } from '@/store/selectors';
-import { useAppSelector, useAppDispatch, setObjectKey } from '@/store';
+import { setObjectKey, useAppDispatch, useAppSelector } from '@/store';
 import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardControls } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';

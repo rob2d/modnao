@@ -1,10 +1,10 @@
-import { useState, MouseEvent, useMemo, useEffect, useCallback } from 'react';
+import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Icon from '@mdi/react';
 import { mdiDotsVertical, mdiFileDownload, mdiFileReplace } from '@mdi/js';
-import { Divider, Tooltip, styled } from '@mui/material';
+import { Divider, styled, Tooltip } from '@mui/material';
 import { useFilePicker } from 'use-file-picker';
 import GuiPanelTextureHSLOptions from './GuiPanelTextureColorOptions';
 

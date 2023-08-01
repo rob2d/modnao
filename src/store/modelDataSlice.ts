@@ -6,15 +6,16 @@ import {
 } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import processPolygonBuffer from './model-data/processPolygonBuffer';
+import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import { WorkerEvent, WorkerResponses } from '@/worker';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState, store } from './store';
-import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import HslValues from '@/utils/textures/HslValues';
+import { bufferToObjectUrl } from '@/utils/data';
 import getImageDimensionsFromDataUrl from '@/utils/images/getImageDimensionsFromDataUrl';
 import nonSerializables from './nonSerializables';
-import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
 import storeSourceTextureData from './model-data/storeSourceTextureData';
-import { WorkerEvent, WorkerResponses } from '@/worker';
 
 let worker: Worker;
 
@@ -23,7 +24,7 @@ if (globalThis.Worker) {
     type: 'module'
   });
 
-  worker.onmessage = (event: MessageEvent<WorkerResponses>) => {
+  worker.onmessage = async (event: MessageEvent<WorkerResponses>) => {
     switch (event.data.type) {
       case 'loadTextureFile': {
         const {
@@ -36,17 +37,17 @@ if (globalThis.Worker) {
           }
         } = event.data;
 
-        // store textureBuffer for ops
-        nonSerializables.textureBuffer = Buffer.from(buffer);
-
         // store sourceTextureData for color edits
         nonSerializables.sourceTextureData = sourceTextureData;
+
+        const textureBufferUrl = await bufferToObjectUrl(buffer);
 
         store.dispatch(
           loadTextureFromThread({
             textureDefs,
             fileName,
-            hasCompressedTextures
+            hasCompressedTextures,
+            textureBufferUrl
           })
         );
         break;
@@ -83,6 +84,8 @@ export interface ModelDataState {
   textureFileName?: string;
   hasEditedTextures: boolean;
   hasCompressedTextures: boolean;
+  textureBufferUrl?: string;
+  polygonBufferUrl?: string;
 }
 
 const sliceName = 'modelData';
@@ -98,16 +101,28 @@ export const initialModelDataState: ModelDataState = {
 };
 
 export const loadPolygonFile = createAsyncThunk<
-  { models: NLModel[]; textureDefs: NLTextureDef[]; fileName: string },
-  File
->(`${sliceName}/loadPolygonFile`, async (file: File) => {
+  {
+    models: NLModel[];
+    textureDefs: NLTextureDef[];
+    fileName: string;
+    polygonBufferUrl: string;
+  },
+  File,
+  { state: AppState }
+>(`${sliceName}/loadPolygonFile`, async (file: File, { getState }) => {
   const buffer = Buffer.from(await file.arrayBuffer());
   const result = await processPolygonBuffer(buffer);
-  nonSerializables.polygonBuffer = buffer;
+  const polygonBufferUrl = await bufferToObjectUrl(buffer);
+  const state = getState();
+
+  if (state.modelData.polygonBufferUrl) {
+    URL.revokeObjectURL(state.modelData.polygonBufferUrl);
+  }
 
   return {
     ...result,
-    fileName: file.name
+    fileName: file.name,
+    polygonBufferUrl
   };
 });
 
@@ -142,20 +157,43 @@ export const loadTextureFile = createAsyncThunk<
   const fileName = file.name;
   const buffer = Buffer.from(await file.arrayBuffer());
 
+  // deallocate existing blob
+  if (state.modelData.textureBufferUrl) {
+    URL.revokeObjectURL(state.modelData.textureBufferUrl);
+  }
+
   worker.postMessage({
     type: 'loadTextureFile',
-    payload: { fileName, textureDefs, buffer }
+    payload: {
+      fileName,
+      textureDefs,
+      buffer
+    }
   } as WorkerEvent);
 });
 
-export const loadTextureFromThread = createAction<
+export const loadTextureFromThread = createAsyncThunk<
   {
     textureDefs: NLTextureDef[];
     fileName: string;
+    textureBufferUrl: string;
     hasCompressedTextures: boolean;
   },
-  `${typeof sliceName}/loadTextureFromThread`
->(`${sliceName}/loadTextureFromThread`);
+  {
+    textureDefs: NLTextureDef[];
+    fileName: string;
+    textureBufferUrl: string;
+    hasCompressedTextures: boolean;
+  },
+  { state: AppState }
+>(`${sliceName}/loadTextureFromThread`, async (payload, { getState }) => {
+  const { modelData } = getState();
+  if (modelData.textureBufferUrl) {
+    URL.revokeObjectURL(modelData.textureBufferUrl);
+  }
+
+  return payload;
+});
 
 export const replaceTextureDataUrl = createAsyncThunk<
   { textureIndex: number; dataUrl: string },
@@ -197,13 +235,16 @@ export const downloadTextureFile = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/downloadTextureFile`, async (_, { getState }) => {
   const state = getState();
-  const { textureFileName, hasCompressedTextures } = state.modelData;
+  const { textureFileName, hasCompressedTextures, textureBufferUrl } =
+    state.modelData;
   const textureDefs = selectSceneTextureDefs(state);
+
   try {
     await exportTextureFile(
       textureDefs,
       textureFileName,
-      hasCompressedTextures
+      hasCompressedTextures,
+      textureBufferUrl as string
     );
   } catch (error) {
     console.error(error);
@@ -219,26 +260,35 @@ const modelDataSlice = createSlice({
       loadPolygonFile.fulfilled,
       (
         state: ModelDataState,
-        { payload: { models, textureDefs, fileName } }
+        { payload: { models, textureDefs, fileName, polygonBufferUrl } }
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
         state.editedTextures = [];
         state.polygonFileName = fileName;
         state.textureFileName = undefined;
+        state.polygonBufferUrl = polygonBufferUrl;
       }
     );
 
     builder.addCase(
-      loadTextureFromThread,
+      loadTextureFromThread.fulfilled,
       (
         state: ModelDataState,
-        { payload: { textureDefs, fileName, hasCompressedTextures } }
+        {
+          payload: {
+            textureDefs,
+            fileName,
+            hasCompressedTextures,
+            textureBufferUrl
+          }
+        }
       ) => {
         state.textureDefs = textureDefs;
         state.editedTextures = [];
         state.textureFileName = fileName;
         state.hasCompressedTextures = hasCompressedTextures;
+        state.textureBufferUrl = textureBufferUrl;
       }
     );
 

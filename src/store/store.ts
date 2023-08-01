@@ -1,9 +1,9 @@
 import {
+  Action,
+  AnyAction,
   configureStore,
   ThunkAction,
-  Action,
-  ThunkDispatch,
-  AnyAction
+  ThunkDispatch
 } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
 import modelViewerSlice from './modelViewerSlice';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import themes from '@/theming/themes';
-import { Theme, useMediaQuery, createTheme, ScenePalette } from '@mui/material';
+import { createTheme, ScenePalette, Theme, useMediaQuery } from '@mui/material';
 import { ThemeOptions } from '@mui/material/styles';
 
 let hasInitialized = false;

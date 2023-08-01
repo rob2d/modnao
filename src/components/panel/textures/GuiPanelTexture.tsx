@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
-import { Typography, styled } from '@mui/material';
+import { styled, Typography } from '@mui/material';
 import Image from 'next/image';
 import { TextureSize } from '@/utils/textures/TextureSize';
 import { NLTextureDef } from '@/types/NLAbstractions';

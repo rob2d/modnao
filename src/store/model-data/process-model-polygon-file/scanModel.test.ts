@@ -12,6 +12,6 @@ describe('scanModel', () => {
     );
     const modelData = scanModel({ buffer, address: 528, index: 0 });
 
-    expect(modelData).toMatchSnapshot();
+    expect(modelData).toMatchSnapshot('scan-model-model-data');
   });
 });

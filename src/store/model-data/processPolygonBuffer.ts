@@ -1,7 +1,7 @@
-import scanModel from './process-model-polygon-file/scanModel';
-import scanForModelPointers from './process-model-polygon-file/scanForModelPointers';
-import scanTextureHeaderData from './process-model-polygon-file/scanTextureHeaderData';
 import { NLTextureDef } from '@/types/NLAbstractions';
+import scanForModelPointers from './process-model-polygon-file/scanForModelPointers';
+import scanModel from './process-model-polygon-file/scanModel';
+import scanTextureHeaderData from './process-model-polygon-file/scanTextureHeaderData';
 
 export default async function processPolygonBuffer(buffer: Buffer): Promise<{
   modelRamOffset: number;
