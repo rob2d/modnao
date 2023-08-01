@@ -1,5 +1,5 @@
-import { CSSProperties } from 'react';
 import { PaletteMode, Theme } from '@mui/material';
+import { CSSProperties } from 'react';
 import { Fira_Code } from 'next/font/google';
 
 export const firaCode = Fira_Code({

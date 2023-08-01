@@ -3,9 +3,9 @@ import { mdiUnfoldLessHorizontal, mdiUnfoldMoreHorizontal } from '@mdi/js';
 import {
   IconButton,
   ListSubheader,
+  styled,
   Tooltip,
-  Typography,
-  styled
+  Typography
 } from '@mui/material';
 import Icon from '@mdi/react';
 

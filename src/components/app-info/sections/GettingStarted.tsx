@@ -5,8 +5,8 @@ import {
   StepContent,
   StepLabel,
   Stepper,
-  Typography,
-  styled
+  styled,
+  Typography
 } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
 import Icon from '@mdi/react';

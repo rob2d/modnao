@@ -4,8 +4,8 @@ import {
   List,
   ListItem,
   ListSubheader,
-  Tooltip,
-  styled
+  styled,
+  Tooltip
 } from '@mui/material';
 import { useDebounce } from 'use-debounce';
 import HslValues from '@/utils/textures/HslValues';

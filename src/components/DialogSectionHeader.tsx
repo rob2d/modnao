@@ -1,4 +1,4 @@
-import { Typography, styled } from '@mui/material';
+import { styled, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
 const StyledTypography = styled(Typography)(

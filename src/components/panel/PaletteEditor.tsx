@@ -5,8 +5,8 @@ import {
   IconButton,
   Popover,
   ScenePalette,
-  Tooltip,
   styled,
+  Tooltip,
   useTheme
 } from '@mui/material';
 import clsx from 'clsx';

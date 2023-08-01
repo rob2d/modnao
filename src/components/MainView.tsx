@@ -1,6 +1,6 @@
 import GuiPanel from './panel/GuiPanel';
 import SceneCanvas from './scene/SceneCanvas';
-import { Button, Tooltip, styled } from '@mui/material';
+import { Button, styled, Tooltip } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import clsx from 'clsx';

@@ -1,13 +1,13 @@
 import { encodeZMortonPosition } from '@/utils/textures/parse';
-import {
-  rgb565ToRgba8888,
-  argb1555ToRgba8888,
-  argb4444ToRgba8888
-} from '@/utils/color-conversions';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import {
+  argb1555ToRgba8888,
+  argb4444ToRgba8888,
+  rgb565ToRgba8888
+} from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
-import offscreenCanvasToDataUrl from '@/utils/offscreenCanvasToDataUrl';
 import { SourceTextureData } from '../SourceTextureData';
+import offscreenCanvasToDataUrl from '@/utils/offscreenCanvasToDataUrl';
 
 const COLOR_SIZE = 2;
 
