@@ -4,11 +4,21 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended"
   ],
-  "plugins": [
-    "prettier"
-  ],
+  "plugins": ["import", "prettier"],
   "rules": {
-    "prettier/prettier": ["error", {"endOfLine": "auto"}],
-    "react-hooks/exhaustive-deps": 0
+    "prettier/prettier": ["error", { "endOfLine": "auto" }],
+    "react-hooks/exhaustive-deps": 0,
+    "sort-imports": [
+      "error",
+      {
+        "ignoreCase": true,
+        "ignoreDeclarationSort": true
+      }
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": true
+    }
   }
 }
