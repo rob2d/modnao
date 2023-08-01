@@ -1,22 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`scanModel extracts a test stage file predictably 1`] = `
+exports[`scanModel extracts a test stage file predictably: scan-model-model-data 1`] = `
 Object {
   "address": 528,
   "meshes": Array [
     Object {
       "address": 552,
       "alpha": 1,
+      "baseParams": 2147483692,
       "color": Array [
         1,
         1,
         1,
       ],
+      "hasColoredVertices": false,
+      "isOpaque": true,
       "polygonDataLength": 136,
       "polygons": Array [
         Object {
           "actualVertexCount": 4,
           "address": 632,
+          "flags": Object {
+            "culling": true,
+            "cullingType": "front",
+            "envMaps": false,
+            "gouradShading": false,
+            "reuseGlobalParams": false,
+            "spriteQuad": true,
+            "strip": true,
+            "superVertexIndex": false,
+            "triangles": false,
+          },
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
@@ -28,7 +42,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 0,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -49,7 +63,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 1,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -70,7 +84,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 2,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -91,7 +105,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 3,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -117,7 +131,7 @@ Object {
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
       "textureIndex": 0,
-      "textureShadingValue": -1,
+      "textureInstructions": 2197815296,
       "textureSize": Array [
         64,
         64,
@@ -131,20 +145,35 @@ Object {
         "vRepeat": true,
       },
       "textureWrappingValue": 8,
+      "vertexColorModeValue": -1,
     },
     Object {
       "address": 768,
       "alpha": 1,
+      "baseParams": 2147483708,
       "color": Array [
         1,
         1,
         1,
       ],
+      "hasColoredVertices": false,
+      "isOpaque": true,
       "polygonDataLength": 136,
       "polygons": Array [
         Object {
           "actualVertexCount": 4,
           "address": 848,
+          "flags": Object {
+            "culling": true,
+            "cullingType": "front",
+            "envMaps": false,
+            "gouradShading": false,
+            "reuseGlobalParams": false,
+            "spriteQuad": true,
+            "strip": true,
+            "superVertexIndex": false,
+            "triangles": false,
+          },
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
@@ -156,7 +185,7 @@ Object {
               "contentModeValue": 3292233729,
               "index": 0,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -177,7 +206,7 @@ Object {
               "contentModeValue": 3292233729,
               "index": 1,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -198,7 +227,7 @@ Object {
               "contentModeValue": 1144750081,
               "index": 2,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -219,7 +248,7 @@ Object {
               "contentModeValue": 1144750081,
               "index": 3,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -245,7 +274,7 @@ Object {
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
       "textureIndex": 0,
-      "textureShadingValue": -1,
+      "textureInstructions": 2197815296,
       "textureSize": Array [
         64,
         64,
@@ -259,20 +288,35 @@ Object {
         "vRepeat": true,
       },
       "textureWrappingValue": 8,
+      "vertexColorModeValue": -1,
     },
     Object {
       "address": 984,
       "alpha": 1,
+      "baseParams": 2147483708,
       "color": Array [
         1,
         1,
         1,
       ],
+      "hasColoredVertices": false,
+      "isOpaque": true,
       "polygonDataLength": 136,
       "polygons": Array [
         Object {
           "actualVertexCount": 4,
           "address": 1064,
+          "flags": Object {
+            "culling": true,
+            "cullingType": "front",
+            "envMaps": false,
+            "gouradShading": false,
+            "reuseGlobalParams": false,
+            "spriteQuad": true,
+            "strip": true,
+            "superVertexIndex": false,
+            "triangles": false,
+          },
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
@@ -284,7 +328,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 0,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -305,7 +349,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 1,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -326,7 +370,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 2,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -347,7 +391,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 3,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -373,7 +417,7 @@ Object {
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
       "textureIndex": 0,
-      "textureShadingValue": -1,
+      "textureInstructions": 2197815296,
       "textureSize": Array [
         64,
         64,
@@ -387,20 +431,35 @@ Object {
         "vRepeat": true,
       },
       "textureWrappingValue": 8,
+      "vertexColorModeValue": -1,
     },
     Object {
       "address": 1200,
       "alpha": 1,
+      "baseParams": 2147483708,
       "color": Array [
         1,
         1,
         1,
       ],
+      "hasColoredVertices": false,
+      "isOpaque": true,
       "polygonDataLength": 136,
       "polygons": Array [
         Object {
           "actualVertexCount": 4,
           "address": 1280,
+          "flags": Object {
+            "culling": true,
+            "cullingType": "front",
+            "envMaps": false,
+            "gouradShading": false,
+            "reuseGlobalParams": false,
+            "spriteQuad": true,
+            "strip": true,
+            "superVertexIndex": false,
+            "triangles": false,
+          },
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
@@ -412,7 +471,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 0,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -433,7 +492,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 1,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -454,7 +513,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 2,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -475,7 +534,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 3,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -501,7 +560,7 @@ Object {
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
       "textureIndex": 0,
-      "textureShadingValue": -1,
+      "textureInstructions": 2197815296,
       "textureSize": Array [
         64,
         64,
@@ -515,20 +574,35 @@ Object {
         "vRepeat": true,
       },
       "textureWrappingValue": 8,
+      "vertexColorModeValue": -1,
     },
     Object {
       "address": 1416,
       "alpha": 1,
+      "baseParams": 2147483708,
       "color": Array [
         1,
         1,
         1,
       ],
+      "hasColoredVertices": false,
+      "isOpaque": true,
       "polygonDataLength": 136,
       "polygons": Array [
         Object {
           "actualVertexCount": 4,
           "address": 1496,
+          "flags": Object {
+            "culling": true,
+            "cullingType": "front",
+            "envMaps": false,
+            "gouradShading": false,
+            "reuseGlobalParams": false,
+            "spriteQuad": true,
+            "strip": true,
+            "superVertexIndex": false,
+            "triangles": false,
+          },
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
@@ -540,7 +614,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 0,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -561,7 +635,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 1,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -582,7 +656,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 2,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -603,7 +677,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 3,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -629,7 +703,7 @@ Object {
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
       "textureIndex": 0,
-      "textureShadingValue": -1,
+      "textureInstructions": 2197815296,
       "textureSize": Array [
         64,
         64,
@@ -643,20 +717,35 @@ Object {
         "vRepeat": true,
       },
       "textureWrappingValue": 8,
+      "vertexColorModeValue": -1,
     },
     Object {
       "address": 1632,
       "alpha": 1,
+      "baseParams": 2147483708,
       "color": Array [
         1,
         1,
         1,
       ],
+      "hasColoredVertices": false,
+      "isOpaque": true,
       "polygonDataLength": 136,
       "polygons": Array [
         Object {
           "actualVertexCount": 4,
           "address": 1712,
+          "flags": Object {
+            "culling": true,
+            "cullingType": "front",
+            "envMaps": false,
+            "gouradShading": false,
+            "reuseGlobalParams": false,
+            "spriteQuad": true,
+            "strip": true,
+            "superVertexIndex": false,
+            "triangles": false,
+          },
           "vertexCount": 4,
           "vertexGroupMode": "regular",
           "vertexGroupModeValue": 22,
@@ -668,7 +757,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 0,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -689,7 +778,7 @@ Object {
               "contentModeValue": 3304718337,
               "index": 1,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -710,7 +799,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 2,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -731,7 +820,7 @@ Object {
               "contentModeValue": 1157234689,
               "index": 3,
               "normals": Array [
-                3212836864,
+                -1,
                 0,
                 0,
               ],
@@ -757,7 +846,7 @@ Object {
       "textureColorFormatValue": 8,
       "textureControlValue": 134217728,
       "textureIndex": 0,
-      "textureShadingValue": -1,
+      "textureInstructions": 2197815296,
       "textureSize": Array [
         64,
         64,
@@ -771,6 +860,7 @@ Object {
         "vRepeat": true,
       },
       "textureWrappingValue": 8,
+      "vertexColorModeValue": -1,
     },
   ],
   "position": Array [
