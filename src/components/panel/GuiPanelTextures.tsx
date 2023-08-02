@@ -58,7 +58,6 @@ export default function GuiPanelViewOptions() {
             key={`${m.textureIndex}_${i}`}
             textureDef={textureDef}
             textureIndex={m.textureIndex}
-            textureSize={m.textureSize}
             selected={selectedMeshTexture === m.textureIndex}
           />
         );

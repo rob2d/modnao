@@ -1,8 +1,6 @@
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
 import { styled, Typography } from '@mui/material';
-import Image from 'next/image';
-import { TextureSize } from '@/utils/textures/TextureSize';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import {
@@ -13,6 +11,7 @@ import {
 import { useCallback } from 'react';
 import loadDataUrlFromImageFile from '@/utils/images/loadDataUrlFromImageFile';
 import { useDropzone } from 'react-dropzone';
+import GuiPanelTextureImage from './GuiPanelTextureImage';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -53,7 +52,7 @@ const StyledPanelTexture = styled('div')(
     height: 100%;
   }
     
-  & img {
+  & canvas {
     width: 100%;
     height: auto;
     border-color: transparent;
@@ -63,7 +62,7 @@ const StyledPanelTexture = styled('div')(
     transform: rotate(-90deg);
   }
 
-  & .selected img {
+  & .selected canvas {
     border-color: ${theme.palette.primary.main};
   }
 
@@ -81,7 +80,6 @@ const StyledPanelTexture = styled('div')(
 export type GuiPanelTextureProps = {
   selected: boolean;
   textureDef: NLTextureDef;
-  textureSize: TextureSize;
   textureIndex: number;
 };
 
@@ -91,14 +89,12 @@ export type GuiPanelTextureProps = {
 export default function GuiPanelTexture({
   selected,
   textureIndex,
-  textureDef,
-  textureSize
+  textureDef
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
   const onSelectNewImageFile = useCallback(
-    (url: string) => {
-      dispatch(replaceTextureDataWithImageUrl({ url, textureIndex }));
-    },
+    (url: string) =>
+      dispatch(replaceTextureDataWithImageUrl({ url, textureIndex })),
     [textureIndex]
   );
 
@@ -106,8 +102,7 @@ export default function GuiPanelTexture({
 
   const onDrop = useCallback(
     async ([file]: File[]) => {
-      const dataUrl = await loadDataUrlFromImageFile(file);
-      onSelectNewImageFile(dataUrl);
+      onSelectNewImageFile(await loadDataUrlFromImageFile(file));
     },
     [onSelectNewImageFile]
   );
@@ -123,7 +118,7 @@ export default function GuiPanelTexture({
       'image/gif': ['.gif']
     }
   });
-  const [width, height] = textureSize;
+  const { width, height } = textureDef;
 
   // always take actions on translucent texture if possible */
   const actionableTextureUrl =
@@ -131,7 +126,7 @@ export default function GuiPanelTexture({
 
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
-  const displayedDataUrl =
+  const pixelDataUrl =
     (selected && isSelectedMeshOpaque
       ? textureDef.bufferUrls.opaque || textureDef.bufferUrls.translucent
       : actionableTextureUrl) || '';
@@ -146,10 +141,8 @@ export default function GuiPanelTexture({
         )}
         {...getRootProps()}
       >
-        <Image
-          src={displayedDataUrl}
-          id={`gui-panel-t-${textureIndex}`}
-          alt={`Texture # ${textureIndex}`}
+        <GuiPanelTextureImage
+          pixelDataUrl={pixelDataUrl}
           width={Number(width)}
           height={Number(height)}
         />
@@ -158,7 +151,7 @@ export default function GuiPanelTexture({
           textAlign='right'
           className={'size-notation'}
         >
-          {textureSize[0]}x{textureSize[0]} [{textureIndex}]
+          {textureDef.width}x{textureDef.height} [{textureIndex}]
         </Typography>
         <GuiPanelTextureMenu
           textureIndex={textureIndex}
