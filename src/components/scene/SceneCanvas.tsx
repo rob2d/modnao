@@ -27,10 +27,43 @@ import {
   Selection
 } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
+import {
+  ClampToEdgeWrapping,
+  DataTexture,
+  RepeatWrapping,
+  RGBAFormat,
+  sRGBEncoding,
+  UnsignedByteType,
+  Vector2
+} from 'three';
+import { objectUrlToBuffer } from '@/utils/data';
 
 THREE.ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
+
+const textureMap = new Map<string, DataTexture>();
+
+const TEXTURE_ROTATION = (90 * Math.PI) / 180;
+const TEXTURE_CENTER = new Vector2(0.5, 0.5);
+
+async function createTextureFromObjectUrl(
+  pixelObjectUrl: string,
+  width: number,
+  height: number
+) {
+  const pixels = Buffer.from(await objectUrlToBuffer(pixelObjectUrl));
+  const texture = new DataTexture(
+    pixels,
+    width,
+    height,
+    RGBAFormat,
+    UnsignedByteType
+  );
+  texture.needsUpdate = true;
+
+  return texture;
+}
 
 export default function SceneCanvas() {
   useSceneKeyboardControls();
@@ -61,6 +94,44 @@ export default function SceneCanvas() {
     }),
     [viewOptions.sceneCursorVisible, theme]
   );
+
+  useEffect(() => {
+    (async () => {
+      for await (const t of textureDefs) {
+        for await (const type of ['opaque', 'translucent']) {
+          const url = t.bufferUrls[type as 'opaque' | 'translucent'];
+          if (!url) {
+            continue;
+          }
+          for await (const hRepeat of [true, false]) {
+            for await (const vRepeat of [true, false]) {
+              const key = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
+              if (!textureMap.has(key)) {
+                const texture = await createTextureFromObjectUrl(
+                  url,
+                  t.width,
+                  t.height
+                );
+
+                texture.rotation = TEXTURE_ROTATION;
+                texture.center = TEXTURE_CENTER;
+
+                // addresses an issue in ThreeJS with
+                // sRGB randomly not applying to textures depending
+                // on how it is created
+                texture.encoding = sRGBEncoding;
+                texture.repeat.y = -1;
+                texture.wrapS = hRepeat ? RepeatWrapping : ClampToEdgeWrapping;
+                texture.wrapT = vRepeat ? RepeatWrapping : ClampToEdgeWrapping;
+
+                textureMap.set(key, texture);
+              }
+            }
+          }
+        }
+      }
+    })();
+  }, [textureDefs]);
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -105,17 +176,31 @@ export default function SceneCanvas() {
           {!viewOptions.axesHelperVisible ? undefined : (
             <axesHelper args={[50]} />
           )}
-          {(model?.meshes || []).map((m, i) => (
-            <RenderedMesh
-              key={m.address}
-              {...m}
-              objectKey={`${i}`}
-              selectedObjectKey={objectKey}
-              objectSelectionType={objectSelectionType}
-              onSelectObjectKey={onSelectObjectKey}
-              textureDefs={textureDefs}
-            />
-          ))}
+          {(model?.meshes || []).map((m, i) => {
+            const tDef = textureDefs[m.textureIndex];
+            if (!tDef) {
+              return undefined;
+            }
+            const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
+            const { hRepeat, vRepeat } = m.textureWrappingFlags;
+            const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
+            const texture = textureMap.get(textureHash) || null;
+            if (texture) {
+              texture.needsUpdate = true;
+            }
+
+            return (
+              <RenderedMesh
+                key={m.address}
+                {...m}
+                objectKey={`${i}`}
+                selectedObjectKey={objectKey}
+                objectSelectionType={objectSelectionType}
+                onSelectObjectKey={onSelectObjectKey}
+                texture={texture}
+              />
+            );
+          })}
           <OrbitControls />
         </group>
       </Selection>

@@ -46,7 +46,6 @@ export const selectSceneTextureDefs = createSelector(
       returnTextures[i] = entry;
     });
 
-    console.log('returnTextures ->', returnTextures);
     return returnTextures;
   }
 );

@@ -23,7 +23,7 @@ export default function RenderedPolygon({
   objectKey: string;
   selectedObjectKey?: string;
   onSelectObjectKey: (key: string) => void;
-  texture?: Texture;
+  texture: Texture | null;
 }) {
   // @TODO: consider breaking down mesh material and components
   // to absorb context in subtrees if performance becomes an issue with
