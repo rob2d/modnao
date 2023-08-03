@@ -4,7 +4,8 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef
+  useRef,
+  useState
 } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
@@ -42,8 +43,6 @@ THREE.ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
 
-const textureMap = new Map<string, DataTexture>();
-
 const TEXTURE_ROTATION = (90 * Math.PI) / 180;
 const TEXTURE_CENTER = new Vector2(0.5, 0.5);
 
@@ -67,6 +66,7 @@ async function createTextureFromObjectUrl(
 
 export default function SceneCanvas() {
   useSceneKeyboardControls();
+  const [textureMap, setTextureMap] = useState<Map<string, DataTexture>>();
   const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
   const viewOptions = useContext(ViewOptionsContext);
 
@@ -96,6 +96,7 @@ export default function SceneCanvas() {
   );
 
   useEffect(() => {
+    const nextMap = new Map<string, DataTexture>();
     (async () => {
       for await (const t of textureDefs) {
         for await (const type of ['opaque', 'translucent']) {
@@ -106,7 +107,7 @@ export default function SceneCanvas() {
           for await (const hRepeat of [true, false]) {
             for await (const vRepeat of [true, false]) {
               const key = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
-              if (!textureMap.has(key)) {
+              if (!textureMap?.has(key)) {
                 const texture = await createTextureFromObjectUrl(
                   url,
                   t.width,
@@ -124,12 +125,16 @@ export default function SceneCanvas() {
                 texture.wrapS = hRepeat ? RepeatWrapping : ClampToEdgeWrapping;
                 texture.wrapT = vRepeat ? RepeatWrapping : ClampToEdgeWrapping;
 
-                textureMap.set(key, texture);
+                nextMap.set(key, texture);
+              } else {
+                nextMap.set(key, textureMap?.get(key) as DataTexture);
               }
             }
           }
         }
       }
+
+      setTextureMap(nextMap);
     })();
   }, [textureDefs]);
 
