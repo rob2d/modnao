@@ -134,6 +134,7 @@ export default function GuiPanelTexture({
   return (
     <StyledPanelTexture>
       <div
+        id={`gui-panel-t-${textureIndex}`}
         className={clsx(
           'image-area',
           selected && 'selected',
