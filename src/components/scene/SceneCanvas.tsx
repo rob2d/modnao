@@ -17,7 +17,6 @@ import {
   selectSceneTextureDefs
 } from '@/store/selectors';
 import { setObjectKey, useAppDispatch, useAppSelector } from '@/store';
-import RenderedMesh from './RenderedMesh';
 import { useSceneKeyboardControls } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
@@ -38,6 +37,7 @@ import {
   Vector2
 } from 'three';
 import { objectUrlToBuffer } from '@/utils/data';
+import RenderedPolygon from './RenderedPolygon';
 
 THREE.ColorManagement.enabled = true;
 
@@ -155,6 +155,44 @@ export default function SceneCanvas() {
     return () => resizeObserver.unobserve(containerElement);
   }, []);
 
+  const renderedMeshes = useMemo(
+    () =>
+      (model?.meshes || []).map((m, i) => {
+        const tDef = textureDefs[m.textureIndex];
+        if (!tDef) {
+          return undefined;
+        }
+        const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
+        const { hRepeat, vRepeat } = m.textureWrappingFlags;
+        const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
+        const texture = textureMap?.get(textureHash) || null;
+        if (texture) {
+          texture.needsUpdate = true;
+        }
+
+        return m.polygons.map((p, pIndex) => (
+          <RenderedPolygon
+            {...p}
+            key={`${m.address}_${p.address}`}
+            objectKey={
+              objectSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
+            }
+            selectedObjectKey={objectKey}
+            onSelectObjectKey={onSelectObjectKey}
+            texture={texture}
+          />
+        ));
+      }),
+    [
+      model,
+      textureDefs,
+      textureMap,
+      objectKey,
+      objectSelectionType,
+      onSelectObjectKey
+    ]
+  );
+
   return (
     <Canvas
       camera={cameraParams}
@@ -181,31 +219,7 @@ export default function SceneCanvas() {
           {!viewOptions.axesHelperVisible ? undefined : (
             <axesHelper args={[50]} />
           )}
-          {(model?.meshes || []).map((m, i) => {
-            const tDef = textureDefs[m.textureIndex];
-            if (!tDef) {
-              return undefined;
-            }
-            const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
-            const { hRepeat, vRepeat } = m.textureWrappingFlags;
-            const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
-            const texture = textureMap.get(textureHash) || null;
-            if (texture) {
-              texture.needsUpdate = true;
-            }
-
-            return (
-              <RenderedMesh
-                key={m.address}
-                {...m}
-                objectKey={`${i}`}
-                selectedObjectKey={objectKey}
-                objectSelectionType={objectSelectionType}
-                onSelectObjectKey={onSelectObjectKey}
-                texture={texture}
-              />
-            );
-          })}
+          {renderedMeshes}
           <OrbitControls />
         </group>
       </Selection>
