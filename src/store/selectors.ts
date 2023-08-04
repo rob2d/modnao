@@ -24,6 +24,26 @@ export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
+/**
+ * get a set of base texture urls to detect presence in O(1)
+ */
+export const selectUneditedTextureUrls = createSelector(
+  selectTextureDefs,
+  (defs) => {
+    const urlSet = new Set<string>();
+    defs.forEach((d) => {
+      if (d.bufferUrls.translucent) {
+        urlSet.add(d.bufferUrls.translucent);
+      }
+
+      if (d.bufferUrls.opaque) {
+        urlSet.add(d.bufferUrls.opaque);
+      }
+    });
+
+    return urlSet;
+  }
+);
 
 export const selectEditedTextures = (s: AppState) => s.modelData.editedTextures;
 

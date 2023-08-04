@@ -14,7 +14,9 @@ import {
   selectModel,
   selectObjectKey,
   selectObjectSelectionType,
-  selectSceneTextureDefs
+  selectSceneTextureDefs,
+  selectTextureDefs,
+  selectUneditedTextureUrls
 } from '@/store/selectors';
 import { setObjectKey, useAppDispatch, useAppSelector } from '@/store';
 import { useSceneKeyboardControls } from '@/hooks';
@@ -82,6 +84,7 @@ export default function SceneCanvas() {
     [objectKey]
   );
 
+  const uneditedTextureUrls = useAppSelector(selectUneditedTextureUrls);
   const textureDefs = useAppSelector(selectSceneTextureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
@@ -137,6 +140,18 @@ export default function SceneCanvas() {
       }
 
       setTextureMap(nextMap);
+
+      // revoke unused texture urls
+      if (!textureMap) {
+        return;
+      }
+
+      // free up memory for updated texture urls as needed
+      for (const key of textureMap.keys()) {
+        if (!nextMap.has(key) && !uneditedTextureUrls.has(key)) {
+          URL.revokeObjectURL(key);
+        }
+      }
     })();
   }, [textureDefs]);
 
