@@ -81,6 +81,24 @@ export const selectModel = createSelector(
   (modelIndex, models) => models?.[modelIndex]
 );
 
+export const selectDisplayedMeshes = createSelector(
+  selectModel,
+  selectSceneTextureDefs,
+  (model, textureDefs): (NLMesh & { textureHash: string })[] => {
+    return (model?.meshes || []).map((m) => {
+      const tDef = textureDefs[m.textureIndex];
+      const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
+      const { hRepeat, vRepeat } = m.textureWrappingFlags;
+      const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
+
+      return {
+        ...m,
+        textureHash
+      };
+    });
+  }
+);
+
 /** infers mesh selection from selected object key */
 export const selectObjectMeshIndex = createSelector(
   selectObjectKey,

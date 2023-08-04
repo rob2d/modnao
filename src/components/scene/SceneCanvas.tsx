@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState
@@ -11,11 +12,11 @@ import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import {
+  selectDisplayedMeshes,
   selectModel,
   selectObjectKey,
   selectObjectSelectionType,
   selectSceneTextureDefs,
-  selectTextureDefs,
   selectUneditedTextureUrls
 } from '@/store/selectors';
 import { setObjectKey, useAppDispatch, useAppSelector } from '@/store';
@@ -100,7 +101,7 @@ export default function SceneCanvas() {
     [viewOptions.sceneCursorVisible, theme]
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const nextMap = new Map<string, DataTexture>();
     (async () => {
       for await (const t of textureDefs) {
@@ -149,7 +150,7 @@ export default function SceneCanvas() {
       // free up memory for updated texture urls as needed
       for (const key of textureMap.keys()) {
         if (!nextMap.has(key) && !uneditedTextureUrls.has(key)) {
-          URL.revokeObjectURL(key);
+          // URL.revokeObjectURL(key);
         }
       }
     })();
@@ -172,20 +173,16 @@ export default function SceneCanvas() {
     return () => resizeObserver.unobserve(containerElement);
   }, []);
 
+  const meshes = useAppSelector(selectDisplayedMeshes);
+
   const renderedMeshes = useMemo(
     () =>
-      (model?.meshes || []).map((m, i) => {
+      meshes.map((m, i) => {
         const tDef = textureDefs[m.textureIndex];
         if (!tDef) {
           return undefined;
         }
-        const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
-        const { hRepeat, vRepeat } = m.textureWrappingFlags;
-        const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
-        const texture = textureMap?.get(textureHash) || null;
-        if (texture) {
-          texture.needsUpdate = true;
-        }
+        const texture = textureMap?.get(m.textureHash) || null;
 
         return m.polygons.map((p, pIndex) => (
           <RenderedPolygon
