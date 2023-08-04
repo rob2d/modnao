@@ -1,5 +1,8 @@
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
+import 'jimp';
+import Image from 'next/image';
+import { useDropzone } from 'react-dropzone';
 import { styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
@@ -8,10 +11,11 @@ import {
   selectIsMeshOpaque,
   useAppDispatch
 } from '@/store';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import loadDataUrlFromImageFile from '@/utils/images/loadDataUrlFromImageFile';
-import { useDropzone } from 'react-dropzone';
-import GuiPanelTextureImage from './GuiPanelTextureImage';
+import { objectUrlToBuffer } from '@/utils/data';
+
+const { Jimp } = globalThis as any;
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -52,7 +56,7 @@ const StyledPanelTexture = styled('div')(
     height: 100%;
   }
     
-  & canvas {
+  & .img {
     width: 100%;
     height: auto;
     border-color: transparent;
@@ -62,7 +66,7 @@ const StyledPanelTexture = styled('div')(
     transform: rotate(-90deg);
   }
 
-  & .selected canvas {
+  & .selected .img {
     border-color: ${theme.palette.primary.main};
   }
 
@@ -82,9 +86,6 @@ export type GuiPanelTextureProps = {
   textureDef: NLTextureDef;
   textureIndex: number;
 };
-
-// @TODO: calculate which dataUrl to show (opaque vs transparent) in parent
-// so that all textures don't include a selector to run on renders
 
 export default function GuiPanelTexture({
   selected,
@@ -118,7 +119,10 @@ export default function GuiPanelTexture({
       'image/gif': ['.gif']
     }
   });
+
   const { width, height } = textureDef;
+
+  const [imgSrc, setImgSrc] = useState<string>('');
 
   // always take actions on translucent texture if possible */
   const actionableTextureUrl =
@@ -130,6 +134,19 @@ export default function GuiPanelTexture({
     (selected && isSelectedMeshOpaque
       ? textureDef.bufferUrls.opaque || textureDef.bufferUrls.translucent
       : actionableTextureUrl) || '';
+  useEffect(() => {
+    (async () => {
+      const pixels = new Uint8ClampedArray(
+        await objectUrlToBuffer(pixelDataUrl)
+      );
+
+      new Jimp.read({ data: pixels, width, height }, (_: Error, image: any) => {
+        image.getBase64Async(Jimp.MIME_PNG).then((base64: string) => {
+          setImgSrc(base64);
+        });
+      });
+    })();
+  }, [pixelDataUrl]);
 
   return (
     <StyledPanelTexture>
@@ -142,11 +159,17 @@ export default function GuiPanelTexture({
         )}
         {...getRootProps()}
       >
-        <GuiPanelTextureImage
-          pixelDataUrl={pixelDataUrl}
-          width={Number(width)}
-          height={Number(height)}
-        />
+        {!imgSrc ? (
+          <div className='img' />
+        ) : (
+          <Image
+            src={imgSrc}
+            width={width}
+            height={height}
+            alt={`Texture # ${textureIndex}`}
+            className='img'
+          />
+        )}
         <Typography
           variant='subtitle2'
           textAlign='right'
