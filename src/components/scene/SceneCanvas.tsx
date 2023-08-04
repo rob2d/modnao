@@ -49,6 +49,10 @@ const cameraParams = { far: 5000000 };
 const TEXTURE_ROTATION = (90 * Math.PI) / 180;
 const TEXTURE_CENTER = new Vector2(0.5, 0.5);
 
+const useClientLayoutEffect =
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  typeof window !== 'undefined' ? useLayoutEffect : () => {};
+
 async function createTextureFromObjectUrl(
   pixelObjectUrl: string,
   width: number,
@@ -101,7 +105,7 @@ export default function SceneCanvas() {
     [viewOptions.sceneCursorVisible, theme]
   );
 
-  useLayoutEffect(() => {
+  useClientLayoutEffect(() => {
     const nextMap = new Map<string, DataTexture>();
     (async () => {
       for await (const t of textureDefs) {
