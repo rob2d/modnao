@@ -1,21 +1,19 @@
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
-import 'jimp';
-import Image from 'next/image';
+import { Image } from 'image-js';
+import Img from 'next/image';
 import { useDropzone } from 'react-dropzone';
 import { styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import {
-  replaceTextureDataWithImageUrl,
+  replaceTextureImage,
   selectIsMeshOpaque,
   useAppDispatch
 } from '@/store';
 import { useCallback, useEffect, useState } from 'react';
-import loadDataUrlFromImageFile from '@/utils/images/loadDataUrlFromImageFile';
 import { objectUrlToBuffer } from '@/utils/data';
-
-const { Jimp } = globalThis as any;
+import loadRGBABufferUrlsFromFile from '@/utils/images/loadRGBABufferUrlsFromFile';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -94,8 +92,10 @@ export default function GuiPanelTexture({
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
   const onSelectNewImageFile = useCallback(
-    (url: string) =>
-      dispatch(replaceTextureDataWithImageUrl({ url, textureIndex })),
+    async (file: File) => {
+      const bufferUrls = await loadRGBABufferUrlsFromFile(file);
+      dispatch(replaceTextureImage({ bufferUrls, textureIndex }));
+    },
     [textureIndex]
   );
 
@@ -103,7 +103,7 @@ export default function GuiPanelTexture({
 
   const onDrop = useCallback(
     async ([file]: File[]) => {
-      onSelectNewImageFile(await loadDataUrlFromImageFile(file));
+      onSelectNewImageFile(file);
     },
     [onSelectNewImageFile]
   );
@@ -138,11 +138,8 @@ export default function GuiPanelTexture({
         await objectUrlToBuffer(pixelDataUrl)
       );
 
-      new Jimp.read({ data: pixels, width, height }, (_: Error, image: any) => {
-        image.getBase64Async(Jimp.MIME_PNG).then((base64: string) => {
-          setImgSrc(base64);
-        });
-      });
+      const dataUrl = new Image({ data: pixels, width, height }).toDataURL();
+      setImgSrc(dataUrl);
     })();
   }, [pixelDataUrl]);
 
@@ -160,7 +157,7 @@ export default function GuiPanelTexture({
         {!imgSrc ? (
           <div className='img' />
         ) : (
-          <Image
+          <Img
             src={imgSrc}
             width={width}
             height={height}

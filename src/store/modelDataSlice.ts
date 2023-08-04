@@ -12,7 +12,8 @@ import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState, store } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import { bufferToObjectUrl } from '@/utils/data';
-import { selectSceneTextureDefs } from './selectors';
+import { selectSceneTextureDefs, selectTextureDefs } from './selectors';
+import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 
 let worker: Worker;
 
@@ -195,16 +196,14 @@ export const loadTextureFromThread = createAsyncThunk<
   return payload;
 });
 
-export const replaceTextureDataWithImageUrl = createAsyncThunk<
-  { textureIndex: number; url: string },
-  { textureIndex: number; url: string },
+export const replaceTextureImage = createAsyncThunk<
+  { textureIndex: number; bufferUrls: SourceTextureData },
+  { textureIndex: number; bufferUrls: SourceTextureData },
   { state: AppState }
->(
-  `${sliceName}/replaceTextureDataWithImageUrl`,
-  async ({ textureIndex, url }) => {
-    //@TODO: refactor from dataUrl
+>(`${sliceName}/replaceTextureImage`, async ({ textureIndex, bufferUrls }) => {
+  //@TODO: refactor from dataUrl
 
-    /*
+  /*
 
     @TODO consider for updates
     const [width, height] = await getImageDimensionsFromDataUrl(url);
@@ -216,9 +215,8 @@ export const replaceTextureDataWithImageUrl = createAsyncThunk<
     }
     */
 
-    return { textureIndex, url };
-  }
-);
+  return { textureIndex, bufferUrls };
+});
 
 export const downloadTextureFile = createAsyncThunk<
   void,
@@ -228,6 +226,7 @@ export const downloadTextureFile = createAsyncThunk<
   const state = getState();
   const { textureFileName, hasCompressedTextures, textureBufferUrl } =
     state.modelData;
+  const oTextureDefs = selectTextureDefs(state);
   const textureDefs = selectSceneTextureDefs(state);
 
   try {
@@ -285,19 +284,13 @@ const modelDataSlice = createSlice({
     );
 
     builder.addCase(
-      replaceTextureDataWithImageUrl.fulfilled,
-      (state: ModelDataState, { payload: { textureIndex } }) => {
-        // TODO: populate texture data urls
-
-        // remove existing edited textures since these
-        // take precedence on rendering scenes
-
+      replaceTextureImage.fulfilled,
+      (state: ModelDataState, { payload: { textureIndex, bufferUrls } }) => {
         if (state.editedTextures[textureIndex]) {
-          const filteredEntries = Object.entries(state.editedTextures).filter(
-            ([i]) => Number(i) !== textureIndex
-          );
-
-          state.editedTextures = Object.fromEntries(filteredEntries);
+          state.editedTextures[textureIndex] = {
+            ...state.editedTextures[textureIndex],
+            bufferUrls
+          };
         }
 
         state.hasEditedTextures = true;

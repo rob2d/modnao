@@ -41,17 +41,15 @@ const StyledMenu = styled(Menu)(
 const MENU_OFFSET_STYLE = { transform: 'translateX(-200px)' } as const;
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 
-function useTextureReplacementPicker(
-  onReplaceImageFile: (dataUrl: string) => void
-) {
+function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const [
     openFileSelector,
     {
-      filesContent: [file]
+      plainFiles: [file]
     }
   ] = useFilePicker({
     multiple: false,
-    readAs: 'DataURL',
+    readAs: 'ArrayBuffer',
     accept: ['image/*']
   });
 
@@ -60,8 +58,7 @@ function useTextureReplacementPicker(
       return;
     }
 
-    const dataUrl = file.content;
-    onReplaceImageFile(dataUrl);
+    onReplaceImageFile(file);
   }, [file]);
 
   return openFileSelector;
@@ -78,7 +75,7 @@ export default function GuiPanelTextureMenu({
   width: number;
   height: number;
   pixelsObjectUrl: string;
-  onReplaceImageFile: (dataUrl: string) => void;
+  onReplaceImageFile: (file: File) => void;
 }) {
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

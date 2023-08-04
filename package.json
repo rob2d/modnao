@@ -55,6 +55,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "export-from-json": "^1.7.2",
     "identity-obj-proxy": "^3.0.0",
+    "image-js": "^0.35.4",
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^29.6.2",
     "jimp": "^0.22.10",

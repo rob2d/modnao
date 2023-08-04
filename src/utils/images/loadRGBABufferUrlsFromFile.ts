@@ -1,46 +1,31 @@
-import 'jimp';
-import Jimp from 'jimp';
+import { Image } from 'image-js';
 import { bufferToObjectUrl } from '../data';
 import { SourceTextureData } from '../textures/SourceTextureData';
 
 export default async function loadRGBABufferUrlsFromFile(
   file: File
 ): Promise<SourceTextureData> {
-  const reader = new FileReader();
-  const result: SourceTextureData = await new Promise((resolve) => {
-    reader.onload = async (event) => {
-      if (
-        !event ||
-        !event.target ||
-        !(event.target.result instanceof ArrayBuffer)
-      ) {
-        return;
-      }
-      const arrayBuffer = event.target.result;
+  const arrayBuffer = await file.arrayBuffer();
+  const image = await Image.load(arrayBuffer);
 
-      const img = await Jimp.read(arrayBuffer as any);
-      const translucentBuffer = new Uint8ClampedArray(img.bitmap.data);
+  const translucentBuffer = image.getRGBAData();
 
-      const opaqueBuffer = new Uint8ClampedArray(
-        Buffer.from(translucentBuffer)
-      );
-      for (let i = 0; i < translucentBuffer.length; i += 4) {
-        opaqueBuffer[i] = translucentBuffer[i];
-        opaqueBuffer[i + 1] = translucentBuffer[i + 1];
-        opaqueBuffer[i + 2] = translucentBuffer[i + 2];
-        opaqueBuffer[i + 3] = 255;
-      }
+  const opaqueBuffer = Buffer.from(translucentBuffer);
 
-      const [translucent, opaque] = await Promise.all([
-        await bufferToObjectUrl(translucentBuffer),
-        await bufferToObjectUrl(opaqueBuffer)
-      ]);
+  for (let i = 0; i < translucentBuffer.length; i += 4) {
+    opaqueBuffer[i] = translucentBuffer[i];
+    opaqueBuffer[i + 1] = translucentBuffer[i + 1];
+    opaqueBuffer[i + 2] = translucentBuffer[i + 2];
+    opaqueBuffer[i + 3] = 255;
+  }
 
-      resolve({ translucent, opaque });
-    };
+  const [translucent, opaque] = await Promise.all([
+    await bufferToObjectUrl(translucentBuffer),
+    await bufferToObjectUrl(opaqueBuffer)
+  ]);
 
-    reader.readAsArrayBuffer(file);
-  });
-
-  return result;
+  return {
+    translucent,
+    opaque
+  };
 }
