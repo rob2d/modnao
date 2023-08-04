@@ -3,6 +3,7 @@
     "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -18,7 +19,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include":  ["next-env.d.ts", "**/*.ts", "**/*.tsx", "types.d.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "types.d.ts"],
   "exclude": ["node_modules"],
   "typeroots": ["./node_modules/@types", "./src/types"]
 }
