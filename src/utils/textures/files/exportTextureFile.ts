@@ -6,7 +6,6 @@ import rgbaToArgb4444 from '@/utils/color-conversions/rgbaToArgb4444';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { compressTextureBuffer } from '@/utils/textures/parse';
 import { objectUrlToBuffer } from '@/utils/data';
-import nonSerializables from '@/store/nonSerializables';
 
 const COLOR_SIZE = 2;
 
@@ -38,9 +37,7 @@ export default async function exportTextureFile(
       await objectUrlToBuffer(t.bufferUrls.translucent as string)
     );
 
-    const originalPixels = Buffer.from(
-      nonSerializables.sourceTextureData[i].translucent
-    );
+    const originalPixels = Buffer.from(t.bufferUrls.translucent as string);
 
     for (let y = 0; y < height; y++) {
       const yOffset = width * y;

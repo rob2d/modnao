@@ -11,11 +11,15 @@ export default function GuiPanelTextureImage({
 
   useEffect(() => {
     (async () => {
-      const pixels = new Uint8Array(await objectUrlToBuffer(pixelDataUrl));
+      const pixels = new Uint8ClampedArray(
+        await objectUrlToBuffer(pixelDataUrl)
+      );
+
       const canvas = canvasRef.current;
       if (!canvas) {
         return;
       }
+
       const context = canvasRef.current!.getContext(
         '2d'
       ) as CanvasRenderingContext2D;
@@ -27,5 +31,6 @@ export default function GuiPanelTextureImage({
       context.putImageData(imageData, 0, 0);
     })();
   }, [pixelDataUrl]);
+
   return <canvas ref={canvasRef} />;
 }

@@ -64,6 +64,8 @@ async function createTextureFromObjectUrl(
   return texture;
 }
 
+const axesHelper = <axesHelper args={[50]} />;
+
 export default function SceneCanvas() {
   useSceneKeyboardControls();
   const [textureMap, setTextureMap] = useState<Map<string, DataTexture>>();
@@ -216,9 +218,7 @@ export default function SceneCanvas() {
         </EffectComposer>
         <SceneContextSetup />
         <group dispose={null}>
-          {!viewOptions.axesHelperVisible ? undefined : (
-            <axesHelper args={[50]} />
-          )}
+          {!viewOptions.axesHelperVisible ? undefined : axesHelper}
           {renderedMeshes}
           <OrbitControls />
         </group>

@@ -159,7 +159,9 @@ export default function RenderedPolygon({
       {meshAddressText}
       <Select enabled={isSelected}>
         <mesh
-          key={`${address}_${meshDisplayMode}_${color}_${isSelected}`}
+          key={`${address}_${meshDisplayMode}_${color}_${isSelected}_${
+            Boolean(texture) ? 1 : 0
+          }`}
           onClick={handleClick}
         >
           {meshDisplayMode === 'textured' ? (

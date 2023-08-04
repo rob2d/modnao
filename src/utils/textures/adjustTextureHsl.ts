@@ -40,6 +40,7 @@ export default async function adjustTextureHsl(
       g: number;
       b: number;
     };
+
     imageData[i] = newRgba.r;
     imageData[i + 1] = newRgba.g;
     imageData[i + 2] = newRgba.b;

@@ -6,16 +6,13 @@ import {
 } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import processPolygonBuffer from './model-data/processPolygonBuffer';
-import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import { NLTextureDef } from '@/types/NLAbstractions';
 import { WorkerEvent, WorkerResponses } from '@/worker';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState, store } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import { bufferToObjectUrl } from '@/utils/data';
-import getImageDimensionsFromDataUrl from '@/utils/images/getImageDimensionsFromDataUrl';
-import nonSerializables from './nonSerializables';
 import { selectSceneTextureDefs } from './selectors';
-import storeSourceTextureData from './model-data/storeSourceTextureData';
 
 let worker: Worker;
 
@@ -28,17 +25,8 @@ if (globalThis.Worker) {
     switch (event.data.type) {
       case 'loadTextureFile': {
         const {
-          result: {
-            buffer,
-            textureDefs,
-            fileName,
-            hasCompressedTextures,
-            sourceTextureData
-          }
+          result: { buffer, textureDefs, fileName, hasCompressedTextures }
         } = event.data;
-
-        // store sourceTextureData for color edits
-        nonSerializables.sourceTextureData = sourceTextureData;
 
         const textureBufferUrl = await bufferToObjectUrl(buffer);
 
@@ -134,15 +122,21 @@ export const loadPolygonFile = createAsyncThunk<
 
 export const adjustTextureHsl = createAsyncThunk<
   void,
-  { textureIndex: number; hsl: HslValues }
->(`${sliceName}/adjustTextureHsl`, async ({ textureIndex, hsl }) => {
-  const sourceTextureData = nonSerializables.sourceTextureData[textureIndex];
+  { textureIndex: number; hsl: HslValues },
+  { state: AppState }
+>(
+  `${sliceName}/adjustTextureHsl`,
+  async ({ textureIndex, hsl }, { getState }) => {
+    const state = getState();
+    const sourceTextureData =
+      state.modelData.textureDefs[textureIndex].bufferUrls;
 
-  worker.postMessage({
-    type: 'adjustTextureHsl',
-    payload: { hsl, textureIndex, sourceTextureData }
-  } as WorkerEvent);
-});
+    worker.postMessage({
+      type: 'adjustTextureHsl',
+      payload: { hsl, textureIndex, sourceTextureData }
+    } as WorkerEvent);
+  }
+);
 
 export const adjustTextureHslFromThread = createAction<
   {
@@ -222,14 +216,6 @@ export const replaceTextureDataWithImageUrl = createAsyncThunk<
     }
     */
 
-    await storeSourceTextureData(
-      {
-        opaque: url,
-        translucent: url
-      },
-      textureIndex
-    );
-
     return { textureIndex, url };
   }
 );
@@ -300,7 +286,7 @@ const modelDataSlice = createSlice({
 
     builder.addCase(
       replaceTextureDataWithImageUrl.fulfilled,
-      (state: ModelDataState, { payload: { textureIndex, url } }) => {
+      (state: ModelDataState, { payload: { textureIndex } }) => {
         // TODO: populate texture data urls
 
         // remove existing edited textures since these
