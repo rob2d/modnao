@@ -124,16 +124,14 @@ export default function GuiPanelTexture({
 
   const [imgSrc, setImgSrc] = useState<string>('');
 
-  // always take actions on translucent texture if possible */
-  const actionableTextureUrl =
-    textureDef.bufferUrls.translucent || textureDef.bufferUrls.opaque || '';
-
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
   const pixelDataUrl =
     (selected && isSelectedMeshOpaque
       ? textureDef.bufferUrls.opaque || textureDef.bufferUrls.translucent
-      : actionableTextureUrl) || '';
+      : textureDef.bufferUrls.translucent || textureDef.bufferUrls.opaque) ||
+    '';
+
   useEffect(() => {
     (async () => {
       const pixels = new Uint8ClampedArray(
@@ -179,7 +177,13 @@ export default function GuiPanelTexture({
         </Typography>
         <GuiPanelTextureMenu
           textureIndex={textureIndex}
-          dataUrl={actionableTextureUrl}
+          width={textureDef.width}
+          height={textureDef.height}
+          pixelsObjectUrl={
+            textureDef.bufferUrls.opaque ||
+            textureDef.bufferUrls.translucent ||
+            ''
+          }
           onReplaceImageFile={onSelectNewImageFile}
         />
       </div>
