@@ -58,7 +58,7 @@ async function createTextureFromObjectUrl(
   width: number,
   height: number
 ) {
-  const pixels = Buffer.from(await objectUrlToBuffer(pixelObjectUrl));
+  const pixels = new Uint8Array(await objectUrlToBuffer(pixelObjectUrl));
   const texture = new DataTexture(
     pixels,
     width,

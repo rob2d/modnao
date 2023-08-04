@@ -155,7 +155,7 @@ export const loadTextureFile = createAsyncThunk<
   const state = getState();
   const { textureDefs } = state.modelData;
   const fileName = file.name;
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const buffer = new Uint8Array(await file.arrayBuffer());
 
   // deallocate existing blob
   if (state.modelData.textureBufferUrl) {
