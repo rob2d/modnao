@@ -12,8 +12,8 @@ import {
   useAppDispatch
 } from '@/store';
 import { useCallback, useEffect, useState } from 'react';
-import { objectUrlToBuffer } from '@/utils/data';
-import loadRGBABufferUrlsFromFile from '@/utils/images/loadRGBABufferUrlsFromFile';
+import { bufferToObjectUrl, objectUrlToBuffer } from '@/utils/data';
+import loadRGBABuffersFromFile from '@/utils/images/loadRGBABufferFromFile';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -91,15 +91,37 @@ export default function GuiPanelTexture({
   textureDef
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
+  const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
+
   const onSelectNewImageFile = useCallback(
     async (file: File) => {
-      const bufferUrls = await loadRGBABufferUrlsFromFile(file);
+      const oTranslucentBuffer = new Uint8ClampedArray(
+        await objectUrlToBuffer(textureDef.bufferUrls.translucent || '')
+      );
+
+      const [translucentBuffer, opaqueBuffer] = await loadRGBABuffersFromFile(
+        file
+      );
+
+      // restore original RGBA values on translucent for special cases
+      // where alpha was zero
+      for (let i = 0; i < oTranslucentBuffer.length; i += 4) {
+        if (oTranslucentBuffer[i + 3] === 0) {
+          translucentBuffer[i + 3] = 0;
+        }
+      }
+
+      const [translucent, opaque] = await Promise.all([
+        bufferToObjectUrl(translucentBuffer),
+        bufferToObjectUrl(opaqueBuffer)
+      ]);
+
+      const bufferUrls = { translucent, opaque };
+
       dispatch(replaceTextureImage({ bufferUrls, textureIndex }));
     },
-    [textureIndex]
+    [textureIndex, textureDef.bufferUrls.translucent]
   );
-
-  const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
 
   const onDrop = useCallback(
     async ([file]: File[]) => {

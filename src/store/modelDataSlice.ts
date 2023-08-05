@@ -200,14 +200,17 @@ export const replaceTextureImage = createAsyncThunk<
   { textureIndex: number; bufferUrls: SourceTextureData },
   { textureIndex: number; bufferUrls: SourceTextureData },
   { state: AppState }
->(`${sliceName}/replaceTextureImage`, async ({ textureIndex, bufferUrls }) => {
-  //@TODO: refactor from dataUrl
+>(
+  `${sliceName}/replaceTextureImage`,
+  async ({ textureIndex, bufferUrls }, { getState }) => {
+    const state = getState();
 
-  /*
+    const textureDef = state.modelData.textureDefs[textureIndex];
 
-    @TODO consider for updates
-    const [width, height] = await getImageDimensionsFromDataUrl(url);
+    const { width, height } = textureDef;
 
+    /*
+  TODO: ensure size matches
     if (width !== def.width || height !== def.height) {
       throw new Error(
         `size of texture must match the original (${width} x ${height})}`
@@ -215,8 +218,12 @@ export const replaceTextureImage = createAsyncThunk<
     }
     */
 
-  return { textureIndex, bufferUrls };
-});
+    return {
+      textureIndex,
+      bufferUrls
+    };
+  }
+);
 
 export const downloadTextureFile = createAsyncThunk<
   void,
@@ -286,13 +293,18 @@ const modelDataSlice = createSlice({
     builder.addCase(
       replaceTextureImage.fulfilled,
       (state: ModelDataState, { payload: { textureIndex, bufferUrls } }) => {
+        // @TODO: for better UX, re-apply existing HSL on new image automagically
+        // in thunk that led to this fulfilled action
+        // clear previous edited texture when replacing a texture image
         if (state.editedTextures[textureIndex]) {
-          state.editedTextures[textureIndex] = {
-            ...state.editedTextures[textureIndex],
-            bufferUrls
-          };
+          state.editedTextures = Object.fromEntries(
+            Object.entries(state.editedTextures).filter(
+              ([k]) => Number(k) !== textureIndex
+            )
+          );
         }
 
+        state.textureDefs[textureIndex].bufferUrls = bufferUrls;
         state.hasEditedTextures = true;
       }
     );
