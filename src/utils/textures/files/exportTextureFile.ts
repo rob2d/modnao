@@ -37,8 +37,6 @@ export default async function exportTextureFile(
       await objectUrlToBuffer(t.bufferUrls.translucent as string)
     );
 
-    const originalPixels = Buffer.from(t.bufferUrls.translucent as string);
-
     for (let y = 0; y < height; y++) {
       const yOffset = width * y;
       for (let offset = yOffset; offset < yOffset + width; offset++) {
@@ -51,15 +49,6 @@ export default async function exportTextureFile(
           b: pixelColors[colorOffset + 2],
           a: pixelColors[colorOffset + 3]
         };
-
-        // workaround in interrim of black colors in scenario where rgb
-        // that get lost on premultiplied alpha: preserve the source texture
-        // rgb colors when alpha is zero
-        if (color.a === 0) {
-          color.r = originalPixels[colorOffset];
-          color.g = originalPixels[colorOffset + 1];
-          color.b = originalPixels[colorOffset + 2];
-        }
 
         const conversionOp = conversionDict[t.colorFormat];
         const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
