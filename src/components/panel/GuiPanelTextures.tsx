@@ -102,10 +102,14 @@ export default function GuiPanelViewOptions() {
     <GuiPanelSection title='Textures' subtitle={textureFileName}>
       <div className='textures'>
         {textures}
-        <StyledDivider flexItem>
-          <Chip label='Offscene' size='small' color='secondary' />
-        </StyledDivider>
-        {offsceneTextures}
+        {!offsceneTextures.length ? undefined : (
+          <>
+            <StyledDivider flexItem>
+              <Chip label='Offscene' size='small' color='secondary' />
+            </StyledDivider>
+            {offsceneTextures}
+          </>
+        )}
       </div>
       {hasCompressedTextures ? undefined : (
         <div className='export-texture-button-container'>
