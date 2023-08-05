@@ -3,7 +3,6 @@ import {
   createAction,
   createAsyncThunk,
   createSlice,
-  current,
   PayloadAction
 } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
@@ -209,17 +208,13 @@ export const replaceTextureImage = createAsyncThunk<
   { textureIndex: number; bufferUrls: SourceTextureData },
   { textureIndex: number; bufferUrls: SourceTextureData },
   { state: AppState }
->(
-  `${sliceName}/replaceTextureImage`,
-  async ({ textureIndex, bufferUrls }, { getState }) => {
+>(`${sliceName}/replaceTextureImage`, async ({ textureIndex, bufferUrls }) => {
+  /*
+  @TODO: complete rewriting logic to ensure size matches
     const state = getState();
 
-    const textureDef = state.modelData.textureDefs[textureIndex];
-
-    const { width, height } = textureDef;
-
-    /*
-  TODO: ensure size matches
+    // const textureDef = state.modelData.textureDefs[textureIndex];
+    // const { width, height } = textureDef;
     if (width !== def.width || height !== def.height) {
       throw new Error(
         `size of texture must match the original (${width} x ${height})}`
@@ -227,12 +222,11 @@ export const replaceTextureImage = createAsyncThunk<
     }
     */
 
-    return {
-      textureIndex,
-      bufferUrls
-    };
-  }
-);
+  return {
+    textureIndex,
+    bufferUrls
+  };
+});
 
 export const downloadTextureFile = createAsyncThunk<
   void,
