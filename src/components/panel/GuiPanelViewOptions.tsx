@@ -13,7 +13,7 @@ import { SyntheticEvent, useCallback, useContext } from 'react';
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
-import { mdiAxisArrow, mdiCursorDefaultOutline } from '@mdi/js';
+import { mdiAxisArrow, mdiCursorDefaultOutline, mdiFlipToBack } from '@mdi/js';
 import Icon from '@mdi/react';
 import PaletteEditor from './PaletteEditor';
 
@@ -33,7 +33,17 @@ const Styled = styled('div')(
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-  }`
+  }
+
+  & .settings-row .MuiTypography-root.MuiFormControlLabel-label {
+    display: flex;
+    align-items: center;
+  }
+  
+  & .settings-row .MuiTypography-root.MuiFormControlLabel-label > svg {
+    margin-right: -2px;
+  }
+  `
 );
 
 export default function GuiPanelViewOptions() {
@@ -73,6 +83,13 @@ export default function GuiPanelViewOptions() {
       viewOptions.setSceneCursorVisible(value);
     },
     [viewOptions.setSceneCursorVisible]
+  );
+
+  const onSetDisableBackfaceCulling = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      viewOptions.setDisableBackfaceCulling(value);
+    },
+    [viewOptions.setDisableBackfaceCulling]
   );
 
   return (
@@ -129,6 +146,16 @@ export default function GuiPanelViewOptions() {
           </Tooltip>
         )}
         <div className='settings-row'>
+          <Tooltip title='Disable Backface Culling / Make material visible on both sides of polygons'>
+            <FormControlLabel
+              control={
+                <Checkbox checked={viewOptions.disableBackfaceCulling} />
+              }
+              label={<Icon path={mdiFlipToBack} size={1} />}
+              labelPlacement='start'
+              onChange={onSetDisableBackfaceCulling}
+            />
+          </Tooltip>
           <Tooltip title='Toggle axes helper visibility'>
             <FormControlLabel
               control={<Checkbox checked={viewOptions.axesHelperVisible} />}

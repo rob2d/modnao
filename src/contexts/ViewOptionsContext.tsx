@@ -18,6 +18,7 @@ export type ViewOptions = {
   guiPanelVisible: boolean;
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
+  disableBackfaceCulling: boolean;
   wireframeLineWidth: number;
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
@@ -26,6 +27,7 @@ export type ViewOptions = {
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
+  setDisableBackfaceCulling: (disableBackfaceCulling: boolean) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
   setScenePalette: (_: ScenePalette | undefined) => void;
   setThemeKey: (theme: 'light' | 'dark') => void;
@@ -38,6 +40,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   guiPanelVisible: true,
   objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
+  disableBackfaceCulling: false,
   wireframeLineWidth: 3,
   themeKey: undefined,
   scenePalette: undefined,
@@ -46,6 +49,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   setGuiPanelVisible: (_: boolean) => null,
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
+  setDisableBackfaceCulling: (_: boolean) => null,
   setWireframeLineWidth: (_: number) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
   setThemeKey: (_: 'light' | 'dark') => null,
@@ -61,6 +65,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const [guiPanelVisible, handleSetGuiPanelVisible] = useState(true);
   const [meshDisplayMode, handleSetMeshDisplayMode] =
     useState<MeshDisplayMode>('wireframe');
+  const [disableBackfaceCulling, handleSetDisableBackfaceCulling] =
+    useState(false);
   const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(true);
   const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(3);
   const [themeKey, handleSetThemeKey] = useState<'light' | 'dark' | undefined>(
@@ -173,6 +179,16 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [meshDisplayMode]
   );
 
+  const setDisableBackfaceCulling = useCallback(
+    (value: boolean) => {
+      if (disableBackfaceCulling !== value) {
+        localStorage.setItem(StorageKeys.DISABLE_BACKFACE_CULLING, `${value}`);
+        handleSetDisableBackfaceCulling(value);
+      }
+    },
+    [disableBackfaceCulling]
+  );
+
   const setWireframeLineWidth = useCallback(
     (value: number) => {
       if (wireframeLineWidth !== value) {
@@ -231,6 +247,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setAxesHelperVisible,
       meshDisplayMode,
       setMeshDisplayMode,
+      disableBackfaceCulling,
+      setDisableBackfaceCulling,
       guiPanelVisible,
       setGuiPanelVisible,
       wireframeLineWidth,
@@ -250,6 +268,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setAxesHelperVisible,
       meshDisplayMode,
       setMeshDisplayMode,
+      disableBackfaceCulling,
+      setDisableBackfaceCulling,
       wireframeLineWidth,
       setWireframeLineWidth,
       guiPanelVisible,

@@ -92,23 +92,22 @@ export const selectModel = createSelector(
   selectStageModels,
   (modelIndex, models) => models?.[modelIndex]
 );
-
+export type DisplayedMesh = NLMesh & { textureHash: string };
 export const selectDisplayedMeshes = createSelector(
   selectModel,
   selectSceneTextureDefs,
-  (model, textureDefs): (NLMesh & { textureHash: string })[] => {
-    return (model?.meshes || []).map((m) => {
+  (model, textureDefs) =>
+    (model?.meshes || []).reduce<DisplayedMesh[]>((meshes, m) => {
       const tDef = textureDefs[m.textureIndex];
+      if (!tDef) return meshes;
+
       const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
       const { hRepeat, vRepeat } = m.textureWrappingFlags;
       const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
 
-      return {
-        ...m,
-        textureHash
-      };
-    });
-  }
+      meshes.push({ ...m, textureHash });
+      return meshes;
+    }, [])
 );
 
 /** infers mesh selection from selected object key */

@@ -10,5 +10,6 @@ export const StorageKeys = {
   SCENE_CURSOR_VISIBLE: 'sceneCursorVisible',
   GUI_PANEL_VISIBLE: 'guiPanelVisible',
   THEME_KEY: 'themeKey',
-  SCENE_PALETTE: 'scenePalette'
+  SCENE_PALETTE: 'scenePalette',
+  DISABLE_BACKFACE_CULLING: 'disableBackfaceCulling'
 } as const;
