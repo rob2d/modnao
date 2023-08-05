@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
+import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
@@ -24,12 +25,14 @@ export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
+export const selectPrevBufferUrls = (s: AppState) => s.modelData.prevBufferUrls;
 /**
  * get a set of base texture urls to detect presence in O(1)
  */
 export const selectUneditedTextureUrls = createSelector(
   selectTextureDefs,
-  (defs) => {
+  selectPrevBufferUrls,
+  (defs, bufferUrls) => {
     const urlSet = new Set<string>();
     defs.forEach((d) => {
       if (d.bufferUrls.translucent) {
@@ -39,6 +42,15 @@ export const selectUneditedTextureUrls = createSelector(
       if (d.bufferUrls.opaque) {
         urlSet.add(d.bufferUrls.opaque);
       }
+    });
+
+    Object.keys(bufferUrls).forEach((k) => {
+      (bufferUrls[Number(k)] as SourceTextureData[]).forEach(
+        (set: SourceTextureData) => {
+          urlSet.add(set.opaque);
+          urlSet.add(set.translucent);
+        }
+      );
     });
 
     return urlSet;

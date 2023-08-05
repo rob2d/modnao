@@ -154,7 +154,7 @@ export default function SceneCanvas() {
       // free up memory for updated texture urls as needed
       for (const key of textureMap.keys()) {
         if (!nextMap.has(key) && !uneditedTextureUrls.has(key)) {
-          // URL.revokeObjectURL(key);
+          URL.revokeObjectURL(key);
         }
       }
     })();

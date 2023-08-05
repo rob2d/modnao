@@ -2,7 +2,9 @@ import {
   AnyAction,
   createAction,
   createAsyncThunk,
-  createSlice
+  createSlice,
+  current,
+  PayloadAction
 } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import processPolygonBuffer from './model-data/processPolygonBuffer';
@@ -12,7 +14,7 @@ import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState, store } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import { bufferToObjectUrl } from '@/utils/data';
-import { selectSceneTextureDefs, selectTextureDefs } from './selectors';
+import { selectSceneTextureDefs } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 
 let worker: Worker;
@@ -72,6 +74,17 @@ type EditedTexture = {
 export interface ModelDataState {
   models: NLModel[];
   textureDefs: NLTextureDef[];
+  /**
+   * dictionary of texture index to previous buffer url stacks
+   * note: should consider having only this stack and not deriving from
+   * textureDefs to simplify state
+   */
+  prevBufferUrls: {
+    [key: number]: {
+      translucent: string;
+      opaque: string;
+    }[];
+  };
   editedTextures: {
     [key: number]: EditedTexture;
   };
@@ -89,6 +102,7 @@ export const initialModelDataState: ModelDataState = {
   models: [],
   textureDefs: [],
   editedTextures: {},
+  prevBufferUrls: {},
   polygonFileName: undefined,
   textureFileName: undefined,
   hasEditedTextures: false,
@@ -108,11 +122,6 @@ export const loadPolygonFile = createAsyncThunk<
   const buffer = await file.arrayBuffer();
   const result = await processPolygonBuffer(buffer);
   const polygonBufferUrl = await bufferToObjectUrl(buffer);
-  const state = getState();
-
-  if (state.modelData.polygonBufferUrl) {
-    URL.revokeObjectURL(state.modelData.polygonBufferUrl);
-  }
 
   return {
     ...result,
@@ -233,7 +242,6 @@ export const downloadTextureFile = createAsyncThunk<
   const state = getState();
   const { textureFileName, hasCompressedTextures, textureBufferUrl } =
     state.modelData;
-  const oTextureDefs = selectTextureDefs(state);
   const textureDefs = selectSceneTextureDefs(state);
 
   try {
@@ -252,7 +260,34 @@ export const downloadTextureFile = createAsyncThunk<
 const modelDataSlice = createSlice({
   name: sliceName,
   initialState: initialModelDataState,
-  reducers: {},
+  reducers: {
+    revertTextureImage(
+      state,
+      { payload: { textureIndex } }: PayloadAction<{ textureIndex: number }>
+    ) {
+      // only valid if there's an actual texture to revert to
+      if (state.prevBufferUrls[textureIndex].length === 0) {
+        return state;
+      }
+
+      // remove editedTexture state in case of hsl changes
+      state.editedTextures = Object.fromEntries(
+        Object.entries(state.editedTextures).filter(
+          ([k]) => k !== textureIndex.toString()
+        )
+      );
+
+      const prevBufferUrls = state.prevBufferUrls[
+        textureIndex
+      ].pop() as SourceTextureData;
+
+      state.textureDefs[textureIndex].bufferUrls.translucent =
+        prevBufferUrls.translucent;
+      state.textureDefs[textureIndex].bufferUrls.opaque = prevBufferUrls.opaque;
+      console.log(current(state));
+      return state;
+    }
+  },
   extraReducers: (builder) => {
     builder.addCase(
       loadPolygonFile.fulfilled,
@@ -304,6 +339,12 @@ const modelDataSlice = createSlice({
           );
         }
 
+        state.prevBufferUrls[textureIndex] =
+          state.prevBufferUrls[textureIndex] || [];
+        state.prevBufferUrls[textureIndex].push(
+          state.textureDefs[textureIndex].bufferUrls as SourceTextureData
+        );
+
         state.textureDefs[textureIndex].bufferUrls = bufferUrls;
         state.hasEditedTextures = true;
       }
@@ -341,5 +382,7 @@ const modelDataSlice = createSlice({
     );
   }
 });
+
+export const { revertTextureImage } = modelDataSlice.actions;
 
 export default modelDataSlice;
