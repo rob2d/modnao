@@ -13,7 +13,7 @@ import { SyntheticEvent, useCallback, useContext } from 'react';
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
-import { mdiAxisArrow, mdiCursorDefaultOutline } from '@mdi/js';
+import { mdiAxisArrow, mdiCursorDefaultOutline, mdiFlipToBack } from '@mdi/js';
 import Icon from '@mdi/react';
 import PaletteEditor from './PaletteEditor';
 
@@ -73,6 +73,13 @@ export default function GuiPanelViewOptions() {
       viewOptions.setSceneCursorVisible(value);
     },
     [viewOptions.setSceneCursorVisible]
+  );
+
+  const onSetDisableBackfaceCulling = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      viewOptions.setDisableBackfaceCulling(value);
+    },
+    [viewOptions.setDisableBackfaceCulling]
   );
 
   return (
@@ -143,6 +150,16 @@ export default function GuiPanelViewOptions() {
               label={<Icon path={mdiCursorDefaultOutline} size={1} />}
               labelPlacement='start'
               onChange={onSetSceneCursorVisible}
+            />
+          </Tooltip>
+          <Tooltip title='Disable Backface Culling / Make material visible on both sides of polygons'>
+            <FormControlLabel
+              control={
+                <Checkbox checked={viewOptions.disableBackfaceCulling} />
+              }
+              label={<Icon path={mdiFlipToBack} size={1} />}
+              labelPlacement='start'
+              onChange={onSetDisableBackfaceCulling}
             />
           </Tooltip>
         </div>
