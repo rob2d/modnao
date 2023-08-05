@@ -33,7 +33,17 @@ const Styled = styled('div')(
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-  }`
+  }
+
+  & .settings-row .MuiTypography-root.MuiFormControlLabel-label {
+    display: flex;
+    align-items: center;
+  }
+  
+  & .settings-row .MuiTypography-root.MuiFormControlLabel-label > svg {
+    margin-right: -2px;
+  }
+  `
 );
 
 export default function GuiPanelViewOptions() {
@@ -136,6 +146,16 @@ export default function GuiPanelViewOptions() {
           </Tooltip>
         )}
         <div className='settings-row'>
+          <Tooltip title='Disable Backface Culling / Make material visible on both sides of polygons'>
+            <FormControlLabel
+              control={
+                <Checkbox checked={viewOptions.disableBackfaceCulling} />
+              }
+              label={<Icon path={mdiFlipToBack} size={1} />}
+              labelPlacement='start'
+              onChange={onSetDisableBackfaceCulling}
+            />
+          </Tooltip>
           <Tooltip title='Toggle axes helper visibility'>
             <FormControlLabel
               control={<Checkbox checked={viewOptions.axesHelperVisible} />}
@@ -150,16 +170,6 @@ export default function GuiPanelViewOptions() {
               label={<Icon path={mdiCursorDefaultOutline} size={1} />}
               labelPlacement='start'
               onChange={onSetSceneCursorVisible}
-            />
-          </Tooltip>
-          <Tooltip title='Disable Backface Culling / Make material visible on both sides of polygons'>
-            <FormControlLabel
-              control={
-                <Checkbox checked={viewOptions.disableBackfaceCulling} />
-              }
-              label={<Icon path={mdiFlipToBack} size={1} />}
-              labelPlacement='start'
-              onChange={onSetDisableBackfaceCulling}
             />
           </Tooltip>
         </div>
