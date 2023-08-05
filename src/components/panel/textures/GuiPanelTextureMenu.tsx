@@ -4,11 +4,17 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Icon from '@mdi/react';
-import { mdiDotsVertical, mdiFileDownload, mdiFileReplace } from '@mdi/js';
+import {
+  mdiDotsVertical,
+  mdiFileDownload,
+  mdiFileReplace,
+  mdiFileUndo
+} from '@mdi/js';
 import { Divider, styled, Tooltip } from '@mui/material';
 import { objectUrlToBuffer } from '@/utils/data';
 import { useFilePicker } from 'use-file-picker';
 import GuiPanelTextureHSLOptions from './GuiPanelTextureColorOptions';
+import { revertTextureImage, useAppDispatch, useAppSelector } from '@/store';
 
 const { Jimp } = globalThis as any;
 
@@ -77,6 +83,7 @@ export default function GuiPanelTextureMenu({
   pixelsObjectUrl: string;
   onReplaceImageFile: (file: File) => void;
 }) {
+  const dispatch = useAppDispatch();
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -87,6 +94,10 @@ export default function GuiPanelTextureMenu({
   const handleClose = useCallback(() => {
     setAnchorEl(null);
   }, [setAnchorEl]);
+
+  const prevBufferUrls = useAppSelector(
+    (s) => s.modelData.prevBufferUrls[textureIndex]
+  );
 
   const options = useMemo<
     { label: JSX.Element | string; tooltip: string; onClick: () => void }[]
@@ -132,9 +143,34 @@ export default function GuiPanelTextureMenu({
           openFileSelector();
           handleClose();
         }
-      }
+      },
+      ...(!prevBufferUrls?.length
+        ? []
+        : [
+            {
+              label: (
+                <>
+                  <Icon path={mdiFileUndo} size={1} />
+                  Undo Replace
+                </>
+              ),
+              tooltip: 'Undo a previously replaced texture operation',
+              onClick() {
+                if (prevBufferUrls?.length) {
+                  dispatch(revertTextureImage({ textureIndex }));
+                }
+                handleClose();
+              }
+            }
+          ])
     ],
-    [pixelsObjectUrl, textureIndex, openFileSelector, handleClose]
+    [
+      pixelsObjectUrl,
+      textureIndex,
+      prevBufferUrls,
+      openFileSelector,
+      handleClose
+    ]
   );
 
   return (
