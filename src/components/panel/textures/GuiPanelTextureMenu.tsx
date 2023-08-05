@@ -1,12 +1,16 @@
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import 'jimp';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Icon from '@mdi/react';
 import { mdiDotsVertical, mdiFileDownload, mdiFileReplace } from '@mdi/js';
 import { Divider, styled, Tooltip } from '@mui/material';
+import { objectUrlToBuffer } from '@/utils/data';
 import { useFilePicker } from 'use-file-picker';
 import GuiPanelTextureHSLOptions from './GuiPanelTextureColorOptions';
+
+const { Jimp } = globalThis as any;
 
 const StyledMenuButtonContainer = styled('div')(
   ({ theme }) => `& {
@@ -37,17 +41,15 @@ const StyledMenu = styled(Menu)(
 const MENU_OFFSET_STYLE = { transform: 'translateX(-200px)' } as const;
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 
-function useTextureReplacementPicker(
-  onReplaceImageFile: (dataUrl: string) => void
-) {
+function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const [
     openFileSelector,
     {
-      filesContent: [file]
+      plainFiles: [file]
     }
   ] = useFilePicker({
     multiple: false,
-    readAs: 'DataURL',
+    readAs: 'ArrayBuffer',
     accept: ['image/*']
   });
 
@@ -56,8 +58,7 @@ function useTextureReplacementPicker(
       return;
     }
 
-    const dataUrl = file.content;
-    onReplaceImageFile(dataUrl);
+    onReplaceImageFile(file);
   }, [file]);
 
   return openFileSelector;
@@ -65,12 +66,16 @@ function useTextureReplacementPicker(
 
 export default function GuiPanelTextureMenu({
   textureIndex,
-  dataUrl,
+  width,
+  height,
+  pixelsObjectUrl,
   onReplaceImageFile
 }: {
   textureIndex: number;
-  dataUrl: string;
-  onReplaceImageFile: (dataUrl: string) => void;
+  width: number;
+  height: number;
+  pixelsObjectUrl: string;
+  onReplaceImageFile: (file: File) => void;
 }) {
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -95,12 +100,23 @@ export default function GuiPanelTextureMenu({
           </>
         ),
         tooltip: 'Download this texture as a PNG',
-        onClick() {
+        onClick: async () => {
           const a = document.createElement('a');
-          a.download = `modnao-texture-${textureIndex}.png`;
-          a.href = dataUrl;
-          a.click();
-          handleClose();
+
+          const pixels = new Uint8ClampedArray(
+            await objectUrlToBuffer(pixelsObjectUrl)
+          );
+          new Jimp.read(
+            { data: pixels, width, height },
+            (_: Error, image: any) => {
+              image.getBase64Async(Jimp.MIME_PNG).then((base64: string) => {
+                a.download = `modnao-texture-${textureIndex}.png`;
+                a.href = base64;
+                a.click();
+                handleClose();
+              });
+            }
+          );
         }
       },
       {
@@ -118,7 +134,7 @@ export default function GuiPanelTextureMenu({
         }
       }
     ],
-    [dataUrl, textureIndex, openFileSelector, handleClose]
+    [pixelsObjectUrl, textureIndex, openFileSelector, handleClose]
   );
 
   return (

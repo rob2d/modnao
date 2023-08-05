@@ -92,5 +92,8 @@ export type NLTextureDef = {
   type: number;
   baseLocation: number;
   ramOffset: number;
-  dataUrls: { opaque: string; translucent: string };
+  bufferUrls: {
+    translucent?: string;
+    opaque?: string;
+  };
 } & ModNaoMemoryObject;

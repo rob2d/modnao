@@ -1,18 +1,19 @@
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
+import { Image } from 'image-js';
+import Img from 'next/image';
+import { useDropzone } from 'react-dropzone';
 import { styled, Typography } from '@mui/material';
-import Image from 'next/image';
-import { TextureSize } from '@/utils/textures/TextureSize';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import {
-  replaceTextureDataUrl,
+  replaceTextureImage,
   selectIsMeshOpaque,
   useAppDispatch
 } from '@/store';
-import { useCallback } from 'react';
-import loadDataUrlFromImageFile from '@/utils/images/loadDataUrlFromImageFile';
-import { useDropzone } from 'react-dropzone';
+import { useCallback, useEffect, useState } from 'react';
+import { bufferToObjectUrl, objectUrlToBuffer } from '@/utils/data';
+import loadRGBABuffersFromFile from '@/utils/images/loadRGBABufferFromFile';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -53,7 +54,7 @@ const StyledPanelTexture = styled('div')(
     height: 100%;
   }
     
-  & img {
+  & .img {
     width: 100%;
     height: auto;
     border-color: transparent;
@@ -63,7 +64,7 @@ const StyledPanelTexture = styled('div')(
     transform: rotate(-90deg);
   }
 
-  & .selected img {
+  & .selected .img {
     border-color: ${theme.palette.primary.main};
   }
 
@@ -81,33 +82,50 @@ const StyledPanelTexture = styled('div')(
 export type GuiPanelTextureProps = {
   selected: boolean;
   textureDef: NLTextureDef;
-  textureSize: TextureSize;
   textureIndex: number;
 };
-
-// @TODO: calculate which dataUrl to show (opaque vs transparent) in parent
-// so that all textures don't include a selector to run on renders
 
 export default function GuiPanelTexture({
   selected,
   textureIndex,
-  textureDef,
-  textureSize
+  textureDef
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
-  const onSelectNewImageFile = useCallback(
-    (dataUrl: string) => {
-      dispatch(replaceTextureDataUrl({ dataUrl, textureIndex }));
-    },
-    [textureIndex]
-  );
-
   const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
+
+  const onSelectNewImageFile = useCallback(
+    async (file: File) => {
+      const oTranslucentBuffer = new Uint8ClampedArray(
+        await objectUrlToBuffer(textureDef.bufferUrls.translucent || '')
+      );
+
+      const [translucentBuffer, opaqueBuffer] = await loadRGBABuffersFromFile(
+        file
+      );
+
+      // restore original RGBA values on translucent for special cases
+      // where alpha was zero
+      for (let i = 0; i < oTranslucentBuffer.length; i += 4) {
+        if (oTranslucentBuffer[i + 3] === 0) {
+          translucentBuffer[i + 3] = 0;
+        }
+      }
+
+      const [translucent, opaque] = await Promise.all([
+        bufferToObjectUrl(translucentBuffer),
+        bufferToObjectUrl(opaqueBuffer)
+      ]);
+
+      const bufferUrls = { translucent, opaque };
+
+      dispatch(replaceTextureImage({ bufferUrls, textureIndex }));
+    },
+    [textureIndex, textureDef.bufferUrls.translucent]
+  );
 
   const onDrop = useCallback(
     async ([file]: File[]) => {
-      const dataUrl = await loadDataUrlFromImageFile(file);
-      onSelectNewImageFile(dataUrl);
+      onSelectNewImageFile(file);
     },
     [onSelectNewImageFile]
   );
@@ -123,22 +141,34 @@ export default function GuiPanelTexture({
       'image/gif': ['.gif']
     }
   });
-  const [width, height] = textureSize;
 
-  // always take actions on translucent texture if possible */
-  const actionableDataUrl =
-    textureDef.dataUrls.translucent || textureDef.dataUrls.opaque || '';
+  const { width, height } = textureDef;
+
+  const [imgSrc, setImgSrc] = useState<string>('');
 
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
-  const displayedDataUrl =
+  const pixelDataUrl =
     (selected && isSelectedMeshOpaque
-      ? textureDef.dataUrls.opaque || textureDef.dataUrls.translucent
-      : actionableDataUrl) || '';
+      ? textureDef.bufferUrls.opaque || textureDef.bufferUrls.translucent
+      : textureDef.bufferUrls.translucent || textureDef.bufferUrls.opaque) ||
+    '';
+
+  useEffect(() => {
+    (async () => {
+      const pixels = new Uint8ClampedArray(
+        await objectUrlToBuffer(pixelDataUrl)
+      );
+
+      const dataUrl = new Image({ data: pixels, width, height }).toDataURL();
+      setImgSrc(dataUrl);
+    })();
+  }, [pixelDataUrl]);
 
   return (
     <StyledPanelTexture>
       <div
+        id={`gui-panel-t-${textureIndex}`}
         className={clsx(
           'image-area',
           selected && 'selected',
@@ -146,23 +176,33 @@ export default function GuiPanelTexture({
         )}
         {...getRootProps()}
       >
-        <Image
-          src={displayedDataUrl}
-          id={`gui-panel-t-${textureIndex}`}
-          alt={`Texture # ${textureIndex}`}
-          width={Number(width)}
-          height={Number(height)}
-        />
+        {!imgSrc ? (
+          <div className='img' />
+        ) : (
+          <Img
+            src={imgSrc}
+            width={width}
+            height={height}
+            alt={`Texture # ${textureIndex}`}
+            className='img'
+          />
+        )}
         <Typography
           variant='subtitle2'
           textAlign='right'
           className={'size-notation'}
         >
-          {textureSize[0]}x{textureSize[0]} [{textureIndex}]
+          {textureDef.width}x{textureDef.height} [{textureIndex}]
         </Typography>
         <GuiPanelTextureMenu
           textureIndex={textureIndex}
-          dataUrl={actionableDataUrl}
+          width={textureDef.width}
+          height={textureDef.height}
+          pixelsObjectUrl={
+            textureDef.bufferUrls.opaque ||
+            textureDef.bufferUrls.translucent ||
+            ''
+          }
           onReplaceImageFile={onSelectNewImageFile}
         />
       </div>

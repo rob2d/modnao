@@ -23,7 +23,7 @@ export default function RenderedPolygon({
   objectKey: string;
   selectedObjectKey?: string;
   onSelectObjectKey: (key: string) => void;
-  texture?: Texture;
+  texture: Texture | null;
 }) {
   // @TODO: consider breaking down mesh material and components
   // to absorb context in subtrees if performance becomes an issue with
@@ -159,7 +159,9 @@ export default function RenderedPolygon({
       {meshAddressText}
       <Select enabled={isSelected}>
         <mesh
-          key={`${address}_${meshDisplayMode}_${color}_${isSelected}`}
+          key={`${address}_${meshDisplayMode}_${color}_${isSelected}_${
+            Boolean(texture) ? 1 : 0
+          }`}
           onClick={handleClick}
         >
           {meshDisplayMode === 'textured' ? (

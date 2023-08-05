@@ -18,8 +18,10 @@ export type WorkerEvent =
       type: 'adjustTextureHsl';
       payload: {
         textureIndex: number;
-        hsl: HslValues;
         sourceTextureData: SourceTextureData;
+        width: number;
+        height: number;
+        hsl: HslValues;
       };
     };
 
@@ -39,7 +41,7 @@ export type WorkerResponses =
       result: {
         textureIndex: number;
         hsl: HslValues;
-        textureDataUrls: { translucent: string; opaque: string };
+        bufferUrls: { translucent: string; opaque: string };
       };
     };
 
@@ -53,7 +55,7 @@ addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
       break;
     }
     case 'adjustTextureHsl': {
-      const { sourceTextureData, textureIndex, hsl } = payload;
+      const { sourceTextureData, textureIndex, hsl, width, height } = payload;
 
       const [translucent, opaque] = await Promise.all([
         adjustTextureHsl(sourceTextureData.translucent, hsl),
@@ -65,7 +67,9 @@ addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
         result: {
           hsl,
           textureIndex,
-          textureDataUrls: { translucent, opaque }
+          width,
+          height,
+          bufferUrls: { translucent, opaque }
         }
       });
       break;

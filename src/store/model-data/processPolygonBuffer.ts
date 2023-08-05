@@ -2,8 +2,11 @@ import { NLTextureDef } from '@/types/NLAbstractions';
 import scanForModelPointers from './process-model-polygon-file/scanForModelPointers';
 import scanModel from './process-model-polygon-file/scanModel';
 import scanTextureHeaderData from './process-model-polygon-file/scanTextureHeaderData';
+import TransferrableBuffer from '@/types/TransferrableBuffer';
 
-export default async function processPolygonBuffer(buffer: Buffer): Promise<{
+export default async function processPolygonBuffer(
+  buffer: TransferrableBuffer
+): Promise<{
   modelRamOffset: number;
   models: NLModel[];
   textureDefs: NLTextureDef[];

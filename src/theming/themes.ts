@@ -72,7 +72,7 @@ const themes = Object.fromEntries(
         scene: {
           background: mode === 'dark' ? '#1c121c' : '#efefff',
           default: mode === 'dark' ? '#683C62' : '#AAC',
-          selected: mode === 'dark' ? '#FF00F2' : '#e98df5',
+          selected: '#FF00F2',
           flagged: '#9BF'
         },
         panelTexture: {

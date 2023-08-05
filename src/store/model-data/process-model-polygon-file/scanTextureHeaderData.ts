@@ -1,20 +1,22 @@
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { nlTextureDefConversions } from './NLPropConversionDefs';
 import { processNLConversions } from './processNLConversions';
+import TransferrableBuffer from '@/types/TransferrableBuffer';
 
 export default function scanTextureHeaderData(
-  buffer: Buffer,
+  buffer: TransferrableBuffer,
   modelRamOffset: number
 ) {
-  const pvrStartAddress = buffer.readUInt32LE(0x8) - modelRamOffset;
-  const pvrEndAddress = buffer.readUInt32LE(0x10) - modelRamOffset;
+  const wBuffer = Buffer.from(buffer);
+  const pvrStartAddress = wBuffer.readUInt32LE(0x8) - modelRamOffset;
+  const pvrEndAddress = wBuffer.readUInt32LE(0x10) - modelRamOffset;
 
   let ramOffset;
   const textures: NLTextureDef[] = [];
   for (let address = pvrStartAddress; address < pvrEndAddress; address += 16) {
     const texture = processNLConversions(
       nlTextureDefConversions,
-      buffer,
+      wBuffer,
       address
     );
 
@@ -30,7 +32,7 @@ export default function scanTextureHeaderData(
     // we can discard when scanning
     if (texture.width > 0) {
       // will be re-assigned when populating tex file
-      texture.dataUrls = { opaque: '', translucent: '' };
+      texture.bufferUrls = { opaque: '', translucent: '' };
       textures.push(texture);
     }
   }

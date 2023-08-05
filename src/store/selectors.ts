@@ -24,6 +24,26 @@ export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
+/**
+ * get a set of base texture urls to detect presence in O(1)
+ */
+export const selectUneditedTextureUrls = createSelector(
+  selectTextureDefs,
+  (defs) => {
+    const urlSet = new Set<string>();
+    defs.forEach((d) => {
+      if (d.bufferUrls.translucent) {
+        urlSet.add(d.bufferUrls.translucent);
+      }
+
+      if (d.bufferUrls.opaque) {
+        urlSet.add(d.bufferUrls.opaque);
+      }
+    });
+
+    return urlSet;
+  }
+);
 
 export const selectEditedTextures = (s: AppState) => s.modelData.editedTextures;
 
@@ -34,14 +54,14 @@ export const selectEditedTextures = (s: AppState) => s.modelData.editedTextures;
 export const selectSceneTextureDefs = createSelector(
   selectTextureDefs,
   selectEditedTextures,
-  (textureDefs, dataUrlEntries): typeof textureDefs => {
+  (textureDefs, bufferUrlEntries): typeof textureDefs => {
     const returnTextures = [...textureDefs];
-    Object.entries(dataUrlEntries).forEach(([index, dataUrls]) => {
+    Object.entries(bufferUrlEntries).forEach(([index, { bufferUrls }]) => {
       const i = Number.parseInt(index);
       const entry = { ...returnTextures[i] };
-      entry.dataUrls = {
-        ...entry.dataUrls,
-        ...dataUrls
+      entry.bufferUrls = {
+        ...entry.bufferUrls,
+        ...bufferUrls
       };
       returnTextures[i] = entry;
     });
@@ -59,6 +79,24 @@ export const selectModel = createSelector(
   selectModelIndex,
   selectStageModels,
   (modelIndex, models) => models?.[modelIndex]
+);
+
+export const selectDisplayedMeshes = createSelector(
+  selectModel,
+  selectSceneTextureDefs,
+  (model, textureDefs): (NLMesh & { textureHash: string })[] => {
+    return (model?.meshes || []).map((m) => {
+      const tDef = textureDefs[m.textureIndex];
+      const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
+      const { hRepeat, vRepeat } = m.textureWrappingFlags;
+      const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
+
+      return {
+        ...m,
+        textureHash
+      };
+    });
+  }
 );
 
 /** infers mesh selection from selected object key */

@@ -64,7 +64,7 @@ export default function GuiPanelTextureColorOptions({
   const onSetS = getHslSetter('s');
   const onSetL = getHslSetter('l');
 
-  const [debouncedHsl] = useDebounce(hsl, 20);
+  const [debouncedHsl] = useDebounce(hsl, 25);
 
   useEffect(() => {
     dispatch(adjustTextureHsl({ hsl: debouncedHsl, textureIndex }));
