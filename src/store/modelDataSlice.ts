@@ -284,7 +284,6 @@ const modelDataSlice = createSlice({
       state.textureDefs[textureIndex].bufferUrls.translucent =
         prevBufferUrls.translucent;
       state.textureDefs[textureIndex].bufferUrls.opaque = prevBufferUrls.opaque;
-      console.log(current(state));
       return state;
     }
   },
