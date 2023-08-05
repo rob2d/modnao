@@ -4,7 +4,6 @@ import {
   downloadTextureFile,
   selectHasCompressedTextures,
   selectModel,
-  selectObjectKey,
   selectObjectMeshIndex,
   selectSceneTextureDefs,
   selectTextureFileName,
@@ -13,6 +12,15 @@ import {
 } from '@/store';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
+import { Chip, Divider, styled } from '@mui/material';
+
+const StyledDivider = styled(Divider)(
+  ({ theme }) => `
+& {
+  margin: ${theme.spacing(2)} 0;
+}
+`
+);
 
 export default function GuiPanelViewOptions() {
   const dispatch = useAppDispatch();
@@ -42,32 +50,67 @@ export default function GuiPanelViewOptions() {
     dispatch(downloadTextureFile());
   }, [dispatch]);
 
-  const textures = useMemo(() => {
-    const images: JSX.Element[] = [];
+  const [textures, offsceneTextures] = useMemo(() => {
+    const pTextures: JSX.Element[] = [];
+    const opTextures: JSX.Element[] = [];
     const textureSet = new Set<number>();
-
-    (model?.meshes || []).forEach((m, i) => {
-      if (!textureSet.has(m.textureIndex) && textureDefs?.[m.textureIndex]) {
-        textureSet.add(m.textureIndex);
+    /** set of textureIndexes that are offscene */
+    [...(model?.meshes || [])]
+      .sort((m1, m2) => (m1.textureIndex || 0) - (m2.textureIndex || 0))
+      .forEach((m, i) => {
         const textureDef = textureDefs?.[m.textureIndex];
+        if (!textureDef) {
+          return;
+        }
+        if (!textureSet.has(m.textureIndex)) {
+          textureSet.add(m.textureIndex);
+          const textureDef = textureDefs?.[m.textureIndex];
 
-        images.push(
+          pTextures.push(
+            <GuiPanelTexture
+              key={`${m.textureIndex}_${i}`}
+              textureDef={textureDef}
+              textureIndex={m.textureIndex}
+              selected={selectedMeshTexture === m.textureIndex}
+            />
+          );
+        }
+      });
+
+    for (let i = 0; i < textureDefs.length; i++) {
+      const textureDef = textureDefs?.[i];
+      if (!textureDef) {
+        continue;
+      }
+
+      if (!textureSet.has(i)) {
+        opTextures.push(
           <GuiPanelTexture
-            key={`${m.textureIndex}_${i}`}
+            key={i}
             textureDef={textureDef}
-            textureIndex={m.textureIndex}
-            selected={selectedMeshTexture === m.textureIndex}
+            textureIndex={i}
+            selected={false}
           />
         );
       }
-    });
+    }
 
-    return images;
+    return [pTextures, opTextures];
   }, [model, meshIndex, textureDefs, selectedMeshTexture]);
 
   return (
     <GuiPanelSection title='Textures' subtitle={textureFileName}>
-      <div className='textures'>{textures}</div>
+      <div className='textures'>
+        {textures}
+        {!offsceneTextures.length ? undefined : (
+          <>
+            <StyledDivider flexItem>
+              <Chip label='Offscene' size='small' color='secondary' />
+            </StyledDivider>
+            {offsceneTextures}
+          </>
+        )}
+      </div>
       {hasCompressedTextures ? undefined : (
         <div className='export-texture-button-container'>
           <GuiPanelButton

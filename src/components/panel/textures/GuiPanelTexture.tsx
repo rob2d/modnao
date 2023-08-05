@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Image } from 'image-js';
 import Img from 'next/image';
 import { useDropzone } from 'react-dropzone';
-import { styled, Typography } from '@mui/material';
+import { Skeleton, styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import {
@@ -177,7 +177,7 @@ export default function GuiPanelTexture({
         {...getRootProps()}
       >
         {!imgSrc ? (
-          <div className='img' />
+          <Skeleton variant='rectangular' height={170} width='100%' />
         ) : (
           <Img
             src={imgSrc}
