@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei';
-import { Mesh, Texture, Vector3 } from 'three';
+import { DoubleSide, FrontSide, Mesh, Texture, Vector3 } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
@@ -30,8 +30,12 @@ export default function RenderedPolygon({
   // settings change scenario for user interactions
   // (seems not to be the case with workflows so far)
 
-  const { meshDisplayMode, objectAddressesVisible, wireframeLineWidth } =
-    useContext(ViewOptionsContext);
+  const {
+    meshDisplayMode,
+    objectAddressesVisible,
+    wireframeLineWidth,
+    disableBackfaceCulling
+  } = useContext(ViewOptionsContext);
   const textRef = useRef();
   const theme = useTheme();
 
@@ -143,9 +147,10 @@ export default function RenderedPolygon({
       map: texture,
       transparent: true,
       opacity: isSelected ? 0.75 : 1,
-      alphaTest: isSelected ? 0 : 1
+      alphaTest: isSelected ? 0 : 1,
+      side: disableBackfaceCulling ? DoubleSide : FrontSide
     }),
-    [texture, isSelected]
+    [texture, isSelected, disableBackfaceCulling]
   );
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
