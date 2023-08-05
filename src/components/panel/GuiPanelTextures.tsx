@@ -20,14 +20,12 @@ export default function GuiPanelViewOptions() {
   const meshIndex = useAppSelector(selectObjectMeshIndex);
   const hasCompressedTextures = useAppSelector(selectHasCompressedTextures);
   const textureDefs = useAppSelector(selectSceneTextureDefs);
-  const objectKey = useAppSelector(selectObjectKey);
   const textureFileName = useAppSelector(selectTextureFileName);
 
   const selectedMeshTexture: number = useMemo(() => {
     const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
-
     return typeof textureIndex === 'number' ? textureIndex : -1;
-  }, [model, objectKey, meshIndex]);
+  }, [model?.meshes?.[meshIndex]?.textureIndex]);
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
@@ -65,7 +63,7 @@ export default function GuiPanelViewOptions() {
     });
 
     return images;
-  }, [model, textureDefs, selectedMeshTexture]);
+  }, [model, meshIndex, textureDefs, selectedMeshTexture]);
 
   return (
     <GuiPanelSection title='Textures' subtitle={textureFileName}>

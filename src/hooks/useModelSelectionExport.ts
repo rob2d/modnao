@@ -31,7 +31,8 @@ export default function useModelSelectionExport() {
       number,
       number
     ];
-    return model.meshes[Number(meshKey)].polygons[Number(polygonKey)];
+
+    return model.meshes[meshKey]?.polygons[polygonKey];
   }, [model, objectKey, objectType]);
 
   const onDownloadModelSelection = useCallback(() => {

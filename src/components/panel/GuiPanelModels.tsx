@@ -99,11 +99,11 @@ export default function GuiPanelModels() {
     });
   }, [modelIndex]);
 
-  let modelIndexAndCount = '--';
+  let modelNoAndCount = '--';
 
   if (model) {
     const sp = modelCount > 99 && modelIndex > 98 ? '' : ' ';
-    modelIndexAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
+    modelNoAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
   }
 
   return (
@@ -127,7 +127,7 @@ export default function GuiPanelModels() {
               <Icon path={mdiMenuLeftOutline} size={1} />
             </IconButton>
             <Typography variant='button' textAlign='right'>
-              {modelIndexAndCount}
+              {modelNoAndCount}
             </Typography>
             <IconButton
               className='model-nav-button'

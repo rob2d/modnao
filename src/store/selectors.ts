@@ -99,7 +99,10 @@ export const selectDisplayedMeshes = createSelector(
   (model, textureDefs) =>
     (model?.meshes || []).reduce<DisplayedMesh[]>((meshes, m) => {
       const tDef = textureDefs[m.textureIndex];
-      if (!tDef) return meshes;
+      if (!tDef) {
+        meshes.push({ ...m, textureHash: '' });
+        return meshes;
+      }
 
       const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
       const { hRepeat, vRepeat } = m.textureWrappingFlags;
