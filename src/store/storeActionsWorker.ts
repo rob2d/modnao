@@ -1,22 +1,24 @@
 import { store } from './store';
 import {
   adjustTextureHslFromThread,
-  loadPolygonsFromWorker,
   LoadPolygonsPayload,
   loadTexturesFromWorker,
   LoadTexturesPayload
 } from './modelDataSlice';
 import HslValues from '@/utils/textures/HslValues';
+export type LoadPolygonsResult = {
+  type: 'loadPolygonFile';
+  result: LoadPolygonsPayload;
+};
+
+export type LoadTexturesResult = {
+  type: 'loadTextureFile';
+  result: LoadTexturesPayload;
+};
 
 export type WorkerResponses =
-  | {
-      type: 'loadPolygonFile';
-      result: LoadPolygonsPayload;
-    }
-  | {
-      type: 'loadTextureFile';
-      result: LoadTexturesPayload;
-    }
+  | LoadPolygonsResult
+  | LoadTexturesResult
   | {
       type: 'adjustTextureHsl';
       result: {
@@ -26,35 +28,36 @@ export type WorkerResponses =
       };
     };
 
-const worker: Worker | undefined = !globalThis.Worker
-  ? undefined
-  : new Worker(new URL('../worker.ts', import.meta.url), {
-      type: 'module'
-    });
+export const createWorker = () =>
+  !globalThis.Worker
+    ? undefined
+    : new Worker(new URL('../worker.ts', import.meta.url), {
+        type: 'module'
+      });
 
-if (worker) {
-  worker.onmessage = async (event: MessageEvent<WorkerResponses>) => {
-    switch (event.data.type) {
-      case 'loadPolygonFile': {
-        const { result } = event.data;
-        console.log('result ->', result);
-        store.dispatch(loadPolygonsFromWorker(result));
-        break;
-      }
-      case 'loadTextureFile': {
-        const { result } = event.data;
-        store.dispatch(loadTexturesFromWorker(result));
-        break;
-      }
-      case 'adjustTextureHsl': {
-        const { result } = event.data;
-        store.dispatch(adjustTextureHslFromThread(result));
-        break;
-      }
+export const workerMessageHandler = async (
+  event: MessageEvent<WorkerResponses>
+) => {
+  switch (event.data.type) {
+    case 'loadPolygonFile': {
+      break;
     }
-  };
-}
+    case 'loadTextureFile': {
+      const { result } = event.data;
+      store.dispatch(loadTexturesFromWorker(result));
+      break;
+    }
+    case 'adjustTextureHsl': {
+      const { result } = event.data;
+      store.dispatch(adjustTextureHslFromThread(result));
+      break;
+    }
+  }
+};
 
-console.log('worker ->', worker);
+const worker = createWorker();
+if (worker) {
+  worker.onmessage = workerMessageHandler;
+}
 
 export default worker;

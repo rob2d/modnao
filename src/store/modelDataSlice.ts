@@ -13,7 +13,11 @@ import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import worker from './storeActionsWorker';
+import worker, {
+  createWorker,
+  LoadPolygonsResult,
+  workerMessageHandler
+} from './storeActionsWorker';
 
 type EditedTexture = {
   width: number;
@@ -64,17 +68,36 @@ export const initialModelDataState: ModelDataState = {
 };
 
 export const loadPolygonFile = createAsyncThunk<
-  void,
+  LoadPolygonsPayload,
   File,
   { state: AppState }
->(`${sliceName}/loadPolygonFile`, async (file: File) => {
-  const buffer = await file.arrayBuffer();
+>(
+  `${sliceName}/loadPolygonFile`,
+  async (file: File, { getState }): Promise<LoadPolygonsPayload> => {
+    const { modelData } = getState();
+    const buffer = await file.arrayBuffer();
+    const localWorker = createWorker();
 
-  worker?.postMessage({
-    type: 'loadPolygonFile',
-    payload: { buffer }
-  } as WorkerEvent);
-});
+    const result = await new Promise<LoadPolygonsPayload>((resolve) => {
+      if (localWorker) {
+        localWorker.onmessage = (event: MessageEvent<LoadPolygonsResult>) => {
+          workerMessageHandler.bind(localWorker, event);
+          resolve(event.data.result);
+          if (modelData.polygonBufferUrl) {
+            URL.revokeObjectURL(modelData.polygonBufferUrl || '');
+          }
+        };
+
+        localWorker?.postMessage({
+          type: 'loadPolygonFile',
+          payload: { buffer }
+        } as WorkerEvent);
+      }
+    });
+
+    return result;
+  }
+);
 
 export type LoadPolygonsPayload = {
   models: NLModel[];
@@ -82,19 +105,6 @@ export type LoadPolygonsPayload = {
   fileName: string;
   polygonBufferUrl: string;
 };
-
-export const loadPolygonsFromWorker = createAsyncThunk<
-  LoadPolygonsPayload,
-  LoadPolygonsPayload,
-  { state: AppState }
->(`${sliceName}/loadPolygonsFromWorker`, async (payload, { getState }) => {
-  const { modelData } = getState();
-  if (modelData.polygonBufferUrl) {
-    URL.revokeObjectURL(modelData.polygonBufferUrl);
-  }
-
-  return payload;
-});
 
 export const adjustTextureHsl = createAsyncThunk<
   void,
@@ -246,7 +256,7 @@ const modelDataSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(
-      loadPolygonsFromWorker.fulfilled,
+      loadPolygonFile.fulfilled,
       (
         state: ModelDataState,
         { payload: { models, textureDefs, fileName, polygonBufferUrl } }
