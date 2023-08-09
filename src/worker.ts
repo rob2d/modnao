@@ -33,34 +33,6 @@ export type WorkerEvent =
       };
     };
 
-export type WorkerResponses =
-  | {
-      type: 'loadPolygonFile';
-      result: {
-        modelRamOffset: number;
-        models: NLModel[];
-        textureDefs: NLTextureDef[];
-      };
-    }
-  | {
-      type: 'loadTextureFile';
-      result: {
-        buffer: Buffer;
-        textureDefs: NLTextureDef[];
-        fileName: string;
-        hasCompressedTextures: boolean;
-        sourceTextureData: SourceTextureData[];
-      };
-    }
-  | {
-      type: 'adjustTextureHsl';
-      result: {
-        textureIndex: number;
-        hsl: HslValues;
-        bufferUrls: { translucent: string; opaque: string };
-      };
-    };
-
 addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
   const { type, payload } = data;
   switch (type) {

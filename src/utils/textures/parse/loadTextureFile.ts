@@ -108,17 +108,18 @@ export default async function loadTextureFile({
     textureDefs: NLTextureDef[];
     fileName: string;
     hasCompressedTextures: boolean;
-    buffer: Buffer;
     sourceTextureData: SourceTextureData[];
+    textureBufferUrl: string;
   };
 
   try {
     const textureBufferData = await loadTextureBuffer(buffer, textureDefs);
+    const textureBufferUrl = await bufferToObjectUrl(buffer);
 
     result = {
+      textureBufferUrl: textureBufferUrl,
       hasCompressedTextures: false,
       fileName,
-      buffer,
       ...textureBufferData
     };
   } catch (error) {
@@ -138,9 +139,9 @@ export default async function loadTextureFile({
     );
 
     result = {
+      textureBufferUrl: await bufferToObjectUrl(decompressedBuffer),
       fileName,
       hasCompressedTextures: true,
-      buffer: decompressedBuffer,
       ...textureBufferData
     };
   }

@@ -1,8 +1,9 @@
-import scanForModelPointers from '@/store/model-data/process-model-polygon-file/scanForModelPointers';
-import scanModel from '@/store/model-data/process-model-polygon-file/scanModel';
-import scanTextureHeaderData from '@/store/model-data/process-model-polygon-file/scanTextureHeaderData';
+import scanForModelPointers from '@/utils/polygons/serialize/scanForModelPointers';
+import scanModel from '@/utils/polygons/serialize/scanModel';
+import scanTextureHeaderData from '@/utils/polygons/serialize/scanTextureHeaderData';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import TransferrableBuffer from '@/types/TransferrableBuffer';
+import { bufferToObjectUrl } from '@/utils/data';
 
 export default async function loadPolygonFile({
   buffer
@@ -12,7 +13,9 @@ export default async function loadPolygonFile({
   modelRamOffset: number;
   models: NLModel[];
   textureDefs: NLTextureDef[];
+  polygonBufferUrl: string;
 }> {
+  console.log('called code to load polygon file here');
   const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
   const textureDefs = scanTextureHeaderData(buffer, modelRamOffset);
   const models = modelPointers.map(
@@ -23,6 +26,7 @@ export default async function loadPolygonFile({
   return Promise.resolve({
     modelRamOffset,
     models,
-    textureDefs
+    textureDefs,
+    polygonBufferUrl: await bufferToObjectUrl(buffer)
   });
 }
