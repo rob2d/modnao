@@ -1,6 +1,5 @@
 import {
   AnyAction,
-  createAction,
   createAsyncThunk,
   createSlice,
   PayloadAction
@@ -14,6 +13,7 @@ import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import worker, {
+  AdjustTextureHslResult,
   createWorker,
   LoadPolygonsResult,
   workerMessageHandler
@@ -106,8 +106,14 @@ export type LoadPolygonsPayload = {
   polygonBufferUrl: string;
 };
 
+export type AdjustTextureHslPayload = {
+  textureIndex: number;
+  bufferUrls: SourceTextureData;
+  hsl: HslValues;
+};
+
 export const adjustTextureHsl = createAsyncThunk<
-  void,
+  AdjustTextureHslPayload,
   { textureIndex: number; hsl: HslValues },
   { state: AppState }
 >(
@@ -116,22 +122,27 @@ export const adjustTextureHsl = createAsyncThunk<
     const state = getState();
     const sourceTextureData =
       state.modelData.textureDefs[textureIndex].bufferUrls;
+    const localWorker = createWorker();
 
-    worker?.postMessage({
-      type: 'adjustTextureHsl',
-      payload: { hsl, textureIndex, sourceTextureData }
-    } as WorkerEvent);
+    const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
+      if (localWorker) {
+        localWorker.onmessage = (
+          event: MessageEvent<AdjustTextureHslResult>
+        ) => {
+          workerMessageHandler.bind(localWorker, event);
+          resolve(event.data.result);
+        };
+
+        localWorker?.postMessage({
+          type: 'adjustTextureHsl',
+          payload: { hsl, textureIndex, sourceTextureData }
+        } as WorkerEvent);
+      }
+    });
+
+    return result;
   }
 );
-
-export const adjustTextureHslFromThread = createAction<
-  {
-    hsl: HslValues;
-    textureIndex: number;
-    bufferUrls: { translucent: string; opaque: string };
-  },
-  `${typeof sliceName}/adjustTextureHslFromThread`
->(`${sliceName}/adjustTextureHslFromThread`);
 
 export const loadTextureFile = createAsyncThunk<
   void,
@@ -317,7 +328,7 @@ const modelDataSlice = createSlice({
     );
 
     builder.addCase(
-      adjustTextureHslFromThread,
+      adjustTextureHsl.fulfilled,
       (
         state: ModelDataState,
         { payload: { textureIndex, bufferUrls, hsl } }

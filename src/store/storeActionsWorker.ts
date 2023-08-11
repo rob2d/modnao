@@ -1,11 +1,10 @@
 import { store } from './store';
 import {
-  adjustTextureHslFromThread,
+  AdjustTextureHslPayload,
   LoadPolygonsPayload,
   loadTexturesFromWorker,
   LoadTexturesPayload
 } from './modelDataSlice';
-import HslValues from '@/utils/textures/HslValues';
 export type LoadPolygonsResult = {
   type: 'loadPolygonFile';
   result: LoadPolygonsPayload;
@@ -16,17 +15,15 @@ export type LoadTexturesResult = {
   result: LoadTexturesPayload;
 };
 
+export type AdjustTextureHslResult = {
+  type: 'adjustTextureHsl';
+  result: AdjustTextureHslPayload;
+};
+
 export type WorkerResponses =
   | LoadPolygonsResult
   | LoadTexturesResult
-  | {
-      type: 'adjustTextureHsl';
-      result: {
-        textureIndex: number;
-        hsl: HslValues;
-        bufferUrls: { translucent: string; opaque: string };
-      };
-    };
+  | AdjustTextureHslResult;
 
 export const createWorker = () =>
   !globalThis.Worker
@@ -39,17 +36,13 @@ export const workerMessageHandler = async (
   event: MessageEvent<WorkerResponses>
 ) => {
   switch (event.data.type) {
+    case 'adjustTextureHsl':
     case 'loadPolygonFile': {
       break;
     }
     case 'loadTextureFile': {
       const { result } = event.data;
       store.dispatch(loadTexturesFromWorker(result));
-      break;
-    }
-    case 'adjustTextureHsl': {
-      const { result } = event.data;
-      store.dispatch(adjustTextureHslFromThread(result));
       break;
     }
   }
