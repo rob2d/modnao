@@ -1,6 +1,5 @@
 import { store } from './store';
 import {
-  adjustTextureHslFromThread,
   LoadPolygonsPayload,
   loadTexturesFromWorker,
   LoadTexturesPayload
@@ -39,17 +38,13 @@ export const workerMessageHandler = async (
   event: MessageEvent<WorkerResponses>
 ) => {
   switch (event.data.type) {
+    case 'adjustTextureHsl':
     case 'loadPolygonFile': {
       break;
     }
     case 'loadTextureFile': {
       const { result } = event.data;
       store.dispatch(loadTexturesFromWorker(result));
-      break;
-    }
-    case 'adjustTextureHsl': {
-      const { result } = event.data;
-      store.dispatch(adjustTextureHslFromThread(result));
       break;
     }
   }
