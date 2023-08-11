@@ -22,10 +22,7 @@ import worker, {
 type EditedTexture = {
   width: number;
   height: number;
-  bufferUrls: {
-    translucent: string;
-    opaque: string;
-  };
+  bufferUrls: SourceTextureData;
   hsl: HslValues;
 };
 
@@ -38,10 +35,7 @@ export interface ModelDataState {
    * textureDefs to simplify state
    */
   prevBufferUrls: {
-    [key: number]: {
-      translucent: string;
-      opaque: string;
-    }[];
+    [key: number]: SourceTextureData[];
   };
   editedTextures: {
     [key: number]: EditedTexture;
