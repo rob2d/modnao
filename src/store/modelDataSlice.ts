@@ -12,12 +12,12 @@ import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import worker, {
+import {
   AdjustTextureHslResult,
-  createWorker,
+  createWorkerThread,
   LoadPolygonsResult,
-  workerMessageHandler
-} from './storeActionsWorker';
+  LoadTexturesResult
+} from './actionWorkerThreads';
 
 type EditedTexture = {
   width: number;
@@ -70,19 +70,18 @@ export const loadPolygonFile = createAsyncThunk<
   async (file: File, { getState }): Promise<LoadPolygonsPayload> => {
     const { modelData } = getState();
     const buffer = await file.arrayBuffer();
-    const localWorker = createWorker();
+    const thread = createWorkerThread();
 
     const result = await new Promise<LoadPolygonsPayload>((resolve) => {
-      if (localWorker) {
-        localWorker.onmessage = (event: MessageEvent<LoadPolygonsResult>) => {
-          workerMessageHandler.bind(localWorker, event);
+      if (thread) {
+        thread.onmessage = (event: MessageEvent<LoadPolygonsResult>) => {
           resolve(event.data.result);
           if (modelData.polygonBufferUrl) {
             URL.revokeObjectURL(modelData.polygonBufferUrl || '');
           }
         };
 
-        localWorker?.postMessage({
+        thread?.postMessage({
           type: 'loadPolygonFile',
           payload: { buffer }
         } as WorkerEvent);
@@ -116,18 +115,15 @@ export const adjustTextureHsl = createAsyncThunk<
     const state = getState();
     const sourceTextureData =
       state.modelData.textureDefs[textureIndex].bufferUrls;
-    const localWorker = createWorker();
+    const thread = createWorkerThread();
 
     const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
-      if (localWorker) {
-        localWorker.onmessage = (
-          event: MessageEvent<AdjustTextureHslResult>
-        ) => {
-          workerMessageHandler.bind(localWorker, event);
+      if (thread) {
+        thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
           resolve(event.data.result);
         };
 
-        localWorker?.postMessage({
+        thread?.postMessage({
           type: 'adjustTextureHsl',
           payload: { hsl, textureIndex, sourceTextureData }
         } as WorkerEvent);
@@ -139,7 +135,7 @@ export const adjustTextureHsl = createAsyncThunk<
 );
 
 export const loadTextureFile = createAsyncThunk<
-  void,
+  LoadTexturesPayload,
   File,
   { state: AppState }
 >(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
@@ -153,14 +149,26 @@ export const loadTextureFile = createAsyncThunk<
     URL.revokeObjectURL(state.modelData.textureBufferUrl);
   }
 
-  worker?.postMessage({
-    type: 'loadTextureFile',
-    payload: {
-      fileName,
-      textureDefs,
-      buffer
+  const thread = createWorkerThread();
+
+  const result = await new Promise<LoadTexturesPayload>((resolve) => {
+    if (thread) {
+      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
+        resolve(event.data.result);
+      };
+
+      thread?.postMessage({
+        type: 'loadTextureFile',
+        payload: {
+          fileName,
+          textureDefs,
+          buffer
+        }
+      } as WorkerEvent);
     }
-  } as WorkerEvent);
+  });
+
+  return result;
 });
 
 export type LoadTexturesPayload = {
@@ -169,18 +177,6 @@ export type LoadTexturesPayload = {
   textureBufferUrl: string;
   hasCompressedTextures: boolean;
 };
-export const loadTexturesFromWorker = createAsyncThunk<
-  LoadTexturesPayload,
-  LoadTexturesPayload,
-  { state: AppState }
->(`${sliceName}/loadTexturesFromWorker`, async (payload, { getState }) => {
-  const { modelData } = getState();
-  if (modelData.textureBufferUrl) {
-    URL.revokeObjectURL(modelData.textureBufferUrl);
-  }
-
-  return payload;
-});
 
 export const replaceTextureImage = createAsyncThunk<
   { textureIndex: number; bufferUrls: SourceTextureData },
@@ -276,7 +272,7 @@ const modelDataSlice = createSlice({
     );
 
     builder.addCase(
-      loadTexturesFromWorker.fulfilled,
+      loadTextureFile.fulfilled,
       (
         state: ModelDataState,
         {
