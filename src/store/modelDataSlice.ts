@@ -19,9 +19,29 @@ import {
   LoadTexturesResult
 } from './actionWorkerThreads';
 
-type EditedTexture = {
+export type EditedTexture = {
   width: number;
   height: number;
+  bufferUrls: SourceTextureData;
+  hsl: HslValues;
+};
+
+export type LoadTexturesPayload = {
+  textureDefs: NLTextureDef[];
+  fileName: string;
+  textureBufferUrl: string;
+  hasCompressedTextures: boolean;
+};
+
+export type LoadPolygonsPayload = {
+  models: NLModel[];
+  textureDefs: NLTextureDef[];
+  fileName: string;
+  polygonBufferUrl: string;
+};
+
+export type AdjustTextureHslPayload = {
+  textureIndex: number;
   bufferUrls: SourceTextureData;
   hsl: HslValues;
 };
@@ -79,53 +99,12 @@ export const loadPolygonFile = createAsyncThunk<
           if (modelData.polygonBufferUrl) {
             URL.revokeObjectURL(modelData.polygonBufferUrl || '');
           }
+          thread.terminate();
         };
 
         thread?.postMessage({
           type: 'loadPolygonFile',
           payload: { buffer }
-        } as WorkerEvent);
-      }
-    });
-
-    return result;
-  }
-);
-
-export type LoadPolygonsPayload = {
-  models: NLModel[];
-  textureDefs: NLTextureDef[];
-  fileName: string;
-  polygonBufferUrl: string;
-};
-
-export type AdjustTextureHslPayload = {
-  textureIndex: number;
-  bufferUrls: SourceTextureData;
-  hsl: HslValues;
-};
-
-export const adjustTextureHsl = createAsyncThunk<
-  AdjustTextureHslPayload,
-  { textureIndex: number; hsl: HslValues },
-  { state: AppState }
->(
-  `${sliceName}/adjustTextureHsl`,
-  async ({ textureIndex, hsl }, { getState }) => {
-    const state = getState();
-    const sourceTextureData =
-      state.modelData.textureDefs[textureIndex].bufferUrls;
-    const thread = createWorkerThread();
-
-    const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
-      if (thread) {
-        thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
-          resolve(event.data.result);
-        };
-
-        thread?.postMessage({
-          type: 'adjustTextureHsl',
-          payload: { hsl, textureIndex, sourceTextureData }
         } as WorkerEvent);
       }
     });
@@ -155,6 +134,7 @@ export const loadTextureFile = createAsyncThunk<
     if (thread) {
       thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
         resolve(event.data.result);
+        thread.terminate();
       };
 
       thread?.postMessage({
@@ -171,12 +151,35 @@ export const loadTextureFile = createAsyncThunk<
   return result;
 });
 
-export type LoadTexturesPayload = {
-  textureDefs: NLTextureDef[];
-  fileName: string;
-  textureBufferUrl: string;
-  hasCompressedTextures: boolean;
-};
+export const adjustTextureHsl = createAsyncThunk<
+  AdjustTextureHslPayload,
+  { textureIndex: number; hsl: HslValues },
+  { state: AppState }
+>(
+  `${sliceName}/adjustTextureHsl`,
+  async ({ textureIndex, hsl }, { getState }) => {
+    const state = getState();
+    const sourceTextureData =
+      state.modelData.textureDefs[textureIndex].bufferUrls;
+    const thread = createWorkerThread();
+
+    const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
+      if (thread) {
+        thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
+          resolve(event.data.result);
+          thread.terminate();
+        };
+
+        thread?.postMessage({
+          type: 'adjustTextureHsl',
+          payload: { hsl, textureIndex, sourceTextureData }
+        } as WorkerEvent);
+      }
+    });
+
+    return result;
+  }
+);
 
 export const replaceTextureImage = createAsyncThunk<
   { textureIndex: number; bufferUrls: SourceTextureData },
