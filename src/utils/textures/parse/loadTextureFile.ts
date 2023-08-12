@@ -1,8 +1,8 @@
+import { Image } from 'image-js';
 import {
   decompressTextureBuffer,
   encodeZMortonPosition
 } from '@/utils/textures/parse';
-import { Image } from 'image-js';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import {
   argb1555ToRgba8888,

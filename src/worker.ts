@@ -52,8 +52,8 @@ addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
       const { sourceTextureData, textureIndex, hsl, width, height } = payload;
 
       const [translucent, opaque] = await Promise.all([
-        adjustTextureHsl(sourceTextureData.translucent, hsl),
-        adjustTextureHsl(sourceTextureData.opaque, hsl)
+        adjustTextureHsl(sourceTextureData.translucent, width, height, hsl),
+        adjustTextureHsl(sourceTextureData.opaque, width, height, hsl)
       ]);
 
       postMessage({
@@ -63,7 +63,14 @@ addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
           textureIndex,
           width,
           height,
-          bufferUrls: { translucent, opaque }
+          bufferUrls: {
+            translucent: translucent.objectUrl,
+            opaque: opaque.objectUrl
+          },
+          dataUrls: {
+            translucent: translucent.dataUrl,
+            opaque: opaque.dataUrl
+          }
         }
       });
       break;
