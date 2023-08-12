@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
-import { Image } from 'image-js';
-import Img from 'next/image';
+import Image from 'next/image';
 import { useDropzone } from 'react-dropzone';
 import { Skeleton, styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
@@ -11,7 +10,7 @@ import {
   selectIsMeshOpaque,
   useAppDispatch
 } from '@/store';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { bufferToObjectUrl, objectUrlToBuffer } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABufferFromFile';
 
@@ -144,30 +143,12 @@ export default function GuiPanelTexture({
 
   const { width, height } = textureDef;
 
-  const [imgSrc, setImgSrc] = useState<string>('');
-
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
-  const pixelDataUrl =
+  const imageDataUrl =
     (selected && isSelectedMeshOpaque
-      ? textureDef.bufferUrls.opaque || textureDef.bufferUrls.translucent
-      : textureDef.bufferUrls.translucent || textureDef.bufferUrls.opaque) ||
-    '';
-
-  useEffect(() => {
-    (async () => {
-      const pixels = new Uint8ClampedArray(
-        await objectUrlToBuffer(pixelDataUrl)
-      );
-
-      if (pixels.length === 0) {
-        return;
-      }
-
-      const dataUrl = new Image({ data: pixels, width, height }).toDataURL();
-      setImgSrc(dataUrl);
-    })();
-  }, [pixelDataUrl]);
+      ? textureDef.dataUrls.opaque || textureDef.dataUrls.translucent
+      : textureDef.dataUrls.translucent || textureDef.dataUrls.opaque) || '';
 
   return (
     <StyledPanelTexture>
@@ -180,11 +161,11 @@ export default function GuiPanelTexture({
         )}
         {...getRootProps()}
       >
-        {!imgSrc ? (
+        {!imageDataUrl ? (
           <Skeleton variant='rectangular' height={170} width='100%' />
         ) : (
-          <Img
-            src={imgSrc}
+          <Image
+            src={imageDataUrl}
             width={width}
             height={height}
             alt={`Texture # ${textureIndex}`}

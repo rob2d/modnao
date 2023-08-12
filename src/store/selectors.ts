@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
+import { objectUrlToBuffer } from '@/utils/data';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
@@ -68,15 +69,22 @@ export const selectSceneTextureDefs = createSelector(
   selectEditedTextures,
   (textureDefs, bufferUrlEntries): typeof textureDefs => {
     const returnTextures = [...textureDefs];
-    Object.entries(bufferUrlEntries).forEach(([index, { bufferUrls }]) => {
-      const i = Number.parseInt(index);
-      const entry = { ...returnTextures[i] };
-      entry.bufferUrls = {
-        ...entry.bufferUrls,
-        ...bufferUrls
-      };
-      returnTextures[i] = entry;
-    });
+    Object.entries(bufferUrlEntries).forEach(
+      ([index, { bufferUrls, dataUrls }]) => {
+        const i = Number.parseInt(index);
+        const entry = { ...returnTextures[i] };
+        entry.bufferUrls = {
+          ...entry.bufferUrls,
+          ...bufferUrls
+        };
+
+        entry.dataUrls = {
+          ...entry.dataUrls,
+          ...dataUrls
+        };
+        returnTextures[i] = entry;
+      }
+    );
 
     return returnTextures;
   }
@@ -124,4 +132,15 @@ export const selectIsMeshOpaque = createSelector(
   selectModel,
   selectObjectMeshIndex,
   (model, meshIndex) => model?.meshes[meshIndex]?.isOpaque
+);
+
+export const selectPixelDataUrls = createSelector(
+  selectTextureDefs,
+  async (textureDefs) => {
+    for await (const def of textureDefs) {
+      for await (const [type, url] of Object.entries(def.bufferUrls)) {
+        const pixels = new Uint8ClampedArray(await objectUrlToBuffer(url));
+      }
+    }
+  }
 );

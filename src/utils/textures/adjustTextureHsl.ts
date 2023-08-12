@@ -1,9 +1,12 @@
+import { Image } from 'image-js';
 import adjustHslOfRgba from '../color-conversions/adjustHslOfRgba';
 import { bufferToObjectUrl, objectUrlToBuffer } from '../data';
 import HslValues from './HslValues';
 
 export default async function adjustTextureHsl(
   sourceUrl: string,
+  width: number,
+  height: number,
   hsl: HslValues
 ) {
   const { h, s, l } = hsl;
@@ -47,6 +50,15 @@ export default async function adjustTextureHsl(
     imageData[i + 3] = sourceData[i + 3];
   }
 
-  const dataUrl = await bufferToObjectUrl(imageData);
-  return dataUrl;
+  const objectUrl = await bufferToObjectUrl(imageData);
+  const dataUrl = new Image({
+    data: imageData,
+    width,
+    height
+  }).toDataURL();
+
+  return {
+    objectUrl,
+    dataUrl
+  };
 }

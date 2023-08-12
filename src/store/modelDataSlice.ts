@@ -40,6 +40,7 @@ export type EditedTexture = {
   width: number;
   height: number;
   bufferUrls: SourceTextureData;
+  dataUrls: SourceTextureData;
   hsl: HslValues;
 };
 
@@ -60,6 +61,7 @@ export type LoadPolygonsPayload = {
 export type AdjustTextureHslPayload = {
   textureIndex: number;
   bufferUrls: SourceTextureData;
+  dataUrls: SourceTextureData;
   hsl: HslValues;
 };
 
@@ -180,8 +182,8 @@ export const adjustTextureHsl = createAsyncThunk<
   `${sliceName}/adjustTextureHsl`,
   async ({ textureIndex, hsl }, { getState }) => {
     const state = getState();
-    const sourceTextureData =
-      state.modelData.textureDefs[textureIndex].bufferUrls;
+    const textureDef = state.modelData.textureDefs[textureIndex];
+    const { width, height, bufferUrls: sourceTextureData } = textureDef;
     const thread = workerPool.allocate();
 
     const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
@@ -193,7 +195,13 @@ export const adjustTextureHsl = createAsyncThunk<
 
         thread?.postMessage({
           type: 'adjustTextureHsl',
-          payload: { hsl, textureIndex, sourceTextureData }
+          payload: {
+            hsl,
+            textureIndex,
+            sourceTextureData,
+            width,
+            height
+          }
         } as WorkerEvent);
       }
     });
@@ -341,7 +349,7 @@ const modelDataSlice = createSlice({
       adjustTextureHsl.fulfilled,
       (
         state: ModelDataState,
-        { payload: { textureIndex, bufferUrls, hsl } }
+        { payload: { textureIndex, bufferUrls, dataUrls, hsl } }
       ) => {
         const { width, height } = state.textureDefs[textureIndex];
         if (hsl.h != 0 || hsl.s != 0 || hsl.l != 0) {
@@ -349,6 +357,7 @@ const modelDataSlice = createSlice({
             width,
             height,
             bufferUrls,
+            dataUrls,
             hsl
           };
         } else {
