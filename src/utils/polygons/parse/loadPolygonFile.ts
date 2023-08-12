@@ -15,7 +15,6 @@ export default async function loadPolygonFile({
   textureDefs: NLTextureDef[];
   polygonBufferUrl: string;
 }> {
-  console.log('called code to load polygon file here');
   const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
   const textureDefs = scanTextureHeaderData(buffer, modelRamOffset);
   const models = modelPointers.map(

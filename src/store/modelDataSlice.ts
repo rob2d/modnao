@@ -12,20 +12,54 @@ import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import worker, {
-  AdjustTextureHslResult,
-  createWorker,
-  LoadPolygonsResult,
-  workerMessageHandler
-} from './storeActionsWorker';
+import WorkerThreadPool from '../utils/WorkerThreadPool';
 
-type EditedTexture = {
+const workerPool = new WorkerThreadPool();
+
+export type LoadPolygonsResult = {
+  type: 'loadPolygonFile';
+  result: LoadPolygonsPayload;
+};
+
+export type LoadTexturesResult = {
+  type: 'loadTextureFile';
+  result: LoadTexturesPayload;
+};
+
+export type AdjustTextureHslResult = {
+  type: 'adjustTextureHsl';
+  result: AdjustTextureHslPayload;
+};
+
+export type WorkerResponses =
+  | LoadPolygonsResult
+  | LoadTexturesResult
+  | AdjustTextureHslResult;
+
+export type EditedTexture = {
   width: number;
   height: number;
-  bufferUrls: {
-    translucent: string;
-    opaque: string;
-  };
+  bufferUrls: SourceTextureData;
+  hsl: HslValues;
+};
+
+export type LoadTexturesPayload = {
+  textureDefs: NLTextureDef[];
+  fileName: string;
+  textureBufferUrl: string;
+  hasCompressedTextures: boolean;
+};
+
+export type LoadPolygonsPayload = {
+  models: NLModel[];
+  textureDefs: NLTextureDef[];
+  fileName: string;
+  polygonBufferUrl: string;
+};
+
+export type AdjustTextureHslPayload = {
+  textureIndex: number;
+  bufferUrls: SourceTextureData;
   hsl: HslValues;
 };
 
@@ -38,10 +72,7 @@ export interface ModelDataState {
    * textureDefs to simplify state
    */
   prevBufferUrls: {
-    [key: number]: {
-      translucent: string;
-      opaque: string;
-    }[];
+    [key: number]: SourceTextureData[];
   };
   editedTextures: {
     [key: number]: EditedTexture;
@@ -76,19 +107,22 @@ export const loadPolygonFile = createAsyncThunk<
   async (file: File, { getState }): Promise<LoadPolygonsPayload> => {
     const { modelData } = getState();
     const buffer = await file.arrayBuffer();
-    const localWorker = createWorker();
+    const thread = workerPool.allocate();
 
     const result = await new Promise<LoadPolygonsPayload>((resolve) => {
-      if (localWorker) {
-        localWorker.onmessage = (event: MessageEvent<LoadPolygonsResult>) => {
-          workerMessageHandler.bind(localWorker, event);
+      if (thread) {
+        const prevPolygonBufferUrl = modelData.polygonBufferUrl;
+        thread.onmessage = (event: MessageEvent<LoadPolygonsResult>) => {
           resolve(event.data.result);
-          if (modelData.polygonBufferUrl) {
-            URL.revokeObjectURL(modelData.polygonBufferUrl || '');
+
+          if (prevPolygonBufferUrl) {
+            URL.revokeObjectURL(prevPolygonBufferUrl);
           }
+
+          workerPool.unallocate(thread);
         };
 
-        localWorker?.postMessage({
+        thread?.postMessage({
           type: 'loadPolygonFile',
           payload: { buffer }
         } as WorkerEvent);
@@ -99,18 +133,44 @@ export const loadPolygonFile = createAsyncThunk<
   }
 );
 
-export type LoadPolygonsPayload = {
-  models: NLModel[];
-  textureDefs: NLTextureDef[];
-  fileName: string;
-  polygonBufferUrl: string;
-};
+export const loadTextureFile = createAsyncThunk<
+  LoadTexturesPayload,
+  File,
+  { state: AppState }
+>(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
+  const state = getState();
+  const { textureDefs } = state.modelData;
+  const buffer = new Uint8Array(await file.arrayBuffer());
+  const prevTextureBufferUrl = state.modelData.textureBufferUrl;
+  const thread = workerPool.allocate();
 
-export type AdjustTextureHslPayload = {
-  textureIndex: number;
-  bufferUrls: SourceTextureData;
-  hsl: HslValues;
-};
+  const result = await new Promise<LoadTexturesPayload>((resolve) => {
+    if (thread) {
+      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
+        resolve(event.data.result);
+
+        // deallocate existing blob
+        if (prevTextureBufferUrl) {
+          URL.revokeObjectURL(prevTextureBufferUrl);
+        }
+
+        workerPool.unallocate(thread);
+      };
+
+      const fileName = file.name;
+      thread?.postMessage({
+        type: 'loadTextureFile',
+        payload: {
+          fileName,
+          textureDefs,
+          buffer
+        }
+      } as WorkerEvent);
+    }
+  });
+
+  return result;
+});
 
 export const adjustTextureHsl = createAsyncThunk<
   AdjustTextureHslPayload,
@@ -122,18 +182,16 @@ export const adjustTextureHsl = createAsyncThunk<
     const state = getState();
     const sourceTextureData =
       state.modelData.textureDefs[textureIndex].bufferUrls;
-    const localWorker = createWorker();
+    const thread = workerPool.allocate();
 
     const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
-      if (localWorker) {
-        localWorker.onmessage = (
-          event: MessageEvent<AdjustTextureHslResult>
-        ) => {
-          workerMessageHandler.bind(localWorker, event);
+      if (thread) {
+        thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
           resolve(event.data.result);
+          workerPool.unallocate(thread);
         };
 
-        localWorker?.postMessage({
+        thread?.postMessage({
           type: 'adjustTextureHsl',
           payload: { hsl, textureIndex, sourceTextureData }
         } as WorkerEvent);
@@ -143,50 +201,6 @@ export const adjustTextureHsl = createAsyncThunk<
     return result;
   }
 );
-
-export const loadTextureFile = createAsyncThunk<
-  void,
-  File,
-  { state: AppState }
->(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
-  const state = getState();
-  const { textureDefs } = state.modelData;
-  const fileName = file.name;
-  const buffer = new Uint8Array(await file.arrayBuffer());
-
-  // deallocate existing blob
-  if (state.modelData.textureBufferUrl) {
-    URL.revokeObjectURL(state.modelData.textureBufferUrl);
-  }
-
-  worker?.postMessage({
-    type: 'loadTextureFile',
-    payload: {
-      fileName,
-      textureDefs,
-      buffer
-    }
-  } as WorkerEvent);
-});
-
-export type LoadTexturesPayload = {
-  textureDefs: NLTextureDef[];
-  fileName: string;
-  textureBufferUrl: string;
-  hasCompressedTextures: boolean;
-};
-export const loadTexturesFromWorker = createAsyncThunk<
-  LoadTexturesPayload,
-  LoadTexturesPayload,
-  { state: AppState }
->(`${sliceName}/loadTexturesFromWorker`, async (payload, { getState }) => {
-  const { modelData } = getState();
-  if (modelData.textureBufferUrl) {
-    URL.revokeObjectURL(modelData.textureBufferUrl);
-  }
-
-  return payload;
-});
 
 export const replaceTextureImage = createAsyncThunk<
   { textureIndex: number; bufferUrls: SourceTextureData },
@@ -282,18 +296,14 @@ const modelDataSlice = createSlice({
     );
 
     builder.addCase(
-      loadTexturesFromWorker.fulfilled,
-      (
-        state: ModelDataState,
-        {
-          payload: {
-            textureDefs,
-            fileName,
-            hasCompressedTextures,
-            textureBufferUrl
-          }
-        }
-      ) => {
+      loadTextureFile.fulfilled,
+      (state: ModelDataState, { payload }) => {
+        const {
+          textureDefs,
+          fileName,
+          hasCompressedTextures,
+          textureBufferUrl
+        } = payload;
         state.textureDefs = textureDefs;
         state.editedTextures = {};
         state.textureFileName = fileName;
