@@ -133,3 +133,14 @@ export const selectIsMeshOpaque = createSelector(
   selectObjectMeshIndex,
   (model, meshIndex) => model?.meshes[meshIndex]?.isOpaque
 );
+
+export const selectPixelDataUrls = createSelector(
+  selectTextureDefs,
+  async (textureDefs) => {
+    for await (const def of textureDefs) {
+      for await (const [type, url] of Object.entries(def.bufferUrls)) {
+        const pixels = new Uint8ClampedArray(await objectUrlToBuffer(url));
+      }
+    }
+  }
+);
