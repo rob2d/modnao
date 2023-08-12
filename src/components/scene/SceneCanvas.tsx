@@ -114,16 +114,18 @@ export default function SceneCanvas() {
           if (!url) {
             continue;
           }
+
+          const baseTexture = await createTextureFromObjectUrl(
+            url,
+            t.width,
+            t.height
+          );
+
           for await (const hRepeat of [true, false]) {
             for await (const vRepeat of [true, false]) {
               const key = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
               if (!textureMap?.has(key)) {
-                const texture = await createTextureFromObjectUrl(
-                  url,
-                  t.width,
-                  t.height
-                );
-
+                const texture = baseTexture.clone();
                 texture.rotation = TEXTURE_ROTATION;
                 texture.center = TEXTURE_CENTER;
 
