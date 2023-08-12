@@ -18,8 +18,7 @@ export default function RenderedPolygon({
   objectKey,
   selectedObjectKey,
   onSelectObjectKey,
-  texture,
-  flags
+  texture
 }: NLPolygon & {
   objectKey: string;
   selectedObjectKey?: string;
@@ -54,38 +53,52 @@ export default function RenderedPolygon({
     }
   });
 
-  const [vertexPositions, normals, uvs, indicesRendered, displayPosition] =
-    useMemo(() => {
-      let vArrayIndex = 0;
-      let nArrayIndex = 0;
-      let uvArrayIndex = 0;
+  const [vertexPositions, normals, uvs, indicesRendered] = useMemo(() => {
+    let vArrayIndex = 0;
+    let nArrayIndex = 0;
+    let uvArrayIndex = 0;
 
-      const vPositions = new Float32Array(vertices.length * 3);
-      const nArray = new Float32Array(vertices.length * 3);
-      const uvArray = new Float32Array(vertices.length * 2);
-      const iArray = new Uint16Array(indices);
+    const vPositions = new Float32Array(vertices.length * 3);
+    const nArray = new Float32Array(vertices.length * 3);
+    const uvArray = new Float32Array(vertices.length * 2);
+    const iArray = new Uint16Array(indices);
 
-      // display position is an aggregated weight
-      // @TODO: precalculate
-      let dArray: Point3D = [0, 0, 0];
-
-      vertices.forEach((v) => {
-        v.position.forEach((p, i) => {
-          vPositions[vArrayIndex++] = p;
-          dArray[i] += p;
-        });
-
-        nArray[nArrayIndex++] = v.normals[0];
-        nArray[nArrayIndex++] = v.normals[1];
-        nArray[nArrayIndex++] = v.normals[2];
-
-        uvArray[uvArrayIndex++] = v.uv[0];
-        uvArray[uvArrayIndex++] = v.uv[1];
+    vertices.forEach((v) => {
+      v.position.forEach((p) => {
+        vPositions[vArrayIndex++] = p;
       });
 
-      dArray = dArray.map((c) => Math.round(c / vertices.length)) as Point3D;
-      return [vPositions, nArray, uvArray, iArray, dArray];
-    }, [vertices, vertexGroupMode]);
+      nArray[nArrayIndex++] = v.normals[0];
+      nArray[nArrayIndex++] = v.normals[1];
+      nArray[nArrayIndex++] = v.normals[2];
+
+      uvArray[uvArrayIndex++] = v.uv[0];
+      uvArray[uvArrayIndex++] = v.uv[1];
+    });
+    return [vPositions, nArray, uvArray, iArray];
+  }, [vertices, vertexGroupMode]);
+
+  const displayPosition: Point3D = useMemo(() => {
+    if (
+      !isSelected ||
+      meshDisplayMode === 'textured' ||
+      !objectAddressesVisible
+    ) {
+      return [0, 0, 0];
+    }
+    // display position is an aggregated weight
+    let dArray: Point3D = [0, 0, 0];
+
+    vertices.forEach((v) => {
+      v.position.forEach((p, i) => (dArray[i] += p));
+    });
+
+    dArray = dArray.map((c) => Math.round(c / vertices.length)) as Point3D;
+
+    return dArray;
+  }, [
+    !isSelected || meshDisplayMode === 'textured' || !objectAddressesVisible
+  ]);
 
   const meshAddressText = useMemo(() => {
     return !isSelected ||
