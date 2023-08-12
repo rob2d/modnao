@@ -96,4 +96,8 @@ export type NLTextureDef = {
     translucent?: string;
     opaque?: string;
   };
+  dataUrls: {
+    translucent?: string;
+    opaque?: string;
+  };
 } & ModNaoMemoryObject;

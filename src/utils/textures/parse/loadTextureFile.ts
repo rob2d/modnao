@@ -2,6 +2,7 @@ import {
   decompressTextureBuffer,
   encodeZMortonPosition
 } from '@/utils/textures/parse';
+import { Image } from 'image-js';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import {
   argb1555ToRgba8888,
@@ -40,7 +41,7 @@ async function loadTextureBuffer(
     const urlTypes = Object.keys(t.bufferUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
 
-    for (const objectUrlType of urlTypes) {
+    for await (const type of urlTypes) {
       const pixels = new Uint8ClampedArray(t.width * t.height * 4);
 
       for (let y = 0; y < t.height; y++) {
@@ -64,8 +65,7 @@ async function loadTextureBuffer(
           pixels[canvasOffset] = color.r;
           pixels[canvasOffset + 1] = color.g;
           pixels[canvasOffset + 2] = color.b;
-          pixels[canvasOffset + 3] =
-            objectUrlType === 'translucent' ? color.a : 255;
+          pixels[canvasOffset + 3] = type === 'translucent' ? color.a : 255;
         }
       }
 
@@ -81,7 +81,18 @@ async function loadTextureBuffer(
 
       updatedTexture.bufferUrls = {
         ...updatedTexture.bufferUrls,
-        [objectUrlType]: objectUrl
+        [type]: objectUrl
+      };
+
+      const dataUrl = new Image({
+        data: pixels,
+        width: t.width,
+        height: t.height
+      }).toDataURL();
+
+      updatedTexture.dataUrls = {
+        ...updatedTexture.dataUrls,
+        [type]: dataUrl
       };
     }
 
