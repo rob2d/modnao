@@ -7,7 +7,7 @@ import {
   styled,
   Tooltip
 } from '@mui/material';
-import { useDebounce } from 'use-debounce';
+import { useThrottle } from '@uidotdev/usehooks';
 import HslValues from '@/utils/textures/HslValues';
 import {
   adjustTextureHsl,
@@ -64,11 +64,11 @@ export default function GuiPanelTextureColorOptions({
   const onSetS = getHslSetter('s');
   const onSetL = getHslSetter('l');
 
-  const [debouncedHsl] = useDebounce(hsl, 25);
+  const processedHsl = useThrottle(hsl, 100);
 
   useEffect(() => {
-    dispatch(adjustTextureHsl({ hsl: debouncedHsl, textureIndex }));
-  }, [debouncedHsl]);
+    dispatch(adjustTextureHsl({ hsl: processedHsl, textureIndex }));
+  }, [processedHsl]);
 
   const onResetValues = useCallback(() => setHsl(DEFAULT_HSL), [setHsl]);
 
