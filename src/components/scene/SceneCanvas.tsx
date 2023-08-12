@@ -115,25 +115,32 @@ export default function SceneCanvas() {
             continue;
           }
 
-          const baseTexture = await createTextureFromObjectUrl(
-            url,
-            t.width,
-            t.height
-          );
+          let baseTexture: DataTexture | undefined = undefined;
 
           for await (const hRepeat of [true, false]) {
             for await (const vRepeat of [true, false]) {
               const key = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
               if (!textureMap?.has(key)) {
-                const texture = baseTexture.clone();
-                texture.rotation = TEXTURE_ROTATION;
-                texture.center = TEXTURE_CENTER;
+                if (baseTexture === undefined) {
+                  baseTexture = await createTextureFromObjectUrl(
+                    url,
+                    t.width,
+                    t.height
+                  );
 
-                // addresses an issue in ThreeJS with
-                // sRGB randomly not applying to textures depending
-                // on how it is created
-                texture.encoding = sRGBEncoding;
-                texture.repeat.y = -1;
+                  baseTexture.rotation = TEXTURE_ROTATION;
+                  baseTexture.center = TEXTURE_CENTER;
+                  baseTexture.repeat.y = -1;
+
+                  // addresses an issue in ThreeJS with
+                  // sRGB randomly not applying to textures depending
+                  // on how it is created
+                  baseTexture.encoding = sRGBEncoding;
+                }
+
+                const texture =
+                  !hRepeat && !vRepeat ? baseTexture : baseTexture.clone();
+
                 texture.wrapS = hRepeat ? RepeatWrapping : ClampToEdgeWrapping;
                 texture.wrapT = vRepeat ? RepeatWrapping : ClampToEdgeWrapping;
 
