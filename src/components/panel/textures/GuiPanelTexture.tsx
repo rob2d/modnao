@@ -160,6 +160,10 @@ export default function GuiPanelTexture({
         await objectUrlToBuffer(pixelDataUrl)
       );
 
+      if (pixels.length === 0) {
+        return;
+      }
+
       const dataUrl = new Image({ data: pixels, width, height }).toDataURL();
       setImgSrc(dataUrl);
     })();

@@ -4,4 +4,4 @@ export { default as modelViewerSlice } from './modelViewerSlice';
 export * from './modelViewerSlice';
 export { default as modelDataSlice } from './modelDataSlice';
 export * from './modelDataSlice';
-export * from './actionWorkerThreads';
+export * from '../utils/WorkerThreadPool';

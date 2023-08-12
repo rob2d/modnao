@@ -12,12 +12,29 @@ import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import { selectSceneTextureDefs } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import {
-  AdjustTextureHslResult,
-  createWorkerThread,
-  LoadPolygonsResult,
-  LoadTexturesResult
-} from './actionWorkerThreads';
+import WorkerThreadPool from '../utils/WorkerThreadPool';
+
+const workerPool = new WorkerThreadPool();
+
+export type LoadPolygonsResult = {
+  type: 'loadPolygonFile';
+  result: LoadPolygonsPayload;
+};
+
+export type LoadTexturesResult = {
+  type: 'loadTextureFile';
+  result: LoadTexturesPayload;
+};
+
+export type AdjustTextureHslResult = {
+  type: 'adjustTextureHsl';
+  result: AdjustTextureHslPayload;
+};
+
+export type WorkerResponses =
+  | LoadPolygonsResult
+  | LoadTexturesResult
+  | AdjustTextureHslResult;
 
 export type EditedTexture = {
   width: number;
@@ -90,16 +107,19 @@ export const loadPolygonFile = createAsyncThunk<
   async (file: File, { getState }): Promise<LoadPolygonsPayload> => {
     const { modelData } = getState();
     const buffer = await file.arrayBuffer();
-    const thread = createWorkerThread();
+    const thread = workerPool.allocate();
 
     const result = await new Promise<LoadPolygonsPayload>((resolve) => {
       if (thread) {
+        const prevPolygonBufferUrl = modelData.polygonBufferUrl;
         thread.onmessage = (event: MessageEvent<LoadPolygonsResult>) => {
           resolve(event.data.result);
-          if (modelData.polygonBufferUrl) {
-            URL.revokeObjectURL(modelData.polygonBufferUrl || '');
+
+          if (prevPolygonBufferUrl) {
+            URL.revokeObjectURL(prevPolygonBufferUrl);
           }
-          thread.terminate();
+
+          workerPool.unallocate(thread);
         };
 
         thread?.postMessage({
@@ -120,23 +140,24 @@ export const loadTextureFile = createAsyncThunk<
 >(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
   const state = getState();
   const { textureDefs } = state.modelData;
-  const fileName = file.name;
   const buffer = new Uint8Array(await file.arrayBuffer());
-
-  // deallocate existing blob
-  if (state.modelData.textureBufferUrl) {
-    URL.revokeObjectURL(state.modelData.textureBufferUrl);
-  }
-
-  const thread = createWorkerThread();
+  const prevTextureBufferUrl = state.modelData.textureBufferUrl;
+  const thread = workerPool.allocate();
 
   const result = await new Promise<LoadTexturesPayload>((resolve) => {
     if (thread) {
       thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
         resolve(event.data.result);
-        thread.terminate();
+
+        // deallocate existing blob
+        if (prevTextureBufferUrl) {
+          URL.revokeObjectURL(prevTextureBufferUrl);
+        }
+
+        workerPool.unallocate(thread);
       };
 
+      const fileName = file.name;
       thread?.postMessage({
         type: 'loadTextureFile',
         payload: {
@@ -161,13 +182,13 @@ export const adjustTextureHsl = createAsyncThunk<
     const state = getState();
     const sourceTextureData =
       state.modelData.textureDefs[textureIndex].bufferUrls;
-    const thread = createWorkerThread();
+    const thread = workerPool.allocate();
 
     const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
       if (thread) {
         thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
           resolve(event.data.result);
-          thread.terminate();
+          workerPool.unallocate(thread);
         };
 
         thread?.postMessage({
@@ -276,17 +297,13 @@ const modelDataSlice = createSlice({
 
     builder.addCase(
       loadTextureFile.fulfilled,
-      (
-        state: ModelDataState,
-        {
-          payload: {
-            textureDefs,
-            fileName,
-            hasCompressedTextures,
-            textureBufferUrl
-          }
-        }
-      ) => {
+      (state: ModelDataState, { payload }) => {
+        const {
+          textureDefs,
+          fileName,
+          hasCompressedTextures,
+          textureBufferUrl
+        } = payload;
         state.textureDefs = textureDefs;
         state.editedTextures = {};
         state.textureFileName = fileName;

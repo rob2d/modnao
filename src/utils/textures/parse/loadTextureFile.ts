@@ -9,7 +9,6 @@ import {
   rgb565ToRgba8888
 } from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
-import { SourceTextureData } from '../SourceTextureData';
 import { bufferToObjectUrl } from '@/utils/data';
 
 const COLOR_SIZE = 2;
@@ -27,20 +26,16 @@ const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
 async function loadTextureBuffer(
   bufferPassed: Buffer,
   textureDefs: NLTextureDef[]
-): Promise<{
-  textureDefs: NLTextureDef[];
-  sourceTextureData: SourceTextureData[];
-}> {
+): Promise<{ textureDefs: NLTextureDef[] }> {
   const buffer = Buffer.from(bufferPassed);
   const nextTextureDefs: NLTextureDef[] = [];
-  const sourceTextureData: SourceTextureData[] = [];
 
   let i = 0;
-  for (const t of textureDefs) {
+  for await (const t of textureDefs) {
     const urlTypes = Object.keys(t.bufferUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
 
-    for (const objectUrlType of urlTypes) {
+    for await (const objectUrlType of urlTypes) {
       const pixels = new Uint8ClampedArray(t.width * t.height * 4);
 
       for (let y = 0; y < t.height; y++) {
@@ -69,14 +64,6 @@ async function loadTextureBuffer(
         }
       }
 
-      /* @TODO: add this to part of return
-       * for assignment on main UI thread
-       */
-      sourceTextureData[i] = sourceTextureData[i] || {
-        translucent: undefined,
-        opaque: undefined
-      };
-
       const objectUrl = await bufferToObjectUrl(pixels);
 
       updatedTexture.bufferUrls = {
@@ -90,8 +77,7 @@ async function loadTextureBuffer(
   }
 
   return {
-    textureDefs: nextTextureDefs,
-    sourceTextureData
+    textureDefs: nextTextureDefs
   };
 }
 
@@ -108,7 +94,6 @@ export default async function loadTextureFile({
     textureDefs: NLTextureDef[];
     fileName: string;
     hasCompressedTextures: boolean;
-    sourceTextureData: SourceTextureData[];
     textureBufferUrl: string;
   };
 
