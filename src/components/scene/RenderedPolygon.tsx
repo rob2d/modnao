@@ -13,6 +13,7 @@ type Point3D = [x: number, y: number, z: number];
 export default function RenderedPolygon({
   vertexGroupMode,
   vertices,
+  indices,
   address,
   objectKey,
   selectedObjectKey,
@@ -25,11 +26,6 @@ export default function RenderedPolygon({
   onSelectObjectKey: (key: string) => void;
   texture: Texture | null;
 }) {
-  // @TODO: consider breaking down mesh material and components
-  // to absorb context in subtrees if performance becomes an issue with
-  // settings change scenario for user interactions
-  // (seems not to be the case with workflows so far)
-
   const {
     meshDisplayMode,
     objectAddressesVisible,
@@ -58,7 +54,7 @@ export default function RenderedPolygon({
     }
   });
 
-  const [vertexPositions, normals, uvs, indices, displayPosition] =
+  const [vertexPositions, normals, uvs, indicesRendered, displayPosition] =
     useMemo(() => {
       let vArrayIndex = 0;
       let nArrayIndex = 0;
@@ -66,19 +62,17 @@ export default function RenderedPolygon({
 
       const vPositions = new Float32Array(vertices.length * 3);
       const nArray = new Float32Array(vertices.length * 3);
-      const iArray: number[] = [];
       const uvArray = new Float32Array(vertices.length * 2);
+      const iArray = new Uint16Array(indices);
 
       // display position is an aggregated weight
       // @TODO: precalculate
       let dArray: Point3D = [0, 0, 0];
 
-      let stripCount = 0;
-
-      vertices.forEach((v, i) => {
-        v.position.forEach((v, i) => {
-          vPositions[vArrayIndex++] = v;
-          dArray[i] += v;
+      vertices.forEach((v) => {
+        v.position.forEach((p, i) => {
+          vPositions[vArrayIndex++] = p;
+          dArray[i] += p;
         });
 
         nArray[nArrayIndex++] = v.normals[0];
@@ -87,44 +81,10 @@ export default function RenderedPolygon({
 
         uvArray[uvArrayIndex++] = v.uv[0];
         uvArray[uvArrayIndex++] = v.uv[1];
-
-        if (vertexGroupMode === 'regular') {
-          if (i > vertices.length - 3) {
-            return;
-          }
-
-          if (stripCount % 2 === 0) {
-            if (flags.cullingType === 'front') {
-              iArray.push(i + 1, i, i + 2);
-            } else {
-              iArray.push(i, i + 1, i + 2);
-            }
-          } else {
-            if (flags.cullingType === 'front') {
-              iArray.push(i, i + 1, i + 2);
-            } else {
-              iArray.push(i + 1, i, i + 2);
-            }
-          }
-        }
-
-        stripCount += 1;
       });
 
-      if (vertexGroupMode === 'triple') {
-        for (let i = 2; i < vertices.length; i += 3) {
-          if (flags.cullingType === 'front') {
-            iArray.push(i - 1, i - 2, i);
-          } else {
-            iArray.push(i - 2, i - 1, i);
-          }
-        }
-        stripCount += 1;
-      }
-
       dArray = dArray.map((c) => Math.round(c / vertices.length)) as Point3D;
-
-      return [vPositions, nArray, uvArray, new Uint16Array(iArray), dArray];
+      return [vPositions, nArray, uvArray, iArray, dArray];
     }, [vertices, vertexGroupMode]);
 
   const meshAddressText = useMemo(() => {
@@ -174,14 +134,14 @@ export default function RenderedPolygon({
               vertexPositions={vertexPositions}
               normals={normals}
               uvs={uvs}
-              indices={indices}
+              indices={indicesRendered}
               materialProps={texturedMaterialProps}
             />
           ) : (
             <RenderedWireframePolygon
               color={color}
               vertices={vertices}
-              indices={indices}
+              indices={indicesRendered}
               lineWidth={wireframeLineWidth}
             />
           )}

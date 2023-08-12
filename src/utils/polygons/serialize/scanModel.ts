@@ -116,8 +116,52 @@ export default function scanModel({
             detectedMeshEnd = true;
           }
         }
+
+        // populate polygon indices
+        // note: there are some quirks that aren't fully sorted
+        // here with winding order. Good case scenario to debug
+        // is bird model on STG01 in MVC2
+        let stripCount = 0;
+        const indices: number[] = [];
+        polygon.vertices.forEach((v, i) => {
+          if (polygon.vertexGroupMode === 'regular') {
+            if (i > polygon.vertices.length - 3) {
+              return;
+            }
+
+            if (stripCount % 2 === 0) {
+              if (polygon.flags.cullingType === 'front') {
+                indices.push(i + 1, i, i + 2);
+              } else {
+                indices.push(i, i + 1, i + 2);
+              }
+            } else {
+              if (polygon.flags.cullingType === 'front') {
+                indices.push(i, i + 1, i + 2);
+              } else {
+                indices.push(i + 1, i, i + 2);
+              }
+            }
+          }
+
+          stripCount += 1;
+        });
+
+        if (polygon.vertexGroupMode === 'triple') {
+          for (let i = 2; i < polygon.vertices.length; i += 3) {
+            if (polygon.flags.cullingType === 'front') {
+              indices.push(i - 1, i - 2, i);
+            } else {
+              indices.push(i - 2, i - 1, i);
+            }
+          }
+          stripCount += 1;
+        }
+
+        polygon.indices = indices;
         mesh.polygons.push(polygon);
       }
+
       model.meshes.push(mesh);
     }
   } catch (error) {
