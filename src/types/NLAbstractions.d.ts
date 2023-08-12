@@ -69,6 +69,7 @@ declare global {
     flags: PolyTypeFlags;
     vertices: NLVertex[];
     vertexCount: number;
+    indices: number[];
     actualVertexCount: number;
     vertexGroupModeValue: number;
     vertexGroupMode: 'regular' | 'triple';
