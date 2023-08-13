@@ -1,14 +1,16 @@
-import clsx from 'clsx';
-import { useSelector } from 'react-redux';
-import Img from 'next/image';
+import { useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
+import clsx from 'clsx';
+import Img from 'next/image';
+import { Image } from 'image-js';
 import { Skeleton, styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
-import { selectIsMeshOpaque, useAppDispatch } from '@/store';
-import { useCallback } from 'react';
+import { selectMesh, useAppDispatch, useAppSelector } from '@/store';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import { selectReplacementTexture } from '@/store/replaceTextureSlice';
+
+const IMG_SIZE = '170px';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -40,18 +42,10 @@ const StyledPanelTexture = styled('div')(
     opacity: 0.75;
     pointer-events: none;
   }
-
-  & .image-overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-  }
     
   & .img {
-    width: 100%;
-    height: auto;
+    width: ${IMG_SIZE};
+    height: ${IMG_SIZE};
     border-color: transparent;
     border-width: 3px;
     border-style: solid;
@@ -60,7 +54,26 @@ const StyledPanelTexture = styled('div')(
   }
 
   & .selected .img {
+    filter: saturate(0); darken(50);
     border-color: ${theme.palette.primary.main};
+  }
+
+  .uv-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: ${IMG_SIZE};
+    height: ${IMG_SIZE};
+  }
+
+  .uv-overlay img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    transform: rotate(-90deg);
   }
 
   & .size-notation {
@@ -86,7 +99,29 @@ export default function GuiPanelTexture({
   textureDef
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
-  const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
+  const mesh = useAppSelector(selectMesh);
+
+  const uvClipPaths = useMemo<string[]>(() => {
+    if (selected && mesh?.polygons.length) {
+      return mesh.polygons.map((p) => {
+        let path = '';
+
+        p.indices.forEach((index, i, arr) => {
+          const v = p.vertices[index];
+          path +=
+            (v.uv[0] * 100).toFixed(2) +
+            '% ' +
+            (100 - v.uv[1] * 100).toFixed(2) +
+            '%' +
+            (i === arr.length - 1 ? '' : ', ');
+        });
+
+        return path;
+      });
+    } else {
+      return [];
+    }
+  }, [selected && mesh?.polygons]);
 
   const onSelectNewImageFile = useCallback(
     async (imageFile: File) => {
@@ -124,7 +159,7 @@ export default function GuiPanelTexture({
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
   const imageDataUrl =
-    (selected && isSelectedMeshOpaque
+    (selected && mesh?.isOpaque
       ? textureDef.dataUrls.opaque || textureDef.dataUrls.translucent
       : textureDef.dataUrls.translucent || textureDef.dataUrls.opaque) || '';
 
@@ -150,10 +185,29 @@ export default function GuiPanelTexture({
             className='img'
           />
         )}
+        {!uvClipPaths.length ? undefined : (
+          <>
+            {uvClipPaths.map((path: string, i) => (
+              <div
+                className='uv-overlay'
+                key={i}
+                style={{ clipPath: `polygon(${path})` }}
+              >
+                <Image
+                  src={imageDataUrl}
+                  width={width}
+                  height={height}
+                  className='uv-highlight'
+                  alt='UV Highlight'
+                />
+              </div>
+            ))}
+          </>
+        )}
         <Typography
           variant='subtitle2'
           textAlign='right'
-          className={'size-notation'}
+          className='size-notation'
         >
           {textureDef.width}x{textureDef.height} [{textureIndex}]
         </Typography>
