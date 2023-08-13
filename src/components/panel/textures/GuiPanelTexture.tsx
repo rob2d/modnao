@@ -9,6 +9,7 @@ import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import { selectMesh, useAppDispatch, useAppSelector } from '@/store';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import { selectReplacementTexture } from '@/store/replaceTextureSlice';
+import uvToCssPathPoint from '@/utils/textures/uvToCssPathPoint';
 
 const IMG_SIZE = '170px';
 
@@ -54,8 +55,9 @@ const StyledPanelTexture = styled('div')(
   }
 
   & .selected .img {
-    filter: saturate(0); darken(50);
+    filter: saturate(0);
     border-color: ${theme.palette.primary.main};
+    opacity: 0.25;
   }
 
   .uv-overlay {
@@ -107,13 +109,8 @@ export default function GuiPanelTexture({
         let path = '';
 
         p.indices.forEach((index, i, arr) => {
-          const v = p.vertices[index];
-          path +=
-            (v.uv[0] * 100).toFixed(2) +
-            '% ' +
-            (100 - v.uv[1] * 100).toFixed(2) +
-            '%' +
-            (i === arr.length - 1 ? '' : ', ');
+          const { uv } = p.vertices[index];
+          path += uvToCssPathPoint(uv) + (i === arr.length - 1 ? '' : ', ');
         });
 
         return path;
@@ -193,7 +190,7 @@ export default function GuiPanelTexture({
                 key={i}
                 style={{ clipPath: `polygon(${path})` }}
               >
-                <Image
+                <Img
                   src={imageDataUrl}
                   width={width}
                   height={height}
