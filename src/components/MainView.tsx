@@ -1,14 +1,13 @@
+import { useContext } from 'react';
+import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
 import SceneCanvas from './scene/SceneCanvas';
 import { Button, styled, Tooltip } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
-import clsx from 'clsx';
-import { useContext } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import AppDialog from './AppDialog';
-import AppInfo from './app-info/AppInfo';
-import { useDialogState } from '@/hooks';
+import { useDialog } from '@/hooks';
+import AppInfoDialog from './dialogs/AppInfoDialog';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -57,8 +56,8 @@ const Styled = styled('main')(
 );
 
 export default function MainView() {
-  const [infoShown, onShowInfoDialog, onCloseInfoDialog] = useDialogState(true);
   const { guiPanelVisible } = useContext(ViewOptionsContext);
+  const infoDialog = useDialog(true);
 
   return (
     <Styled>
@@ -70,7 +69,7 @@ export default function MainView() {
           placement='left'
         >
           <Button
-            onClick={onShowInfoDialog}
+            onClick={infoDialog.onShow}
             className={clsx(
               'scene-button',
               'info-button',
@@ -83,9 +82,7 @@ export default function MainView() {
         </Tooltip>
       </div>
       <GuiPanel />
-      <AppDialog open={infoShown} onClose={onCloseInfoDialog} fullWidth>
-        <AppInfo onCloseDialog={onCloseInfoDialog} />
-      </AppDialog>
+      <AppInfoDialog {...infoDialog} />
     </Styled>
   );
 }

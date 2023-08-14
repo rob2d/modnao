@@ -8,7 +8,7 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import DialogSectionHeader from '../../DialogSectionHeader';
+import DialogSectionHeader from '../../../DialogSectionHeader';
 import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
 

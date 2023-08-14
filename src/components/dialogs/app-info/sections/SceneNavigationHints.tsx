@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
-import DialogSectionHeader from '../../DialogSectionHeader';
 import { mdiInformationOutline } from '@mdi/js';
 import Icon from '@mdi/react';
+import DialogSectionHeader from '../../../DialogSectionHeader';
 
 export default function KeyboardShortcuts() {
   return (

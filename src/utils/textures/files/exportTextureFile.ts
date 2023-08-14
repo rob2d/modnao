@@ -29,7 +29,6 @@ export default async function exportTextureFile(
     return;
   }
 
-  let i = 0;
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
 
@@ -60,8 +59,6 @@ export default async function exportTextureFile(
         }
       }
     }
-
-    i++;
   }
 
   const outputBuffer = !hasCompressedTextures

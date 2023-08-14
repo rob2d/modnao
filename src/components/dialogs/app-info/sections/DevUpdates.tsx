@@ -6,12 +6,11 @@ import {
   Card,
   CardContent,
   CardMedia,
-  CircularProgress,
   Skeleton,
   styled,
   Typography
 } from '@mui/material';
-import DialogSectionHeader from '../../DialogSectionHeader';
+import DialogSectionHeader from '../../../DialogSectionHeader';
 dayjs.extend(advancedFormat);
 
 type Vlog = {

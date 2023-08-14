@@ -1,5 +1,3 @@
-import HslValues from '../textures/HslValues';
-
 const hueToRgb = (p: number, q: number, t: number) => {
   if (t < 0) {
     t += 1;
