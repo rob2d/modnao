@@ -191,10 +191,6 @@ export default function SceneCanvas() {
   const renderedMeshes = useMemo(
     () =>
       meshes.map((m, i) => {
-        const tDef = textureDefs[m.textureIndex];
-        if (!tDef) {
-          return undefined;
-        }
         const texture = textureMap?.get(m.textureHash) || null;
 
         return m.polygons.map((p, pIndex) => (
@@ -210,14 +206,7 @@ export default function SceneCanvas() {
           />
         ));
       }),
-    [
-      model,
-      textureDefs,
-      textureMap,
-      objectKey,
-      objectSelectionType,
-      onSelectObjectKey
-    ]
+    [model, textureMap, objectKey, objectSelectionType, onSelectObjectKey]
   );
 
   return (
