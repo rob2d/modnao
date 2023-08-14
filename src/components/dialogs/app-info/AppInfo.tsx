@@ -7,6 +7,9 @@ import SceneNavigationHints from './sections/SceneNavigationHints';
 import DevUpdates from './sections/DevUpdates';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
+import { useCallback } from 'react';
+import { useAppDispatch } from '@/store';
+import { closeDialog } from '@/store/dialogsSlice';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -61,8 +64,13 @@ const Styled = styled('div')(
     }`
 );
 
-type Props = { onCloseDialog: ((reason: string) => void) | undefined };
-export default function AppInfo({ onCloseDialog }: Props) {
+export default function AppInfo() {
+  const dispatch = useAppDispatch();
+
+  const onClose = useCallback(() => {
+    dispatch(closeDialog());
+  }, []);
+
   return (
     <Styled>
       <div>
@@ -82,7 +90,7 @@ export default function AppInfo({ onCloseDialog }: Props) {
         <Button
           variant='outlined'
           className='ok-button'
-          onClick={onCloseDialog as () => void}
+          onClick={onClose as () => void}
         >
           OK <Icon path={mdiChevronDoubleRight} size={1} />
         </Button>
