@@ -1,5 +1,5 @@
 import { styled } from '@mui/material';
-import DialogSectionHeader from '../../DialogSectionHeader';
+import DialogSectionHeader from '../../../DialogSectionHeader';
 import AppInfoProject from '../AppInfoProject';
 
 const Styled = styled('div')(

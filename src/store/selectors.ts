@@ -1,7 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import { objectUrlToBuffer } from '@/utils/data';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 

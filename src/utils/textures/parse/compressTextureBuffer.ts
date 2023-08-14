@@ -10,10 +10,8 @@ const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 export default function compressTextureBuffer(buffer: Buffer) {
   const output: number[] = [];
   let chunk = 0;
-
-  const valueInstanceMap = new Map<number, number>();
-
   let i = 0;
+
   while (i < buffer.length / WORD_SIZE) {
     const value = buffer.readUInt16LE(i * WORD_SIZE);
 
