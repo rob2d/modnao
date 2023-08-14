@@ -1,14 +1,13 @@
+import { useContext } from 'react';
 import GuiPanel from './panel/GuiPanel';
 import SceneCanvas from './scene/SceneCanvas';
 import { Button, styled, Tooltip } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import clsx from 'clsx';
-import { useContext } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import AppDialog from './AppDialog';
-import AppInfo from './app-info/AppInfo';
 import { useDialogState } from '@/hooks';
+import { AppDialog, AppInfo } from './dialogs';
 
 const Styled = styled('main')(
   ({ theme }) => `
