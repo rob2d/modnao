@@ -11,9 +11,11 @@ import {
   selectIsMeshOpaque,
   useAppDispatch
 } from '@/store';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { bufferToObjectUrl, objectUrlToBuffer } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABufferFromFile';
+import { useKeyPress } from '@react-typed-hooks/use-key-press';
+import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -201,11 +203,7 @@ export default function GuiPanelTexture({
           textureIndex={textureIndex}
           width={textureDef.width}
           height={textureDef.height}
-          pixelsObjectUrl={
-            textureDef.bufferUrls.opaque ||
-            textureDef.bufferUrls.translucent ||
-            ''
-          }
+          pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
           onReplaceImageFile={onSelectNewImageFile}
         />
       </div>

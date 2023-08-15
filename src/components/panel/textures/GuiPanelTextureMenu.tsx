@@ -15,6 +15,8 @@ import { objectUrlToBuffer } from '@/utils/data';
 import { useFilePicker } from 'use-file-picker';
 import GuiPanelTextureHSLOptions from './GuiPanelTextureColorOptions';
 import { revertTextureImage, useAppDispatch, useAppSelector } from '@/store';
+import { useKeyPress } from '@react-typed-hooks/use-key-press';
+import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 
 const { Jimp } = globalThis as any;
 
@@ -74,19 +76,37 @@ export default function GuiPanelTextureMenu({
   textureIndex,
   width,
   height,
-  pixelsObjectUrl,
+  pixelsObjectUrls,
   onReplaceImageFile
 }: {
   textureIndex: number;
   width: number;
   height: number;
-  pixelsObjectUrl: string;
+  pixelsObjectUrls: SourceTextureData;
   onReplaceImageFile: (file: File) => void;
 }) {
   const dispatch = useAppDispatch();
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
+  // when menu is open, toggle translucent download
+  // when hotkey is pressed
+  const translucentHotkeyPressed = useKeyPress({ targetKey: 't' });
+  const [dlAsTranslucent, setDlAsTranslucent] = useState(() => false);
+
+  useEffect(() => {
+    if (open && translucentHotkeyPressed) {
+      setDlAsTranslucent(!dlAsTranslucent);
+    }
+  }, [open && translucentHotkeyPressed]);
+
+  useEffect(() => {
+    if (!open && dlAsTranslucent) {
+      setDlAsTranslucent(false);
+    }
+  }, [dlAsTranslucent && !open]);
+
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -107,15 +127,21 @@ export default function GuiPanelTextureMenu({
         label: (
           <>
             <Icon path={mdiFileDownload} size={1} />
-            Download
+            Download{dlAsTranslucent ? ' (T)' : ''}
           </>
         ),
-        tooltip: 'Download this texture as a PNG',
+        tooltip: `Download texture as a PNG${
+          dlAsTranslucent ? ' with translucency' : ''
+        }.`,
         onClick: async () => {
+          const bufferUrl =
+            (!dlAsTranslucent
+              ? pixelsObjectUrls.opaque || pixelsObjectUrls.translucent
+              : pixelsObjectUrls.translucent) || '';
           const a = document.createElement('a');
 
           const pixels = new Uint8ClampedArray(
-            await objectUrlToBuffer(pixelsObjectUrl)
+            await objectUrlToBuffer(bufferUrl)
           );
           new Jimp.read(
             { data: pixels, width, height },
@@ -165,7 +191,8 @@ export default function GuiPanelTextureMenu({
           ])
     ],
     [
-      pixelsObjectUrl,
+      pixelsObjectUrls,
+      dlAsTranslucent,
       textureIndex,
       prevBufferUrls,
       openFileSelector,
