@@ -127,12 +127,12 @@ export default function GuiPanelTextureMenu({
         label: (
           <>
             <Icon path={mdiFileDownload} size={1} />
-            Download{dlAsTranslucent ? ' (T)' : ''}
+            Download{dlAsTranslucent ? ' (T)' : ' (O)'}
           </>
         ),
-        tooltip: `Download texture as a PNG${
-          dlAsTranslucent ? ' with translucency' : ''
-        }.`,
+        tooltip: `Download texture as a PNG [${
+          dlAsTranslucent ? 'translucent' : 'opaque'
+        }]. Press 'T' key to toggle translucency.`,
         onClick: async () => {
           const bufferUrl =
             (!dlAsTranslucent
@@ -164,7 +164,8 @@ export default function GuiPanelTextureMenu({
           </>
         ),
         tooltip:
-          'Replace this texture with another image file that is the same size',
+          'Replace this texture with another image file that has the same width and height. ' +
+          'Special zero-alpha pixels will be auto re-applied.',
         onClick() {
           openFileSelector();
           handleClose();
