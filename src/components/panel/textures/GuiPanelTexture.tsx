@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
-import Image from 'next/image';
+import Img from 'next/image';
+import { Image } from 'image-js';
 import { useDropzone } from 'react-dropzone';
 import { Skeleton, styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
@@ -117,7 +118,24 @@ export default function GuiPanelTexture({
 
       const bufferUrls = { translucent, opaque };
 
-      dispatch(replaceTextureImage({ bufferUrls, textureIndex }));
+      dispatch(
+        replaceTextureImage({
+          textureIndex,
+          bufferUrls,
+          dataUrls: {
+            translucent: new Image({
+              data: translucentBuffer,
+              width,
+              height
+            }).toDataURL(),
+            opaque: new Image({
+              data: opaqueBuffer,
+              width,
+              height
+            }).toDataURL()
+          }
+        })
+      );
     },
     [textureIndex, textureDef.bufferUrls.translucent]
   );
@@ -164,7 +182,7 @@ export default function GuiPanelTexture({
         {!imageDataUrl ? (
           <Skeleton variant='rectangular' height={170} width='100%' />
         ) : (
-          <Image
+          <Img
             src={imageDataUrl}
             width={width}
             height={height}

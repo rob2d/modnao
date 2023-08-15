@@ -4,6 +4,7 @@ import {
   createSlice,
   PayloadAction
 } from '@reduxjs/toolkit';
+import { Image } from 'image-js';
 import { HYDRATE } from 'next-redux-wrapper';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { WorkerEvent } from '@/worker';
@@ -211,11 +212,21 @@ export const adjustTextureHsl = createAsyncThunk<
 );
 
 export const replaceTextureImage = createAsyncThunk<
-  { textureIndex: number; bufferUrls: SourceTextureData },
-  { textureIndex: number; bufferUrls: SourceTextureData },
+  {
+    textureIndex: number;
+    bufferUrls: SourceTextureData;
+    dataUrls: SourceTextureData;
+  },
+  {
+    textureIndex: number;
+    bufferUrls: SourceTextureData;
+    dataUrls: SourceTextureData;
+  },
   { state: AppState }
->(`${sliceName}/replaceTextureImage`, async ({ textureIndex, bufferUrls }) => {
-  /*
+>(
+  `${sliceName}/replaceTextureImage`,
+  async ({ textureIndex, bufferUrls, dataUrls }) => {
+    /*
   @TODO: complete rewriting logic to ensure size matches
     const state = getState();
 
@@ -228,11 +239,13 @@ export const replaceTextureImage = createAsyncThunk<
     }
     */
 
-  return {
-    textureIndex,
-    bufferUrls
-  };
-});
+    return {
+      textureIndex,
+      bufferUrls,
+      dataUrls
+    };
+  }
+);
 
 export const downloadTextureFile = createAsyncThunk<
   void,
@@ -322,7 +335,10 @@ const modelDataSlice = createSlice({
 
     builder.addCase(
       replaceTextureImage.fulfilled,
-      (state: ModelDataState, { payload: { textureIndex, bufferUrls } }) => {
+      (
+        state: ModelDataState,
+        { payload: { textureIndex, bufferUrls, dataUrls } }
+      ) => {
         // @TODO: for better UX, re-apply existing HSL on new image automagically
         // in thunk that led to this fulfilled action
         // clear previous edited texture when replacing a texture image
@@ -341,6 +357,7 @@ const modelDataSlice = createSlice({
         );
 
         state.textureDefs[textureIndex].bufferUrls = bufferUrls;
+        state.textureDefs[textureIndex].dataUrls = dataUrls;
         state.hasEditedTextures = true;
       }
     );
