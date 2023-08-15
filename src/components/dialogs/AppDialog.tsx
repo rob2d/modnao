@@ -3,7 +3,7 @@ import { closeDialog, DialogType } from '@/store/dialogsSlice';
 import { Dialog, DialogContent, styled } from '@mui/material';
 import { FC, useCallback } from 'react';
 import AppInfo from './app-info/AppInfo';
-import FitImage from './fit-image/FitImage';
+import ReplaceTexture from './replace-texture/ReplaceTexture';
 
 const StyledDialog = styled(Dialog)(
   () => `
@@ -15,7 +15,7 @@ const StyledDialog = styled(Dialog)(
 
 const Dialogs: Record<DialogType, FC> = {
   'app-info': AppInfo,
-  'fit-image': FitImage
+  'replace-texture': ReplaceTexture
 };
 
 export default function AppDialog() {
@@ -23,8 +23,18 @@ export default function AppDialog() {
   const dialogType = useAppSelector((state) => state.dialogs.dialogShown);
   const Dialog = dialogType ? Dialogs[dialogType] : () => <></>;
   const onClose = useCallback(() => {
-    dispatch(closeDialog());
-  }, []);
+    switch (dialogType) {
+      // user must explicitly close dialog via content
+      // within the dialog for the following types
+      case 'replace-texture': {
+        break;
+      }
+      default: {
+        dispatch(closeDialog());
+        break;
+      }
+    }
+  }, [dialogType]);
 
   return (
     <StyledDialog

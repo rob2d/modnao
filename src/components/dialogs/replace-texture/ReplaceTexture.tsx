@@ -1,7 +1,17 @@
+import { styled } from '@mui/material';
 import { useCallback, useState } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
 
-export default function FitImageDialog() {
+const Styled = styled('div')(
+  ({ theme }) => `
+& {
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+}`
+);
+
+export default function ReplaceTexture() {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -17,7 +27,7 @@ export default function FitImageDialog() {
 
   return (
     <>
-      <div className='crop-container'>
+      <Styled>
         <Cropper
           image='https://img.huffingtonpost.com/asset/5ab4d4ac2000007d06eb2c56.jpeg?cache=sih0jwle4e&ops=1910_1000'
           crop={crop}
@@ -27,7 +37,7 @@ export default function FitImageDialog() {
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}
         />
-      </div>
+      </Styled>
     </>
   );
 }

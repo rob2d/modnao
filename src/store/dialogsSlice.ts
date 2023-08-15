@@ -1,14 +1,14 @@
 import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
-export type DialogType = 'app-info' | 'fit-image';
+export type DialogType = 'app-info' | 'replace-texture';
 
 export interface DialogsState {
   dialogShown?: DialogType;
 }
 
 export const initialDialogsState: DialogsState = {
-  dialogShown: undefined
+  dialogShown: 'replace-texture'
 };
 
 const dialogsSlice = createSlice({
