@@ -34,11 +34,9 @@ export default function Contributors() {
           VincentNL, egregiousguy, zocker-160, bankbank, TVIndustries,
           mountainmanjed
         </Typography>
-        <Typography variant={'subtitle1'}>
-          Early User Testing & Feedback
-        </Typography>
+        <Typography variant={'subtitle1'}>User Testing & Feedback</Typography>
         <Typography variant={'h6'}>
-          Magnetro2K, Paxtez, DJ Clayface, Toan
+          Magnetro2K, Paxtez, DJ Clayface, Toan, Blindfire604
         </Typography>
       </StyledContent>
     </div>
