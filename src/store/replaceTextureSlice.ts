@@ -60,7 +60,7 @@ export const applyReplacedTextureImage = createAsyncThunk<
     const { textureIndex } = state.replaceTexture;
     const { width, height } = state.modelData.textureDefs[textureIndex];
     const translucentBuffer = (await Image.load(imageSrc)).getRGBAData();
-    const opaqueBuffer = translucentBuffer.copyWithin(0);
+    const opaqueBuffer = new Uint8ClampedArray(translucentBuffer.length);
     const textureDef = state.modelData.textureDefs[textureIndex];
     const oTranslucentBuffer = new Uint8ClampedArray(
       await objectUrlToBuffer(textureDef.bufferUrls.translucent || '')
@@ -69,12 +69,14 @@ export const applyReplacedTextureImage = createAsyncThunk<
     for (let i = 0; i < oTranslucentBuffer.length; i += 4) {
       // restore original RGBA values on translucent for special cases
       // where alpha was zero
-
       if (oTranslucentBuffer[i + 3] === 0) {
         translucentBuffer[i + 3] = 0;
       }
 
       // for opaque buffer, set all pixels to 255 alpha
+      opaqueBuffer[i] = translucentBuffer[i];
+      opaqueBuffer[i + 1] = translucentBuffer[i + 1];
+      opaqueBuffer[i + 2] = translucentBuffer[i + 2];
       opaqueBuffer[i + 3] = 255;
     }
 
