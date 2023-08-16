@@ -164,8 +164,9 @@ export default function GuiPanelTextureMenu({
           </>
         ),
         tooltip:
-          'Replace this texture with another image file that has the same width and height. ' +
-          'Special zero-alpha pixels will be auto re-applied.',
+          'Replace this texture with another image file.' +
+          'Special zero-alpha pixels will be auto re-applied ' +
+          'once you have imported the image and zoomed/cropped/rotated it.',
         onClick() {
           openFileSelector();
           handleClose();

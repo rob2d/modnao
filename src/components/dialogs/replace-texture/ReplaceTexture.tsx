@@ -25,6 +25,7 @@ import { TextureColorFormat } from '@/utils/textures';
 import { objectUrlToBuffer } from '@/utils/data';
 import { useDebouncedEffect } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
+import { applyReplacedTextureImage } from '@/store/replaceTextureSlice';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -184,6 +185,10 @@ export default function ReplaceTexture() {
     dispatch(closeDialog());
   }, [dispatch]);
 
+  const onApplyReplaceTexture = useCallback(() => {
+    dispatch(applyReplacedTextureImage(croppedImage));
+  }, [croppedImage, dispatch]);
+
   const textureDefs = useAppSelector(selectTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
   const replacementImage = useAppSelector(selectReplacementImage);
@@ -192,8 +197,8 @@ export default function ReplaceTexture() {
 
   const referenceTextureStyle = useMemo(
     () => ({
-      width: originalWidth,
-      height: originalHeight
+      width: Math.min(originalWidth, 256),
+      height: Math.min(originalHeight, 256)
     }),
     [originalWidth, originalHeight]
   );
@@ -222,7 +227,14 @@ export default function ReplaceTexture() {
 
   const updateId = useMemo(
     () => nanoid(),
-    [imageDataUrl, zoom, rotation, croppedAreaPixels]
+    [
+      imageDataUrl,
+      originalWidth,
+      originalHeight,
+      zoom,
+      rotation,
+      croppedAreaPixels
+    ]
   );
 
   useDebouncedEffect(
@@ -236,8 +248,8 @@ export default function ReplaceTexture() {
           (await cropImage(imageDataUrl, croppedAreaPixels, rotation)) || '';
         const resizedImage = (await Image.load(nextCroppedImage))
           .resize({
-            width: 256,
-            height: 256
+            width: originalWidth,
+            height: originalHeight
           })
           .toDataURL();
 
@@ -371,7 +383,11 @@ export default function ReplaceTexture() {
               >
                 Cancel
               </Button>
-              <Button color='primary' variant='outlined'>
+              <Button
+                color='primary'
+                variant='outlined'
+                onClick={onApplyReplaceTexture}
+              >
                 Apply
               </Button>
             </div>

@@ -1,9 +1,12 @@
+import { Image } from 'image-js';
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from './dialogsSlice';
 import { AppState } from './store';
-import { bufferToObjectUrl } from '@/utils/data';
+import { bufferToObjectUrl, objectUrlToBuffer } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
+import { replaceTextureImage } from './modelDataSlice';
+import { batch } from 'react-redux';
 
 export type ReplacementImage = {
   bufferObjectUrl: string;
@@ -43,6 +46,67 @@ export const selectReplacementTexture = createAsyncThunk<
       },
       textureIndex
     };
+  }
+);
+
+export const applyReplacedTextureImage = createAsyncThunk<
+  void,
+  string,
+  { state: AppState }
+>(
+  `${sliceName}/applyReplacedTextureImage`,
+  async (imageSrc, { getState, dispatch }) => {
+    const state = getState();
+    const { textureIndex } = state.replaceTexture;
+    const { width, height } = state.modelData.textureDefs[textureIndex];
+    const translucentBuffer = (await Image.load(imageSrc)).getRGBAData();
+    const opaqueBuffer = translucentBuffer.copyWithin(0);
+    const textureDef = state.modelData.textureDefs[textureIndex];
+    const oTranslucentBuffer = new Uint8ClampedArray(
+      await objectUrlToBuffer(textureDef.bufferUrls.translucent || '')
+    );
+
+    for (let i = 0; i < oTranslucentBuffer.length; i += 4) {
+      // restore original RGBA values on translucent for special cases
+      // where alpha was zero
+
+      if (oTranslucentBuffer[i + 3] === 0) {
+        translucentBuffer[i + 3] = 0;
+      }
+
+      // for opaque buffer, set all pixels to 255 alpha
+      opaqueBuffer[i + 3] = 255;
+    }
+
+    const [translucent, opaque] = await Promise.all([
+      bufferToObjectUrl(translucentBuffer),
+      bufferToObjectUrl(opaqueBuffer)
+    ]);
+
+    const bufferUrls = { translucent, opaque };
+
+    batch(() => {
+      dispatch(
+        replaceTextureImage({
+          textureIndex,
+          bufferUrls,
+          dataUrls: {
+            translucent: new Image({
+              data: translucentBuffer,
+              width,
+              height
+            }).toDataURL(),
+            opaque: new Image({
+              data: opaqueBuffer,
+              width,
+              height
+            }).toDataURL()
+          }
+        })
+      );
+
+      dispatch(closeDialog());
+    });
   }
 );
 
