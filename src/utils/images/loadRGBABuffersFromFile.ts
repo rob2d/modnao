@@ -2,7 +2,14 @@ import { Image } from 'image-js';
 
 export default async function loadRGBABuffersFromFile(
   file: File
-): Promise<[Uint8ClampedArray | Uint8Array, Uint8ClampedArray | Uint8Array]> {
+): Promise<
+  [
+    Uint8ClampedArray | Uint8Array,
+    Uint8ClampedArray | Uint8Array,
+    number,
+    number
+  ]
+> {
   const arrayBuffer = await file.arrayBuffer();
   const image = await Image.load(arrayBuffer);
 
@@ -17,5 +24,5 @@ export default async function loadRGBABuffersFromFile(
     opaqueBuffer[i + 3] = 255;
   }
 
-  return [translucentBuffer, opaqueBuffer];
+  return [translucentBuffer, opaqueBuffer, image.width, image.height];
 }

@@ -59,8 +59,6 @@ export default async function cropImage(
   ctx.rotate(rotRad);
   ctx.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1);
   ctx.translate(-image.width / 2, -image.height / 2);
-
-  // draw rotated image
   ctx.drawImage(image, 0, 0);
 
   const croppedCanvas = document.createElement('canvas');
@@ -88,9 +86,5 @@ export default async function cropImage(
     pixelCrop.height
   );
 
-  return new Promise((resolve) => {
-    croppedCanvas.toBlob((file) => {
-      resolve(URL.createObjectURL(file as Blob));
-    }, 'image/png');
-  });
+  return croppedCanvas.toDataURL();
 }

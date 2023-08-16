@@ -5,32 +5,42 @@ import { AppState } from './store';
 import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 
+export type ReplacementImage = {
+  bufferObjectUrl: string;
+  width: number;
+  height: number;
+};
+
 export interface ReplaceTextureState {
   textureIndex: number;
-  imageObjectUrl?: string;
+  replacementImage?: ReplacementImage;
 }
 
 export const initialReplaceTextureState: ReplaceTextureState = {
   textureIndex: -1,
-  imageObjectUrl: undefined
+  replacementImage: undefined
 };
 
 const sliceName = 'replaceTexture';
 
 export const selectReplacementTexture = createAsyncThunk<
-  { imageObjectUrl: string; textureIndex: number },
+  { replacementImage: ReplacementImage; textureIndex: number },
   { imageFile: File; textureIndex: number },
   { state: AppState }
 >(
   `${sliceName}/selectReplacementTexture`,
   async ({ imageFile, textureIndex }, { dispatch }) => {
-    const [buffer] = await loadRGBABuffersFromFile(imageFile);
-    const imageObjectUrl = await bufferToObjectUrl(buffer);
+    const [buffer, _, width, height] = await loadRGBABuffersFromFile(imageFile);
+    const bufferObjectUrl = await bufferToObjectUrl(buffer);
 
     const { actions } = dialogsSlice;
     dispatch(actions.showDialog('replace-texture'));
     return {
-      imageObjectUrl,
+      replacementImage: {
+        bufferObjectUrl,
+        width,
+        height
+      },
       textureIndex
     };
   }
@@ -46,18 +56,21 @@ const replaceTextureSlice = createSlice({
     );
 
     builder.addCase(closeDialog, (state, { payload }) => {
-      if (payload === 'replace-texture' && state.imageObjectUrl) {
-        URL.revokeObjectURL(state.imageObjectUrl);
+      if (
+        payload === 'replace-texture' &&
+        state.replacementImage?.bufferObjectUrl
+      ) {
+        URL.revokeObjectURL(state.replacementImage?.bufferObjectUrl);
         state.textureIndex = -1;
-        state.imageObjectUrl = undefined;
+        state.replacementImage = undefined;
       }
     });
 
     builder.addCase(
       selectReplacementTexture.fulfilled,
       (state, { payload }) => {
-        if (state.imageObjectUrl) {
-          URL.revokeObjectURL(state.imageObjectUrl);
+        if (state.replacementImage?.bufferObjectUrl) {
+          URL.revokeObjectURL(state.replacementImage?.bufferObjectUrl);
         }
         Object.assign(state, payload);
       }

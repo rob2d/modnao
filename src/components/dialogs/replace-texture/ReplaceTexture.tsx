@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
 import { Image } from 'image-js';
 import { mdiCropRotate, mdiMagnify, mdiRefresh } from '@mdi/js';
 import Icon from '@mdi/react';
+import { nanoid } from 'nanoid';
 import {
   Button,
   Divider,
@@ -13,7 +14,7 @@ import {
 } from '@mui/material';
 import {
   closeDialog,
-  selectReplacementImageObjectUrl,
+  selectReplacementImage,
   selectReplacementTextureIndex,
   selectTextureDefs,
   useAppDispatch,
@@ -21,6 +22,8 @@ import {
 } from '@/store';
 import { TextureColorFormat } from '@/utils/textures';
 import { objectUrlToBuffer } from '@/utils/data';
+import { useDebouncedEffect } from '@/hooks';
+import cropImage from '@/utils/images/cropImage';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -155,7 +158,7 @@ export default function ReplaceTexture() {
   const [zoom, setZoom] = useState(1);
   const [imageDataUrl, setImageDataUrl] = useState(() => '');
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
-  const [croppedImage, setCroppedImage] = useState<string>();
+  const [croppedImage, setCroppedImage] = useState('');
   const originalWidth = 256;
   const originalHeight = 256;
   const textureFormat: TextureColorFormat = 'ARGB4444';
@@ -184,22 +187,19 @@ export default function ReplaceTexture() {
 
   const textureDefs = useAppSelector(selectTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
-  const imageObjectUrl = useAppSelector(selectReplacementImageObjectUrl);
+  const replacementImage = useAppSelector(selectReplacementImage);
 
   useEffect(() => {
-    if (!textureDefs?.[textureIndex]) {
-      return;
-    }
-    const { width = 0, height = 0 } = textureDefs[textureIndex];
-
-    if (width === 0 || height === 0) {
-      return;
-    }
-
     (() =>
       (async () => {
+        if (!replacementImage) {
+          return;
+        }
+
+        const { width, height, bufferObjectUrl } = replacementImage;
+
         const data = new Uint8ClampedArray(
-          await objectUrlToBuffer(imageObjectUrl || '')
+          await objectUrlToBuffer(bufferObjectUrl || '')
         );
 
         const dataUrl = new Image({
@@ -210,12 +210,30 @@ export default function ReplaceTexture() {
 
         setImageDataUrl(dataUrl);
       })())();
-  }, [imageObjectUrl, textureDefs?.[textureIndex]]);
+  }, [replacementImage]);
+
+  const updateId = useMemo(
+    () => nanoid(),
+    [imageDataUrl, zoom, rotation, croppedAreaPixels]
+  );
+
+  useDebouncedEffect(
+    () => {
+      if (!croppedAreaPixels) {
+        return;
+      }
+      (async () => {
+        const nextCroppedImage =
+          (await cropImage(imageDataUrl, croppedAreaPixels, rotation)) || '';
+        setCroppedImage(nextCroppedImage);
+      })();
+    },
+    [updateId],
+    500
+  );
 
   const originTextureDataUrl =
     textureDefs?.[textureIndex]?.dataUrls?.opaque || '';
-
-  console.log('croppedImage ->', croppedImage);
 
   return (
     <>
