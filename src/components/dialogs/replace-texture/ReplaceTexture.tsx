@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
 import { Image } from 'image-js';
+import Img from 'next/image';
 import { mdiCropRotate, mdiMagnify, mdiRefresh } from '@mdi/js';
 import Icon from '@mdi/react';
 import { nanoid } from 'nanoid';
@@ -133,7 +134,7 @@ const Styled = styled('div')(
 }
 
 & .result {
-
+  flex-grow: 1;
 }
 
 & .result img {
@@ -170,7 +171,7 @@ export default function ReplaceTexture() {
     []
   );
 
-  const onSetZoom = useCallback((_: Event, zoom: number | number[]) => {
+  const onChangeZoom = useCallback((_: Event, zoom: number | number[]) => {
     setZoom(typeof zoom !== 'number' ? zoom[0] : zoom);
   }, []);
 
@@ -180,6 +181,9 @@ export default function ReplaceTexture() {
     },
     []
   );
+
+  const onResetZoom = useCallback(() => setZoom(1), []);
+  const onResetRotation = useCallback(() => setRotation(0), []);
 
   const onCancelReplaceTexture = useCallback(() => {
     dispatch(closeDialog());
@@ -223,9 +227,17 @@ export default function ReplaceTexture() {
         return;
       }
       (async () => {
+        //@TODO: revisit/optimize this logic so debounce time can be decreased
         const nextCroppedImage =
           (await cropImage(imageDataUrl, croppedAreaPixels, rotation)) || '';
-        setCroppedImage(nextCroppedImage);
+        const resizedImage = (await Image.load(nextCroppedImage))
+          .resize({
+            width: 256,
+            height: 256
+          })
+          .toDataURL();
+
+        setCroppedImage(resizedImage);
       })();
     },
     [updateId],
@@ -266,18 +278,22 @@ export default function ReplaceTexture() {
                 control={
                   <Slider
                     size='small'
-                    min={0.1}
+                    min={0.25}
                     max={8}
-                    step={0.1}
+                    step={0.25}
                     defaultValue={1}
                     aria-label='Small'
                     valueLabelDisplay='auto'
                     value={zoom}
-                    onChange={onSetZoom}
+                    onChange={onChangeZoom}
                   />
                 }
               />
-              <Button color='primary' className='sub-control'>
+              <Button
+                color='primary'
+                className='sub-control'
+                onClick={onResetZoom}
+              >
                 <Icon path={mdiRefresh} size={1} />
               </Button>
               <FormControlLabel
@@ -292,7 +308,7 @@ export default function ReplaceTexture() {
                     size='small'
                     min={-180}
                     max={180}
-                    step={0.25}
+                    step={1}
                     defaultValue={0}
                     aria-label='Small'
                     valueLabelDisplay='auto'
@@ -301,7 +317,11 @@ export default function ReplaceTexture() {
                   />
                 }
               />
-              <Button color='primary' className='sub-control'>
+              <Button
+                color='primary'
+                className='sub-control'
+                onClick={onResetRotation}
+              >
                 <Icon path={mdiRefresh} size={1} />
               </Button>
             </div>
@@ -311,7 +331,8 @@ export default function ReplaceTexture() {
             <Typography variant='h6'>Texture Origin</Typography>
             <div className='original-texture'>
               <div className='original-texture-img-container'>
-                <img
+                <Img
+                  alt='original texture to replace'
                   src={originTextureDataUrl}
                   style={{
                     width: originalWidth,
@@ -319,6 +340,8 @@ export default function ReplaceTexture() {
                     objectFit: 'cover',
                     objectPosition: '90% 10%'
                   }}
+                  width={originalWidth}
+                  height={originalHeight}
                 />
               </div>
               <div className='origin-metadata'>
@@ -339,13 +362,15 @@ export default function ReplaceTexture() {
             <Divider flexItem />
             <div className='result'>
               <Typography variant='h6'>Result</Typography>
-              <img
+              <Img
+                alt='Resulting texture after modifications'
                 src={croppedImage}
+                width={originalWidth}
+                height={originalHeight}
                 style={{
                   width: originalWidth,
                   height: originalHeight,
-                  objectFit: 'cover',
-                  objectPosition: '90% 10%'
+                  objectFit: 'cover'
                 }}
               />
             </div>
