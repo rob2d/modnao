@@ -25,13 +25,14 @@ export const selectObjectSelectionType = (s: AppState) =>
   s.modelViewer.objectSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
-export const selectPrevBufferUrls = (s: AppState) => s.modelData.prevBufferUrls;
+export const selectTextureBufferUrlHistory = (s: AppState) =>
+  s.modelData.textureBufferUrlHistory;
 /**
  * get a set of base texture urls to detect presence in O(1)
  */
 export const selectUneditedTextureUrls = createSelector(
   selectTextureDefs,
-  selectPrevBufferUrls,
+  selectTextureBufferUrlHistory,
   (defs, bufferUrls) => {
     const urlSet = new Set<string>();
     defs.forEach((d) => {
@@ -132,3 +133,9 @@ export const selectIsMeshOpaque = createSelector(
   selectObjectMeshIndex,
   (model, meshIndex) => model?.meshes[meshIndex]?.isOpaque
 );
+
+export const selectReplacementImageBufferUrl = (s: AppState) =>
+  s.replaceTexture.imageObjectUrl;
+
+export const selectReplacementTextureIndex = (s: AppState) =>
+  s.replaceTexture.textureIndex;

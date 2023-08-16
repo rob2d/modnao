@@ -115,8 +115,8 @@ export default function GuiPanelTextureMenu({
     setAnchorEl(null);
   }, [setAnchorEl]);
 
-  const prevBufferUrls = useAppSelector(
-    (s) => s.modelData.prevBufferUrls[textureIndex]
+  const textureBufferUrlHistory = useAppSelector(
+    (s) => s.modelData.textureBufferUrlHistory[textureIndex]
   );
 
   const options = useMemo<
@@ -171,7 +171,7 @@ export default function GuiPanelTextureMenu({
           handleClose();
         }
       },
-      ...(!prevBufferUrls?.length
+      ...(!textureBufferUrlHistory?.length
         ? []
         : [
             {
@@ -183,7 +183,7 @@ export default function GuiPanelTextureMenu({
               ),
               tooltip: 'Undo a previously replaced texture operation',
               onClick() {
-                if (prevBufferUrls?.length) {
+                if (textureBufferUrlHistory?.length) {
                   dispatch(revertTextureImage({ textureIndex }));
                 }
                 handleClose();
@@ -195,7 +195,7 @@ export default function GuiPanelTextureMenu({
       pixelsObjectUrls,
       dlAsTranslucent,
       textureIndex,
-      prevBufferUrls,
+      textureBufferUrlHistory,
       openFileSelector,
       handleClose
     ]

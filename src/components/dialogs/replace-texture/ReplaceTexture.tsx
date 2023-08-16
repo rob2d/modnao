@@ -1,4 +1,6 @@
-import { TextureColorFormat } from '@/utils/textures';
+import { useCallback, useEffect, useState } from 'react';
+import Cropper, { Area } from 'react-easy-crop';
+import { Image } from 'image-js';
 import { mdiCropRotate, mdiMagnify, mdiRefresh } from '@mdi/js';
 import Icon from '@mdi/react';
 import {
@@ -9,8 +11,13 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import { useCallback, useState } from 'react';
-import Cropper, { Area } from 'react-easy-crop';
+import {
+  selectReplacementImageBufferUrl,
+  selectReplacementTextureIndex,
+  selectTextureDefs,
+  useAppSelector
+} from '@/store';
+import { TextureColorFormat } from '@/utils/textures';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -142,12 +149,12 @@ export default function ReplaceTexture() {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [imageDataUrl, setImageDataUrl] = useState(() => '');
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
   const [croppedImage, setCroppedImage] = useState<string>();
   const originalWidth = 256;
   const originalHeight = 256;
   const textureFormat: TextureColorFormat = 'ARGB4444';
-  const textureIndex = 2;
 
   const onCropComplete = useCallback(
     (croppedArea: Area, croppedAreaPixels: Area) => {
@@ -167,6 +174,21 @@ export default function ReplaceTexture() {
     []
   );
 
+  const textureDefs = useAppSelector(selectTextureDefs);
+  const textureIndex = useAppSelector(selectReplacementTextureIndex);
+  const imageBufferUrl = useAppSelector(selectReplacementImageBufferUrl);
+
+  useEffect(() => {
+    const { width = 0, height = 0 } = textureDefs?.[textureIndex];
+    const dataUrl = new Image({
+      data: imageBufferUrl,
+      width,
+      height
+    }).toDataURL();
+
+    setImageDataUrl(dataUrl);
+  }, [imageBufferUrl, textureDefs]);
+
   return (
     <>
       <Styled>
@@ -175,7 +197,7 @@ export default function ReplaceTexture() {
             <Typography variant='h6'>New Source Image</Typography>
             <div className='cropper'>
               <Cropper
-                image='https://img.huffingtonpost.com/asset/5c0844f11d00002c0231399a.jpeg'
+                image={imageDataUrl}
                 crop={crop}
                 zoom={zoom}
                 rotation={rotation}
