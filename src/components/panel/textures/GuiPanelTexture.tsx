@@ -13,9 +13,10 @@ import {
 } from '@/store';
 import { useCallback, useEffect } from 'react';
 import { bufferToObjectUrl, objectUrlToBuffer } from '@/utils/data';
-import loadRGBABuffersFromFile from '@/utils/images/loadRGBABufferFromFile';
+import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
+import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -96,7 +97,14 @@ export default function GuiPanelTexture({
   const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
 
   const onSelectNewImageFile = useCallback(
-    async (file: File) => {
+    async (imageFile: File) => {
+      dispatch(
+        selectReplacementTexture({
+          imageFile,
+          textureIndex
+        })
+      );
+      /*
       const oTranslucentBuffer = new Uint8ClampedArray(
         await objectUrlToBuffer(textureDef.bufferUrls.translucent || '')
       );
@@ -138,6 +146,7 @@ export default function GuiPanelTexture({
           }
         })
       );
+      */
     },
     [textureIndex, textureDef.bufferUrls.translucent]
   );

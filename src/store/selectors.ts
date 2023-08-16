@@ -134,7 +134,7 @@ export const selectIsMeshOpaque = createSelector(
   (model, meshIndex) => model?.meshes[meshIndex]?.isOpaque
 );
 
-export const selectReplacementImageBufferUrl = (s: AppState) =>
+export const selectReplacementImageObjectUrl = (s: AppState) =>
   s.replaceTexture.imageObjectUrl;
 
 export const selectReplacementTextureIndex = (s: AppState) =>

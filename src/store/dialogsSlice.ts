@@ -8,7 +8,7 @@ export interface DialogsState {
 }
 
 export const initialDialogsState: DialogsState = {
-  dialogShown: 'replace-texture'
+  dialogShown: 'app-info'
 };
 
 const dialogsSlice = createSlice({

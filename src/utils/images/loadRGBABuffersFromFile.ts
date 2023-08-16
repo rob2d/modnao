@@ -1,6 +1,6 @@
 import { Image } from 'image-js';
 
-export default async function loadRGBABufferFromFile(
+export default async function loadRGBABuffersFromFile(
   file: File
 ): Promise<[Uint8ClampedArray | Uint8Array, Uint8ClampedArray | Uint8Array]> {
   const arrayBuffer = await file.arrayBuffer();

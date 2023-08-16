@@ -12,12 +12,15 @@ import {
   Typography
 } from '@mui/material';
 import {
-  selectReplacementImageBufferUrl,
+  closeDialog,
+  selectReplacementImageObjectUrl,
   selectReplacementTextureIndex,
   selectTextureDefs,
+  useAppDispatch,
   useAppSelector
 } from '@/store';
 import { TextureColorFormat } from '@/utils/textures';
+import { objectUrlToBuffer } from '@/utils/data';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -146,6 +149,7 @@ const Styled = styled('div')(
 );
 
 export default function ReplaceTexture() {
+  const dispatch = useAppDispatch();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -174,20 +178,44 @@ export default function ReplaceTexture() {
     []
   );
 
+  const onCancelReplaceTexture = useCallback(() => {
+    dispatch(closeDialog());
+  }, [dispatch]);
+
   const textureDefs = useAppSelector(selectTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
-  const imageBufferUrl = useAppSelector(selectReplacementImageBufferUrl);
+  const imageObjectUrl = useAppSelector(selectReplacementImageObjectUrl);
 
   useEffect(() => {
-    const { width = 0, height = 0 } = textureDefs?.[textureIndex];
-    const dataUrl = new Image({
-      data: imageBufferUrl,
-      width,
-      height
-    }).toDataURL();
+    if (!textureDefs?.[textureIndex]) {
+      return;
+    }
+    const { width = 0, height = 0 } = textureDefs[textureIndex];
 
-    setImageDataUrl(dataUrl);
-  }, [imageBufferUrl, textureDefs]);
+    if (width === 0 || height === 0) {
+      return;
+    }
+
+    (() =>
+      (async () => {
+        const data = new Uint8ClampedArray(
+          await objectUrlToBuffer(imageObjectUrl || '')
+        );
+
+        const dataUrl = new Image({
+          data,
+          width,
+          height
+        }).toDataURL();
+
+        setImageDataUrl(dataUrl);
+      })())();
+  }, [imageObjectUrl, textureDefs?.[textureIndex]]);
+
+  const originTextureDataUrl =
+    textureDefs?.[textureIndex]?.dataUrls?.opaque || '';
+
+  console.log('croppedImage ->', croppedImage);
 
   return (
     <>
@@ -266,7 +294,7 @@ export default function ReplaceTexture() {
             <div className='original-texture'>
               <div className='original-texture-img-container'>
                 <img
-                  src='https://img.huffingtonpost.com/asset/64dc00bc2300006600cbd08b.jpg'
+                  src={originTextureDataUrl}
                   style={{
                     width: originalWidth,
                     height: originalHeight,
@@ -294,7 +322,7 @@ export default function ReplaceTexture() {
             <div className='result'>
               <Typography variant='h6'>Result</Typography>
               <img
-                src='https://img.huffingtonpost.com/asset/5c0844f11d00002c0231399a.jpeg'
+                src={croppedImage}
                 style={{
                   width: originalWidth,
                   height: originalHeight,
@@ -304,7 +332,11 @@ export default function ReplaceTexture() {
               />
             </div>
             <div className='dialog-actions'>
-              <Button color='secondary' variant='outlined'>
+              <Button
+                color='secondary'
+                variant='outlined'
+                onClick={onCancelReplaceTexture}
+              >
                 Cancel
               </Button>
               <Button color='primary' variant='outlined'>

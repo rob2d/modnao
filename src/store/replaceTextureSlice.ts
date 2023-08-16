@@ -3,13 +3,14 @@ import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from './dialogsSlice';
 import { AppState } from './store';
 import { bufferToObjectUrl } from '@/utils/data';
+import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 
 export interface ReplaceTextureState {
   textureIndex: number;
   imageObjectUrl?: string;
 }
 
-export const initialReplaceTextureState = {
+export const initialReplaceTextureState: ReplaceTextureState = {
   textureIndex: -1,
   imageObjectUrl: undefined
 };
@@ -23,7 +24,7 @@ export const selectReplacementTexture = createAsyncThunk<
 >(
   `${sliceName}/selectReplacementTexture`,
   async ({ imageFile, textureIndex }, { dispatch }) => {
-    const buffer = await imageFile.arrayBuffer();
+    const [buffer] = await loadRGBABuffersFromFile(imageFile);
     const imageObjectUrl = await bufferToObjectUrl(buffer);
 
     const { actions } = dialogsSlice;
