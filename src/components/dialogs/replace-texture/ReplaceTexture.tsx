@@ -58,16 +58,17 @@ const Styled = styled('div')(
   flex-shrink: 0;
 }
 
-& .original-texture-img-container {
+& .texture-img-container {
   position: relative;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: ${theme.spacing(2)} 0;
+  object-fit: cover;
 }
 
-& .original-texture-img-container::before {
+& .texture-img-container::before {
   content: '';
   position: absolute;
   left: 0;
@@ -78,7 +79,7 @@ const Styled = styled('div')(
   background-color: ${theme.palette.scene.background};
 }
 
-& .original-texture-img-container img {
+& .texture-img-container img {
   z-index: 1;
 }
 
@@ -137,10 +138,6 @@ const Styled = styled('div')(
   flex-grow: 1;
 }
 
-& .result img {
-  margin: ${theme.spacing(2)} 0;
-}
-
 & .dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -160,8 +157,6 @@ export default function ReplaceTexture() {
   const [imageDataUrl, setImageDataUrl] = useState(() => '');
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
   const [croppedImage, setCroppedImage] = useState('');
-  const originalWidth = 256;
-  const originalHeight = 256;
   const textureFormat: TextureColorFormat = 'ARGB4444';
 
   const onCropComplete = useCallback(
@@ -192,7 +187,16 @@ export default function ReplaceTexture() {
   const textureDefs = useAppSelector(selectTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
   const replacementImage = useAppSelector(selectReplacementImage);
+  const originalWidth = textureDefs?.[textureIndex]?.width || 0;
+  const originalHeight = textureDefs?.[textureIndex]?.height || 0;
 
+  const referenceTextureStyle = useMemo(
+    () => ({
+      width: originalWidth,
+      height: originalHeight
+    }),
+    [originalWidth, originalHeight]
+  );
   useEffect(() => {
     (() =>
       (async () => {
@@ -269,11 +273,7 @@ export default function ReplaceTexture() {
             </div>
             <div className='controls'>
               <FormControlLabel
-                label={
-                  <>
-                    <Icon path={mdiMagnify} size={1} />
-                  </>
-                }
+                label={<Icon path={mdiMagnify} size={1} />}
                 labelPlacement='start'
                 control={
                   <Slider
@@ -297,11 +297,7 @@ export default function ReplaceTexture() {
                 <Icon path={mdiRefresh} size={1} />
               </Button>
               <FormControlLabel
-                label={
-                  <>
-                    <Icon path={mdiCropRotate} size={1} />
-                  </>
-                }
+                label={<Icon path={mdiCropRotate} size={1} />}
                 labelPlacement='start'
                 control={
                   <Slider
@@ -330,16 +326,11 @@ export default function ReplaceTexture() {
           <div className='original-texture section'>
             <Typography variant='h6'>Texture Origin</Typography>
             <div className='original-texture'>
-              <div className='original-texture-img-container'>
+              <div className='texture-img-container'>
                 <Img
                   alt='original texture to replace'
                   src={originTextureDataUrl}
-                  style={{
-                    width: originalWidth,
-                    height: originalHeight,
-                    objectFit: 'cover',
-                    objectPosition: '90% 10%'
-                  }}
+                  style={referenceTextureStyle}
                   width={originalWidth}
                   height={originalHeight}
                 />
@@ -362,17 +353,15 @@ export default function ReplaceTexture() {
             <Divider flexItem />
             <div className='result'>
               <Typography variant='h6'>Result</Typography>
-              <Img
-                alt='Resulting texture after modifications'
-                src={croppedImage}
-                width={originalWidth}
-                height={originalHeight}
-                style={{
-                  width: originalWidth,
-                  height: originalHeight,
-                  objectFit: 'cover'
-                }}
-              />
+              <div className='texture-img-container'>
+                <Img
+                  alt='Resulting texture after modifications'
+                  src={croppedImage}
+                  width={originalWidth}
+                  height={originalHeight}
+                  style={referenceTextureStyle}
+                />
+              </div>
             </div>
             <div className='dialog-actions'>
               <Button
