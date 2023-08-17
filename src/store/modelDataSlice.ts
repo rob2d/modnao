@@ -4,7 +4,6 @@ import {
   createSlice,
   PayloadAction
 } from '@reduxjs/toolkit';
-import { Image } from 'image-js';
 import { HYDRATE } from 'next-redux-wrapper';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { WorkerEvent } from '@/worker';
@@ -74,7 +73,7 @@ export interface ModelDataState {
    * note: should consider having only this stack and not deriving from
    * textureDefs to simplify state
    */
-  prevBufferUrls: {
+  textureBufferUrlHistory: {
     [key: number]: SourceTextureData[];
   };
   editedTextures: {
@@ -94,7 +93,7 @@ export const initialModelDataState: ModelDataState = {
   models: [],
   textureDefs: [],
   editedTextures: {},
-  prevBufferUrls: {},
+  textureBufferUrlHistory: {},
   polygonFileName: undefined,
   textureFileName: undefined,
   hasEditedTextures: false,
@@ -279,7 +278,7 @@ const modelDataSlice = createSlice({
       { payload: { textureIndex } }: PayloadAction<{ textureIndex: number }>
     ) {
       // only valid if there's an actual texture to revert to
-      if (state.prevBufferUrls[textureIndex].length === 0) {
+      if (state.textureBufferUrlHistory[textureIndex].length === 0) {
         return state;
       }
 
@@ -290,13 +289,14 @@ const modelDataSlice = createSlice({
         )
       );
 
-      const prevBufferUrls = state.prevBufferUrls[
+      const textureBufferUrlHistory = state.textureBufferUrlHistory[
         textureIndex
       ].pop() as SourceTextureData;
 
       state.textureDefs[textureIndex].bufferUrls.translucent =
-        prevBufferUrls.translucent;
-      state.textureDefs[textureIndex].bufferUrls.opaque = prevBufferUrls.opaque;
+        textureBufferUrlHistory.translucent;
+      state.textureDefs[textureIndex].bufferUrls.opaque =
+        textureBufferUrlHistory.opaque;
       return state;
     }
   },
@@ -350,9 +350,9 @@ const modelDataSlice = createSlice({
           );
         }
 
-        state.prevBufferUrls[textureIndex] =
-          state.prevBufferUrls[textureIndex] || [];
-        state.prevBufferUrls[textureIndex].push(
+        state.textureBufferUrlHistory[textureIndex] =
+          state.textureBufferUrlHistory[textureIndex] || [];
+        state.textureBufferUrlHistory[textureIndex].push(
           state.textureDefs[textureIndex].bufferUrls as SourceTextureData
         );
 

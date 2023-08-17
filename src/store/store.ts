@@ -6,14 +6,18 @@ import {
   ThunkDispatch
 } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
+import dialogs from './dialogsSlice';
 import modelViewerSlice from './modelViewerSlice';
 import modelDataSlice from './modelDataSlice';
+import replaceTextureSlice from './replaceTextureSlice';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 const store = configureStore({
   reducer: {
+    [dialogs.name]: dialogs.reducer,
     [modelViewerSlice.name]: modelViewerSlice.reducer,
-    [modelDataSlice.name]: modelDataSlice.reducer
+    [modelDataSlice.name]: modelDataSlice.reducer,
+    [replaceTextureSlice.name]: replaceTextureSlice.reducer
   },
   devTools: process.env.NODE_ENV === 'development'
 });

@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
 import SceneCanvas from './scene/SceneCanvas';
@@ -6,8 +6,8 @@ import { Button, styled, Tooltip } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import { useDialog } from '@/hooks';
-import AppInfoDialog from './dialogs/AppInfoDialog';
+import { AppDialog } from './dialogs';
+import { showDialog, useAppDispatch } from '@/store';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -57,7 +57,10 @@ const Styled = styled('main')(
 
 export default function MainView() {
   const { guiPanelVisible } = useContext(ViewOptionsContext);
-  const infoDialog = useDialog(true);
+  const dispatch = useAppDispatch();
+  const onShowAppInfoDialog = useCallback(() => {
+    dispatch(showDialog('app-info'));
+  }, [dispatch]);
 
   return (
     <Styled>
@@ -69,7 +72,7 @@ export default function MainView() {
           placement='left'
         >
           <Button
-            onClick={infoDialog.onShow}
+            onClick={onShowAppInfoDialog}
             className={clsx(
               'scene-button',
               'info-button',
@@ -82,7 +85,7 @@ export default function MainView() {
         </Tooltip>
       </div>
       <GuiPanel />
-      <AppInfoDialog {...infoDialog} />
+      <AppDialog />
     </Styled>
   );
 }

@@ -6,16 +6,10 @@ import { useDropzone } from 'react-dropzone';
 import { Skeleton, styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
-import {
-  replaceTextureImage,
-  selectIsMeshOpaque,
-  useAppDispatch
-} from '@/store';
-import { useCallback, useEffect } from 'react';
-import { bufferToObjectUrl, objectUrlToBuffer } from '@/utils/data';
-import loadRGBABuffersFromFile from '@/utils/images/loadRGBABufferFromFile';
-import { useKeyPress } from '@react-typed-hooks/use-key-press';
+import { selectIsMeshOpaque, useAppDispatch } from '@/store';
+import { useCallback } from 'react';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
+import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
@@ -96,46 +90,11 @@ export default function GuiPanelTexture({
   const isSelectedMeshOpaque = useSelector(selectIsMeshOpaque);
 
   const onSelectNewImageFile = useCallback(
-    async (file: File) => {
-      const oTranslucentBuffer = new Uint8ClampedArray(
-        await objectUrlToBuffer(textureDef.bufferUrls.translucent || '')
-      );
-
-      const [translucentBuffer, opaqueBuffer] = await loadRGBABuffersFromFile(
-        file
-      );
-
-      // restore original RGBA values on translucent for special cases
-      // where alpha was zero
-      for (let i = 0; i < oTranslucentBuffer.length; i += 4) {
-        if (oTranslucentBuffer[i + 3] === 0) {
-          translucentBuffer[i + 3] = 0;
-        }
-      }
-
-      const [translucent, opaque] = await Promise.all([
-        bufferToObjectUrl(translucentBuffer),
-        bufferToObjectUrl(opaqueBuffer)
-      ]);
-
-      const bufferUrls = { translucent, opaque };
-
+    async (imageFile: File) => {
       dispatch(
-        replaceTextureImage({
-          textureIndex,
-          bufferUrls,
-          dataUrls: {
-            translucent: new Image({
-              data: translucentBuffer,
-              width,
-              height
-            }).toDataURL(),
-            opaque: new Image({
-              data: opaqueBuffer,
-              width,
-              height
-            }).toDataURL()
-          }
+        selectReplacementTexture({
+          imageFile,
+          textureIndex
         })
       );
     },

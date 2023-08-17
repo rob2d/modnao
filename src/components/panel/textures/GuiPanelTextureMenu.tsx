@@ -115,8 +115,8 @@ export default function GuiPanelTextureMenu({
     setAnchorEl(null);
   }, [setAnchorEl]);
 
-  const prevBufferUrls = useAppSelector(
-    (s) => s.modelData.prevBufferUrls[textureIndex]
+  const textureBufferUrlHistory = useAppSelector(
+    (s) => s.modelData.textureBufferUrlHistory[textureIndex]
   );
 
   const options = useMemo<
@@ -164,14 +164,15 @@ export default function GuiPanelTextureMenu({
           </>
         ),
         tooltip:
-          'Replace this texture with another image file that has the same width and height. ' +
-          'Special zero-alpha pixels will be auto re-applied.',
+          'Replace this texture with another image file.' +
+          'Special zero-alpha pixels will be auto re-applied ' +
+          'once you have imported the image and zoomed/cropped/rotated it.',
         onClick() {
           openFileSelector();
           handleClose();
         }
       },
-      ...(!prevBufferUrls?.length
+      ...(!textureBufferUrlHistory?.length
         ? []
         : [
             {
@@ -183,7 +184,7 @@ export default function GuiPanelTextureMenu({
               ),
               tooltip: 'Undo a previously replaced texture operation',
               onClick() {
-                if (prevBufferUrls?.length) {
+                if (textureBufferUrlHistory?.length) {
                   dispatch(revertTextureImage({ textureIndex }));
                 }
                 handleClose();
@@ -195,7 +196,7 @@ export default function GuiPanelTextureMenu({
       pixelsObjectUrls,
       dlAsTranslucent,
       textureIndex,
-      prevBufferUrls,
+      textureBufferUrlHistory,
       openFileSelector,
       handleClose
     ]
