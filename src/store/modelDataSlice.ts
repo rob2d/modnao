@@ -210,42 +210,6 @@ export const adjustTextureHsl = createAsyncThunk<
   }
 );
 
-export const replaceTextureImage = createAsyncThunk<
-  {
-    textureIndex: number;
-    bufferUrls: SourceTextureData;
-    dataUrls: SourceTextureData;
-  },
-  {
-    textureIndex: number;
-    bufferUrls: SourceTextureData;
-    dataUrls: SourceTextureData;
-  },
-  { state: AppState }
->(
-  `${sliceName}/replaceTextureImage`,
-  async ({ textureIndex, bufferUrls, dataUrls }) => {
-    /*
-  @TODO: complete rewriting logic to ensure size matches
-    const state = getState();
-
-    // const textureDef = state.modelData.textureDefs[textureIndex];
-    // const { width, height } = textureDef;
-    if (width !== def.width || height !== def.height) {
-      throw new Error(
-        `size of texture must match the original (${width} x ${height})}`
-      );
-    }
-    */
-
-    return {
-      textureIndex,
-      bufferUrls,
-      dataUrls
-    };
-  }
-);
-
 export const downloadTextureFile = createAsyncThunk<
   void,
   void,
@@ -273,6 +237,37 @@ const modelDataSlice = createSlice({
   name: sliceName,
   initialState: initialModelDataState,
   reducers: {
+    replaceTextureImage(
+      state,
+      {
+        payload: { textureIndex, bufferUrls, dataUrls }
+      }: PayloadAction<{
+        textureIndex: number;
+        bufferUrls: SourceTextureData;
+        dataUrls: SourceTextureData;
+      }>
+    ) {
+      // @TODO: for better UX, re-apply existing HSL on new image automagically
+      // in thunk that led to this fulfilled action
+      // clear previous edited texture when replacing a texture image
+      if (state.editedTextures[textureIndex]) {
+        state.editedTextures = Object.fromEntries(
+          Object.entries(state.editedTextures).filter(
+            ([k]) => Number(k) !== textureIndex
+          )
+        );
+      }
+
+      state.textureBufferUrlHistory[textureIndex] =
+        state.textureBufferUrlHistory[textureIndex] || [];
+      state.textureBufferUrlHistory[textureIndex].push(
+        state.textureDefs[textureIndex].bufferUrls as SourceTextureData
+      );
+
+      state.textureDefs[textureIndex].bufferUrls = bufferUrls;
+      state.textureDefs[textureIndex].dataUrls = dataUrls;
+      state.hasEditedTextures = true;
+    },
     revertTextureImage(
       state,
       { payload: { textureIndex } }: PayloadAction<{ textureIndex: number }>
@@ -334,35 +329,6 @@ const modelDataSlice = createSlice({
     );
 
     builder.addCase(
-      replaceTextureImage.fulfilled,
-      (
-        state: ModelDataState,
-        { payload: { textureIndex, bufferUrls, dataUrls } }
-      ) => {
-        // @TODO: for better UX, re-apply existing HSL on new image automagically
-        // in thunk that led to this fulfilled action
-        // clear previous edited texture when replacing a texture image
-        if (state.editedTextures[textureIndex]) {
-          state.editedTextures = Object.fromEntries(
-            Object.entries(state.editedTextures).filter(
-              ([k]) => Number(k) !== textureIndex
-            )
-          );
-        }
-
-        state.textureBufferUrlHistory[textureIndex] =
-          state.textureBufferUrlHistory[textureIndex] || [];
-        state.textureBufferUrlHistory[textureIndex].push(
-          state.textureDefs[textureIndex].bufferUrls as SourceTextureData
-        );
-
-        state.textureDefs[textureIndex].bufferUrls = bufferUrls;
-        state.textureDefs[textureIndex].dataUrls = dataUrls;
-        state.hasEditedTextures = true;
-      }
-    );
-
-    builder.addCase(
       adjustTextureHsl.fulfilled,
       (
         state: ModelDataState,
@@ -396,6 +362,7 @@ const modelDataSlice = createSlice({
   }
 });
 
-export const { revertTextureImage } = modelDataSlice.actions;
+export const { revertTextureImage, replaceTextureImage } =
+  modelDataSlice.actions;
 
 export default modelDataSlice;
