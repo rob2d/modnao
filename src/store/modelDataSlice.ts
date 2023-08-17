@@ -73,8 +73,11 @@ export interface ModelDataState {
    * note: should consider having only this stack and not deriving from
    * textureDefs to simplify state
    */
-  textureBufferUrlHistory: {
-    [key: number]: SourceTextureData[];
+  textureHistory: {
+    [key: number]: {
+      dataUrls: SourceTextureData;
+      bufferUrls: SourceTextureData;
+    }[];
   };
   editedTextures: {
     [key: number]: EditedTexture;
@@ -93,7 +96,7 @@ export const initialModelDataState: ModelDataState = {
   models: [],
   textureDefs: [],
   editedTextures: {},
-  textureBufferUrlHistory: {},
+  textureHistory: {},
   polygonFileName: undefined,
   textureFileName: undefined,
   hasEditedTextures: false,
@@ -258,11 +261,13 @@ const modelDataSlice = createSlice({
         );
       }
 
-      state.textureBufferUrlHistory[textureIndex] =
-        state.textureBufferUrlHistory[textureIndex] || [];
-      state.textureBufferUrlHistory[textureIndex].push(
-        state.textureDefs[textureIndex].bufferUrls as SourceTextureData
-      );
+      state.textureHistory[textureIndex] =
+        state.textureHistory[textureIndex] || [];
+      state.textureHistory[textureIndex].push({
+        bufferUrls: state.textureDefs[textureIndex]
+          .bufferUrls as SourceTextureData,
+        dataUrls: state.textureDefs[textureIndex].dataUrls as SourceTextureData
+      });
 
       state.textureDefs[textureIndex].bufferUrls = bufferUrls;
       state.textureDefs[textureIndex].dataUrls = dataUrls;
@@ -273,7 +278,7 @@ const modelDataSlice = createSlice({
       { payload: { textureIndex } }: PayloadAction<{ textureIndex: number }>
     ) {
       // only valid if there's an actual texture to revert to
-      if (state.textureBufferUrlHistory[textureIndex].length === 0) {
+      if (state.textureHistory[textureIndex].length === 0) {
         return state;
       }
 
@@ -284,14 +289,20 @@ const modelDataSlice = createSlice({
         )
       );
 
-      const textureBufferUrlHistory = state.textureBufferUrlHistory[
-        textureIndex
-      ].pop() as SourceTextureData;
+      const textureHistory = state.textureHistory[textureIndex].pop();
 
-      state.textureDefs[textureIndex].bufferUrls.translucent =
-        textureBufferUrlHistory.translucent;
-      state.textureDefs[textureIndex].bufferUrls.opaque =
-        textureBufferUrlHistory.opaque;
+      if (textureHistory) {
+        state.textureDefs[textureIndex].bufferUrls.translucent =
+          textureHistory.bufferUrls.translucent;
+        state.textureDefs[textureIndex].bufferUrls.opaque =
+          textureHistory.bufferUrls.opaque;
+
+        state.textureDefs[textureIndex].dataUrls.translucent =
+          textureHistory.dataUrls.translucent;
+        state.textureDefs[textureIndex].dataUrls.opaque =
+          textureHistory.dataUrls.opaque;
+      }
+
       return state;
     }
   },

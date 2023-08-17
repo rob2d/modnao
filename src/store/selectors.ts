@@ -26,7 +26,7 @@ export const selectObjectSelectionType = (s: AppState) =>
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
 export const selectTextureBufferUrlHistory = (s: AppState) =>
-  s.modelData.textureBufferUrlHistory;
+  s.modelData.textureHistory;
 /**
  * get a set of base texture urls to detect presence in O(1)
  */
