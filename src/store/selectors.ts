@@ -33,7 +33,7 @@ export const selectTextureBufferUrlHistory = (s: AppState) =>
 export const selectUneditedTextureUrls = createSelector(
   selectTextureDefs,
   selectTextureBufferUrlHistory,
-  (defs, bufferUrls) => {
+  (defs, history) => {
     const urlSet = new Set<string>();
     defs.forEach((d) => {
       if (d.bufferUrls.translucent) {
@@ -45,13 +45,11 @@ export const selectUneditedTextureUrls = createSelector(
       }
     });
 
-    Object.keys(bufferUrls).forEach((k) => {
-      (bufferUrls[Number(k)] as SourceTextureData[]).forEach(
-        (set: SourceTextureData) => {
-          urlSet.add(set.opaque);
-          urlSet.add(set.translucent);
-        }
-      );
+    Object.keys(history).forEach((k) => {
+      history[Number(k)].forEach((set) => {
+        urlSet.add(set.bufferUrls.opaque);
+        urlSet.add(set.bufferUrls.translucent);
+      });
     });
 
     return urlSet;
