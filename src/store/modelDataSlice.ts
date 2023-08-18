@@ -316,9 +316,12 @@ const modelDataSlice = createSlice({
         state.models = models;
         state.textureDefs = textureDefs;
         state.editedTextures = {};
+        state.textureHistory = {};
+
         state.polygonFileName = fileName;
         state.textureFileName = undefined;
         state.polygonBufferUrl = polygonBufferUrl;
+        state.hasEditedTextures = false;
       }
     );
 
@@ -333,6 +336,9 @@ const modelDataSlice = createSlice({
         } = payload;
         state.textureDefs = textureDefs;
         state.editedTextures = {};
+        state.hasEditedTextures = false;
+        state.textureHistory = {};
+
         state.textureFileName = fileName;
         state.hasCompressedTextures = hasCompressedTextures;
         state.textureBufferUrl = textureBufferUrl;

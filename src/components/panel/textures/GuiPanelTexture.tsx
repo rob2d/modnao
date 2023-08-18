@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
 import Img from 'next/image';
-import { Image } from 'image-js';
 import { useDropzone } from 'react-dropzone';
 import { Skeleton, styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
