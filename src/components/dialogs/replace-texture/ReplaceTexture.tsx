@@ -3,6 +3,8 @@ import Cropper, { Area } from 'react-easy-crop';
 import { Image } from 'image-js';
 import Img from 'next/image';
 import {
+  mdiCheck,
+  mdiCheckBold,
   mdiCropRotate,
   mdiFlipHorizontal,
   mdiFlipVertical,
@@ -128,6 +130,12 @@ const Styled = styled('div')(
   margin: ${theme.spacing(2)} 0;
 }
 
+& .MuiButton-root .icon-check {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 
 & .origin-metadata {
   display: grid;
@@ -159,6 +167,10 @@ const Styled = styled('div')(
 );
 
 const DEFAULT_FLIP_STATE = { horizontal: false, vertical: false };
+
+const optionAppliedCheckmark = (
+  <Icon className={'icon-check'} path={mdiCheckBold} size={0.6} />
+);
 
 export default function ReplaceTexture() {
   const dispatch = useAppDispatch();
@@ -364,13 +376,15 @@ export default function ReplaceTexture() {
                   <Icon path={mdiRefresh} size={1} />
                 </Button>
               </Tooltip>
-              <Tooltip title='Flip image horizontally (appears on result/preview)'>
+              <Tooltip title='Flip horizontally (appears on preview)'>
                 <Button color='primary' onClick={onFlipHorizontal}>
+                  {!flip.horizontal ? undefined : optionAppliedCheckmark}
                   <Icon path={mdiFlipHorizontal} size={1} />
                 </Button>
               </Tooltip>
-              <Tooltip title='Flip image vertically (appears on result/preview)'>
+              <Tooltip title='Flip vertically (appears on preview)'>
                 <Button color='primary' onClick={onFlipVertical}>
+                  {!flip.vertical ? undefined : optionAppliedCheckmark}
                   <Icon path={mdiFlipVertical} size={1} />
                 </Button>
               </Tooltip>
@@ -406,7 +420,7 @@ export default function ReplaceTexture() {
             </div>
             <Divider flexItem />
             <div className='result'>
-              <Typography variant='h6'>Result</Typography>
+              <Typography variant='h6'>Result Preview</Typography>
               <div className='texture-img-container'>
                 <Img
                   alt='Resulting texture after modifications'
