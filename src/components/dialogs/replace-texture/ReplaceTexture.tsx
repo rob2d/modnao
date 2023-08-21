@@ -2,7 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
 import { Image } from 'image-js';
 import Img from 'next/image';
-import { mdiCropRotate, mdiMagnify, mdiRefresh } from '@mdi/js';
+import {
+  mdiCropRotate,
+  mdiFlipHorizontal,
+  mdiFlipVertical,
+  mdiMagnify,
+  mdiRefresh
+} from '@mdi/js';
 import Icon from '@mdi/react';
 import { nanoid } from 'nanoid';
 import {
@@ -11,6 +17,7 @@ import {
   FormControlLabel,
   Slider,
   styled,
+  Tooltip,
   Typography
 } from '@mui/material';
 import {
@@ -26,6 +33,7 @@ import { objectUrlToBuffer } from '@/utils/data';
 import { useDebouncedEffect } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
 import { applyReplacedTextureImage } from '@/store/replaceTextureSlice';
+import { NLTextureDef } from '@/types/NLAbstractions';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -150,6 +158,8 @@ const Styled = styled('div')(
 `
 );
 
+const DEFAULT_FLIP_STATE = { horizontal: false, vertical: false };
+
 export default function ReplaceTexture() {
   const dispatch = useAppDispatch();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -158,6 +168,8 @@ export default function ReplaceTexture() {
   const [imageDataUrl, setImageDataUrl] = useState(() => '');
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
   const [croppedImage, setCroppedImage] = useState('');
+  const [flip, setFlip] = useState(() => DEFAULT_FLIP_STATE);
+
   const textureFormat: TextureColorFormat = 'ARGB4444';
 
   const onCropComplete = useCallback(
@@ -178,6 +190,20 @@ export default function ReplaceTexture() {
     []
   );
 
+  const onFlipHorizontal = useCallback(() => {
+    setFlip({
+      ...flip,
+      horizontal: !flip.horizontal
+    });
+  }, [flip]);
+
+  const onFlipVertical = useCallback(() => {
+    setFlip({
+      ...flip,
+      vertical: !flip.vertical
+    });
+  }, [flip]);
+
   const onResetZoom = useCallback(() => setZoom(1), []);
   const onResetRotation = useCallback(() => setRotation(0), []);
 
@@ -189,7 +215,7 @@ export default function ReplaceTexture() {
     dispatch(applyReplacedTextureImage(croppedImage));
   }, [croppedImage, dispatch]);
 
-  const textureDefs = useAppSelector(selectTextureDefs);
+  const textureDefs: NLTextureDef[] = useAppSelector(selectTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
   const replacementImage = useAppSelector(selectReplacementImage);
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;
@@ -233,6 +259,7 @@ export default function ReplaceTexture() {
       originalHeight,
       zoom,
       rotation,
+      flip,
       croppedAreaPixels
     ]
   );
@@ -245,7 +272,8 @@ export default function ReplaceTexture() {
       (async () => {
         //@TODO: revisit/optimize this logic so debounce time can be decreased
         const nextCroppedImage =
-          (await cropImage(imageDataUrl, croppedAreaPixels, rotation)) || '';
+          (await cropImage(imageDataUrl, croppedAreaPixels, rotation, flip)) ||
+          '';
         const resizedImage = (await Image.load(nextCroppedImage))
           .resize({
             width: originalWidth,
@@ -257,7 +285,7 @@ export default function ReplaceTexture() {
       })();
     },
     [updateId],
-    500
+    200
   );
 
   const originTextureDataUrl =
@@ -301,13 +329,15 @@ export default function ReplaceTexture() {
                   />
                 }
               />
-              <Button
-                color='primary'
-                className='sub-control'
-                onClick={onResetZoom}
-              >
-                <Icon path={mdiRefresh} size={1} />
-              </Button>
+              <Tooltip title='Reset zoom to 1x'>
+                <Button
+                  color='primary'
+                  className='sub-control'
+                  onClick={onResetZoom}
+                >
+                  <Icon path={mdiRefresh} size={1} />
+                </Button>
+              </Tooltip>
               <FormControlLabel
                 label={<Icon path={mdiCropRotate} size={1} />}
                 labelPlacement='start'
@@ -325,13 +355,25 @@ export default function ReplaceTexture() {
                   />
                 }
               />
-              <Button
-                color='primary'
-                className='sub-control'
-                onClick={onResetRotation}
-              >
-                <Icon path={mdiRefresh} size={1} />
-              </Button>
+              <Tooltip title='Reset rotation to zero degrees'>
+                <Button
+                  color='primary'
+                  className='sub-control'
+                  onClick={onResetRotation}
+                >
+                  <Icon path={mdiRefresh} size={1} />
+                </Button>
+              </Tooltip>
+              <Tooltip title='Flip image horizontally (appears on result/preview)'>
+                <Button color='primary' onClick={onFlipHorizontal}>
+                  <Icon path={mdiFlipHorizontal} size={1} />
+                </Button>
+              </Tooltip>
+              <Tooltip title='Flip image vertically (appears on result/preview)'>
+                <Button color='primary' onClick={onFlipVertical}>
+                  <Icon path={mdiFlipVertical} size={1} />
+                </Button>
+              </Tooltip>
             </div>
           </div>
           <Divider orientation='vertical' flexItem></Divider>

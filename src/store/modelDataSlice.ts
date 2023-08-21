@@ -334,6 +334,7 @@ const modelDataSlice = createSlice({
           hasCompressedTextures,
           textureBufferUrl
         } = payload;
+
         state.textureDefs = textureDefs;
         state.editedTextures = {};
         state.hasEditedTextures = false;
