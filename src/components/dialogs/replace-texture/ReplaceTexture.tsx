@@ -3,7 +3,6 @@ import Cropper, { Area } from 'react-easy-crop';
 import { Image } from 'image-js';
 import Img from 'next/image';
 import {
-  mdiCheck,
   mdiCheckBold,
   mdiCropRotate,
   mdiFlipHorizontal,
