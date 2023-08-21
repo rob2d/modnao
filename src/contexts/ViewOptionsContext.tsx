@@ -19,6 +19,7 @@ export type ViewOptions = {
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
   disableBackfaceCulling: boolean;
+  previewUvClipping: boolean;
   wireframeLineWidth: number;
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
@@ -26,6 +27,7 @@ export type ViewOptions = {
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
+  setPreviewUvClipping: (previewUvClipping: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
   setDisableBackfaceCulling: (disableBackfaceCulling: boolean) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
@@ -41,6 +43,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
   disableBackfaceCulling: false,
+  previewUvClipping: false,
   wireframeLineWidth: 3,
   themeKey: undefined,
   scenePalette: undefined,
@@ -50,6 +53,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
   setDisableBackfaceCulling: (_: boolean) => null,
+  setPreviewUvClipping: (_: boolean) => null,
   setWireframeLineWidth: (_: number) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
   setThemeKey: (_: 'light' | 'dark') => null,
@@ -76,6 +80,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const [scenePalette, handleSetScenePalette] = useState<
     ScenePalette | undefined
   >(undefined);
+
+  const [previewUvClipping, handleSetPreviewUvClipping] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -127,6 +134,14 @@ export function ViewOptionsContextProvider({ children }: Props) {
         JSON.parse(
           localStorage.getItem(StorageKeys.SCENE_PALETTE) || 'undefined'
         ) as ScenePalette | undefined
+      );
+    }
+
+    if (localStorage.getItem(StorageKeys.PREVIEW_UV_CLIPPING) !== null) {
+      handleSetPreviewUvClipping(
+        JSON.parse(
+          localStorage.getItem(StorageKeys.PREVIEW_UV_CLIPPING) || 'false'
+        ) as boolean
       );
     }
   }, []);
@@ -189,6 +204,16 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [disableBackfaceCulling]
   );
 
+  const setPreviewUvClipping = useCallback(
+    (value: boolean) => {
+      if (previewUvClipping !== value) {
+        localStorage.setItem(StorageKeys.DISABLE_BACKFACE_CULLING, `${value}`);
+        handleSetPreviewUvClipping(value);
+      }
+    },
+    [previewUvClipping]
+  );
+
   const setWireframeLineWidth = useCallback(
     (value: number) => {
       if (wireframeLineWidth !== value) {
@@ -249,6 +274,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setMeshDisplayMode,
       disableBackfaceCulling,
       setDisableBackfaceCulling,
+      previewUvClipping,
+      setPreviewUvClipping,
       guiPanelVisible,
       setGuiPanelVisible,
       wireframeLineWidth,
