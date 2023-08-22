@@ -19,7 +19,7 @@ export type ViewOptions = {
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
   disableBackfaceCulling: boolean;
-  previewUvClipping: boolean;
+  uvRegionsHighlighted: boolean;
   wireframeLineWidth: number;
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
@@ -27,7 +27,7 @@ export type ViewOptions = {
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
-  setPreviewUvClipping: (previewUvClipping: boolean) => void;
+  setUvRegionsHighlighted: (uvRegionsHighlighted: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
   setDisableBackfaceCulling: (disableBackfaceCulling: boolean) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
@@ -43,7 +43,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
   disableBackfaceCulling: false,
-  previewUvClipping: false,
+  uvRegionsHighlighted: true,
   wireframeLineWidth: 3,
   themeKey: undefined,
   scenePalette: undefined,
@@ -53,7 +53,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
   setDisableBackfaceCulling: (_: boolean) => null,
-  setPreviewUvClipping: (_: boolean) => null,
+  setUvRegionsHighlighted: (_: boolean) => null,
   setWireframeLineWidth: (_: number) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
   setThemeKey: (_: 'light' | 'dark') => null,
@@ -81,7 +81,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
     ScenePalette | undefined
   >(undefined);
 
-  const [previewUvClipping, handleSetPreviewUvClipping] =
+  const [uvRegionsHighlighted, handleSetUvRegionsHighlighted] =
     useState<boolean>(false);
 
   useEffect(() => {
@@ -137,10 +137,10 @@ export function ViewOptionsContextProvider({ children }: Props) {
       );
     }
 
-    if (localStorage.getItem(StorageKeys.PREVIEW_UV_CLIPPING) !== null) {
-      handleSetPreviewUvClipping(
+    if (localStorage.getItem(StorageKeys.UV_REGIONS_HIGHLIGHTED) !== null) {
+      handleSetUvRegionsHighlighted(
         JSON.parse(
-          localStorage.getItem(StorageKeys.PREVIEW_UV_CLIPPING) || 'false'
+          localStorage.getItem(StorageKeys.UV_REGIONS_HIGHLIGHTED) || 'true'
         ) as boolean
       );
     }
@@ -204,14 +204,14 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [disableBackfaceCulling]
   );
 
-  const setPreviewUvClipping = useCallback(
+  const setUvRegionsHighlighted = useCallback(
     (value: boolean) => {
-      if (previewUvClipping !== value) {
-        localStorage.setItem(StorageKeys.PREVIEW_UV_CLIPPING, `${value}`);
-        handleSetPreviewUvClipping(value);
+      if (uvRegionsHighlighted !== value) {
+        localStorage.setItem(StorageKeys.UV_REGIONS_HIGHLIGHTED, `${value}`);
+        handleSetUvRegionsHighlighted(value);
       }
     },
-    [previewUvClipping]
+    [uvRegionsHighlighted]
   );
 
   const setWireframeLineWidth = useCallback(
@@ -274,8 +274,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setMeshDisplayMode,
       disableBackfaceCulling,
       setDisableBackfaceCulling,
-      previewUvClipping,
-      setPreviewUvClipping,
+      uvRegionsHighlighted,
+      setUvRegionsHighlighted,
       guiPanelVisible,
       setGuiPanelVisible,
       wireframeLineWidth,
@@ -297,8 +297,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setMeshDisplayMode,
       disableBackfaceCulling,
       setDisableBackfaceCulling,
-      previewUvClipping,
-      setPreviewUvClipping,
+      uvRegionsHighlighted,
+      setUvRegionsHighlighted,
       wireframeLineWidth,
       setWireframeLineWidth,
       guiPanelVisible,

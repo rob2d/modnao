@@ -12,5 +12,5 @@ export const StorageKeys = {
   THEME_KEY: 'themeKey',
   SCENE_PALETTE: 'scenePalette',
   DISABLE_BACKFACE_CULLING: 'disableBackfaceCulling',
-  PREVIEW_UV_CLIPPING: 'previewUvClipping'
+  UV_REGIONS_HIGHLIGHTED: 'uvRegionsHighlighted'
 } as const;

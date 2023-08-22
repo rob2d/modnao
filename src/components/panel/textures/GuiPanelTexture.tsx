@@ -118,22 +118,28 @@ export default function GuiPanelTexture({
   const mesh = useAppSelector(selectMesh);
   const viewOptions = useContext(ViewOptionsContext);
 
-  const uvClipPaths = useMemo<string[]>(
-    () =>
-      !(selected && mesh?.polygons.length)
-        ? []
-        : mesh.polygons.map((p) => {
-            let path = '';
+  const uvClipPaths = useMemo<string[]>(() => {
+    if (!(selected && mesh?.polygons.length)) {
+      return [];
+    }
 
-            p.indices.forEach((index, i, arr) => {
-              const { uv } = p.vertices[index];
-              path += uvToCssPathPoint(uv) + (i === arr.length - 1 ? '' : ', ');
-            });
+    const paths: string[] = [];
+    mesh.polygons.forEach((p) => {
+      for (let i = 0; i < p.triIndices.length; i += 4) {
+        let path = '';
+        [i, i + 1, i + 2, i + 3].forEach((j, jI, triPoints) => {
+          const { uv } = p.vertices[p.triIndices[j]];
 
-            return path;
-          }),
-    [selected && mesh?.polygons]
-  );
+          path +=
+            uvToCssPathPoint(uv) + (jI === triPoints.length - 1 ? '' : ', ');
+        });
+
+        paths.push(path);
+      }
+    });
+
+    return paths;
+  }, [selected && mesh?.polygons]);
 
   const onSelectNewImageFile = useCallback(
     async (imageFile: File) => {
@@ -177,7 +183,7 @@ export default function GuiPanelTexture({
 
   const uvOverlays = useMemo(
     () =>
-      !viewOptions.previewUvClipping || !uvClipPaths.length ? undefined : (
+      !viewOptions.uvRegionsHighlighted || !uvClipPaths.length ? undefined : (
         <>
           {uvClipPaths.map((path: string, i) => (
             <div
@@ -196,12 +202,12 @@ export default function GuiPanelTexture({
           ))}
         </>
       ),
-    [uvClipPaths, imageDataUrl, width, height, viewOptions.previewUvClipping]
+    [uvClipPaths, imageDataUrl, width, height, viewOptions.uvRegionsHighlighted]
   );
 
   return (
     <StyledPanelTexture
-      className={clsx(viewOptions.previewUvClipping && 'uvs-enabled')}
+      className={clsx(viewOptions.uvRegionsHighlighted && 'uvs-enabled')}
     >
       <div
         id={`gui-panel-t-${textureIndex}`}
@@ -209,7 +215,7 @@ export default function GuiPanelTexture({
           'image-area',
           selected && 'selected',
           isDragActive && 'active',
-          viewOptions.previewUvClipping
+          viewOptions.uvRegionsHighlighted
         )}
         {...getRootProps()}
       >
