@@ -14,11 +14,10 @@ import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
 import {
-  mdiAccountHardHat,
   mdiAxisArrow,
   mdiCursorDefaultOutline,
   mdiFlipToBack,
-  mdiSignCaution
+  mdiTangram
 } from '@mdi/js';
 import Icon from '@mdi/react';
 import PaletteEditor from './PaletteEditor';
@@ -111,11 +110,11 @@ export default function GuiPanelViewOptions() {
     [viewOptions.setDisableBackfaceCulling]
   );
 
-  const onSetPreviewUvClipping = useCallback(
+  const onSetUvRegionsHighlighted = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setPreviewUvClipping(value);
+      viewOptions.setUvRegionsHighlighted(value);
     },
-    [viewOptions.previewUvClipping]
+    [viewOptions.uvRegionsHighlighted]
   );
 
   return (
@@ -172,16 +171,6 @@ export default function GuiPanelViewOptions() {
           </Tooltip>
         )}
         <div className='settings-row'>
-          <Tooltip title='Disable Backface Culling / Make material visible on both sides of polygons'>
-            <FormControlLabel
-              control={
-                <Checkbox checked={viewOptions.disableBackfaceCulling} />
-              }
-              label={<Icon path={mdiFlipToBack} size={1} />}
-              labelPlacement='start'
-              onChange={onSetDisableBackfaceCulling}
-            />
-          </Tooltip>
           <Tooltip title='Toggle axes helper visibility'>
             <FormControlLabel
               control={<Checkbox checked={viewOptions.axesHelperVisible} />}
@@ -199,33 +188,31 @@ export default function GuiPanelViewOptions() {
             />
           </Tooltip>
         </div>
-        <div className='experimental-divider' />
-        <Tooltip
-          title={
-            <div>
-              Preview UV Clip Paths when selecting a polygon that has a texture.
-              <hr />
-              <div style={TOOLTIP_DISCLAIMER_ICON_STYLE}>
-                <Icon path={mdiSignCaution} size={0.75} />
-                <Icon path={mdiAccountHardHat} size={0.75} />
-              </div>
-              This feature is an early beta/work in progress and does not work
-              on all scenarios; it might give you some useful hints 60-80% of
-              the time.
-              <div style={TOOLTIP_DISCLAIMER_ICON_STYLE}>
-                <Icon path={mdiAccountHardHat} size={0.75} />
-                <Icon path={mdiSignCaution} size={0.75} />
-              </div>
-            </div>
-          }
-        >
-          <FormControlLabel
-            control={<Checkbox checked={viewOptions.previewUvClipping} />}
-            label={'View UV Paths'}
-            labelPlacement='start'
-            onChange={onSetPreviewUvClipping}
-          />
-        </Tooltip>
+        <div className='settings-row'>
+          <Tooltip title='Disable Backface Culling / Make material visible on both sides of polygons'>
+            <FormControlLabel
+              control={
+                <Checkbox checked={viewOptions.disableBackfaceCulling} />
+              }
+              label={<Icon path={mdiFlipToBack} size={1} />}
+              labelPlacement='start'
+              onChange={onSetDisableBackfaceCulling}
+            />
+          </Tooltip>
+          <Tooltip
+            title={
+              'View UV Clipping Regions when selecting a polygon that has an ' +
+              'associated texture loaded.'
+            }
+          >
+            <FormControlLabel
+              control={<Checkbox checked={viewOptions.uvRegionsHighlighted} />}
+              label={<Icon path={mdiTangram} size={1} />}
+              labelPlacement='start'
+              onChange={onSetUvRegionsHighlighted}
+            />
+          </Tooltip>
+        </div>
       </Styled>
     </GuiPanelSection>
   );

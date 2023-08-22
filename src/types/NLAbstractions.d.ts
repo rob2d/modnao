@@ -70,6 +70,8 @@ declare global {
     vertices: NLVertex[];
     vertexCount: number;
     indices: number[];
+    /** needed for uv atlas and wireframe triangle drawing */
+    triIndices: number[];
     actualVertexCount: number;
     vertexGroupModeValue: number;
     vertexGroupMode: 'regular' | 'triple';

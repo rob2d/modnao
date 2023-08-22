@@ -14,6 +14,7 @@ export default function RenderedPolygon({
   vertexGroupMode,
   vertices,
   indices,
+  triIndices,
   address,
   objectKey,
   selectedObjectKey,
@@ -76,7 +77,7 @@ export default function RenderedPolygon({
       uvArray[uvArrayIndex++] = v.uv[1];
     });
     return [vPositions, nArray, uvArray, iArray];
-  }, [vertices, vertexGroupMode]);
+  }, [vertices, vertexGroupMode, indices]);
 
   const displayPosition: Point3D = useMemo(() => {
     if (
@@ -154,7 +155,7 @@ export default function RenderedPolygon({
             <RenderedWireframePolygon
               color={color}
               vertices={vertices}
-              indices={indicesRendered}
+              triIndices={triIndices}
               lineWidth={wireframeLineWidth}
             />
           )}
