@@ -120,8 +120,8 @@ export default function GettingStarted() {
                   size={1}
                   className='burger-menu-icon'
                 />
-                &nbsp;icon. Edit the texture color sliders or replace the image
-                with one of equal size.
+                &nbsp;icon. Edit the texture color sliders or replace the image.
+                You can also drag a file into the right panel.
               </Typography>
             </StepContent>
           </Step>

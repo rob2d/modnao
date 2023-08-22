@@ -35,7 +35,7 @@ export default function OtherProjects() {
           body={
             <>
               A tool which provides various quality of life patches and custom
-              pre-made stages with a provided Marvel vs Capcom 2 ROM.
+              pre-made stages for your provided Marvel vs Capcom 2 ROM.
             </>
           }
         />

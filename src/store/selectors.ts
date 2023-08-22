@@ -125,10 +125,10 @@ export const selectObjectMeshIndex = createSelector(
     !objectKey ? -1 : Number(objectKey.split('-')[0])
 );
 
-export const selectIsMeshOpaque = createSelector(
+export const selectMesh = createSelector(
   selectModel,
   selectObjectMeshIndex,
-  (model, meshIndex) => model?.meshes[meshIndex]?.isOpaque
+  (model, meshIndex) => model?.meshes[meshIndex] || undefined
 );
 
 export const selectReplacementImage = (s: AppState) =>
