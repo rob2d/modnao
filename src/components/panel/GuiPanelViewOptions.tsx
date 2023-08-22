@@ -13,7 +13,13 @@ import { SyntheticEvent, useCallback, useContext } from 'react';
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
-import { mdiAxisArrow, mdiCursorDefaultOutline, mdiFlipToBack } from '@mdi/js';
+import {
+  mdiAccountHardHat,
+  mdiAxisArrow,
+  mdiCursorDefaultOutline,
+  mdiFlipToBack,
+  mdiSignCaution
+} from '@mdi/js';
 import Icon from '@mdi/react';
 import PaletteEditor from './PaletteEditor';
 
@@ -43,8 +49,21 @@ const Styled = styled('div')(
   & .settings-row .MuiTypography-root.MuiFormControlLabel-label > svg {
     margin-right: -2px;
   }
+
+  & .experimental-divider {
+    width: 100%;
+    height: 1px;
+    border-bottom: ${theme.palette.error.main} 1px dashed;
+  }
   `
 );
+
+const TOOLTIP_DISCLAIMER_ICON_STYLE = {
+  display: 'inline-block',
+  position: 'relative',
+  top: '4px',
+  marginTop: '-4px'
+} as const;
 
 export default function GuiPanelViewOptions() {
   const viewOptions = useContext(ViewOptionsContext);
@@ -90,6 +109,13 @@ export default function GuiPanelViewOptions() {
       viewOptions.setDisableBackfaceCulling(value);
     },
     [viewOptions.setDisableBackfaceCulling]
+  );
+
+  const onSetPreviewUvClipping = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      viewOptions.setPreviewUvClipping(value);
+    },
+    [viewOptions.previewUvClipping]
   );
 
   return (
@@ -173,6 +199,33 @@ export default function GuiPanelViewOptions() {
             />
           </Tooltip>
         </div>
+        <div className='experimental-divider' />
+        <Tooltip
+          title={
+            <div>
+              Preview UV Clip Paths when selecting a polygon that has a texture.
+              <hr />
+              <div style={TOOLTIP_DISCLAIMER_ICON_STYLE}>
+                <Icon path={mdiSignCaution} size={0.75} />
+                <Icon path={mdiAccountHardHat} size={0.75} />
+              </div>
+              This feature is an early beta/work in progress and does not work
+              on all scenarios; it might give you some useful hints 60-80% of
+              the time.
+              <div style={TOOLTIP_DISCLAIMER_ICON_STYLE}>
+                <Icon path={mdiAccountHardHat} size={0.75} />
+                <Icon path={mdiSignCaution} size={0.75} />
+              </div>
+            </div>
+          }
+        >
+          <FormControlLabel
+            control={<Checkbox checked={viewOptions.previewUvClipping} />}
+            label={'View UV Paths'}
+            labelPlacement='start'
+            onChange={onSetPreviewUvClipping}
+          />
+        </Tooltip>
       </Styled>
     </GuiPanelSection>
   );
