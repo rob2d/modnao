@@ -158,7 +158,21 @@ export default function scanModel({
           stripCount += 1;
         }
 
+        // pre-calculate order of triangle indices
+        // for wireframe drawing & uv atlas polygon highlights
+        const triIndices: number[] = [];
+
+        for (let i = 0; i < indices.length; i += 3) {
+          triIndices.push(
+            indices[i],
+            indices[i + 1],
+            indices[i + 2],
+            indices[i]
+          );
+        }
+
         polygon.indices = indices;
+        polygon.triIndices = triIndices;
         mesh.polygons.push(polygon);
       }
 
