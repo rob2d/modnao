@@ -207,7 +207,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const setPreviewUvClipping = useCallback(
     (value: boolean) => {
       if (previewUvClipping !== value) {
-        localStorage.setItem(StorageKeys.DISABLE_BACKFACE_CULLING, `${value}`);
+        localStorage.setItem(StorageKeys.PREVIEW_UV_CLIPPING, `${value}`);
         handleSetPreviewUvClipping(value);
       }
     },
@@ -297,6 +297,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setMeshDisplayMode,
       disableBackfaceCulling,
       setDisableBackfaceCulling,
+      previewUvClipping,
+      setPreviewUvClipping,
       wireframeLineWidth,
       setWireframeLineWidth,
       guiPanelVisible,

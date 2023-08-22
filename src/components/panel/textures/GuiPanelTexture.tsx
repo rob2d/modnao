@@ -1,8 +1,7 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import Img from 'next/image';
-import { Image } from 'image-js';
 import { Skeleton, styled, Typography } from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
@@ -10,6 +9,7 @@ import { selectMesh, useAppDispatch, useAppSelector } from '@/store';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 import uvToCssPathPoint from '@/utils/textures/uvToCssPathPoint';
+import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 const IMG_SIZE = '170px';
 
@@ -54,9 +54,20 @@ const StyledPanelTexture = styled('div')(
     transform: rotate(-90deg);
   }
 
-  & .selected .img {
-    filter: saturate(0);
+  & .selected:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    content: '';
+    border-width: 3px;
+    border-style: solid;
     border-color: ${theme.palette.primary.main};
+  }
+
+  &.uvs-enabled .selected .img {
+    filter: saturate(0);
     opacity: 0.25;
   }
 
@@ -66,6 +77,7 @@ const StyledPanelTexture = styled('div')(
     left: 0;
     width: ${IMG_SIZE};
     height: ${IMG_SIZE};
+    border: 3px solid transparent;
   }
 
   .uv-overlay img {
@@ -102,6 +114,7 @@ export default function GuiPanelTexture({
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
+  const viewOptions = useContext(ViewOptionsContext);
 
   const uvClipPaths = useMemo<string[]>(() => {
     if (selected && mesh?.polygons.length) {
@@ -160,14 +173,41 @@ export default function GuiPanelTexture({
       ? textureDef.dataUrls.opaque || textureDef.dataUrls.translucent
       : textureDef.dataUrls.translucent || textureDef.dataUrls.opaque) || '';
 
+  const uvOverlays = useMemo(
+    () =>
+      !viewOptions.previewUvClipping || !uvClipPaths.length ? undefined : (
+        <>
+          {uvClipPaths.map((path: string, i) => (
+            <div
+              className='uv-overlay'
+              key={`${textureIndex}_${i}`}
+              style={{ clipPath: `polygon(${path})` }}
+            >
+              <Img
+                src={imageDataUrl}
+                width={width}
+                height={height}
+                className='uv-highlight'
+                alt='UV Highlight'
+              />
+            </div>
+          ))}
+        </>
+      ),
+    [uvClipPaths, imageDataUrl, width, height, viewOptions.previewUvClipping]
+  );
+
   return (
-    <StyledPanelTexture>
+    <StyledPanelTexture
+      className={clsx(viewOptions.previewUvClipping && 'uvs-enabled')}
+    >
       <div
         id={`gui-panel-t-${textureIndex}`}
         className={clsx(
           'image-area',
           selected && 'selected',
-          isDragActive && 'active'
+          isDragActive && 'active',
+          viewOptions.previewUvClipping
         )}
         {...getRootProps()}
       >
@@ -182,25 +222,7 @@ export default function GuiPanelTexture({
             className='img'
           />
         )}
-        {!uvClipPaths.length ? undefined : (
-          <>
-            {uvClipPaths.map((path: string, i) => (
-              <div
-                className='uv-overlay'
-                key={i}
-                style={{ clipPath: `polygon(${path})` }}
-              >
-                <Img
-                  src={imageDataUrl}
-                  width={width}
-                  height={height}
-                  className='uv-highlight'
-                  alt='UV Highlight'
-                />
-              </div>
-            ))}
-          </>
-        )}
+        {uvOverlays}
         <Typography
           variant='subtitle2'
           textAlign='right'
