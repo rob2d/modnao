@@ -21,28 +21,25 @@ export default function RenderedWireframePolygon({
 }: Props) {
   const geometry = useMemo(() => {
     const geom = new LineGeometry();
-    const vPoints: number[] = [];
+    const vPositions: NLPoint3D[] = [];
     indices.forEach((i) => {
-      vPoints.push(...vertices[i].position);
+      vPositions.push(vertices[i].position);
     });
 
     const triPoints: number[] = [];
 
-    for (let i = 0; i < vPoints.length; i += 9) {
-      const v1 = new Vector3(vPoints[i], vPoints[i + 1], vPoints[i + 2]);
-      const v2 = new Vector3(vPoints[i + 3], vPoints[i + 4], vPoints[i + 5]);
-      const v3 = new Vector3(vPoints[i + 6], vPoints[i + 7], vPoints[i + 8]);
+    for (let i = 0; i < vPositions.length - 2; i++) {
+      const v1 = vPositions[i];
+      const v2 = vPositions[i + 1];
+      const v3 = vPositions[i + 2];
 
       // Connect the vertices of the triangle
-      triPoints.push(v1.x, v1.y, v1.z);
-      triPoints.push(v2.x, v2.y, v2.z);
-
-      triPoints.push(v2.x, v2.y, v2.z);
-      triPoints.push(v3.x, v3.y, v3.z);
-
-      triPoints.push(v3.x, v3.y, v3.z);
-      triPoints.push(v1.x, v1.y, v1.z);
+      triPoints.push(v1[0], v1[1], v1[2]);
+      triPoints.push(v2[0], v2[1], v2[2]);
+      triPoints.push(v3[0], v3[1], v3[2]);
+      triPoints.push(v1[0], v1[1], v1[2]);
     }
+
     geom.setPositions(triPoints);
     return geom;
   }, [vertices]);
