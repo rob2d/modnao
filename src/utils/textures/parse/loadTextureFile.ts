@@ -46,12 +46,9 @@ async function loadTextureBuffer(
           const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
           const readOffset =
             t.baseLocation - t.ramOffset + offsetDrawn * COLOR_SIZE;
-          // textures may point out of bounds (this would be
-          // to RAM elswhere in-game)
-          if (readOffset >= buffer.length) {
-            if (!failOutOfBounds) {
-              break;
-            }
+          // textures may point out of bounds (this would be to RAM elswhere in-game)
+          if (readOffset >= buffer.length && !failOutOfBounds) {
+            break;
           }
 
           const colorValue = buffer.readUInt16LE(readOffset);
@@ -110,12 +107,14 @@ export default async function loadTextureFile({
   buffer: Buffer;
 }) {
   let result: Result;
+  const expectOOBReferences = fileName.toLowerCase().match('^dm');
+  const decompressContent = fileName.toLowerCase().match(/^pl{0-9}[2]_fac/);
 
   try {
     const textureBufferData = await loadTextureBuffer(
       buffer,
       textureDefs,
-      true
+      !expectOOBReferences
     );
     const textureBufferUrl = await bufferToObjectUrl(buffer);
 

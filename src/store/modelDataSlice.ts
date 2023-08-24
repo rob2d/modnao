@@ -110,6 +110,13 @@ export const loadDedicatedTextureFile = createAsyncThunk<
 >(
   `${sliceName}/loadDedicatedTextureFile`,
   async (file, { getState, dispatch }) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const pointer1 = buffer.readUInt32LE(0);
+    const pointer2 = buffer.readUInt32LE(4);
+    const pointer3 = buffer.readUInt32LE(8);
+
     dispatch({
       type: loadPolygonFile.fulfilled.type,
       payload: {
@@ -118,15 +125,15 @@ export const loadDedicatedTextureFile = createAsyncThunk<
         polygonBufferUrl: undefined,
         textureDefs: [
           {
-            width: 256,
-            height: 256,
-            colorFormat: 'ARGB4444',
+            width: 128,
+            height: 128,
+            colorFormat: 'RGB565',
             colorFormatValue: 2,
             bufferUrls: {},
             dataUrls: {},
             type: 0,
             address: 0,
-            baseLocation: 0,
+            baseLocation: pointer3,
             ramOffset: 0
           }
         ]
