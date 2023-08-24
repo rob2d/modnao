@@ -103,6 +103,40 @@ export const initialModelDataState: ModelDataState = {
   hasCompressedTextures: false
 };
 
+export const loadDedicatedTextureFile = createAsyncThunk<
+  void,
+  File,
+  { state: AppState }
+>(
+  `${sliceName}/loadDedicatedTextureFile`,
+  async (file, { getState, dispatch }) => {
+    dispatch({
+      type: loadPolygonFile.fulfilled.type,
+      payload: {
+        models: [],
+        fileName: undefined,
+        polygonBufferUrl: undefined,
+        textureDefs: [
+          {
+            width: 256,
+            height: 256,
+            colorFormat: 'ARGB4444',
+            colorFormatValue: 2,
+            bufferUrls: {},
+            dataUrls: {},
+            type: 0,
+            address: 0,
+            baseLocation: 0,
+            ramOffset: 0
+          }
+        ]
+      }
+    });
+
+    await dispatch(loadTextureFile(file));
+  }
+);
+
 export const loadPolygonFile = createAsyncThunk<
   LoadPolygonsPayload,
   File,
@@ -343,6 +377,16 @@ const modelDataSlice = createSlice({
         state.textureFileName = fileName;
         state.hasCompressedTextures = hasCompressedTextures;
         state.textureBufferUrl = textureBufferUrl;
+      }
+    );
+
+    builder.addCase(
+      loadDedicatedTextureFile.pending,
+      (state: ModelDataState) => {
+        // TODO: in thunk, revoke URL for existing buffer Urls
+        state.polygonBufferUrl = undefined;
+        state.textureBufferUrl = undefined;
+        state.textureDefs = [];
       }
     );
 

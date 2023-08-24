@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
+  loadDedicatedTextureFile,
   loadPolygonFile,
   loadTextureFile,
   useAppDispatch,
@@ -48,13 +49,13 @@ export default function useSupportedFilePicker(
 
     let selectedPolygonFile: File | undefined = undefined;
     let selectedTextureFile: File | undefined = undefined;
-    let dedicatedTextureFile: File | undefined = undefined;
+    let selectedDedicatedTextureFile: File | undefined = undefined;
 
     const DEDICATED_TEXTURE_FILE_ERROR =
       'Cannot select other files with dedicated texture files at this time';
 
     plainFiles.forEach((f, i) => {
-      if (dedicatedTextureFile) {
+      if (selectedDedicatedTextureFile) {
         handleError(DEDICATED_TEXTURE_FILE_ERROR);
         return;
       }
@@ -65,7 +66,7 @@ export default function useSupportedFilePicker(
           return;
         }
 
-        dedicatedTextureFile = f;
+        selectedDedicatedTextureFile = f;
         return;
       }
 
@@ -88,7 +89,11 @@ export default function useSupportedFilePicker(
       }
     });
 
-    if (!selectedPolygonFile && !selectedTextureFile && !dedicatedTextureFile) {
+    if (
+      !selectedPolygonFile &&
+      !selectedTextureFile &&
+      !selectedDedicatedTextureFile
+    ) {
       onError(
         'Invalid stage file selected; Please select a file in the form STG**POL.BIN along with STG**TEX.BIN, or PL**_FAC.BIN or PL**_WIN.BIN'
       );
@@ -109,6 +114,10 @@ export default function useSupportedFilePicker(
           );
           return;
         }
+      }
+
+      if (selectedDedicatedTextureFile) {
+        dispatch(loadDedicatedTextureFile(selectedDedicatedTextureFile));
       }
     })();
   }, [plainFiles]);
