@@ -5,6 +5,7 @@ import {
   selectHasCompressedTextures,
   selectModel,
   selectObjectMeshIndex,
+  selectObjectPolygonIndex,
   selectSceneTextureDefs,
   selectTextureFileName,
   useAppDispatch,
@@ -34,6 +35,8 @@ export default function GuiPanelViewOptions() {
     const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
     return typeof textureIndex === 'number' ? textureIndex : -1;
   }, [model?.meshes?.[meshIndex]?.textureIndex]);
+
+  const polygonIndex = useAppSelector(selectObjectPolygonIndex);
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
@@ -71,6 +74,7 @@ export default function GuiPanelViewOptions() {
               key={`${m.textureIndex}_${i}`}
               textureDef={textureDef}
               textureIndex={m.textureIndex}
+              polygonIndex={polygonIndex}
               selected={selectedMeshTexture === m.textureIndex}
             />
           );
@@ -89,6 +93,7 @@ export default function GuiPanelViewOptions() {
             key={i}
             textureDef={textureDef}
             textureIndex={i}
+            polygonIndex={polygonIndex}
             selected={false}
           />
         );
@@ -96,7 +101,7 @@ export default function GuiPanelViewOptions() {
     }
 
     return [pTextures, opTextures];
-  }, [model, meshIndex, textureDefs, selectedMeshTexture]);
+  }, [model, meshIndex, textureDefs, selectedMeshTexture, polygonIndex]);
 
   return (
     <GuiPanelSection title='Textures' subtitle={textureFileName}>

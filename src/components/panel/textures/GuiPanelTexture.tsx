@@ -107,12 +107,14 @@ export type GuiPanelTextureProps = {
   selected: boolean;
   textureDef: NLTextureDef;
   textureIndex: number;
+  polygonIndex: number;
 };
 
 export default function GuiPanelTexture({
   selected,
   textureIndex,
-  textureDef
+  textureDef,
+  polygonIndex
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
@@ -124,7 +126,11 @@ export default function GuiPanelTexture({
     }
 
     const paths: string[] = [];
-    mesh.polygons.forEach((p) => {
+
+    const polygons =
+      polygonIndex !== -1 ? [mesh.polygons[polygonIndex]] : mesh.polygons;
+
+    polygons.forEach((p) => {
       for (let i = 0; i < p.triIndices.length; i += 4) {
         let path = '';
         [i, i + 1, i + 2, i + 3].forEach((j, jI, triPoints) => {
@@ -139,7 +145,7 @@ export default function GuiPanelTexture({
     });
 
     return paths;
-  }, [selected && mesh?.polygons]);
+  }, [selected && mesh?.polygons, polygonIndex]);
 
   const onSelectNewImageFile = useCallback(
     async (imageFile: File) => {
