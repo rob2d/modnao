@@ -27,7 +27,7 @@ export default function useModelSelectionExport() {
     }
 
     // type === 'polygon'
-    const [meshKey, polygonKey] = objectKey.split('-').map(Number) as [
+    const [meshKey, polygonKey] = objectKey.split('_').map(Number) as [
       number,
       number
     ];

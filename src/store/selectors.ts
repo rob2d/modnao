@@ -122,7 +122,19 @@ export const selectDisplayedMeshes = createSelector(
 export const selectObjectMeshIndex = createSelector(
   selectObjectKey,
   (objectKey: string | undefined) =>
-    !objectKey ? -1 : Number(objectKey.split('-')[0])
+    !objectKey ? -1 : Number(objectKey.split('_')[0])
+);
+
+/** infers mesh selection from selected object key */
+export const selectObjectPolygonIndex = createSelector(
+  selectObjectKey,
+  selectObjectSelectionType,
+  (objectKey: string | undefined, type) => {
+    if (type === 'mesh' || !objectKey) {
+      return -1;
+    }
+    return Number(objectKey.split('_')[1]);
+  }
 );
 
 export const selectMesh = createSelector(
