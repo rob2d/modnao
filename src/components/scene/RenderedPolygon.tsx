@@ -120,8 +120,8 @@ export default function RenderedPolygon({
     () => ({
       map: texture,
       transparent: true,
-      opacity: isSelected ? 0.75 : 1,
-      alphaTest: isSelected ? 0 : 1,
+      opacity: 1,
+      alphaTest: 0.0001,
       side: disableBackfaceCulling ? DoubleSide : FrontSide
     }),
     [texture, isSelected, disableBackfaceCulling]
