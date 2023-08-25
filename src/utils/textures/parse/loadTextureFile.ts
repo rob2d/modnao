@@ -108,7 +108,6 @@ export default async function loadTextureFile({
 }) {
   let result: Result;
   const expectOOBReferences = fileName.toLowerCase().match('^dm');
-  const decompressContent = fileName.toLowerCase().match(/^pl{0-9}[2]_fac/);
 
   try {
     const textureBufferData = await loadTextureBuffer(

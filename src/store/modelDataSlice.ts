@@ -110,13 +110,15 @@ export const loadDedicatedTextureFile = createAsyncThunk<
 >(
   `${sliceName}/loadDedicatedTextureFile`,
   async (file, { getState, dispatch }) => {
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
+    window.alert('These dedicated texture files are not yet supported');
+    /*
     const pointer1 = buffer.readUInt32LE(0);
     const pointer2 = buffer.readUInt32LE(4);
     const pointer3 = buffer.readUInt32LE(8);
 
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    // revoke URL for existing texture buffer url in state
     dispatch({
       type: loadPolygonFile.fulfilled.type,
       payload: {
@@ -141,6 +143,7 @@ export const loadDedicatedTextureFile = createAsyncThunk<
     });
 
     await dispatch(loadTextureFile(file));
+    */
   }
 );
 
@@ -390,7 +393,6 @@ const modelDataSlice = createSlice({
     builder.addCase(
       loadDedicatedTextureFile.pending,
       (state: ModelDataState) => {
-        // TODO: in thunk, revoke URL for existing buffer Urls
         state.polygonBufferUrl = undefined;
         state.textureBufferUrl = undefined;
         state.textureDefs = [];
