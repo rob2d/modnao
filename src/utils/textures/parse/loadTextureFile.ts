@@ -26,7 +26,8 @@ const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
 
 async function loadTextureBuffer(
   bufferPassed: Buffer,
-  textureDefs: NLTextureDef[]
+  textureDefs: NLTextureDef[],
+  failOutOfBounds: boolean
 ): Promise<{ textureDefs: NLTextureDef[] }> {
   const buffer = Buffer.from(bufferPassed);
   const nextTextureDefs: NLTextureDef[] = [];
@@ -45,9 +46,8 @@ async function loadTextureBuffer(
           const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
           const readOffset =
             t.baseLocation - t.ramOffset + offsetDrawn * COLOR_SIZE;
-          // textures may point out of bounds (this would be
-          // to RAM elswhere in-game)
-          if (readOffset >= buffer.length) {
+          // textures may point out of bounds (this would be to RAM elswhere in-game)
+          if (readOffset >= buffer.length && !failOutOfBounds) {
             break;
           }
 
@@ -90,6 +90,13 @@ async function loadTextureBuffer(
   };
 }
 
+type Result = {
+  textureDefs: NLTextureDef[];
+  fileName: string;
+  hasCompressedTextures: boolean;
+  textureBufferUrl: string;
+};
+
 export default async function loadTextureFile({
   buffer,
   textureDefs,
@@ -99,15 +106,15 @@ export default async function loadTextureFile({
   fileName: string;
   buffer: Buffer;
 }) {
-  let result: {
-    textureDefs: NLTextureDef[];
-    fileName: string;
-    hasCompressedTextures: boolean;
-    textureBufferUrl: string;
-  };
+  let result: Result;
+  const expectOOBReferences = fileName.toLowerCase().match('^dm');
 
   try {
-    const textureBufferData = await loadTextureBuffer(buffer, textureDefs);
+    const textureBufferData = await loadTextureBuffer(
+      buffer,
+      textureDefs,
+      !expectOOBReferences
+    );
     const textureBufferUrl = await bufferToObjectUrl(buffer);
 
     result = {
@@ -129,7 +136,8 @@ export default async function loadTextureFile({
 
     const textureBufferData = await loadTextureBuffer(
       decompressedBuffer,
-      textureDefs
+      textureDefs,
+      true
     );
 
     result = {

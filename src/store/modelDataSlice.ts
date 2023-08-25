@@ -103,6 +103,50 @@ export const initialModelDataState: ModelDataState = {
   hasCompressedTextures: false
 };
 
+export const loadDedicatedTextureFile = createAsyncThunk<
+  void,
+  File,
+  { state: AppState }
+>(
+  `${sliceName}/loadDedicatedTextureFile`,
+  async (file, { getState, dispatch }) => {
+    window.alert('These dedicated texture files are not yet supported');
+    /*
+    const pointer1 = buffer.readUInt32LE(0);
+    const pointer2 = buffer.readUInt32LE(4);
+    const pointer3 = buffer.readUInt32LE(8);
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    // revoke URL for existing texture buffer url in state
+    dispatch({
+      type: loadPolygonFile.fulfilled.type,
+      payload: {
+        models: [],
+        fileName: undefined,
+        polygonBufferUrl: undefined,
+        textureDefs: [
+          {
+            width: 128,
+            height: 128,
+            colorFormat: 'RGB565',
+            colorFormatValue: 2,
+            bufferUrls: {},
+            dataUrls: {},
+            type: 0,
+            address: 0,
+            baseLocation: pointer3,
+            ramOffset: 0
+          }
+        ]
+      }
+    });
+
+    await dispatch(loadTextureFile(file));
+    */
+  }
+);
+
 export const loadPolygonFile = createAsyncThunk<
   LoadPolygonsPayload,
   File,
@@ -343,6 +387,15 @@ const modelDataSlice = createSlice({
         state.textureFileName = fileName;
         state.hasCompressedTextures = hasCompressedTextures;
         state.textureBufferUrl = textureBufferUrl;
+      }
+    );
+
+    builder.addCase(
+      loadDedicatedTextureFile.pending,
+      (state: ModelDataState) => {
+        state.polygonBufferUrl = undefined;
+        state.textureBufferUrl = undefined;
+        state.textureDefs = [];
       }
     );
 
