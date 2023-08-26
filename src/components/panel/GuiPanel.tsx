@@ -1,3 +1,4 @@
+import Img from 'next/image';
 import { Divider, Paper, styled } from '@mui/material';
 import { useContext } from 'react';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
@@ -54,7 +55,7 @@ const StyledPaper = styled(Paper)(
       align-items: flex-end;
       box-sizing: border-box;
       padding-top: ${theme.spacing(1)};
-      padding-bottom: 0;
+      padding-bottom: ${theme.spacing(1)};
     }
 
     & .content .MuiToggleButtonGroup-root:not(:first-item) {
@@ -152,11 +153,18 @@ export default function GuiPanel() {
       className={clsx(viewOptions.guiPanelVisible && 'visible')}
     >
       <div className='content'>
+        {!hasLoadedPolygonFile && !hasLoadedTextureFile ? (
+          <Img alt='logo' src='/logo.svg' width={222} height={172} />
+        ) : undefined}
         {!isTextureOnlyMode ? (
           <>
             <GuiPanelModels />
-            <Divider flexItem />
-            {!hasLoadedTextureFile ? undefined : <GuiPanelTextures />}
+            {!hasLoadedTextureFile ? undefined : (
+              <>
+                <Divider flexItem />
+                <GuiPanelTextures />
+              </>
+            )}
           </>
         ) : (
           <>
@@ -164,9 +172,12 @@ export default function GuiPanel() {
             <GuiPanelModels />
           </>
         )}
-
-        {!hasLoadedTextureFile ? undefined : <Divider flexItem />}
-        <GuiPanelViewOptions />
+        {!hasLoadedPolygonFile ? undefined : (
+          <>
+            <Divider flexItem />
+            <GuiPanelViewOptions />
+          </>
+        )}
       </div>
     </StyledPaper>
   );

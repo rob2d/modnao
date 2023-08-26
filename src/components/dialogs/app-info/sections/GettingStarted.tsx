@@ -56,7 +56,7 @@ export default function GettingStarted() {
                   href='https://www.romhacking.net/utilities/1459/'
                   target='_new'
                 >
-                  GDI Extractor
+                  GDI Explorer
                 </Link>
                 &nbsp;and extract your .cdi/.gdi file contents of your legally
                 owned Capcom vs SNK 2 or Marvel vs Capcom 2 ROM file.
