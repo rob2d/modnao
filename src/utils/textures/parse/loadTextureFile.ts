@@ -107,7 +107,9 @@ export default async function loadTextureFile({
   buffer: Buffer;
 }) {
   let result: Result;
-  const expectOOBReferences = fileName.toLowerCase().match('^dm');
+  // @TODO: DRY regexp from useSupportedFilePicker
+  const expectOOBReferences =
+    fileName.toLowerCase().match('^dm') || fileName.toLowerCase().match('^pl');
 
   try {
     const textureBufferData = await loadTextureBuffer(

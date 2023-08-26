@@ -5,10 +5,19 @@ export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
 export const selectObjectKey = (s: AppState) => s.modelViewer.objectKey;
 
-export const selectStageModels = (s: AppState) => s.modelData.models;
+export const selectModels = (s: AppState) => s.modelData.models;
+
+export const selectHasLoadedModelFile = (s: AppState) =>
+  Boolean(s.modelData.polygonFileName);
 
 export const selectHasLoadedTextureFile = (s: AppState) =>
-  s.modelData.textureFileName;
+  Boolean(s.modelData.textureFileName);
+
+export const selectHasLoadedFile = createSelector(
+  selectHasLoadedModelFile,
+  selectHasLoadedTextureFile,
+  (m, p) => m || p
+);
 
 export const selectHasEditedTextures = (s: AppState) =>
   s.modelData.hasEditedTextures;
@@ -17,7 +26,7 @@ export const selectHasCompressedTextures = (s: AppState) =>
   s.modelData.hasCompressedTextures;
 
 export const selectModelCount = createSelector(
-  selectStageModels,
+  selectModels,
   (models) => models.length
 );
 export const selectObjectSelectionType = (s: AppState) =>
@@ -94,7 +103,7 @@ export const selectTextureFileName = (s: AppState) =>
 
 export const selectModel = createSelector(
   selectModelIndex,
-  selectStageModels,
+  selectModels,
   (modelIndex, models) => models?.[modelIndex]
 );
 export type DisplayedMesh = NLMesh & { textureHash: string };
@@ -148,3 +157,6 @@ export const selectReplacementImage = (s: AppState) =>
 
 export const selectReplacementTextureIndex = (s: AppState) =>
   s.replaceTexture.textureIndex;
+
+export const selectIsAppInfoDialogShown = (s: AppState) =>
+  s.dialogs.dialogShown === 'app-info';
