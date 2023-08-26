@@ -57,13 +57,6 @@ const Styled = styled('div')(
   `
 );
 
-const TOOLTIP_DISCLAIMER_ICON_STYLE = {
-  display: 'inline-block',
-  position: 'relative',
-  top: '4px',
-  marginTop: '-4px'
-} as const;
-
 export default function GuiPanelViewOptions() {
   const viewOptions = useContext(ViewOptionsContext);
 

@@ -110,112 +110,109 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   LoadTexturesPayload,
   File,
   { state: AppState }
->(
-  `${sliceName}/loadCharacterPortraitsFile`,
-  async (file, { getState, dispatch }) => {
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+>(`${sliceName}/loadCharacterPortraitsFile`, async (file, { dispatch }) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
 
-    // grab pointers
-    const pointers = [
-      buffer.readUInt32LE(0),
-      buffer.readUInt32LE(4),
-      buffer.readUInt32LE(8)
-    ];
-    const uint8Array = new Uint8Array(arrayBuffer);
+  // grab pointers
+  const pointers = [
+    buffer.readUInt32LE(0),
+    buffer.readUInt32LE(4),
+    buffer.readUInt32LE(8)
+  ];
+  const uint8Array = new Uint8Array(arrayBuffer);
 
-    // retrieve the compressed sub-areas to decompress
-    const compressedSections = [
-      uint8Array.slice(pointers[0], pointers[1])
-      //uint8Array.slice(pointers[1], pointers[2])
-      // uint8Array.slice(pointers[2])
-    ];
+  // retrieve the compressed sub-areas to decompress
+  const compressedSections = [
+    uint8Array.slice(pointers[0], pointers[1])
+    //uint8Array.slice(pointers[1], pointers[2])
+    // uint8Array.slice(pointers[2])
+  ];
 
-    // decompress the segments in parallel
-    const decompressedSections = await Promise.all(
-      compressedSections.map((s) => decompressTextureBuffer(Buffer.from(s)))
-    );
+  // decompress the segments in parallel
+  const decompressedSections = await Promise.all(
+    compressedSections.map((s) => decompressTextureBuffer(Buffer.from(s)))
+  );
 
-    // @TODO: reassemble buffer into on for texture defs, while
-    // taking note of the offset/position of each texture
-    const size = 12 + decompressedSections.reduce((a, s) => a + s.length, 0);
+  // @TODO: reassemble buffer into on for texture defs, while
+  // taking note of the offset/position of each texture
+  const size = 12 + decompressedSections.reduce((a, s) => a + s.length, 0);
 
-    const assembledBuffer = new Uint8Array(size);
-    let position = 12;
-    const pointerSection = uint8Array.slice(0, position);
-    assembledBuffer.set(pointerSection, 0);
-    const decompressedOffsets = [];
+  const assembledBuffer = new Uint8Array(size);
+  let position = 12;
+  const pointerSection = uint8Array.slice(0, position);
+  assembledBuffer.set(pointerSection, 0);
+  const decompressedOffsets = [];
 
-    for (const section of decompressedSections) {
-      assembledBuffer.set(section, position);
-      decompressedOffsets.push(position);
-      position += section.length;
+  for (const section of decompressedSections) {
+    assembledBuffer.set(section, position);
+    decompressedOffsets.push(position);
+    position += section.length;
+  }
+
+  const textureSizes = [
+    { width: 32, height: 32 },
+    { width: 64, height: 64 },
+    { width: 128, height: 128 }
+  ];
+
+  const textureDefs = decompressedOffsets.map((offset, i) => ({
+    ...textureSizes[i],
+    colorFormat: 'RGB565',
+    colorFormatValue: 2,
+    bufferUrls: {
+      translucent: undefined,
+      opaque: undefined
+    },
+    dataUrls: {
+      translucent: undefined,
+      opaque: undefined
+    },
+    type: 0,
+    address: 0,
+    baseLocation: offset,
+    ramOffset: 0
+  }));
+
+  // revoke URL for existing texture buffer url in state
+  dispatch({
+    type: loadPolygonFile.fulfilled.type,
+    payload: {
+      models: [],
+      fileName: undefined,
+      polygonBufferUrl: undefined,
+      textureDefs
+    }
+  });
+
+  const thread = workerPool.allocate();
+
+  const result = await new Promise<LoadTexturesPayload>((resolve) => {
+    if (thread) {
+      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
+        const payload = {
+          ...event.data.result,
+          hasCompressedTextures: true
+        };
+        dispatch({ type: loadTextureFile.fulfilled.type, payload });
+        resolve(payload);
+
+        workerPool.unallocate(thread);
+      };
     }
 
-    const textureSizes = [
-      { width: 32, height: 32 },
-      { width: 64, height: 64 },
-      { width: 128, height: 128 }
-    ];
-
-    const textureDefs = decompressedOffsets.map((offset, i) => ({
-      ...textureSizes[i],
-      colorFormat: 'RGB565',
-      colorFormatValue: 2,
-      bufferUrls: {
-        translucent: undefined,
-        opaque: undefined
-      },
-      dataUrls: {
-        translucent: undefined,
-        opaque: undefined
-      },
-      type: 0,
-      address: 0,
-      baseLocation: offset,
-      ramOffset: 0
-    }));
-
-    // revoke URL for existing texture buffer url in state
-    dispatch({
-      type: loadPolygonFile.fulfilled.type,
+    thread?.postMessage({
+      type: 'loadTextureFile',
       payload: {
-        models: [],
-        fileName: undefined,
-        polygonBufferUrl: undefined,
-        textureDefs
+        fileName: file.name,
+        textureDefs,
+        buffer: assembledBuffer
       }
-    });
+    } as WorkerEvent);
+  });
 
-    const thread = workerPool.allocate();
-
-    const result = await new Promise<LoadTexturesPayload>((resolve) => {
-      if (thread) {
-        thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-          const payload = {
-            ...event.data.result,
-            hasCompressedTextures: true
-          };
-          dispatch({ type: loadTextureFile.fulfilled.type, payload });
-          resolve(payload);
-
-          workerPool.unallocate(thread);
-        };
-      }
-
-      thread?.postMessage({
-        type: 'loadTextureFile',
-        payload: {
-          fileName: file.name,
-          textureDefs,
-          buffer: assembledBuffer
-        }
-      } as WorkerEvent);
-    });
-
-    return result;
-  }
-);
+  return result;
+});
 
 export const loadPolygonFile = createAsyncThunk<
   LoadPolygonsPayload,

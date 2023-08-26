@@ -1,4 +1,3 @@
-import Img from 'next/image';
 import { useCallback, useContext } from 'react';
 import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
