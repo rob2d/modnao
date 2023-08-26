@@ -4,6 +4,7 @@ import {
   downloadTextureFile,
   selectHasCompressedTextures,
   selectModel,
+  selectModels,
   selectObjectMeshIndex,
   selectObjectPolygonIndex,
   selectSceneTextureDefs,
@@ -30,6 +31,7 @@ export default function GuiPanelViewOptions() {
   const hasCompressedTextures = useAppSelector(selectHasCompressedTextures);
   const textureDefs = useAppSelector(selectSceneTextureDefs);
   const textureFileName = useAppSelector(selectTextureFileName);
+  const models = useAppSelector(selectModels);
 
   const selectedMeshTexture: number = useMemo(() => {
     const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
@@ -109,9 +111,11 @@ export default function GuiPanelViewOptions() {
         {textures}
         {!offsceneTextures.length ? undefined : (
           <>
-            <StyledDivider flexItem>
-              <Chip label='Offscene' size='small' color='secondary' />
-            </StyledDivider>
+            {!models.length ? undefined : (
+              <StyledDivider flexItem>
+                <Chip label='Offscene' size='small' color='secondary' />
+              </StyledDivider>
+            )}
             {offsceneTextures}
           </>
         )}

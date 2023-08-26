@@ -6,14 +6,17 @@ import TransferrableBuffer from '@/types/TransferrableBuffer';
 import { bufferToObjectUrl } from '@/utils/data';
 
 export default async function loadPolygonFile({
-  buffer
+  buffer,
+  fileName
 }: {
   buffer: TransferrableBuffer;
+  fileName: string;
 }): Promise<{
   modelRamOffset: number;
   models: NLModel[];
   textureDefs: NLTextureDef[];
   polygonBufferUrl: string;
+  fileName: string;
 }> {
   const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
   const textureDefs = scanTextureHeaderData(buffer, modelRamOffset);
@@ -26,6 +29,7 @@ export default async function loadPolygonFile({
     modelRamOffset,
     models,
     textureDefs,
-    polygonBufferUrl: await bufferToObjectUrl(buffer)
+    polygonBufferUrl: await bufferToObjectUrl(buffer),
+    fileName
   });
 }

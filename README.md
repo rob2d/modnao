@@ -1,4 +1,4 @@
-![ModNao logo](./doc/logo.svg)
+![ModNao logo](./public/logo.svg)
 
 # ModNao
 

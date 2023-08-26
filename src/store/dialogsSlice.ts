@@ -8,7 +8,7 @@ export interface DialogsState {
 }
 
 export const initialDialogsState: DialogsState = {
-  dialogShown: 'app-info'
+  dialogShown: undefined
 };
 
 const dialogsSlice = createSlice({

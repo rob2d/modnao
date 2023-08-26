@@ -10,6 +10,7 @@ export type WorkerEvent =
   | {
       type: 'loadPolygonFile';
       payload: {
+        fileName: string;
         buffer: TransferrableBuffer;
       };
     }

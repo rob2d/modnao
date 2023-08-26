@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
-  loadDedicatedTextureFile,
+  loadCharacterPortraitsFile,
   loadPolygonFile,
   loadTextureFile,
   useAppDispatch,
   useAppSelector
 } from '@/store';
 
-/** includes character-specific super portraits and win poses */
-const DEDICATED_TEXTURE_FILE_REGEX = /^PL[0-9A-Z]{2}_(FAC|WIN).BIN$/i;
+/** includes character-specific super portraits and end-game images */
+const CHARACTER_PORTRAITS_REGEX_FILE = /^PL[0-9A-Z]{2}_FAC.BIN$/i;
 
 /** polygon files which may be associated to textures */
 const POLYGON_FILE_REGEX = /^(STG|DM)[0-9A-Z]{2}POL\.BIN$/i;
@@ -52,7 +52,7 @@ export default function useSupportedFilePicker(
     let selectedDedicatedTextureFile: File | undefined = undefined;
 
     const DEDICATED_TEXTURE_FILE_ERROR =
-      'Cannot select other files with dedicated texture files at this time';
+      'Cannot select files along with dedicated texture files at this time';
 
     plainFiles.forEach((f, i) => {
       if (selectedDedicatedTextureFile) {
@@ -60,7 +60,7 @@ export default function useSupportedFilePicker(
         return;
       }
 
-      if (f.name.match(DEDICATED_TEXTURE_FILE_REGEX)) {
+      if (f.name.match(CHARACTER_PORTRAITS_REGEX_FILE)) {
         if (i > 0) {
           handleError(DEDICATED_TEXTURE_FILE_ERROR);
           return;
@@ -117,7 +117,7 @@ export default function useSupportedFilePicker(
       }
 
       if (selectedDedicatedTextureFile) {
-        dispatch(loadDedicatedTextureFile(selectedDedicatedTextureFile));
+        dispatch(loadCharacterPortraitsFile(selectedDedicatedTextureFile));
       }
     })();
   }, [plainFiles]);
