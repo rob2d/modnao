@@ -243,7 +243,7 @@ export const loadPolygonFile = createAsyncThunk<
 
         thread?.postMessage({
           type: 'loadPolygonFile',
-          payload: { buffer }
+          payload: { buffer, fileName: file.name }
         } as WorkerEvent);
       }
     });
