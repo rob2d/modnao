@@ -11,7 +11,7 @@ import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 import uvToCssPathPoint from '@/utils/textures/uvToCssPathPoint';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
-const IMG_SIZE = '170px';
+const IMG_SIZE = '174px';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>

@@ -106,7 +106,18 @@ export default function GuiPanelModels() {
     modelNoAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
   }
 
-  return (
+  const importFileButton = (
+    <GuiPanelButton
+      tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
+      onClick={openFileSelector}
+    >
+      Import Model/Texture
+    </GuiPanelButton>
+  );
+
+  return !polygonFileName ? (
+    <div className='selection'>{importFileButton}</div>
+  ) : (
     <GuiPanelSection title='Models' subtitle={polygonFileName}>
       <div className='selection'>
         <Grid container className='property-table'>
@@ -170,12 +181,7 @@ export default function GuiPanelModels() {
             </ToggleButtonGroup>
           </Grid>
         </Grid>
-        <GuiPanelButton
-          tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
-          onClick={openFileSelector}
-        >
-          Import Model/Texture
-        </GuiPanelButton>
+        {importFileButton}
         {!model ? undefined : (
           <GuiPanelButton
             tooltip={

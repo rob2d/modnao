@@ -16,10 +16,16 @@ import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 import { Chip, Divider, styled } from '@mui/material';
 
-const StyledDivider = styled(Divider)(
+const Styled = styled('div')(
   ({ theme }) => `
-& {
+& .MuiDivider-root {
   margin: ${theme.spacing(2)} 0;
+}
+
+&.textures {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 `
 );
@@ -107,19 +113,19 @@ export default function GuiPanelViewOptions() {
 
   return (
     <GuiPanelSection title='Textures' subtitle={textureFileName}>
-      <div className='textures'>
+      <Styled className='textures'>
         {textures}
         {!offsceneTextures.length ? undefined : (
           <>
             {!models.length ? undefined : (
-              <StyledDivider flexItem>
+              <Divider flexItem>
                 <Chip label='Offscene' size='small' color='secondary' />
-              </StyledDivider>
+              </Divider>
             )}
             {offsceneTextures}
           </>
         )}
-      </div>
+      </Styled>
       {hasCompressedTextures ? undefined : (
         <div className='export-texture-button-container'>
           <GuiPanelButton
