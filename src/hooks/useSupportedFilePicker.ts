@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,
+  loadCharacterWinFile,
   loadPolygonFile,
   loadTextureFile,
   useAppDispatch,
@@ -10,6 +11,9 @@ import {
 
 /** includes character-specific super portraits and end-game images */
 const CHARACTER_PORTRAITS_REGEX_FILE = /^PL[0-9A-Z]{2}_FAC.BIN$/i;
+
+/** includes character-specific super portraits and end-game images */
+const CHARACTER_WIN_REGEX_FILE = /^PL[0-9A-Z]{2}_WIN.BIN$/i;
 
 /** polygon files which may be associated to textures */
 const POLYGON_FILE_REGEX = /^(STG|DM)[0-9A-Z]{2}POL\.BIN$/i;
@@ -49,13 +53,14 @@ export default function useSupportedFilePicker(
 
     let selectedPolygonFile: File | undefined = undefined;
     let selectedTextureFile: File | undefined = undefined;
-    let selectedDedicatedTextureFile: File | undefined = undefined;
+    let selectedCharacterPortraitsFile: File | undefined = undefined;
+    let selectedCharacterWinFile: File | undefined = undefined;
 
     const DEDICATED_TEXTURE_FILE_ERROR =
       'Cannot select files along with dedicated texture files at this time';
 
     plainFiles.forEach((f, i) => {
-      if (selectedDedicatedTextureFile) {
+      if (selectedCharacterPortraitsFile || selectedCharacterWinFile) {
         handleError(DEDICATED_TEXTURE_FILE_ERROR);
         return;
       }
@@ -66,7 +71,17 @@ export default function useSupportedFilePicker(
           return;
         }
 
-        selectedDedicatedTextureFile = f;
+        selectedCharacterPortraitsFile = f;
+        return;
+      }
+
+      if (f.name.match(CHARACTER_WIN_REGEX_FILE)) {
+        if (i > 0) {
+          handleError(DEDICATED_TEXTURE_FILE_ERROR);
+          return;
+        }
+
+        selectedCharacterWinFile = f;
         return;
       }
 
@@ -92,10 +107,11 @@ export default function useSupportedFilePicker(
     if (
       !selectedPolygonFile &&
       !selectedTextureFile &&
-      !selectedDedicatedTextureFile
+      !selectedCharacterPortraitsFile &&
+      !selectedCharacterWinFile
     ) {
       onError(
-        'Invalid stage file selected; Please select a file in the form STG**POL.BIN along with STG**TEX.BIN, or PL**_FAC.BIN or PL**_WIN.BIN'
+        'Invalid file selected; Please select a file in the form STG**POL.BIN along with STG**TEX.BIN, or PL**_FAC.BIN or PL**_WIN.BIN'
       );
       return;
     }
@@ -116,8 +132,12 @@ export default function useSupportedFilePicker(
         }
       }
 
-      if (selectedDedicatedTextureFile) {
-        dispatch(loadCharacterPortraitsFile(selectedDedicatedTextureFile));
+      if (selectedCharacterPortraitsFile) {
+        dispatch(loadCharacterPortraitsFile(selectedCharacterPortraitsFile));
+      }
+
+      if (selectedCharacterWinFile) {
+        dispatch(loadCharacterWinFile(selectedCharacterWinFile));
       }
     })();
   }, [plainFiles]);
