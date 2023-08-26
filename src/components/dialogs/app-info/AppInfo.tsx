@@ -8,7 +8,11 @@ import DevUpdates from './sections/DevUpdates';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
 import { useCallback } from 'react';
-import { useAppDispatch } from '@/store';
+import {
+  selectIsAppInfoDialogShown,
+  useAppDispatch,
+  useAppSelector
+} from '@/store';
 import { closeDialog } from '@/store/dialogsSlice';
 
 const Styled = styled('div')(
@@ -71,6 +75,8 @@ export default function AppInfo() {
     dispatch(closeDialog());
   }, []);
 
+  const isAppInfoDialogShown = useAppSelector(selectIsAppInfoDialogShown);
+
   return (
     <Styled>
       <div>
@@ -87,13 +93,15 @@ export default function AppInfo() {
         <SceneNavigationHints />
         <Divider />
         <Contributors />
-        <Button
-          variant='outlined'
-          className='ok-button'
-          onClick={onClose as () => void}
-        >
-          OK <Icon path={mdiChevronDoubleRight} size={1} />
-        </Button>
+        {!isAppInfoDialogShown ? undefined : (
+          <Button
+            variant='outlined'
+            className='ok-button'
+            onClick={onClose as () => void}
+          >
+            OK <Icon path={mdiChevronDoubleRight} size={1} />
+          </Button>
+        )}
       </div>
     </Styled>
   );

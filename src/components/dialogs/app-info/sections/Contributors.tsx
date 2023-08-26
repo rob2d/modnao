@@ -26,7 +26,7 @@ export default function Contributors() {
       <DialogSectionHeader>Contributions</DialogSectionHeader>
       <StyledContent>
         <Typography variant={'subtitle1'}>Design/Development</Typography>
-        <Typography variant={'h6'}>Rob2D</Typography>
+        <Typography variant={'h6'}>rob2d</Typography>
         <Typography variant={'subtitle1'}>
           Various Model & Texture Format / R.E. Details
         </Typography>

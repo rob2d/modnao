@@ -28,6 +28,7 @@ const StyledPaper = styled(Paper)(
 
     &.MuiPaper-root.visible {
       width: ${WIDTH}px;
+      flex-shrink: 0;
     }
 
     &.MuiPaper-root:not(.visible) {
