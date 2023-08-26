@@ -152,7 +152,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   }
 
   const textureSizes = [
-    { width: 32, height: 32 },
+    { width: 64, height: 64 },
     { width: 64, height: 64 },
     { width: 128, height: 128 }
   ];
