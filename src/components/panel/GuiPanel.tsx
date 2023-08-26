@@ -5,7 +5,11 @@ import clsx from 'clsx';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
 import GuiPanelTextures from './GuiPanelTextures';
 import GuiPanelModels from './GuiPanelModels';
-import { selectHasLoadedTextureFile, useAppSelector } from '@/store';
+import {
+  selectHasLoadedPolygonFile,
+  selectHasLoadedTextureFile,
+  useAppSelector
+} from '@/store';
 
 const WIDTH = 222;
 
@@ -139,6 +143,8 @@ const StyledPaper = styled(Paper)(
 export default function GuiPanel() {
   const viewOptions = useContext(ViewOptionsContext);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
+  const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
+  const isTextureOnlyMode = hasLoadedTextureFile && !hasLoadedPolygonFile;
 
   return (
     <StyledPaper
@@ -146,9 +152,20 @@ export default function GuiPanel() {
       className={clsx(viewOptions.guiPanelVisible && 'visible')}
     >
       <div className='content'>
-        <GuiPanelModels />
-        <Divider flexItem />
-        {!hasLoadedTextureFile ? undefined : <GuiPanelTextures />}
+        {!isTextureOnlyMode ? (
+          <>
+            <GuiPanelModels />
+            <Divider flexItem />
+            {!hasLoadedTextureFile ? undefined : <GuiPanelTextures />}
+          </>
+        ) : (
+          <>
+            <GuiPanelTextures />
+            <Divider flexItem />
+            <GuiPanelModels />
+          </>
+        )}
+
         {!hasLoadedTextureFile ? undefined : <Divider flexItem />}
         <GuiPanelViewOptions />
       </div>

@@ -10,7 +10,7 @@ import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import {
   selectHasLoadedFile,
-  selectHasLoadedModelFile,
+  selectHasLoadedPolygonFile,
   showDialog,
   useAppDispatch,
   useAppSelector
@@ -96,7 +96,7 @@ export default function MainView() {
   }, [dispatch]);
 
   const hasLoadedFileValue = useAppSelector(selectHasLoadedFile);
-  const hasLoadedPolygonFile = useAppSelector(selectHasLoadedModelFile);
+  const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
   const hasLoadedFile = useDebounce(hasLoadedFileValue, 500);
   let mainScene;
 

@@ -7,14 +7,14 @@ export const selectObjectKey = (s: AppState) => s.modelViewer.objectKey;
 
 export const selectModels = (s: AppState) => s.modelData.models;
 
-export const selectHasLoadedModelFile = (s: AppState) =>
+export const selectHasLoadedPolygonFile = (s: AppState) =>
   Boolean(s.modelData.polygonFileName);
 
 export const selectHasLoadedTextureFile = (s: AppState) =>
   Boolean(s.modelData.textureFileName);
 
 export const selectHasLoadedFile = createSelector(
-  selectHasLoadedModelFile,
+  selectHasLoadedPolygonFile,
   selectHasLoadedTextureFile,
   (m, p) => m || p
 );
