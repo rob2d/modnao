@@ -3,13 +3,14 @@ import { useCallback, useContext } from 'react';
 import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
 import SceneCanvas from './scene/SceneCanvas';
-import { Button, Paper, styled, Tooltip } from '@mui/material';
+import { Button, Paper, styled, Tooltip, Typography } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import {
   selectHasLoadedFile,
+  selectHasLoadedModelFile,
   showDialog,
   useAppDispatch,
   useAppSelector
@@ -95,11 +96,22 @@ export default function MainView() {
   }, [dispatch]);
 
   const hasLoadedFileValue = useAppSelector(selectHasLoadedFile);
+  const hasLoadedPolygonFile = useAppSelector(selectHasLoadedModelFile);
   const hasLoadedFile = useDebounce(hasLoadedFileValue, 500);
   let mainScene;
 
   if (hasLoadedFile) {
-    mainScene = <SceneCanvas />;
+    mainScene = hasLoadedPolygonFile ? (
+      <SceneCanvas />
+    ) : (
+      <div className='welcome-panel'>
+        <Typography variant='h6'>Texture-only mode</Typography>
+        <Typography variant='subtitle2'>
+          No associated polygon/model files with these textures to display a
+          scene.
+        </Typography>
+      </div>
+    );
   } else {
     mainScene = (
       <div className='welcome-panel'>
