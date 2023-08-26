@@ -120,6 +120,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     buffer.readUInt32LE(4),
     buffer.readUInt32LE(8)
   ];
+
   const uint8Array = new Uint8Array(arrayBuffer);
 
   // retrieve the compressed sub-areas to decompress
@@ -207,6 +208,74 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
         fileName: file.name,
         textureDefs,
         buffer: assembledBuffer
+      }
+    } as WorkerEvent);
+  });
+
+  return result;
+});
+
+export const loadCharacterWinFile = createAsyncThunk<
+  LoadTexturesPayload,
+  File,
+  { state: AppState }
+>(`${sliceName}/loadCharacterWinFile`, async (file, { dispatch }) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = decompressTextureBuffer(Buffer.from(arrayBuffer));
+
+  const textureDefs = [
+    {
+      width: 256,
+      height: 256,
+      colorFormat: 'ARGB4444',
+      colorFormatValue: 2,
+      bufferUrls: {
+        translucent: undefined,
+        opaque: undefined
+      },
+      dataUrls: {
+        translucent: undefined,
+        opaque: undefined
+      },
+      type: 0,
+      address: 0,
+      baseLocation: 0,
+      ramOffset: 0
+    }
+  ];
+
+  dispatch({
+    type: loadPolygonFile.fulfilled.type,
+    payload: {
+      models: [],
+      fileName: undefined,
+      polygonBufferUrl: undefined,
+      textureDefs
+    }
+  });
+
+  const thread = workerPool.allocate();
+
+  const result = await new Promise<LoadTexturesPayload>((resolve) => {
+    if (thread) {
+      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
+        const payload = {
+          ...event.data.result,
+          hasCompressedTextures: true
+        };
+        dispatch({ type: loadTextureFile.fulfilled.type, payload });
+        resolve(payload);
+
+        workerPool.unallocate(thread);
+      };
+    }
+
+    thread?.postMessage({
+      type: 'loadTextureFile',
+      payload: {
+        fileName: file.name,
+        textureDefs,
+        buffer
       }
     } as WorkerEvent);
   });
@@ -463,6 +532,7 @@ const modelDataSlice = createSlice({
         state.polygonBufferUrl = undefined;
         state.textureBufferUrl = undefined;
         state.textureDefs = [];
+        state.textureHistory = {};
       }
     );
 
