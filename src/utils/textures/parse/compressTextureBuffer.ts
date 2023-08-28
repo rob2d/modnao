@@ -1,84 +1,101 @@
-// NOTE: this compression logic is a WIP/not actively consumed
-// in the application yet. Will revisit algo as it must support
-// repeated sequences between 2 to 31 words
-
 const WORD_SIZE = 2;
-
-/** starts at F000 and shifted for a mask check based on the chunk */
+/** starts at F000 and right-shifted using chunk to indicate compression ops */
 const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
 export default function compressTextureBuffer(buffer: Buffer) {
-  const output: number[] = [];
-  let chunk = 0;
   let i = 0;
 
-  while (i < buffer.length / WORD_SIZE) {
-    const value = buffer.readUInt16LE(i * WORD_SIZE);
+  // (1) create a structure that maps each word
+  // to the number of times it repeats; these are
+  // essentially chunks of data which can be used
+  // to help generate a compressed output
 
-    let repetitions = 1;
+  const wordCount = buffer.length / WORD_SIZE;
+  const wordSequences: [number, number][] = [];
 
-    // discover repetitions in next bytes read
-    // being equal in decompressed buffer
+  while (i < wordCount) {
+    const word = buffer.readUInt16LE(i * WORD_SIZE);
+    let repetitions = 0;
+    let nextWord = buffer.readUInt16LE((i + 1) * WORD_SIZE);
+
     while (
-      i + repetitions < buffer.length / WORD_SIZE &&
-      buffer.readUInt16LE((i + repetitions) * WORD_SIZE) === value
+      i + repetitions + 1 < wordCount &&
+      nextWord === word &&
+      repetitions < 31
     ) {
       repetitions++;
+      nextWord = buffer.readUInt16LE((i + repetitions) * WORD_SIZE);
     }
 
-    // only repeats once, so store value
-    // directly
-    if (repetitions <= 2) {
-      for (let j = 0; j < repetitions; j++) {
-        if (chunk++ % 16 === 0) {
-          // store first value saying chunk is not compressed
-          output.push(0);
-        }
-        output.push(value);
-      }
-    }
-
-    if (repetitions > 2) {
-      // 32-bit compression
-      // as repetitions do not fit within 5bit mask
-
-      if (output.length < 60) {
-        console.log(
-          `@0x${(output.length * 2).toString(
-            16
-          )} will have compression flag written: 0b${(
-            COMPRESSION_FLAG >>
-            chunk % 16
-          ).toString(2)} for ${repetitions} repeated words of ${value}`
-        );
-      }
-
-      // mark compression bit based on chunk #
-      output.push(COMPRESSION_FLAG >> chunk % 16);
-
-      if (repetitions <= 0b11111) {
-        // 16-bit
-        // the number of words to grab are stored in 5 MSb
-        const repetitionBits = repetitions << 11;
-        // the number of words to go back is stored in 11LSb
-        const wordsBackCount = repetitions & 0b0111_1111_1111;
-
-        output.push(repetitionBits | wordsBackCount);
-      } else {
-        // 32-bit
-        output.push(repetitions & (0xffff << 16));
-
-        output.push(repetitions & 0xffff);
-      }
-      chunk++;
-    }
-
-    i += repetitions;
+    wordSequences.push([word, repetitions]);
+    i += repetitions + 1;
   }
 
-  const outputBuffer = Buffer.alloc(output.length * WORD_SIZE);
-  for (let i = 0; i < output.length; i++) {
-    outputBuffer.writeUInt16LE(output[i], i * WORD_SIZE);
+  // (2) next, determine bitmasks at appropriate chunks
+
+  const bitmasks = [];
+  let chunk = 0;
+  let bitmask = 0;
+
+  for (const [_, repetitions] of wordSequences) {
+    if (repetitions > 0) {
+      bitmask = bitmask | (COMPRESSION_FLAG >> chunk % 16);
+    }
+
+    chunk++;
+
+    if (chunk % 16 === 0 && chunk > 0) {
+      bitmasks.push(bitmask);
+      bitmask = 0;
+    }
+  }
+
+  // (3) assemble the output of bitmasks and words/repetitions
+
+  const outputWords: number[] = [];
+
+  chunk = 0;
+  for (const [word, repetitions] of wordSequences) {
+    if (chunk % 16 === 0) {
+      outputWords.push(bitmasks.shift() || 0);
+    }
+
+    chunk += 1;
+    if (repetitions === 0) {
+      outputWords.push(word);
+    } else {
+      // for 16-bit, this calculation is
+      // always pretty staightforward as
+      // words grabbed === words back,
+      // but break this down for clarity
+      // to expand into 32-bit values later
+
+      if (repetitions > 31) {
+        console.log('repetitions is greater than 31 ->', repetitions);
+      }
+
+      const grabWordCount = repetitions << 11;
+      const wordsBackCount = repetitions;
+      outputWords.push(grabWordCount | wordsBackCount);
+    }
+  }
+
+  // (4) write to output buffer
+
+  const outputBuffer = Buffer.from(
+    new ArrayBuffer(outputWords.length * WORD_SIZE)
+  );
+
+  for (let i = 0; i < outputWords.length; i++) {
+    // Calculate the byte offset for writing
+    const byteOffset = i * WORD_SIZE;
+
+    // Check if the byte offset is within bounds of the buffer
+    if (byteOffset + WORD_SIZE <= outputBuffer.length) {
+      outputBuffer.writeUInt16LE(outputWords[i], byteOffset);
+    } else {
+      console.error('Error: Out of bounds');
+    }
   }
 
   return outputBuffer;

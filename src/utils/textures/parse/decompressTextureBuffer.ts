@@ -38,7 +38,7 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
       if (!is32Bit) {
         // the number of words to grab are in the 5 MSb
         grabWordCount = (word >> 11) & 0b1111_1;
-        // the number of words to go back are in the 11 LSb */
+        // the number of words to go back are in the 11 LSb
         wordsBackCount = word & 0b0111_1111_1111;
       } else {
         wordsBackCount = word;
@@ -64,6 +64,7 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
         output.push(appendedSequence[j % appendedSequence.length]);
       }
     }
+
     chunk += 1;
 
     // chunk loops every 2 bytes
