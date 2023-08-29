@@ -14,6 +14,7 @@ import Icon from '@mdi/react';
 import { nanoid } from 'nanoid';
 import {
   Button,
+  Checkbox,
   Divider,
   FormControlLabel,
   Slider,
@@ -41,7 +42,7 @@ const Styled = styled('div')(
 & {
   display: flex;
   flex-direction: column;
-  height: 80vh;
+  height: calc(100vh - 64px);
   width: 100%;
 }
 
@@ -114,6 +115,11 @@ const Styled = styled('div')(
 & .controls .MuiFormControlLabel-label {
   display: flex;
   align-items: center;
+}
+
+& .controls .MuiFormControlLabel-root.MuiFormControlLabel-labelPlacementStart,
+& .result .MuiFormControlLabel-root.MuiFormControlLabel-labelPlacementStart {
+  margin-left: 0;
 }
 
 & .controls > .MuiButton-root {
@@ -239,6 +245,15 @@ export default function ReplaceTexture() {
     }),
     [originalWidth, originalHeight]
   );
+
+  const [viewTranslucentOrigin, setViewTranslucentOrigin] = useState(
+    () => false
+  );
+
+  const [viewTranslucentPreview, setViewTranslucentPreview] = useState(
+    () => false
+  );
+
   useEffect(() => {
     (() =>
       (async () => {
@@ -300,7 +315,9 @@ export default function ReplaceTexture() {
   );
 
   const originTextureDataUrl =
-    textureDefs?.[textureIndex]?.dataUrls?.opaque || '';
+    textureDefs?.[textureIndex]?.dataUrls?.[
+      viewTranslucentOrigin ? 'translucent' : 'opaque'
+    ] || '';
 
   return (
     <>
@@ -416,6 +433,19 @@ export default function ReplaceTexture() {
                   <b>{textureFormat}</b>
                 </Typography>
               </div>
+              <Tooltip
+                title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
+                placement='top-start'
+              >
+                <FormControlLabel
+                  control={<Checkbox checked={viewTranslucentOrigin} />}
+                  label='View Translucent'
+                  labelPlacement='start'
+                  onChange={() =>
+                    setViewTranslucentOrigin(!viewTranslucentOrigin)
+                  }
+                />
+              </Tooltip>
             </div>
             <Divider flexItem />
             <div className='result'>
@@ -429,6 +459,19 @@ export default function ReplaceTexture() {
                   style={referenceTextureStyle}
                 />
               </div>
+              <Tooltip
+                title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
+                placement='top-start'
+              >
+                <FormControlLabel
+                  control={<Checkbox checked={viewTranslucentPreview} />}
+                  label='View Translucent'
+                  labelPlacement='start'
+                  onChange={() =>
+                    setViewTranslucentPreview(!viewTranslucentPreview)
+                  }
+                />
+              </Tooltip>
             </div>
             <div className='dialog-actions'>
               <Button
