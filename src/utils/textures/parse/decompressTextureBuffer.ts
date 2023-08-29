@@ -6,7 +6,7 @@ const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 export default function decompressTextureBuffer(bufferPassed: Buffer) {
   const buffer = Buffer.from(bufferPassed);
   const output: number[] = [];
-  let applyBitMask = true;
+  let applyBitmask = true;
 
   let bitmask = 0b0;
   let wordsBackCount = 0;
@@ -16,9 +16,9 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
   for (let i = 0; i < buffer.length / WORD_SIZE; i++) {
     let word = buffer.readUInt16LE(i * WORD_SIZE);
 
-    if (applyBitMask) {
+    if (applyBitmask) {
       bitmask = word;
-      applyBitMask = false;
+      applyBitmask = false;
       continue;
     }
 
@@ -70,7 +70,7 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
     // chunk loops every 2 bytes
     if (chunk == 0x10) {
       chunk = 0;
-      applyBitMask = true;
+      applyBitmask = true;
     }
   }
 

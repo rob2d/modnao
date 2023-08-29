@@ -2,6 +2,9 @@ const WORD_SIZE = 2;
 /** starts at F000 and right-shifted using chunk to indicate compression ops */
 const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
+/**
+ * @param buffer decompressed buffer to compress
+ */
 export default function compressTextureBuffer(buffer: Buffer) {
   let i = 0;
 
@@ -16,35 +19,42 @@ export default function compressTextureBuffer(buffer: Buffer) {
   while (i < wordCount) {
     const word = buffer.readUInt16LE(i * WORD_SIZE);
     let repetitions = 0;
-    let nextWord = buffer.readUInt16LE((i + 1) * WORD_SIZE);
+    if ((i + 1) * WORD_SIZE > buffer.length) {
+      let nextWord = buffer.readUInt16LE((i + 1) * WORD_SIZE);
 
-    while (
-      i + repetitions + 1 < wordCount &&
-      nextWord === word &&
-      repetitions < 31
-    ) {
-      repetitions++;
-      nextWord = buffer.readUInt16LE((i + repetitions) * WORD_SIZE);
+      while (
+        i + 1 + repetitions < wordCount &&
+        nextWord === word &&
+        repetitions < 31
+      ) {
+        repetitions++;
+
+        if (i + 1 + repetitions < wordCount) {
+          nextWord = buffer.readUInt16LE((i + 1 + repetitions) * WORD_SIZE);
+        }
+      }
     }
 
     wordSequences.push([word, repetitions]);
-    i += repetitions + 1;
+    i += 1 + repetitions;
   }
 
-  // (2) next, determine bitmasks at appropriate chunks
+  // (2) determine the bitmasks at appropriate chunks
 
   const bitmasks = [];
   let chunk = 0;
   let bitmask = 0;
 
-  for (const [_, repetitions] of wordSequences) {
+  for (const [word, repetitions] of wordSequences) {
+    // indicate compression in bitmask for this chunk
     if (repetitions > 0) {
-      bitmask = bitmask | (COMPRESSION_FLAG >> chunk % 16);
+      bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
     }
 
     chunk++;
+    chunk = chunk % 16;
 
-    if (chunk % 16 === 0 && chunk > 0) {
+    if (chunk === 0) {
       bitmasks.push(bitmask);
       bitmask = 0;
     }
@@ -55,35 +65,36 @@ export default function compressTextureBuffer(buffer: Buffer) {
   const outputWords: number[] = [];
 
   chunk = 0;
+  let bitmaskIndex = 0;
+
   for (const [word, repetitions] of wordSequences) {
-    if (chunk % 16 === 0) {
-      outputWords.push(bitmasks.shift() || 0);
+    if (chunk === 0) {
+      outputWords.push(bitmasks[bitmaskIndex++]);
     }
 
-    chunk += 1;
-    if (repetitions === 0) {
-      outputWords.push(word);
-    } else {
+    outputWords.push(word);
+
+    if (repetitions > 0) {
       // for 16-bit, this calculation is
-      // always pretty staightforward as
-      // words grabbed === words back,
+      // always pretty staightforward as we
+      // only go back 1 color for [repetition] times,
+
       // but break this down for clarity
       // to expand into 32-bit values later
 
-      if (repetitions > 31) {
-        console.log('repetitions is greater than 31 ->', repetitions);
-      }
-
       const grabWordCount = repetitions << 11;
-      const wordsBackCount = repetitions;
+      const wordsBackCount = 1;
       outputWords.push(grabWordCount | wordsBackCount);
     }
+
+    chunk += 1;
+    chunk %= 16;
   }
 
   // (4) write to output buffer
 
   const outputBuffer = Buffer.from(
-    new ArrayBuffer(outputWords.length * WORD_SIZE)
+    new Uint8Array(outputWords.length * WORD_SIZE)
   );
 
   for (let i = 0; i < outputWords.length; i++) {
