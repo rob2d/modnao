@@ -386,7 +386,7 @@ export default function ReplaceTexture() {
       );
       setOriginTextureBuffer(textureBuffer);
     })();
-  }, []);
+  }, [textureDefs?.[textureIndex]?.bufferUrls?.['translucent'] || '']);
 
   const originTextureDataUrl =
     textureDefs?.[textureIndex]?.dataUrls?.[
