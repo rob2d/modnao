@@ -191,7 +191,10 @@ export default function ReplaceTexture() {
   const [zoom, setZoom] = useState(1);
   const [imageDataUrl, setImageDataUrl] = useState(() => '');
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
-  const [croppedImage, setCroppedImage] = useState('');
+  const [processedRgba, setProcessedRgba] = useState<
+    Uint8Array | Uint8ClampedArray | null
+  >(() => null);
+  const [previewDataUrl, setPreviewDataUrl] = useState(() => '');
   const [flip, setFlip] = useState(() => DEFAULT_FLIP_STATE);
 
   const textureFormat: TextureColorFormat = 'ARGB4444';
@@ -236,8 +239,11 @@ export default function ReplaceTexture() {
   }, [dispatch]);
 
   const onApplyReplaceTexture = useCallback(() => {
-    dispatch(applyReplacedTextureImage(croppedImage));
-  }, [croppedImage, dispatch]);
+    if (!processedRgba) {
+      return;
+    }
+    dispatch(applyReplacedTextureImage(processedRgba));
+  }, [processedRgba, dispatch]);
 
   const textureDefs: NLTextureDef[] = useAppSelector(selectTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
@@ -268,6 +274,33 @@ export default function ReplaceTexture() {
   );
 
   useEffect(() => {
+    (async () => {
+      if (!processedRgba) {
+        return;
+      }
+
+      const previewRgba = new Uint8Array(processedRgba);
+
+      if (!viewTranslucentPreview) {
+        for (let i = 0; i < previewRgba.length; i += 4) {
+          previewRgba[i + 3] = 255;
+        }
+      }
+
+      const image = new Image({
+        data: previewRgba,
+        width: originalWidth,
+        height: originalHeight
+      });
+
+      setPreviewDataUrl(image.toDataURL());
+    })();
+  }, [
+    `${originalWidth}_${originalHeight}_${viewTranslucentPreview}`,
+    processedRgba
+  ]);
+
+  useEffect(() => {
     (() =>
       (async () => {
         if (!replacementImage) {
@@ -290,12 +323,14 @@ export default function ReplaceTexture() {
       })())();
   }, [replacementImage]);
 
-  const updateId = useMemo(
+  const processedUpdateId = useMemo(
     () => nanoid(),
     [
       imageDataUrl,
       originalWidth,
       originalHeight,
+      originTextureBuffer,
+      preserveOriginAlpha,
       zoom,
       rotation,
       flip,
@@ -323,24 +358,20 @@ export default function ReplaceTexture() {
         // restore zero-alpha origin pixels when necessary
         if (preserveOriginAlpha && originTextureBuffer) {
           const rgbaBuffer = resizedImage.getRGBAData();
+
           for (let i = 0; i < rgbaBuffer.length; i += 4) {
             if (originTextureBuffer[i + 3] === 0) {
               rgbaBuffer[i + 3] = 0;
             }
           }
 
-          const nextImage = new Image({
-            data: rgbaBuffer,
-            width: originalWidth,
-            height: originalHeight
-          });
-          setCroppedImage(nextImage.toDataURL());
+          setProcessedRgba(rgbaBuffer);
         } else {
-          setCroppedImage(resizedImage.toDataURL());
+          setProcessedRgba(resizedImage.getRGBAData());
         }
       })();
     },
-    [updateId, originTextureBuffer, preserveOriginAlpha],
+    [processedUpdateId],
     200
   );
 
@@ -497,7 +528,7 @@ export default function ReplaceTexture() {
               <div className='texture-img-container'>
                 <Img
                   alt='Resulting texture after modifications'
-                  src={croppedImage}
+                  src={previewDataUrl}
                   width={originalWidth}
                   height={originalHeight}
                   style={referenceTextureStyle}

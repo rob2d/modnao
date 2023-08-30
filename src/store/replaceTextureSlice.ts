@@ -3,7 +3,7 @@ import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from './dialogsSlice';
 import { AppState } from './store';
-import { bufferToObjectUrl, objectUrlToBuffer } from '@/utils/data';
+import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { replaceTextureImage } from './modelDataSlice';
 import { batch } from 'react-redux';
@@ -51,28 +51,18 @@ export const selectReplacementTexture = createAsyncThunk<
 
 export const applyReplacedTextureImage = createAsyncThunk<
   void,
-  string,
+  Uint8Array | Uint8ClampedArray,
   { state: AppState }
 >(
   `${sliceName}/applyReplacedTextureImage`,
-  async (imageSrc, { getState, dispatch }) => {
+  async (rgbaBuffer, { getState, dispatch }) => {
     const state = getState();
     const { textureIndex } = state.replaceTexture;
     const { width, height } = state.modelData.textureDefs[textureIndex];
-    const translucentBuffer = (await Image.load(imageSrc)).getRGBAData();
+    const translucentBuffer = rgbaBuffer;
     const opaqueBuffer = new Uint8ClampedArray(translucentBuffer.length);
-    const textureDef = state.modelData.textureDefs[textureIndex];
-    const oTranslucentBuffer = new Uint8ClampedArray(
-      await objectUrlToBuffer(textureDef.bufferUrls.translucent || '')
-    );
 
-    for (let i = 0; i < oTranslucentBuffer.length; i += 4) {
-      // restore original RGBA values on translucent for special cases
-      // where alpha was zero
-      if (oTranslucentBuffer[i + 3] === 0) {
-        translucentBuffer[i + 3] = 0;
-      }
-
+    for (let i = 0; i < opaqueBuffer.length; i += 4) {
       // for opaque buffer, set all pixels to 255 alpha
       opaqueBuffer[i] = translucentBuffer[i];
       opaqueBuffer[i + 1] = translucentBuffer[i + 1];
