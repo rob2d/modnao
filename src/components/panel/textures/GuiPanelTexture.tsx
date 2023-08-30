@@ -79,6 +79,7 @@ const StyledPanelTexture = styled('div')(
     width: ${IMG_SIZE};
     height: ${IMG_SIZE};
     border: 3px solid transparent;
+    pointer-events: none;
   }
 
   .uv-overlay img {

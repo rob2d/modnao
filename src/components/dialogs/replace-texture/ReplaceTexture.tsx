@@ -14,6 +14,7 @@ import Icon from '@mdi/react';
 import { nanoid } from 'nanoid';
 import {
   Button,
+  Checkbox,
   Divider,
   FormControlLabel,
   Slider,
@@ -41,7 +42,6 @@ const Styled = styled('div')(
 & {
   display: flex;
   flex-direction: column;
-  height: 80vh;
   width: 100%;
 }
 
@@ -74,7 +74,8 @@ const Styled = styled('div')(
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: ${theme.spacing(2)} 0;
+  margin: 0;
+  margin-bottom: ${theme.spacing(1)};
   object-fit: cover;
 }
 
@@ -116,6 +117,12 @@ const Styled = styled('div')(
   align-items: center;
 }
 
+
+& .original-texture.section .MuiFormControlLabel-labelPlacementEnd {
+  display: block;
+}
+
+
 & .controls > .MuiButton-root {
   min-width: 48px;
   margin-left: ${theme.spacing(1)};
@@ -152,6 +159,7 @@ const Styled = styled('div')(
 
 & .result {
   flex-grow: 1;
+
 }
 
 & .dialog-actions {
@@ -161,6 +169,11 @@ const Styled = styled('div')(
 
 & .dialog-actions > .MuiButton-root:not(:last-child) {
   margin-right: ${theme.spacing(2)};
+}
+
+& .MuiButtonBase-root.MuiCheckbox-root {
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 `
 );
@@ -178,7 +191,10 @@ export default function ReplaceTexture() {
   const [zoom, setZoom] = useState(1);
   const [imageDataUrl, setImageDataUrl] = useState(() => '');
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
-  const [croppedImage, setCroppedImage] = useState('');
+  const [processedRgba, setProcessedRgba] = useState<
+    Uint8Array | Uint8ClampedArray | null
+  >(() => null);
+  const [previewDataUrl, setPreviewDataUrl] = useState(() => '');
   const [flip, setFlip] = useState(() => DEFAULT_FLIP_STATE);
 
   const textureFormat: TextureColorFormat = 'ARGB4444';
@@ -223,8 +239,11 @@ export default function ReplaceTexture() {
   }, [dispatch]);
 
   const onApplyReplaceTexture = useCallback(() => {
-    dispatch(applyReplacedTextureImage(croppedImage));
-  }, [croppedImage, dispatch]);
+    if (!processedRgba) {
+      return;
+    }
+    dispatch(applyReplacedTextureImage(processedRgba));
+  }, [processedRgba, dispatch]);
 
   const textureDefs: NLTextureDef[] = useAppSelector(selectTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
@@ -239,6 +258,48 @@ export default function ReplaceTexture() {
     }),
     [originalWidth, originalHeight]
   );
+
+  const [viewTranslucentOrigin, setViewTranslucentOrigin] = useState(
+    () => false
+  );
+
+  const [viewTranslucentPreview, setViewTranslucentPreview] = useState(
+    () => false
+  );
+
+  const [preserveOriginAlpha, setPreserveOriginAlpha] = useState(() => true);
+
+  const [originTextureBuffer, setOriginTextureBuffer] = useState<Buffer | null>(
+    () => null
+  );
+
+  useEffect(() => {
+    (async () => {
+      if (!processedRgba) {
+        return;
+      }
+
+      const previewRgba = new Uint8Array(processedRgba);
+
+      if (!viewTranslucentPreview) {
+        for (let i = 0; i < previewRgba.length; i += 4) {
+          previewRgba[i + 3] = 255;
+        }
+      }
+
+      const image = new Image({
+        data: previewRgba,
+        width: originalWidth,
+        height: originalHeight
+      });
+
+      setPreviewDataUrl(image.toDataURL());
+    })();
+  }, [
+    `${originalWidth}_${originalHeight}_${viewTranslucentPreview}`,
+    processedRgba
+  ]);
+
   useEffect(() => {
     (() =>
       (async () => {
@@ -262,12 +323,14 @@ export default function ReplaceTexture() {
       })())();
   }, [replacementImage]);
 
-  const updateId = useMemo(
+  const processedUpdateId = useMemo(
     () => nanoid(),
     [
       imageDataUrl,
       originalWidth,
       originalHeight,
+      originTextureBuffer,
+      preserveOriginAlpha,
       zoom,
       rotation,
       flip,
@@ -282,25 +345,53 @@ export default function ReplaceTexture() {
       }
       (async () => {
         //@TODO: revisit/optimize this logic so debounce time can be decreased
+
         const nextCroppedImage =
           (await cropImage(imageDataUrl, croppedAreaPixels, rotation, flip)) ||
           '';
-        const resizedImage = (await Image.load(nextCroppedImage))
-          .resize({
-            width: originalWidth,
-            height: originalHeight
-          })
-          .toDataURL();
 
-        setCroppedImage(resizedImage);
+        const resizedImage = (await Image.load(nextCroppedImage)).resize({
+          width: originalWidth,
+          height: originalHeight
+        });
+
+        // restore zero-alpha origin pixels when necessary
+        if (preserveOriginAlpha && originTextureBuffer) {
+          const rgbaBuffer = resizedImage.getRGBAData();
+
+          for (let i = 0; i < rgbaBuffer.length; i += 4) {
+            if (originTextureBuffer[i + 3] === 0) {
+              rgbaBuffer[i + 3] = 0;
+            }
+          }
+          setProcessedRgba(rgbaBuffer);
+        } else {
+          setProcessedRgba(resizedImage.getRGBAData());
+        }
       })();
     },
-    [updateId],
+    [processedUpdateId],
     200
   );
 
+  useEffect(() => {
+    (async () => {
+      const originTextureBufferUrl =
+        textureDefs?.[textureIndex]?.bufferUrls?.['translucent'] || '';
+      if (!originTextureBufferUrl) {
+        return;
+      }
+      const textureBuffer = Buffer.from(
+        await objectUrlToBuffer(originTextureBufferUrl)
+      );
+      setOriginTextureBuffer(textureBuffer);
+    })();
+  }, [textureDefs?.[textureIndex]?.bufferUrls?.['translucent'] || '']);
+
   const originTextureDataUrl =
-    textureDefs?.[textureIndex]?.dataUrls?.opaque || '';
+    textureDefs?.[textureIndex]?.dataUrls?.[
+      viewTranslucentOrigin ? 'translucent' : 'opaque'
+    ] || '';
 
   return (
     <>
@@ -389,7 +480,7 @@ export default function ReplaceTexture() {
               </Tooltip>
             </div>
           </div>
-          <Divider orientation='vertical' flexItem></Divider>
+          <Divider orientation='vertical' flexItem />
           <div className='original-texture section'>
             <Typography variant='h6'>Texture Origin</Typography>
             <div className='original-texture'>
@@ -416,6 +507,19 @@ export default function ReplaceTexture() {
                   <b>{textureFormat}</b>
                 </Typography>
               </div>
+              <Tooltip
+                title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
+                placement='left-start'
+              >
+                <FormControlLabel
+                  control={<Checkbox checked={viewTranslucentOrigin} />}
+                  label='View Translucent'
+                  labelPlacement='end'
+                  onChange={() =>
+                    setViewTranslucentOrigin(!viewTranslucentOrigin)
+                  }
+                />
+              </Tooltip>
             </div>
             <Divider flexItem />
             <div className='result'>
@@ -423,13 +527,44 @@ export default function ReplaceTexture() {
               <div className='texture-img-container'>
                 <Img
                   alt='Resulting texture after modifications'
-                  src={croppedImage}
+                  src={previewDataUrl}
                   width={originalWidth}
                   height={originalHeight}
                   style={referenceTextureStyle}
                 />
               </div>
+              <Tooltip
+                title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
+                placement='left-start'
+              >
+                <FormControlLabel
+                  control={<Checkbox checked={viewTranslucentPreview} />}
+                  label='View Translucent'
+                  labelPlacement='end'
+                  onChange={() =>
+                    setViewTranslucentPreview(!viewTranslucentPreview)
+                  }
+                />
+              </Tooltip>
+              <Tooltip
+                title={
+                  'Re-sets transparent pixels to zero-alpha. In certain scenarios ' +
+                  'this is useful to edit "invisible" sections of colors with alpha ' +
+                  'of zero that actually have meaningful data. A sane default is to ' +
+                  'leave this on when in doubt since it only affects a small percentage ' +
+                  'of games/scenarios.'
+                }
+                placement='left-start'
+              >
+                <FormControlLabel
+                  control={<Checkbox checked={preserveOriginAlpha} />}
+                  label='Preserve origin zero-alpha pixels'
+                  labelPlacement='end'
+                  onChange={() => setPreserveOriginAlpha(!preserveOriginAlpha)}
+                />
+              </Tooltip>
             </div>
+            <Divider flexItem />
             <div className='dialog-actions'>
               <Button
                 color='secondary'
