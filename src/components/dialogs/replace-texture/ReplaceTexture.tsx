@@ -42,7 +42,6 @@ const Styled = styled('div')(
 & {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
   width: 100%;
 }
 
@@ -75,7 +74,8 @@ const Styled = styled('div')(
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: ${theme.spacing(2)} 0;
+  margin: 0;
+  margin-bottom: ${theme.spacing(1)};
   object-fit: cover;
 }
 
@@ -117,10 +117,11 @@ const Styled = styled('div')(
   align-items: center;
 }
 
-& .controls .MuiFormControlLabel-root.MuiFormControlLabel-labelPlacementStart,
-& .result .MuiFormControlLabel-root.MuiFormControlLabel-labelPlacementStart {
-  margin-left: 0;
+
+& .original-texture.section .MuiFormControlLabel-labelPlacementEnd {
+  display: block;
 }
+
 
 & .controls > .MuiButton-root {
   min-width: 48px;
@@ -158,6 +159,7 @@ const Styled = styled('div')(
 
 & .result {
   flex-grow: 1;
+
 }
 
 & .dialog-actions {
@@ -167,6 +169,11 @@ const Styled = styled('div')(
 
 & .dialog-actions > .MuiButton-root:not(:last-child) {
   margin-right: ${theme.spacing(2)};
+}
+
+& .MuiButtonBase-root.MuiCheckbox-root {
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 `
 );
@@ -254,6 +261,12 @@ export default function ReplaceTexture() {
     () => false
   );
 
+  const [preserveOriginAlpha, setPreserveOriginAlpha] = useState(() => true);
+
+  const [originTextureBuffer, setOriginTextureBuffer] = useState<Buffer | null>(
+    () => null
+  );
+
   useEffect(() => {
     (() =>
       (async () => {
@@ -297,22 +310,53 @@ export default function ReplaceTexture() {
       }
       (async () => {
         //@TODO: revisit/optimize this logic so debounce time can be decreased
+
         const nextCroppedImage =
           (await cropImage(imageDataUrl, croppedAreaPixels, rotation, flip)) ||
           '';
-        const resizedImage = (await Image.load(nextCroppedImage))
-          .resize({
+
+        const resizedImage = (await Image.load(nextCroppedImage)).resize({
+          width: originalWidth,
+          height: originalHeight
+        });
+
+        // restore zero-alpha origin pixels when necessary
+        if (preserveOriginAlpha && originTextureBuffer) {
+          const rgbaBuffer = resizedImage.getRGBAData();
+          for (let i = 0; i < rgbaBuffer.length; i += 4) {
+            if (originTextureBuffer[i + 3] === 0) {
+              rgbaBuffer[i + 3] = 0;
+            }
+          }
+
+          const nextImage = new Image({
+            data: rgbaBuffer,
             width: originalWidth,
             height: originalHeight
-          })
-          .toDataURL();
-
-        setCroppedImage(resizedImage);
+          });
+          setCroppedImage(nextImage.toDataURL());
+        } else {
+          setCroppedImage(resizedImage.toDataURL());
+        }
       })();
     },
-    [updateId],
+    [updateId, originTextureBuffer, preserveOriginAlpha],
     200
   );
+
+  useEffect(() => {
+    (async () => {
+      const originTextureBufferUrl =
+        textureDefs?.[textureIndex]?.bufferUrls?.['translucent'] || '';
+      if (!originTextureBufferUrl) {
+        return;
+      }
+      const textureBuffer = Buffer.from(
+        await objectUrlToBuffer(originTextureBufferUrl)
+      );
+      setOriginTextureBuffer(textureBuffer);
+    })();
+  }, []);
 
   const originTextureDataUrl =
     textureDefs?.[textureIndex]?.dataUrls?.[
@@ -342,7 +386,7 @@ export default function ReplaceTexture() {
             <div className='controls'>
               <FormControlLabel
                 label={<Icon path={mdiMagnify} size={1} />}
-                labelPlacement='start'
+                labelPlacement='end'
                 control={
                   <Slider
                     size='small'
@@ -368,7 +412,7 @@ export default function ReplaceTexture() {
               </Tooltip>
               <FormControlLabel
                 label={<Icon path={mdiCropRotate} size={1} />}
-                labelPlacement='start'
+                labelPlacement='end'
                 control={
                   <Slider
                     size='small'
@@ -406,7 +450,7 @@ export default function ReplaceTexture() {
               </Tooltip>
             </div>
           </div>
-          <Divider orientation='vertical' flexItem></Divider>
+          <Divider orientation='vertical' flexItem />
           <div className='original-texture section'>
             <Typography variant='h6'>Texture Origin</Typography>
             <div className='original-texture'>
@@ -435,12 +479,12 @@ export default function ReplaceTexture() {
               </div>
               <Tooltip
                 title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
-                placement='top-start'
+                placement='left-start'
               >
                 <FormControlLabel
                   control={<Checkbox checked={viewTranslucentOrigin} />}
                   label='View Translucent'
-                  labelPlacement='start'
+                  labelPlacement='end'
                   onChange={() =>
                     setViewTranslucentOrigin(!viewTranslucentOrigin)
                   }
@@ -461,18 +505,36 @@ export default function ReplaceTexture() {
               </div>
               <Tooltip
                 title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
-                placement='top-start'
+                placement='left-start'
               >
                 <FormControlLabel
                   control={<Checkbox checked={viewTranslucentPreview} />}
                   label='View Translucent'
-                  labelPlacement='start'
+                  labelPlacement='end'
                   onChange={() =>
                     setViewTranslucentPreview(!viewTranslucentPreview)
                   }
                 />
               </Tooltip>
+              <Tooltip
+                title={
+                  'Re-sets transparent pixels to zero-alpha. In certain scenarios ' +
+                  'this is useful to edit "invisible" sections of colors with alpha ' +
+                  'of zero that actually have meaningful data. A sane default is to ' +
+                  'leave this on when in doubt since it only affects a small percentage ' +
+                  'of games/scenarios.'
+                }
+                placement='left-start'
+              >
+                <FormControlLabel
+                  control={<Checkbox checked={preserveOriginAlpha} />}
+                  label='Preserve origin zero-alpha pixels'
+                  labelPlacement='end'
+                  onChange={() => setPreserveOriginAlpha(!preserveOriginAlpha)}
+                />
+              </Tooltip>
             </div>
+            <Divider flexItem />
             <div className='dialog-actions'>
               <Button
                 color='secondary'
