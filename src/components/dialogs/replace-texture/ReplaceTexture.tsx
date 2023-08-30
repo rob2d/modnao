@@ -364,7 +364,6 @@ export default function ReplaceTexture() {
               rgbaBuffer[i + 3] = 0;
             }
           }
-
           setProcessedRgba(rgbaBuffer);
         } else {
           setProcessedRgba(resizedImage.getRGBAData());
@@ -417,7 +416,7 @@ export default function ReplaceTexture() {
             <div className='controls'>
               <FormControlLabel
                 label={<Icon path={mdiMagnify} size={1} />}
-                labelPlacement='end'
+                labelPlacement='start'
                 control={
                   <Slider
                     size='small'
@@ -443,7 +442,7 @@ export default function ReplaceTexture() {
               </Tooltip>
               <FormControlLabel
                 label={<Icon path={mdiCropRotate} size={1} />}
-                labelPlacement='end'
+                labelPlacement='start'
                 control={
                   <Slider
                     size='small'
