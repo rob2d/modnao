@@ -30,7 +30,7 @@ const StyledPanelTexture = styled('div')(
     width: 100%;
   }
 
-  & .image-area.active:after {
+  & .image-area.file-drag-active:after {
     content: '';
     position: absolute;
     left: 0;
@@ -167,7 +167,7 @@ export default function GuiPanelTexture({
     [onSelectNewImageFile]
   );
 
-  const { getRootProps, isDragActive } = useDropzone({
+  const { getRootProps: getDragProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
     noClick: true,
@@ -221,10 +221,10 @@ export default function GuiPanelTexture({
         className={clsx(
           'image-area',
           selected && 'selected',
-          isDragActive && 'active',
+          isDragActive && 'file-drag-active',
           viewOptions.uvRegionsHighlighted
         )}
-        {...getRootProps()}
+        {...getDragProps()}
       >
         {!imageDataUrl ? (
           <Skeleton variant='rectangular' height={170} width='100%' />
