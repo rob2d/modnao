@@ -35,7 +35,11 @@ import { TextureColorFormat } from '@/utils/textures';
 import { objectUrlToBuffer } from '@/utils/data';
 import { useDebouncedEffect } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
-import { applyReplacedTextureImage } from '@/store/replaceTextureSlice';
+import {
+  applyReplacedTextureImage,
+  selectReplacementTexture,
+  updateReplacementTexture
+} from '@/store/replaceTextureSlice';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
@@ -391,7 +395,19 @@ export default function ReplaceTexture() {
     200
   );
 
-  const onDrop = useCallback(() => {}, []);
+  const onSelectNewImageFile = useCallback(
+    async (imageFile: File) => {
+      dispatch(updateReplacementTexture({ imageFile }));
+    },
+    [textureIndex]
+  );
+
+  const onDrop = useCallback(
+    async ([file]: File[]) => {
+      onSelectNewImageFile(file);
+    },
+    [onSelectNewImageFile]
+  );
 
   const { getRootProps: getDragProps, isDragActive } = useDropzone({
     onDrop,

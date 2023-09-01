@@ -2,7 +2,7 @@ import { Image } from 'image-js';
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from './dialogsSlice';
-import { AppState } from './store';
+import { AppState, AppThunk } from './store';
 import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { replaceTextureImage } from './modelDataSlice';
@@ -48,6 +48,17 @@ export const selectReplacementTexture = createAsyncThunk<
     };
   }
 );
+
+export const updateReplacementTexture =
+  ({ imageFile }: { imageFile: File }): AppThunk =>
+  (dispatch, getState) => {
+    const { textureIndex } = getState().replaceTexture;
+    dispatch(selectReplacementTexture({ textureIndex, imageFile }));
+    dispatch({
+      type: `${sliceName}/updateReplacementTexture`,
+      payload: { imageFile }
+    });
+  };
 
 export const applyReplacedTextureImage = createAsyncThunk<
   void,

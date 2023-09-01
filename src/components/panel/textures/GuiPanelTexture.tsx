@@ -150,14 +150,9 @@ export default function GuiPanelTexture({
 
   const onSelectNewImageFile = useCallback(
     async (imageFile: File) => {
-      dispatch(
-        selectReplacementTexture({
-          imageFile,
-          textureIndex
-        })
-      );
+      dispatch(selectReplacementTexture({ imageFile, textureIndex }));
     },
-    [textureIndex, textureDef.bufferUrls.translucent]
+    [textureIndex]
   );
 
   const onDrop = useCallback(
