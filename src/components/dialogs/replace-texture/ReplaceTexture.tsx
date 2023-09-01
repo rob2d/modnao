@@ -5,6 +5,7 @@ import Img from 'next/image';
 import {
   mdiCheckBold,
   mdiCropRotate,
+  mdiFileImage,
   mdiFlipHorizontal,
   mdiFlipVertical,
   mdiMagnify,
@@ -36,6 +37,8 @@ import { useDebouncedEffect } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
 import { applyReplacedTextureImage } from '@/store/replaceTextureSlice';
 import { NLTextureDef } from '@/types/NLAbstractions';
+import { useDropzone } from 'react-dropzone';
+import clsx from 'clsx';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -53,6 +56,20 @@ const Styled = styled('div')(
   display: flex;
   flex-direction: row;
   flex-grow: 1;
+}
+
+& .content.file-drag-active:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: ${theme.palette.secondary.light};
+    border: 3px solid ${theme.palette.secondary.main};
+    mix-blend-mode: hard-light;
+    opacity: 0.75;
+    pointer-events: none;
 }
 
 & .section {
@@ -374,6 +391,20 @@ export default function ReplaceTexture() {
     200
   );
 
+  const onDrop = useCallback(() => {}, []);
+
+  const { getRootProps: getDragProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    noClick: true,
+    accept: {
+      'image/bmp': ['.bmp'],
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/gif': ['.gif']
+    }
+  });
+
   useEffect(() => {
     (async () => {
       const originTextureBufferUrl =
@@ -396,7 +427,10 @@ export default function ReplaceTexture() {
   return (
     <>
       <Styled>
-        <div className='content'>
+        <div
+          className={clsx('content', isDragActive && 'file-drag-active')}
+          {...getDragProps()}
+        >
           <div className='replacement-setup section'>
             <Typography variant='h6'>New Source Image</Typography>
             <div className='cropper'>
@@ -414,70 +448,80 @@ export default function ReplaceTexture() {
               />
             </div>
             <div className='controls'>
-              <FormControlLabel
-                label={<Icon path={mdiMagnify} size={1} />}
-                labelPlacement='start'
-                control={
-                  <Slider
-                    size='small'
-                    min={0.25}
-                    max={8}
-                    step={0.25}
-                    defaultValue={1}
-                    aria-label='Small'
-                    valueLabelDisplay='auto'
-                    value={zoom}
-                    onChange={onChangeZoom}
-                  />
-                }
-              />
-              <Tooltip title='Reset zoom to 1x'>
-                <Button
-                  color='primary'
-                  className='sub-control'
-                  onClick={onResetZoom}
-                >
-                  <Icon path={mdiRefresh} size={1} />
-                </Button>
-              </Tooltip>
-              <FormControlLabel
-                label={<Icon path={mdiCropRotate} size={1} />}
-                labelPlacement='start'
-                control={
-                  <Slider
-                    size='small'
-                    min={-180}
-                    max={180}
-                    step={1}
-                    defaultValue={0}
-                    aria-label='Small'
-                    valueLabelDisplay='auto'
-                    value={rotation}
-                    onChange={onChangeRotation}
-                  />
-                }
-              />
-              <Tooltip title='Reset rotation to zero degrees'>
-                <Button
-                  color='primary'
-                  className='sub-control'
-                  onClick={onResetRotation}
-                >
-                  <Icon path={mdiRefresh} size={1} />
-                </Button>
-              </Tooltip>
-              <Tooltip title='Flip horizontally (appears on preview)'>
-                <Button color='primary' onClick={onFlipHorizontal}>
-                  {!flip.horizontal ? undefined : optionAppliedCheckmark}
-                  <Icon path={mdiFlipHorizontal} size={1} />
-                </Button>
-              </Tooltip>
-              <Tooltip title='Flip vertically (appears on preview)'>
-                <Button color='primary' onClick={onFlipVertical}>
-                  {!flip.vertical ? undefined : optionAppliedCheckmark}
-                  <Icon path={mdiFlipVertical} size={1} />
-                </Button>
-              </Tooltip>
+              <div>
+                <FormControlLabel
+                  label={<Icon path={mdiMagnify} size={1} />}
+                  labelPlacement='start'
+                  control={
+                    <Slider
+                      size='small'
+                      min={0.25}
+                      max={8}
+                      step={0.25}
+                      defaultValue={1}
+                      aria-label='Small'
+                      valueLabelDisplay='auto'
+                      value={zoom}
+                      onChange={onChangeZoom}
+                    />
+                  }
+                />
+                <Tooltip title='Reset zoom to 1x'>
+                  <Button
+                    color='primary'
+                    className='sub-control'
+                    onClick={onResetZoom}
+                  >
+                    <Icon path={mdiRefresh} size={1} />
+                  </Button>
+                </Tooltip>
+                <FormControlLabel
+                  label={<Icon path={mdiCropRotate} size={1} />}
+                  labelPlacement='start'
+                  control={
+                    <Slider
+                      size='small'
+                      min={-180}
+                      max={180}
+                      step={1}
+                      defaultValue={0}
+                      aria-label='Small'
+                      valueLabelDisplay='auto'
+                      value={rotation}
+                      onChange={onChangeRotation}
+                    />
+                  }
+                />
+                <Tooltip title='Reset rotation to zero degrees'>
+                  <Button
+                    color='primary'
+                    className='sub-control'
+                    onClick={onResetRotation}
+                  >
+                    <Icon path={mdiRefresh} size={1} />
+                  </Button>
+                </Tooltip>
+                <Tooltip title='Flip horizontally (appears on preview)'>
+                  <Button color='primary' onClick={onFlipHorizontal}>
+                    {!flip.horizontal ? undefined : optionAppliedCheckmark}
+                    <Icon path={mdiFlipHorizontal} size={1} />
+                  </Button>
+                </Tooltip>
+                <Tooltip title='Flip vertically (appears on preview)'>
+                  <Button color='primary' onClick={onFlipVertical}>
+                    {!flip.vertical ? undefined : optionAppliedCheckmark}
+                    <Icon path={mdiFlipVertical} size={1} />
+                  </Button>
+                </Tooltip>
+              </div>
+              <div>
+                <Tooltip title='Select new image file (note that you can also just drag and drop an image on the left side here'>
+                  <Button color='primary' onClick={onFlipVertical}>
+                    {!flip.vertical ? undefined : optionAppliedCheckmark}
+                    <Icon path={mdiFileImage} size={1} />
+                  </Button>
+                </Tooltip>
+              </div>
             </div>
           </div>
           <Divider orientation='vertical' flexItem />
