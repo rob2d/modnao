@@ -37,12 +37,12 @@ import { useDebouncedEffect } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
 import {
   applyReplacedTextureImage,
-  selectReplacementTexture,
   updateReplacementTexture
 } from '@/store/replaceTextureSlice';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
+import { useFilePicker } from 'use-file-picker';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -126,7 +126,10 @@ const Styled = styled('div')(
 
 & .controls {
   display: flex;
+  align-items: space-around;
 }
+
+
 
 & .controls .MuiSlider-root {
   min-width: 120px;
@@ -402,6 +405,25 @@ export default function ReplaceTexture() {
     [textureIndex]
   );
 
+  const [
+    openImageFileSelector,
+    {
+      plainFiles: [selectedImageFile]
+    }
+  ] = useFilePicker({
+    multiple: false,
+    readAs: 'ArrayBuffer',
+    accept: ['image/*']
+  });
+
+  useEffect(() => {
+    if (!selectedImageFile) {
+      return;
+    }
+
+    onSelectNewImageFile(selectedImageFile);
+  }, [selectedImageFile]);
+
   const onDrop = useCallback(
     async ([file]: File[]) => {
       onSelectNewImageFile(file);
@@ -517,23 +539,24 @@ export default function ReplaceTexture() {
                     <Icon path={mdiRefresh} size={1} />
                   </Button>
                 </Tooltip>
-                <Tooltip title='Flip horizontally (appears on preview)'>
-                  <Button color='primary' onClick={onFlipHorizontal}>
-                    {!flip.horizontal ? undefined : optionAppliedCheckmark}
-                    <Icon path={mdiFlipHorizontal} size={1} />
-                  </Button>
-                </Tooltip>
-                <Tooltip title='Flip vertically (appears on preview)'>
-                  <Button color='primary' onClick={onFlipVertical}>
-                    {!flip.vertical ? undefined : optionAppliedCheckmark}
-                    <Icon path={mdiFlipVertical} size={1} />
-                  </Button>
-                </Tooltip>
+                <div>
+                  <Tooltip title='Flip horizontally (appears on preview)'>
+                    <Button color='primary' onClick={onFlipHorizontal}>
+                      {!flip.horizontal ? undefined : optionAppliedCheckmark}
+                      <Icon path={mdiFlipHorizontal} size={1} />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title='Flip vertically (appears on preview)'>
+                    <Button color='primary' onClick={onFlipVertical}>
+                      {!flip.vertical ? undefined : optionAppliedCheckmark}
+                      <Icon path={mdiFlipVertical} size={1} />
+                    </Button>
+                  </Tooltip>
+                </div>
               </div>
               <div>
-                <Tooltip title='Select new image file (note that you can also just drag and drop an image on the left side here'>
-                  <Button color='primary' onClick={onFlipVertical}>
-                    {!flip.vertical ? undefined : optionAppliedCheckmark}
+                <Tooltip title='Select new image file. You can also drag and drop a file into the overall dialog'>
+                  <Button color='primary' onClick={openImageFileSelector}>
                     <Icon path={mdiFileImage} size={1} />
                   </Button>
                 </Tooltip>

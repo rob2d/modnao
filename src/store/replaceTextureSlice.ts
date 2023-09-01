@@ -33,7 +33,7 @@ export const selectReplacementTexture = createAsyncThunk<
 >(
   `${sliceName}/selectReplacementTexture`,
   async ({ imageFile, textureIndex }, { dispatch }) => {
-    const [buffer, _, width, height] = await loadRGBABuffersFromFile(imageFile);
+    const [buffer, , width, height] = await loadRGBABuffersFromFile(imageFile);
     const bufferObjectUrl = await bufferToObjectUrl(buffer);
 
     const { actions } = dialogsSlice;
