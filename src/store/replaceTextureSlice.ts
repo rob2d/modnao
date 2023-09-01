@@ -2,7 +2,7 @@ import { Image } from 'image-js';
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from './dialogsSlice';
-import { AppState } from './store';
+import { AppState, AppThunk } from './store';
 import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { replaceTextureImage } from './modelDataSlice';
@@ -33,7 +33,7 @@ export const selectReplacementTexture = createAsyncThunk<
 >(
   `${sliceName}/selectReplacementTexture`,
   async ({ imageFile, textureIndex }, { dispatch }) => {
-    const [buffer, _, width, height] = await loadRGBABuffersFromFile(imageFile);
+    const [buffer, , width, height] = await loadRGBABuffersFromFile(imageFile);
     const bufferObjectUrl = await bufferToObjectUrl(buffer);
 
     const { actions } = dialogsSlice;
@@ -48,6 +48,17 @@ export const selectReplacementTexture = createAsyncThunk<
     };
   }
 );
+
+export const updateReplacementTexture =
+  ({ imageFile }: { imageFile: File }): AppThunk =>
+  (dispatch, getState) => {
+    const { textureIndex } = getState().replaceTexture;
+    dispatch(selectReplacementTexture({ textureIndex, imageFile }));
+    dispatch({
+      type: `${sliceName}/updateReplacementTexture`,
+      payload: { imageFile }
+    });
+  };
 
 export const applyReplacedTextureImage = createAsyncThunk<
   void,
