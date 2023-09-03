@@ -4,7 +4,7 @@ import rgbaToRgb565 from '@/utils/color-conversions/rgbaToRgb565';
 import rgbaToArgb1555 from '@/utils/color-conversions/rgbaToArgb1555';
 import rgbaToArgb4444 from '@/utils/color-conversions/rgbaToArgb4444';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
-import { compressTextureBuffer } from '@/utils/textures/parse';
+import compressTextureBuffer from '@/utils/textures/parse/compressTextureBuffer2';
 import { objectUrlToBuffer } from '@/utils/data';
 
 const COLOR_SIZE = 2;
