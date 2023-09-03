@@ -13,12 +13,6 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
   let grabWordCount = 0;
   let chunk = 0;
 
-  // track first 100 words
-  const firstValues: [number, number][] = [];
-  for (let i = 0; i < 200; i++) {
-    firstValues.push([i, buffer.readUInt16LE(i * WORD_SIZE)]);
-  }
-
   for (let i = 0; i < buffer.length / WORD_SIZE; i++) {
     let word = buffer.readUInt16LE(i * WORD_SIZE);
 
