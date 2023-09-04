@@ -2,24 +2,40 @@ import { useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,
-  loadCharacterWinFile,
+  loadMvc2CharacterWinFile,
+  loadMvc2StagePreviewsFile,
   loadPolygonFile,
   loadTextureFile,
   useAppDispatch,
   useAppSelector
 } from '@/store';
 
+export type TEXTURE_FILE_TYPE =
+  | 'mvc2-stage-preview'
+  | 'character-portraits'
+  | 'mvc2-character-win'
+  | 'polygon-mapped';
+
 /** includes character-specific super portraits and end-game images */
 export const CHARACTER_PORTRAITS_REGEX_FILE = /^PL[0-9A-Z]{2}_FAC.BIN$/i;
 
 /** includes character-specific super portraits and end-game images */
-export const CHARACTER_WIN_REGEX_FILE = /^PL[0-9A-Z]{2}_WIN.BIN$/i;
+export const MVC2_CHARACTER_WIN_REGEX_FILE = /^PL[0-9A-Z]{2}_WIN.BIN$/i;
 
 /** polygon files which may be associated to textures */
 export const POLYGON_FILE_REGEX = /^(STG|DM)[0-9A-Z]{2}POL\.BIN$/i;
 
 /** textures which must be associated with polygons */
-const TEXTURE_FILE_REGEX = /^(STG|DM)[0-9A-Z]{2}TEX(.modnao)?\.BIN$/i;
+export const TEXTURE_FILE_REGEX = /^(STG|DM)[0-9A-Z]{2}TEX(.modnao)?\.BIN$/i;
+
+/** textures associated with stage selection previews */
+export const MVC2_STAGE_PREVIEWS_FILE_REGEX = /^SELSTG\.BIN$/i;
+
+const typeRegexMappings: [TEXTURE_FILE_TYPE, RegExp][] = [
+  ['character-portraits', CHARACTER_PORTRAITS_REGEX_FILE],
+  ['mvc2-character-win', MVC2_CHARACTER_WIN_REGEX_FILE],
+  ['mvc2-stage-preview', MVC2_STAGE_PREVIEWS_FILE_REGEX]
+];
 
 /**
  * handle a user selection of a file client-side
@@ -51,38 +67,31 @@ export default function useSupportedFilePicker(
       return;
     }
 
+    let textureType: TEXTURE_FILE_TYPE | undefined;
+
     let selectedPolygonFile: File | undefined = undefined;
     let selectedTextureFile: File | undefined = undefined;
-    let selectedCharacterPortraitsFile: File | undefined = undefined;
-    let selectedCharacterWinFile: File | undefined = undefined;
 
     const DEDICATED_TEXTURE_FILE_ERROR =
       'Cannot select files along with dedicated texture files at this time';
 
     plainFiles.forEach((f, i) => {
-      if (selectedCharacterPortraitsFile || selectedCharacterWinFile) {
+      if (textureType && textureType !== 'polygon-mapped') {
         handleError(DEDICATED_TEXTURE_FILE_ERROR);
         return;
       }
 
-      if (f.name.match(CHARACTER_PORTRAITS_REGEX_FILE)) {
-        if (i > 0) {
-          handleError(DEDICATED_TEXTURE_FILE_ERROR);
+      for (const [type, regex] of typeRegexMappings) {
+        if (f.name.match(regex)) {
+          if (i > 0) {
+            handleError(DEDICATED_TEXTURE_FILE_ERROR);
+            return;
+          }
+
+          selectedTextureFile = f;
+          textureType = type;
           return;
         }
-
-        selectedCharacterPortraitsFile = f;
-        return;
-      }
-
-      if (f.name.match(CHARACTER_WIN_REGEX_FILE)) {
-        if (i > 0) {
-          handleError(DEDICATED_TEXTURE_FILE_ERROR);
-          return;
-        }
-
-        selectedCharacterWinFile = f;
-        return;
       }
 
       if (f.name.match(POLYGON_FILE_REGEX)) {
@@ -97,6 +106,7 @@ export default function useSupportedFilePicker(
       if (f.name.match(TEXTURE_FILE_REGEX)) {
         if (!selectedTextureFile) {
           selectedTextureFile = f;
+          textureType = 'polygon-mapped';
         } else {
           onError('Cannot select more than one texture file');
           return;
@@ -104,14 +114,10 @@ export default function useSupportedFilePicker(
       }
     });
 
-    if (
-      !selectedPolygonFile &&
-      !selectedTextureFile &&
-      !selectedCharacterPortraitsFile &&
-      !selectedCharacterWinFile
-    ) {
+    if (!selectedPolygonFile && !selectedTextureFile) {
       onError(
-        'Invalid file selected; Please select a file in the form STG**POL.BIN along with STG**TEX.BIN, or PL**_FAC.BIN or PL**_WIN.BIN'
+        'Invalid file selected; Please select a file of either STG**POL.BIN ' +
+          'along with STG**TEX.BIN, or either PL**_FAC.BIN, PL**_WIN.BIN, or SELSTG.BIN'
       );
       return;
     }
@@ -121,23 +127,38 @@ export default function useSupportedFilePicker(
         await dispatch(loadPolygonFile(selectedPolygonFile));
       }
 
-      if (selectedTextureFile) {
+      if (selectedTextureFile && textureType === 'polygon-mapped') {
         if (hasLoadedPolygonFile || selectedPolygonFile) {
           dispatch(loadTextureFile(selectedTextureFile));
         } else {
           onError(
-            'Must load a polygon file along with or before loading a texture file'
+            'For this type of texture file, you must load a polygon ' +
+              'file along with this one. You can hold control in most file selectors to select most files'
           );
           return;
         }
       }
 
-      if (selectedCharacterPortraitsFile) {
-        dispatch(loadCharacterPortraitsFile(selectedCharacterPortraitsFile));
+      if (!selectedTextureFile) {
+        return;
       }
 
-      if (selectedCharacterWinFile) {
-        dispatch(loadCharacterWinFile(selectedCharacterWinFile));
+      switch (textureType) {
+        case 'character-portraits': {
+          dispatch(loadCharacterPortraitsFile(selectedTextureFile));
+          break;
+        }
+        case 'mvc2-character-win': {
+          dispatch(loadMvc2CharacterWinFile(selectedTextureFile));
+          break;
+        }
+        case 'mvc2-stage-preview': {
+          dispatch(loadMvc2StagePreviewsFile(selectedTextureFile));
+          break;
+        }
+        default: {
+          return;
+        }
       }
     })();
   }, [plainFiles]);
