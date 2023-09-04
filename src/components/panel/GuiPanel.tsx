@@ -117,7 +117,8 @@ const StyledPaper = styled(Paper)(
       justify-content: center;
     }
 
-    & .MuiButton-root.MuiButton-outlined:not(:last-child) {
+    & .MuiButton-root.MuiButton-outlined:not(:last-child),
+    & .export-texture-button-container:not(:last-child) {
       margin-bottom: ${theme.spacing(1)};
     }
 
