@@ -215,11 +215,11 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   return result;
 });
 
-export const loadCharacterWinFile = createAsyncThunk<
+export const loadMvc2CharacterWinFile = createAsyncThunk<
   LoadTexturesPayload,
   File,
   { state: AppState }
->(`${sliceName}/loadCharacterWinFile`, async (file, { dispatch }) => {
+>(`${sliceName}/loadMvc2CharacterWinFile`, async (file, { dispatch }) => {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = decompressTextureBuffer(Buffer.from(arrayBuffer));
 
@@ -281,6 +281,14 @@ export const loadCharacterWinFile = createAsyncThunk<
   });
 
   return result;
+});
+
+export const loadMvc2StagePreviewsFile = createAsyncThunk<
+  LoadTexturesPayload,
+  File,
+  { state: AppState }
+>(`${sliceName}/loadMvc2StagePreviewsFile`, async (file, { dispatch }) => {
+  // TODO
 });
 
 export const loadPolygonFile = createAsyncThunk<
