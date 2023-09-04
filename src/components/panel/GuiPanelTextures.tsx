@@ -2,6 +2,7 @@ import GuiPanelSection from './GuiPanelSection';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
   downloadTextureFile,
+  selectCanExportTextures,
   selectHasCompressedTextures,
   selectModel,
   selectModels,
@@ -34,7 +35,7 @@ export default function GuiPanelViewOptions() {
   const dispatch = useAppDispatch();
   const model = useAppSelector(selectModel);
   const meshIndex = useAppSelector(selectObjectMeshIndex);
-  const hasCompressedTextures = useAppSelector(selectHasCompressedTextures);
+  const canExportTextures = useAppSelector(selectCanExportTextures);
   const textureDefs = useAppSelector(selectSceneTextureDefs);
   const textureFileName = useAppSelector(selectTextureFileName);
   const models = useAppSelector(selectModels);
@@ -126,7 +127,7 @@ export default function GuiPanelViewOptions() {
           </>
         )}
       </Styled>
-      {hasCompressedTextures ? undefined : (
+      {canExportTextures ? undefined : (
         <div className='export-texture-button-container'>
           <GuiPanelButton
             tooltip='Download texture ROM binary with replaced images'
