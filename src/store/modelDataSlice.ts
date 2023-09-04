@@ -2,7 +2,8 @@ import {
   AnyAction,
   createAsyncThunk,
   createSlice,
-  PayloadAction
+  PayloadAction,
+  ThunkDispatch
 } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { NLTextureDef } from '@/types/NLAbstractions';
@@ -215,15 +216,52 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   return result;
 });
 
+const loadCompressedTextureFiles = async (
+  file: File,
+  textureDefs: NLTextureDef[],
+  onDispatch: (payload: LoadTexturesPayload) => void
+) => {
+  const thread = workerPool.allocate();
+
+  if (!thread) {
+    return;
+  }
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = decompressTextureBuffer(Buffer.from(arrayBuffer));
+
+  const result = await new Promise<LoadTexturesPayload>((resolve) => {
+    if (thread) {
+      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
+        const payload = {
+          ...event.data.result,
+          hasCompressedTextures: true
+        };
+        onDispatch(payload);
+        resolve(payload);
+
+        workerPool.unallocate(thread);
+      };
+    }
+
+    thread?.postMessage({
+      type: 'loadTextureFile',
+      payload: {
+        fileName: file.name,
+        textureDefs,
+        buffer
+      }
+    } as WorkerEvent);
+  });
+
+  return result;
+};
+
 export const loadMvc2CharacterWinFile = createAsyncThunk<
   LoadTexturesPayload,
   File,
   { state: AppState }
 >(`${sliceName}/loadMvc2CharacterWinFile`, async (file, { dispatch }) => {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = decompressTextureBuffer(Buffer.from(arrayBuffer));
-
-  const textureDefs = [
+  const textureDefs: NLTextureDef[] = [
     {
       width: 256,
       height: 256,
@@ -254,33 +292,14 @@ export const loadMvc2CharacterWinFile = createAsyncThunk<
     }
   });
 
-  const thread = workerPool.allocate();
+  const result = await loadCompressedTextureFiles(
+    file,
+    textureDefs,
+    (payload: LoadTexturesPayload) =>
+      dispatch({ type: loadTextureFile.fulfilled.type, payload })
+  );
 
-  const result = await new Promise<LoadTexturesPayload>((resolve) => {
-    if (thread) {
-      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-        const payload = {
-          ...event.data.result,
-          hasCompressedTextures: true
-        };
-        dispatch({ type: loadTextureFile.fulfilled.type, payload });
-        resolve(payload);
-
-        workerPool.unallocate(thread);
-      };
-    }
-
-    thread?.postMessage({
-      type: 'loadTextureFile',
-      payload: {
-        fileName: file.name,
-        textureDefs,
-        buffer
-      }
-    } as WorkerEvent);
-  });
-
-  return result;
+  return result!;
 });
 
 export const loadMvc2StagePreviewsFile = createAsyncThunk<
@@ -288,7 +307,37 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
   File,
   { state: AppState }
 >(`${sliceName}/loadMvc2StagePreviewsFile`, async (file, { dispatch }) => {
-  // TODO
+  const textureDefs: NLTextureDef[] = [];
+
+  for (let i = 0; i < 13; i++) {
+    textureDefs.push({
+      width: 128,
+      height: 128,
+      colorFormat: 'RGB565',
+      colorFormatValue: 2,
+      bufferUrls: {
+        translucent: undefined,
+        opaque: undefined
+      },
+      dataUrls: {
+        translucent: undefined,
+        opaque: undefined
+      },
+      type: 0,
+      address: 0,
+      baseLocation: i * 128 * 128 * 2,
+      ramOffset: 0
+    });
+  }
+
+  const result = await loadCompressedTextureFiles(
+    file,
+    textureDefs,
+    (payload: LoadTexturesPayload) =>
+      dispatch({ type: loadTextureFile.fulfilled.type, payload })
+  );
+
+  return result!;
 });
 
 export const loadPolygonFile = createAsyncThunk<
