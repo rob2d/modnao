@@ -9,7 +9,8 @@ import {
   mdiFlipHorizontal,
   mdiFlipVertical,
   mdiMagnify,
-  mdiRefresh
+  mdiRefresh,
+  mdiRotateRight
 } from '@mdi/js';
 import Icon from '@mdi/react';
 import { nanoid } from 'nanoid';
@@ -87,6 +88,10 @@ const Styled = styled('div')(
 
 & .original-texture {
   flex-shrink: 0;
+
+  ${theme.breakpoints.down('md')} {
+    max-width: 280px;
+  }
 }
 
 & .texture-img-container {
@@ -126,10 +131,16 @@ const Styled = styled('div')(
 
 & .controls {
   display: flex;
-  align-items: space-around;
+  justify-content: space-between;
 }
 
+& .controls .button-group {
+  display: inline-flex;
+}
 
+& .controls .button-group .MuiButtonBase-root.MuiButton-root {
+  min-width: 60px;
+}
 
 & .controls .MuiSlider-root {
   min-width: 120px;
@@ -258,6 +269,10 @@ export default function ReplaceTexture() {
   const onResetZoom = useCallback(() => setZoom(1), []);
   const onResetRotation = useCallback(() => setRotation(0), []);
 
+  const onRotateRight = useCallback(() => {
+    setRotation(Math.floor(rotation / 90) * 90 + 90);
+  }, [rotation]);
+
   const onCancelReplaceTexture = useCallback(() => {
     dispatch(closeDialog());
   }, [dispatch]);
@@ -288,7 +303,7 @@ export default function ReplaceTexture() {
   );
 
   const [viewTranslucentPreview, setViewTranslucentPreview] = useState(
-    () => false
+    () => true
   );
 
   const [preserveOriginAlpha, setPreserveOriginAlpha] = useState(() => true);
@@ -487,59 +502,68 @@ export default function ReplaceTexture() {
             </div>
             <div className='controls'>
               <div>
-                <FormControlLabel
-                  label={<Icon path={mdiMagnify} size={1} />}
-                  labelPlacement='start'
-                  control={
-                    <Slider
-                      size='small'
-                      min={0.25}
-                      max={8}
-                      step={0.25}
-                      defaultValue={1}
-                      aria-label='Small'
-                      valueLabelDisplay='auto'
-                      value={zoom}
-                      onChange={onChangeZoom}
-                    />
-                  }
-                />
-                <Tooltip title='Reset zoom to 1x'>
-                  <Button
-                    color='primary'
-                    className='sub-control'
-                    onClick={onResetZoom}
-                  >
-                    <Icon path={mdiRefresh} size={1} />
-                  </Button>
-                </Tooltip>
-                <FormControlLabel
-                  label={<Icon path={mdiCropRotate} size={1} />}
-                  labelPlacement='start'
-                  control={
-                    <Slider
-                      size='small'
-                      min={-180}
-                      max={180}
-                      step={1}
-                      defaultValue={0}
-                      aria-label='Small'
-                      valueLabelDisplay='auto'
-                      value={rotation}
-                      onChange={onChangeRotation}
-                    />
-                  }
-                />
-                <Tooltip title='Reset rotation to zero degrees'>
-                  <Button
-                    color='primary'
-                    className='sub-control'
-                    onClick={onResetRotation}
-                  >
-                    <Icon path={mdiRefresh} size={1} />
-                  </Button>
-                </Tooltip>
-                <div>
+                <div className='button-group'>
+                  <FormControlLabel
+                    label={<Icon path={mdiMagnify} size={1} />}
+                    labelPlacement='start'
+                    control={
+                      <Slider
+                        size='small'
+                        min={0.25}
+                        max={8}
+                        step={0.25}
+                        defaultValue={1}
+                        aria-label='Small'
+                        valueLabelDisplay='auto'
+                        value={zoom}
+                        onChange={onChangeZoom}
+                      />
+                    }
+                  />
+                  <Tooltip title='Reset zoom to 1x'>
+                    <Button
+                      color='primary'
+                      className='sub-control'
+                      onClick={onResetZoom}
+                    >
+                      <Icon path={mdiRefresh} size={1} />
+                    </Button>
+                  </Tooltip>
+                </div>
+                <div className='button-group'>
+                  <FormControlLabel
+                    label={<Icon path={mdiCropRotate} size={1} />}
+                    labelPlacement='start'
+                    control={
+                      <Slider
+                        size='small'
+                        min={-180}
+                        max={180}
+                        step={1}
+                        defaultValue={0}
+                        aria-label='Small'
+                        valueLabelDisplay='auto'
+                        value={rotation}
+                        onChange={onChangeRotation}
+                      />
+                    }
+                  />
+                  <Tooltip title='Reset rotation to zero degrees'>
+                    <Button
+                      color='primary'
+                      className='sub-control'
+                      onClick={onResetRotation}
+                    >
+                      <Icon path={mdiRefresh} size={1} />
+                    </Button>
+                  </Tooltip>
+                </div>
+                <div className='button-group'>
+                  <Tooltip title='Rotate to nearest next 90° (appears on preview)'>
+                    <Button color='primary' onClick={onRotateRight}>
+                      <Icon path={mdiRotateRight} size={1} />
+                    </Button>
+                  </Tooltip>
                   <Tooltip title='Flip horizontally (appears on preview)'>
                     <Button color='primary' onClick={onFlipHorizontal}>
                       {!flip.horizontal ? undefined : optionAppliedCheckmark}
