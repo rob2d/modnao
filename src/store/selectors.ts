@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
+import { CHARACTER_PORTRAITS_REGEX_FILE } from '@/hooks/useSupportedFilePicker';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
@@ -160,3 +161,10 @@ export const selectReplacementTextureIndex = (s: AppState) =>
 
 export const selectIsAppInfoDialogShown = (s: AppState) =>
   s.dialogs.dialogShown === 'app-info';
+
+export const selectCanExportTextures = createSelector(
+  selectTextureFileName,
+  (textureFileName) =>
+    Boolean(textureFileName) &&
+    textureFileName?.match(CHARACTER_PORTRAITS_REGEX_FILE)
+);
