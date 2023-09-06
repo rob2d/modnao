@@ -23,9 +23,6 @@ export const selectHasLoadedFile = createSelector(
 export const selectHasEditedTextures = (s: AppState) =>
   s.modelData.hasEditedTextures;
 
-export const selectHasCompressedTextures = (s: AppState) =>
-  s.modelData.hasCompressedTextures;
-
 export const selectModelCount = createSelector(
   selectModels,
   (models) => models.length
