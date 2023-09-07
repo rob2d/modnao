@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo } from 'react';
 import {
   downloadTextureFile,
   selectCanExportTextures,
-  selectHasCompressedTextures,
   selectModel,
   selectModels,
   selectObjectMeshIndex,

@@ -14,7 +14,7 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
   let chunk = 0;
 
   for (let i = 0; i < buffer.length / WORD_SIZE; i++) {
-    let word = buffer.readUInt16LE(i * WORD_SIZE);
+    const word = buffer.readUInt16LE(i * WORD_SIZE);
 
     if (applyBitmask) {
       bitmask = word;
@@ -45,9 +45,6 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
 
         // advance/read an extra 2 bytes
         grabWordCount = buffer.readUInt16LE(++i * WORD_SIZE);
-
-        // value now becomes 32-bit
-        word = (word << 16) | grabWordCount;
       }
 
       if (wordsBackCount < grabWordCount) {
