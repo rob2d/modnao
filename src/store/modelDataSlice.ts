@@ -330,6 +330,25 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
     });
   }
 
+  textureDefs.push({
+    width: 64,
+    height: 64,
+    colorFormat: 'ARGB4444',
+    colorFormatValue: 2,
+    bufferUrls: {
+      translucent: undefined,
+      opaque: undefined
+    },
+    dataUrls: {
+      translucent: undefined,
+      opaque: undefined
+    },
+    type: 0,
+    address: 0,
+    baseLocation: 18 * 128 * 128 * 2,
+    ramOffset: 0
+  });
+
   dispatch({
     type: loadPolygonFile.fulfilled.type,
     payload: {
