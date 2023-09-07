@@ -111,14 +111,9 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
     i += lengthApplied;
 
-    // indicate compression in bitmask for this chunk
     if (lengthApplied > 1) {
       bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
     }
-
-    // determine the bitmasks at appropriate chunks
-    // and build value occurence maps for the decompressed
-    // pixel data
 
     chunk++;
     chunk = chunk % 16;
@@ -129,7 +124,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
   }
 
-  // (3) assemble the output of bitmasks and words/repetitions
+  // assemble bitmasks and words/repetitions
 
   const outputWords: number[] = [];
   chunk = 0;
@@ -158,7 +153,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
     chunk %= 16;
   }
 
-  // write to output buffer
+  // write to output
 
   const outputBuffer = Buffer.from(
     new Uint8Array(outputWords.length * WORD_SIZE)
