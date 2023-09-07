@@ -6,10 +6,9 @@ const WORD_SIZE = 2;
 const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
 /**
- * max amount of words to look back for a sequence;
- * 2 to the 11th power; lsb value of 16 bit mode
- **/
-const MAX_LOOKBACK = 2048;
+ * in 16 bit mode, can look back a max of 5 bits
+ */
+const W16_MAX_LOOKBACK = 2048;
 
 /**
  * @param buffer decompressed buffer to compress
@@ -46,7 +45,10 @@ export default function compressTextureBuffer(buffer: Buffer) {
     occurenceList.append(i);
 
     // clean up occurences not within targeted range
-    while (occurenceList.head && occurenceList.head.data <= i - MAX_LOOKBACK) {
+    while (
+      occurenceList.head &&
+      occurenceList.head.data <= i - W16_MAX_LOOKBACK
+    ) {
       if (occurenceList.head.next === null) {
         break;
       }
@@ -56,19 +58,21 @@ export default function compressTextureBuffer(buffer: Buffer) {
 
     let sequenceNode: ListNode<number> | null =
       occurenceList.head as ListNode<number>;
+
     let maxSequenceLength = 0;
     let maxSequenceIndex = -1;
 
     while (sequenceNode) {
       let length = 1;
 
-      // for each word travel through to see
+      // for each starting word, travel through to see
       // if there is a matching sequence
       let hasMatch = true;
+
       while (
         sequenceNode.data < i &&
         sequenceNode.data + length < wordCount &&
-        length < 31 &&
+        length < W16_MAX_LOOKBACK - 1 &&
         i + length < wordCount &&
         hasMatch
       ) {
@@ -92,14 +96,13 @@ export default function compressTextureBuffer(buffer: Buffer) {
       sequenceNode = sequenceNode.next;
     }
 
-    let wordsBack = maxSequenceLength > 1 ? i - maxSequenceIndex : 0;
     let lengthApplied = maxSequenceLength;
 
-    if (maxSequenceLength > MAX_LOOKBACK) {
-      wordsBack = 0;
+    if (lengthApplied === 0) {
       lengthApplied = 1;
     }
 
+    const wordsBack = lengthApplied > 1 ? i - maxSequenceIndex : 0;
     sequences.push([word, lengthApplied, wordsBack]);
     i += lengthApplied;
 
@@ -134,9 +137,16 @@ export default function compressTextureBuffer(buffer: Buffer) {
 
     if (length == 1) {
       outputWords.push(word);
-    } else if (length > 1) {
-      const grabWordCount = length << 11;
-      outputWords.push(grabWordCount | wordsBack);
+    } else {
+      const is32Bit = length > 31 || wordsBack >= W16_MAX_LOOKBACK;
+
+      if (!is32Bit) {
+        const grabWordCount = length << 11;
+        outputWords.push(grabWordCount | wordsBack);
+      } else {
+        outputWords.push(wordsBack);
+        outputWords.push(length);
+      }
     }
 
     chunk += 1;
