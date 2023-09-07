@@ -14,16 +14,17 @@ const W16_MAX_LOOKBACK = 2048;
  * @param buffer decompressed buffer to compress
  */
 export default function compressTextureBuffer(buffer: Buffer) {
+  console.time('compressTextureBuffer');
   let i = 0;
 
-  // create a structure that maps sequences of first-word index, length,
-  // and the index of the word that the sequence is repeated
+  // create a structure that maps sequences of word ops
 
-  // also generates occurence maps for each word
-  // to see where it shows up
+  // also generate occurence maps for each word
+  // to grab a linked list of indexes where it occurs
 
   const wordCount = buffer.length / WORD_SIZE;
-  const sequences: [number, number, number][] = [];
+  const sequences: ([number, number, number] | [number, number])[] = [];
+
   /**
    * tracks word occurences at indexes
    */
@@ -103,7 +104,11 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
 
     const wordsBack = lengthApplied > 1 ? i - maxSequenceIndex : 0;
-    sequences.push([word, lengthApplied, wordsBack]);
+    if (lengthApplied == 1) {
+      sequences.push([lengthApplied, wordsBack, word]);
+    } else {
+      sequences.push([lengthApplied, wordsBack]);
+    }
     i += lengthApplied;
 
     // indicate compression in bitmask for this chunk
@@ -130,13 +135,14 @@ export default function compressTextureBuffer(buffer: Buffer) {
   chunk = 0;
   let bitmaskIndex = 0;
 
-  for (const [word, length, wordsBack] of sequences) {
+  for (const sequence of sequences) {
+    const [length, wordsBack] = sequence;
     if (chunk === 0) {
       outputWords.push(bitmasks[bitmaskIndex++]);
     }
 
     if (length == 1) {
-      outputWords.push(word);
+      outputWords.push(sequence[2] as number);
     } else {
       const is32Bit = length > 31 || wordsBack >= W16_MAX_LOOKBACK;
 
@@ -144,8 +150,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
         const grabWordCount = length << 11;
         outputWords.push(grabWordCount | wordsBack);
       } else {
-        outputWords.push(wordsBack);
-        outputWords.push(length);
+        outputWords.push(wordsBack, length);
       }
     }
 
@@ -166,6 +171,8 @@ export default function compressTextureBuffer(buffer: Buffer) {
       outputBuffer.writeUInt16LE(outputWords[i], byteOffset);
     }
   }
+
+  console.timeEnd('compressTextureBuffer');
 
   return outputBuffer;
 }
