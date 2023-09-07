@@ -309,7 +309,7 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
 >(`${sliceName}/loadMvc2StagePreviewsFile`, async (file, { dispatch }) => {
   const textureDefs: NLTextureDef[] = [];
 
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 18; i++) {
     textureDefs.push({
       width: 128,
       height: 128,
