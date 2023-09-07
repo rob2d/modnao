@@ -1,4 +1,5 @@
 import LinkedList, { ListNode } from '@/utils/ds/LinkedList';
+import Queue from '@/utils/ds/Queue';
 
 const WORD_SIZE = 2;
 
@@ -23,7 +24,8 @@ export default function compressTextureBuffer(buffer: Buffer) {
   // to grab a linked list of indexes where it occurs
 
   const wordCount = buffer.length / WORD_SIZE;
-  const sequences: ([number, number, number] | [number, number])[] = [];
+  const values: Queue<number> = new Queue();
+  const outputWords: number[] = [];
 
   /**
    * tracks word occurences at indexes
@@ -71,11 +73,11 @@ export default function compressTextureBuffer(buffer: Buffer) {
       let hasMatch = true;
 
       while (
+        hasMatch &&
         sequenceNode.data < i &&
         sequenceNode.data + length < wordCount &&
-        length < W16_MAX_LOOKBACK - 1 &&
         i + length < wordCount &&
-        hasMatch
+        length < W16_MAX_LOOKBACK - 1
       ) {
         const sequenceWord = buffer.readUInt16LE(
           (sequenceNode.data + length) * WORD_SIZE
@@ -104,11 +106,18 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
 
     const wordsBack = lengthApplied > 1 ? i - maxSequenceIndex : 0;
-    if (lengthApplied == 1) {
-      sequences.push([lengthApplied, wordsBack, word]);
+
+    const is32Bit = lengthApplied > 31 || wordsBack >= W16_MAX_LOOKBACK;
+    if (lengthApplied === 1) {
+      values.enqueue(word);
+    } else if (!is32Bit) {
+      const grabWordCount = lengthApplied << 11;
+      values.enqueue(grabWordCount | wordsBack);
     } else {
-      sequences.push([lengthApplied, wordsBack]);
+      values.enqueue(wordsBack);
+      values.enqueue(lengthApplied);
     }
+
     i += lengthApplied;
 
     if (lengthApplied > 1) {
@@ -116,48 +125,26 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
 
     chunk++;
-    chunk = chunk % 16;
 
-    if (chunk === 0) {
+    if (chunk === 16) {
       bitmasks.push(bitmask);
+      outputWords.push(bitmask);
+
+      while (values.size) {
+        outputWords.push(values.dequeue()!);
+      }
+
       bitmask = 0;
     }
+
+    chunk = chunk % 16;
   }
 
-  // assemble bitmasks and words/repetitions
-
-  const outputWords: number[] = [];
-  chunk = 0;
-  let bitmaskIndex = 0;
-
-  for (const sequence of sequences) {
-    const [length, wordsBack] = sequence;
-    if (chunk === 0) {
-      outputWords.push(bitmasks[bitmaskIndex++]);
-    }
-
-    if (length == 1) {
-      outputWords.push(sequence[2] as number);
-    } else {
-      const is32Bit = length > 31 || wordsBack >= W16_MAX_LOOKBACK;
-
-      if (!is32Bit) {
-        const grabWordCount = length << 11;
-        outputWords.push(grabWordCount | wordsBack);
-      } else {
-        outputWords.push(wordsBack, length);
-      }
-    }
-
-    chunk += 1;
-    chunk %= 16;
+  while (values.size) {
+    outputWords.push(values.dequeue()!);
   }
 
-  // write to output
-
-  const outputBuffer = Buffer.from(
-    new Uint8Array(outputWords.length * WORD_SIZE)
-  );
+  const outputBuffer = Buffer.alloc(outputWords.length * WORD_SIZE);
 
   for (let i = 0; i < outputWords.length; i++) {
     const byteOffset = i * WORD_SIZE;
