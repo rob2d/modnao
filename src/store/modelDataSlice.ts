@@ -330,6 +330,16 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
     });
   }
 
+  dispatch({
+    type: loadPolygonFile.fulfilled.type,
+    payload: {
+      models: [],
+      fileName: undefined,
+      polygonBufferUrl: undefined,
+      textureDefs
+    }
+  });
+
   const result = await loadCompressedTextureFiles(
     file,
     textureDefs,
