@@ -15,6 +15,7 @@ import { selectSceneTextureDefs } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import WorkerThreadPool from '../utils/WorkerThreadPool';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
+import { batch } from 'react-redux';
 
 const workerPool = new WorkerThreadPool();
 
@@ -176,17 +177,6 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     ramOffset: 0
   }));
 
-  // revoke URL for existing texture buffer url in state
-  dispatch({
-    type: loadPolygonFile.fulfilled.type,
-    payload: {
-      models: [],
-      fileName: undefined,
-      polygonBufferUrl: undefined,
-      textureDefs
-    }
-  });
-
   const thread = workerPool.allocate();
 
   const result = await new Promise<LoadTexturesPayload>((resolve) => {
@@ -196,7 +186,19 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
           ...event.data.result,
           hasCompressedTextures: true
         };
-        dispatch({ type: loadTextureFile.fulfilled.type, payload });
+        batch(() => {
+          // revoke URL for existing texture buffer url in state
+          dispatch({
+            type: loadPolygonFile.fulfilled.type,
+            payload: {
+              models: [],
+              fileName: undefined,
+              polygonBufferUrl: undefined,
+              textureDefs
+            }
+          });
+          dispatch({ type: loadTextureFile.fulfilled.type, payload });
+        });
         resolve(payload);
 
         workerPool.unallocate(thread);
@@ -282,21 +284,22 @@ export const loadMvc2CharacterWinFile = createAsyncThunk<
     }
   ];
 
-  dispatch({
-    type: loadPolygonFile.fulfilled.type,
-    payload: {
-      models: [],
-      fileName: undefined,
-      polygonBufferUrl: undefined,
-      textureDefs
-    }
-  });
-
   const result = (await loadCompressedTextureFiles(
     file,
     textureDefs,
     (payload: LoadTexturesPayload) =>
-      dispatch({ type: loadTextureFile.fulfilled.type, payload })
+      batch(() => {
+        dispatch({
+          type: loadPolygonFile.fulfilled.type,
+          payload: {
+            models: [],
+            fileName: undefined,
+            polygonBufferUrl: undefined,
+            textureDefs
+          }
+        });
+        dispatch({ type: loadTextureFile.fulfilled.type, payload });
+      })
   )) as LoadTexturesPayload;
 
   return result;
@@ -349,21 +352,23 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
     ramOffset: 0
   });
 
-  dispatch({
-    type: loadPolygonFile.fulfilled.type,
-    payload: {
-      models: [],
-      fileName: undefined,
-      polygonBufferUrl: undefined,
-      textureDefs
-    }
-  });
-
   const result = (await loadCompressedTextureFiles(
     file,
     textureDefs,
     (payload: LoadTexturesPayload) =>
-      dispatch({ type: loadTextureFile.fulfilled.type, payload })
+      // TODO: DRY into action
+      batch(() => {
+        dispatch({
+          type: loadPolygonFile.fulfilled.type,
+          payload: {
+            models: [],
+            fileName: undefined,
+            polygonBufferUrl: undefined,
+            textureDefs
+          }
+        });
+        dispatch({ type: loadTextureFile.fulfilled.type, payload });
+      })
   )) as LoadTexturesPayload;
 
   return result;
@@ -435,21 +440,22 @@ export const loadMvc2EndFile = createAsyncThunk<
     ramOffset: 0
   });
 
-  dispatch({
-    type: loadPolygonFile.fulfilled.type,
-    payload: {
-      models: [],
-      fileName: undefined,
-      polygonBufferUrl: undefined,
-      textureDefs
-    }
-  });
-
   const result = (await loadCompressedTextureFiles(
     file,
     textureDefs,
     (payload: LoadTexturesPayload) =>
-      dispatch({ type: loadTextureFile.fulfilled.type, payload })
+      batch(() => {
+        dispatch({
+          type: loadPolygonFile.fulfilled.type,
+          payload: {
+            models: [],
+            fileName: undefined,
+            polygonBufferUrl: undefined,
+            textureDefs
+          }
+        });
+        dispatch({ type: loadTextureFile.fulfilled.type, payload });
+      })
   )) as LoadTexturesPayload;
 
   return result;
