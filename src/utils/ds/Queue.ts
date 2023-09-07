@@ -53,17 +53,3 @@ export default class Queue<T> {
     this.size = 0;
   }
 }
-
-// Example usage:
-const queue = new Queue<number>();
-
-queue.enqueue(1);
-queue.enqueue(2);
-queue.enqueue(3);
-
-console.log(queue.dequeue()); // Output: 1
-console.log(queue.peek()); // Output: 2
-console.log(queue.size); // Output: 2
-
-queue.clear();
-console.log(queue.isEmpty()); // Output: true
