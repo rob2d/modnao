@@ -113,7 +113,7 @@ export default function DevUpdates() {
 
   return (
     <StyledContent className='app-info-section'>
-      <DialogSectionHeader>Development Updates / Vlog</DialogSectionHeader>
+      <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
       <div>
         {!vlogs
           ? [1, 2, 3, 4, 5, 6].map((_, i) => (

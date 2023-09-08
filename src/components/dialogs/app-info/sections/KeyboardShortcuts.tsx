@@ -6,7 +6,7 @@ const Styled = styled('div')(() => `& {}`);
 export default function KeyboardShortcuts() {
   return (
     <div className='app-info-section'>
-      <DialogSectionHeader>Keyboard Shortcuts</DialogSectionHeader>
+      <DialogSectionHeader>Shortcut Keys</DialogSectionHeader>
       <Styled>
         <Typography variant={'body1'}>
           <b>Left, Right</b>&nbsp;&nbsp; Toggle Model Viewed
