@@ -29,7 +29,7 @@ const Styled = styled('div')(
       right: ${theme.spacing(2)};
     }
 
-    ${theme.breakpoints.down('md')} {
+    ${theme.breakpoints.down('lg')} {
       & {
         grid-template-columns: 1fr;
       }

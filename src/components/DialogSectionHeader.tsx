@@ -6,11 +6,11 @@ const StyledTypography = styled(Typography)(
     & { 
       display: flex;
       align-items: center;
-      margin-bottom: ${theme.spacing(3)}; 
+      margin-bottom: ${theme.spacing(2)}; 
     }`
 );
 
 type Props = { children: ReactNode };
 export default function DialogSectionHeader({ children }: Props) {
-  return <StyledTypography variant='h5'>{children}</StyledTypography>;
+  return <StyledTypography variant='h6'>{children}</StyledTypography>;
 }
