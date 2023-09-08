@@ -47,7 +47,7 @@ export default async function handler(
           // strip any hashtags from the title after the first denoting the episode #
           if (title.lastIndexOf('#') !== title.indexOf('#')) {
             const titleArr = title.split('#');
-            title = titleArr.slice(1, titleArr.length - 1).join('#');
+            title = titleArr.slice(0, 1).join('#');
           }
 
           return {

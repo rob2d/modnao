@@ -21,6 +21,10 @@ const Styled = styled('div')(
   & .MuiCard-root:not(:last-of-type) {
     margin-bottom: ${theme.spacing(3)};
   }
+
+  & .MuiTypography-h6 {
+    margin-top: ${theme.spacing(1)};
+  }
 `
 );
 

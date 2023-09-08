@@ -80,7 +80,6 @@ export default function GettingStarted() {
                 a dedicated texture file by itself. Hold control when clicking
                 to select multiple files.
               </Typography>
-              <Typography></Typography>
             </StepContent>
           </Step>
           <Step key='Navigate Models and Edit Textures' active={true}>

@@ -24,7 +24,7 @@ export default function KeyboardShortcuts() {
           marginTop={1}
         >
           <Icon path={mdiInformationOutline} size={1} />
-          &nbsp;&nbsp;Displays this info once a file is loaded.
+          &nbsp;&nbsp;Displays this info.
         </Typography>
       </div>
     </div>

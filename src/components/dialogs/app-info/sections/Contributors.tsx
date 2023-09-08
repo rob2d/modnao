@@ -10,12 +10,12 @@ const StyledContent = styled('div')(
     }
     
     & .MuiTypography-subtitle1 {
-      margin-bottom: ${theme.spacing(1)};
+      margin-bottom: 0;
     }
 
     & .MuiTypography-h6 {
-      padding-left: ${theme.spacing(3)};
-      margin-bottom: ${theme.spacing(3)};
+      padding-left: ${theme.spacing(2)};
+      margin-bottom: ${theme.spacing(2)};
     }
     `
 );
@@ -28,7 +28,7 @@ export default function Contributors() {
         <Typography variant={'subtitle1'}>Design/Development</Typography>
         <Typography variant={'h6'}>rob2d</Typography>
         <Typography variant={'subtitle1'}>
-          Various Model & Texture Format / R.E. Details
+          Various Binary Format / R.E. Details
         </Typography>
         <Typography variant={'h6'}>
           VincentNL, egregiousguy, zocker-160, bankbank, TVIndustries,
