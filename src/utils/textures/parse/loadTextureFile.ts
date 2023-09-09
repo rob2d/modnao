@@ -51,8 +51,7 @@ async function loadTextureBuffer(
             break;
           }
 
-          const colorValue =
-            readOffset >= buffer.length ? 0 : buffer.readUInt16LE(readOffset);
+          const colorValue = buffer.readUInt16LE(readOffset);
           const conversionOp = conversionDict[t.colorFormat];
           const color = conversionOp(colorValue);
 
