@@ -3,6 +3,7 @@ import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,
   loadMvc2CharacterWinFile,
+  loadMvc2EndFile,
   loadMvc2StagePreviewsFile,
   loadPolygonFile,
   loadTextureFile,
@@ -14,7 +15,8 @@ export type TEXTURE_FILE_TYPE =
   | 'mvc2-stage-preview'
   | 'character-portraits'
   | 'mvc2-character-win'
-  | 'polygon-mapped';
+  | 'polygon-mapped'
+  | 'mvc2-end-file';
 
 /** includes character-specific super portraits and end-game images */
 export const CHARACTER_PORTRAITS_REGEX_FILE = /^PL[0-9A-Z]{2}_FAC.BIN$/i;
@@ -23,18 +25,22 @@ export const CHARACTER_PORTRAITS_REGEX_FILE = /^PL[0-9A-Z]{2}_FAC.BIN$/i;
 export const MVC2_CHARACTER_WIN_REGEX_FILE = /^PL[0-9A-Z]{2}_WIN.BIN$/i;
 
 /** polygon files which may be associated to textures */
-export const POLYGON_FILE_REGEX = /^(STG|DM)[0-9A-Z]{2}POL\.BIN$/i;
+export const POLYGON_FILE_REGEX = /^(((STG|DM)[0-9A-Z]{2})|EFKY)POL\.BIN$/i;
 
 /** textures which must be associated with polygons */
-export const TEXTURE_FILE_REGEX = /^(STG|DM)[0-9A-Z]{2}TEX(.modnao)?\.BIN$/i;
+export const TEXTURE_FILE_REGEX =
+  /^(((STG|DM)[0-9A-Z]{2})|EFKY)TEX(.modnao)?\.BIN$/i;
 
 /** textures associated with stage selection previews */
 export const MVC2_STAGE_PREVIEWS_FILE_REGEX = /^SELSTG\.BIN$/i;
 
+export const MVC2_END_FILE_REGEX = /^END(DC|NM)TEX\.BIN$/i;
+
 const typeRegexMappings: [TEXTURE_FILE_TYPE, RegExp][] = [
   ['character-portraits', CHARACTER_PORTRAITS_REGEX_FILE],
   ['mvc2-character-win', MVC2_CHARACTER_WIN_REGEX_FILE],
-  ['mvc2-stage-preview', MVC2_STAGE_PREVIEWS_FILE_REGEX]
+  ['mvc2-stage-preview', MVC2_STAGE_PREVIEWS_FILE_REGEX],
+  ['mvc2-end-file', MVC2_END_FILE_REGEX]
 ];
 
 /**
@@ -154,6 +160,10 @@ export default function useSupportedFilePicker(
         }
         case 'mvc2-stage-preview': {
           dispatch(loadMvc2StagePreviewsFile(selectedTextureFile));
+          break;
+        }
+        case 'mvc2-end-file': {
+          dispatch(loadMvc2EndFile(selectedTextureFile));
           break;
         }
         default: {
