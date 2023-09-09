@@ -292,14 +292,14 @@ export const loadMvc2CharacterWinFile = createAsyncThunk<
     }
   });
 
-  const result = await loadCompressedTextureFiles(
+  const result = (await loadCompressedTextureFiles(
     file,
     textureDefs,
     (payload: LoadTexturesPayload) =>
       dispatch({ type: loadTextureFile.fulfilled.type, payload })
-  );
+  )) as LoadTexturesPayload;
 
-  return result!;
+  return result;
 });
 
 export const loadMvc2StagePreviewsFile = createAsyncThunk<
@@ -359,14 +359,14 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
     }
   });
 
-  const result = await loadCompressedTextureFiles(
+  const result = (await loadCompressedTextureFiles(
     file,
     textureDefs,
     (payload: LoadTexturesPayload) =>
       dispatch({ type: loadTextureFile.fulfilled.type, payload })
-  );
+  )) as LoadTexturesPayload;
 
-  return result!;
+  return result;
 });
 
 export const loadMvc2EndFile = createAsyncThunk<
@@ -445,12 +445,12 @@ export const loadMvc2EndFile = createAsyncThunk<
     }
   });
 
-  const result = await loadCompressedTextureFiles(
+  const result = (await loadCompressedTextureFiles(
     file,
     textureDefs,
     (payload: LoadTexturesPayload) =>
       dispatch({ type: loadTextureFile.fulfilled.type, payload })
-  );
+  )) as LoadTexturesPayload;
 
   return result;
 });
