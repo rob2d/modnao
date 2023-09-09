@@ -45,6 +45,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
     const occurenceList = wordOccurences.get(word) as LinkedList<number>;
 
     // clean up occurences not within targeted range
+    occurenceList.append(i);
     while (
       occurenceList.head &&
       occurenceList.head.data <= i - W16_MAX_LOOKBACK
@@ -55,8 +56,6 @@ export default function compressTextureBuffer(buffer: Buffer) {
 
       occurenceList.advanceHead();
     }
-
-    occurenceList.append(i);
 
     let sequenceNode: ListNode<number> | null =
       occurenceList.head as ListNode<number>;
@@ -116,7 +115,6 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
   }
 
-  // push any leftover bitmasks
   if (chunk !== 0) {
     bitmasks.push(bitmask);
   }
