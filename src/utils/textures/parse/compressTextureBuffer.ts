@@ -35,7 +35,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
   let bitmask = 0;
 
   while (i < wordCount) {
-    const word = buffer.readUInt16LE(i * WORD_SIZE);
+    const word = buffer[i * WORD_SIZE] | (buffer[i * WORD_SIZE + 1] << 8);
 
     // add word occurence
     if (!wordOccurences.get(word)) {
@@ -43,7 +43,6 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
 
     const occurenceList = wordOccurences.get(word) as LinkedList<number>;
-    occurenceList.append(i);
 
     // clean up occurences not within targeted range
     while (
@@ -54,14 +53,16 @@ export default function compressTextureBuffer(buffer: Buffer) {
         break;
       }
 
-      occurenceList.removeAt(0);
+      occurenceList.advanceHead();
     }
+
+    occurenceList.append(i);
 
     let sequenceNode: ListNode<number> | null =
       occurenceList.head as ListNode<number>;
 
-    let maxSequenceLength = 0;
-    let maxSequenceIndex = -1;
+    let sequenceLength = 0;
+    let sequenceIndex = -1;
 
     while (sequenceNode) {
       let length = 1;
@@ -77,11 +78,11 @@ export default function compressTextureBuffer(buffer: Buffer) {
         i + length < wordCount &&
         length < W16_MAX_LOOKBACK - 1
       ) {
-        const sequenceWord = buffer.readUInt16LE(
-          (sequenceNode.data + length) * WORD_SIZE
-        );
+        const sI = (sequenceNode.data + length) * WORD_SIZE;
+        const sequenceWord = buffer[sI] | (buffer[sI + 1] << 8);
 
-        const nextWord = buffer.readUInt16LE((i + length) * WORD_SIZE);
+        const nI = (i + length) * WORD_SIZE;
+        const nextWord = buffer[nI] | (buffer[nI + 1] << 8);
         if (nextWord === sequenceWord) {
           length++;
         } else {
@@ -89,62 +90,62 @@ export default function compressTextureBuffer(buffer: Buffer) {
         }
       }
 
-      if (length > maxSequenceLength) {
-        maxSequenceIndex = sequenceNode!.data;
-        maxSequenceLength = length;
+      if (length > sequenceLength) {
+        sequenceIndex = sequenceNode!.data;
+        sequenceLength = length;
       }
 
       sequenceNode = sequenceNode.next;
     }
 
-    let lengthApplied = maxSequenceLength;
-
-    if (lengthApplied === 0) {
-      lengthApplied = 1;
-    }
-
-    const wordsBack = lengthApplied > 1 ? i - maxSequenceIndex : 0;
-
-    if (lengthApplied === 1) {
+    if (sequenceLength === 1) {
       values.push(word);
     } else {
-      values.push([wordsBack, lengthApplied]);
-    }
-
-    i += lengthApplied;
-
-    if (lengthApplied > 1) {
       bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
+      values.push([i - sequenceIndex, sequenceLength]);
     }
+
+    i += sequenceLength;
 
     chunk++;
 
-    if (chunk === 16 || i >= wordCount) {
+    if (chunk === 16) {
       bitmasks.push(bitmask);
       bitmask = 0;
       chunk -= 16;
     }
   }
 
+  // push any leftover bitmasks
+  if (chunk !== 0) {
+    bitmasks.push(bitmask);
+  }
+
   chunk = 0;
   let bitmaskIndex = 0;
-  const outputWords: number[] = [];
+  let byteOffset = 0;
+  let outputBuffer = Buffer.alloc(buffer.length);
 
   for (const value of values) {
     if (chunk === 0) {
-      outputWords.push(bitmasks[bitmaskIndex++]);
+      const value = bitmasks[bitmaskIndex++];
+      outputBuffer.writeUInt16LE(value, byteOffset);
+      byteOffset += 2;
     }
 
     if (!Array.isArray(value)) {
-      outputWords.push(value);
+      outputBuffer.writeUInt16LE(value, byteOffset);
+      byteOffset += 2;
     } else {
       const [wordsBack, length] = value;
       const is32Bit = length > 31 || wordsBack >= W16_MAX_LOOKBACK;
 
       if (!is32Bit) {
-        outputWords.push((length << 11) | wordsBack);
+        outputBuffer.writeUInt16LE((length << 11) | wordsBack, byteOffset);
+        byteOffset += 2;
       } else {
-        outputWords.push(wordsBack, length);
+        outputBuffer.writeUInt32LE(wordsBack | (length << 16), byteOffset);
+        byteOffset += 4;
       }
     }
 
@@ -152,17 +153,8 @@ export default function compressTextureBuffer(buffer: Buffer) {
     chunk %= 16;
   }
 
-  const outputBuffer = Buffer.alloc(outputWords.length * WORD_SIZE);
-
-  for (let i = 0; i < outputWords.length; i++) {
-    const byteOffset = i * WORD_SIZE;
-
-    if (byteOffset + WORD_SIZE <= outputBuffer.length) {
-      outputBuffer.writeUInt16LE(outputWords[i], byteOffset);
-    }
-  }
+  outputBuffer = outputBuffer.subarray(0, byteOffset);
 
   console.timeEnd('compressTextureBuffer');
-
   return outputBuffer;
 }
