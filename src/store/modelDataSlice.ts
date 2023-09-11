@@ -2,8 +2,7 @@ import {
   AnyAction,
   createAsyncThunk,
   createSlice,
-  PayloadAction,
-  ThunkDispatch
+  PayloadAction
 } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { NLTextureDef } from '@/types/NLAbstractions';
@@ -16,6 +15,7 @@ import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import WorkerThreadPool from '../utils/WorkerThreadPool';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
 import { batch } from 'react-redux';
+import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 
 const workerPool = new WorkerThreadPool();
 
@@ -52,6 +52,7 @@ export type LoadTexturesPayload = {
   fileName: string;
   textureBufferUrl: string;
   hasCompressedTextures: boolean;
+  textureFileType: string;
 };
 
 export type LoadPolygonsPayload = {
@@ -87,6 +88,7 @@ export interface ModelDataState {
   };
   polygonFileName?: string;
   textureFileName?: string;
+  textureFileType?: TextureFileType;
   hasEditedTextures: boolean;
   hasCompressedTextures: boolean;
   textureBufferUrl?: string;
@@ -102,6 +104,7 @@ export const initialModelDataState: ModelDataState = {
   textureHistory: {},
   polygonFileName: undefined,
   textureFileName: undefined,
+  textureFileType: undefined,
   hasEditedTextures: false,
   hasCompressedTextures: false
 };

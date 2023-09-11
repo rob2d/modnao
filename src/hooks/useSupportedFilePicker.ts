@@ -10,38 +10,12 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-
-export type TEXTURE_FILE_TYPE =
-  | 'mvc2-stage-preview'
-  | 'character-portraits'
-  | 'mvc2-character-win'
-  | 'polygon-mapped'
-  | 'mvc2-end-file';
-
-/** includes character-specific super portraits and end-game images */
-export const CHARACTER_PORTRAITS_REGEX_FILE = /^PL[0-9A-Z]{2}_FAC.BIN$/i;
-
-/** includes character-specific super portraits and end-game images */
-export const MVC2_CHARACTER_WIN_REGEX_FILE = /^PL[0-9A-Z]{2}_WIN.BIN$/i;
+import textureFileTypeMap, {
+  TextureFileType
+} from '@/utils/textures/files/textureFileTypeMap';
 
 /** polygon files which may be associated to textures */
 export const POLYGON_FILE_REGEX = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL\.BIN$/i;
-
-/** textures which must be associated with polygons */
-export const TEXTURE_FILE_REGEX =
-  /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)TEX(.modnao)?\.BIN$/i;
-
-/** textures associated with stage selection previews */
-export const MVC2_STAGE_PREVIEWS_FILE_REGEX = /^SELSTG\.BIN$/i;
-
-export const MVC2_END_FILE_REGEX = /^END(DC|NM)TEX\.BIN$/i;
-
-const typeRegexMappings: [TEXTURE_FILE_TYPE, RegExp][] = [
-  ['character-portraits', CHARACTER_PORTRAITS_REGEX_FILE],
-  ['mvc2-character-win', MVC2_CHARACTER_WIN_REGEX_FILE],
-  ['mvc2-stage-preview', MVC2_STAGE_PREVIEWS_FILE_REGEX],
-  ['mvc2-end-file', MVC2_END_FILE_REGEX]
-];
 
 /**
  * handle a user selection of a file client-side
@@ -73,7 +47,7 @@ export default function useSupportedFilePicker(
       return;
     }
 
-    let textureType: TEXTURE_FILE_TYPE | undefined;
+    let textureType: TextureFileType | undefined;
 
     let selectedPolygonFile: File | undefined = undefined;
     let selectedTextureFile: File | undefined = undefined;
@@ -87,7 +61,7 @@ export default function useSupportedFilePicker(
         return;
       }
 
-      for (const [type, regex] of typeRegexMappings) {
+      for (const [type, regex] of Object.entries(textureFileTypeMap)) {
         if (f.name.match(regex)) {
           if (i > 0) {
             handleError(DEDICATED_TEXTURE_FILE_ERROR);
@@ -95,7 +69,7 @@ export default function useSupportedFilePicker(
           }
 
           selectedTextureFile = f;
-          textureType = type;
+          textureType = type as TextureFileType;
           return;
         }
       }
@@ -109,7 +83,7 @@ export default function useSupportedFilePicker(
         }
       }
 
-      if (f.name.match(TEXTURE_FILE_REGEX)) {
+      if (f.name.match(textureFileTypeMap['polygon-mapped'])) {
         if (!selectedTextureFile) {
           selectedTextureFile = f;
           textureType = 'polygon-mapped';
@@ -150,7 +124,7 @@ export default function useSupportedFilePicker(
       }
 
       switch (textureType) {
-        case 'character-portraits': {
+        case 'mvc2-character-portraits': {
           dispatch(loadCharacterPortraitsFile(selectedTextureFile));
           break;
         }
