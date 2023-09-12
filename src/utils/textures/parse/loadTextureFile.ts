@@ -11,6 +11,7 @@ import {
 } from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { bufferToObjectUrl } from '@/utils/data';
+import { TextureFileType } from '../files/textureFileTypeMap';
 
 const COLOR_SIZE = 2;
 
@@ -105,6 +106,7 @@ export default async function loadTextureFile({
   textureDefs: NLTextureDef[];
   fileName: string;
   buffer: Buffer;
+  textureFileType: TextureFileType;
 }) {
   let result: Result;
   // @TODO: DRY regexp from useSupportedFilePicker

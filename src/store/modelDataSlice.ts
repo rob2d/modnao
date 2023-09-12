@@ -52,7 +52,7 @@ export type LoadTexturesPayload = {
   fileName: string;
   textureBufferUrl: string;
   hasCompressedTextures: boolean;
-  textureFileType: string;
+  textureFileType: TextureFileType;
 };
 
 export type LoadPolygonsPayload = {
@@ -185,9 +185,10 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const result = await new Promise<LoadTexturesPayload>((resolve) => {
     if (thread) {
       thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-        const payload = {
+        const payload: LoadTexturesPayload = {
           ...event.data.result,
-          hasCompressedTextures: true
+          hasCompressedTextures: true,
+          textureFileType: 'mvc2-character-portraits'
         };
         batch(() => {
           // revoke URL for existing texture buffer url in state
@@ -223,6 +224,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
 
 const loadCompressedTextureFiles = async (
   file: File,
+  textureFileType: TextureFileType,
   textureDefs: NLTextureDef[],
   onDispatch: (payload: LoadTexturesPayload) => void
 ) => {
@@ -237,9 +239,10 @@ const loadCompressedTextureFiles = async (
   const result = await new Promise<LoadTexturesPayload>((resolve) => {
     if (thread) {
       thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-        const payload = {
+        const payload: LoadTexturesPayload = {
           ...event.data.result,
-          hasCompressedTextures: true
+          hasCompressedTextures: true,
+          textureFileType
         };
         onDispatch(payload);
         resolve(payload);
@@ -289,6 +292,7 @@ export const loadMvc2CharacterWinFile = createAsyncThunk<
 
   const result = (await loadCompressedTextureFiles(
     file,
+    'mvc2-character-win',
     textureDefs,
     (payload: LoadTexturesPayload) =>
       batch(() => {
@@ -357,6 +361,7 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
 
   const result = (await loadCompressedTextureFiles(
     file,
+    'mvc2-stage-preview',
     textureDefs,
     (payload: LoadTexturesPayload) =>
       // TODO: DRY into action
@@ -445,6 +450,7 @@ export const loadMvc2EndFile = createAsyncThunk<
 
   const result = (await loadCompressedTextureFiles(
     file,
+    'mvc2-end-file',
     textureDefs,
     (payload: LoadTexturesPayload) =>
       batch(() => {
@@ -501,42 +507,45 @@ export const loadPolygonFile = createAsyncThunk<
 
 export const loadTextureFile = createAsyncThunk<
   LoadTexturesPayload,
-  File,
+  { file: File; textureFileType: TextureFileType },
   { state: AppState }
->(`${sliceName}/loadTextureFile`, async (file, { getState }) => {
-  const state = getState();
-  const { textureDefs } = state.modelData;
-  const buffer = new Uint8Array(await file.arrayBuffer());
-  const prevTextureBufferUrl = state.modelData.textureBufferUrl;
-  const thread = workerPool.allocate();
+>(
+  `${sliceName}/loadTextureFile`,
+  async ({ file, textureFileType }, { getState }) => {
+    const state = getState();
+    const { textureDefs } = state.modelData;
+    const buffer = new Uint8Array(await file.arrayBuffer());
+    const prevTextureBufferUrl = state.modelData.textureBufferUrl;
+    const thread = workerPool.allocate();
 
-  const result = await new Promise<LoadTexturesPayload>((resolve) => {
-    if (thread) {
-      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-        resolve(event.data.result);
+    const result = await new Promise<LoadTexturesPayload>((resolve) => {
+      if (thread) {
+        thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
+          resolve(event.data.result);
 
-        // deallocate existing blob
-        if (prevTextureBufferUrl) {
-          URL.revokeObjectURL(prevTextureBufferUrl);
-        }
+          // deallocate existing blob
+          if (prevTextureBufferUrl) {
+            URL.revokeObjectURL(prevTextureBufferUrl);
+          }
 
-        workerPool.unallocate(thread);
-      };
+          workerPool.unallocate(thread);
+        };
 
-      const fileName = file.name;
-      thread?.postMessage({
-        type: 'loadTextureFile',
-        payload: {
-          fileName,
-          textureDefs,
-          buffer
-        }
-      } as WorkerEvent);
-    }
-  });
+        const fileName = file.name;
+        thread?.postMessage({
+          type: 'loadTextureFile',
+          payload: {
+            fileName,
+            textureDefs,
+            buffer
+          }
+        } as WorkerEvent);
+      }
+    });
 
-  return result;
-});
+    return { ...result, textureFileType };
+  }
+);
 
 export const adjustTextureHsl = createAsyncThunk<
   AdjustTextureHslPayload,
@@ -678,6 +687,7 @@ const modelDataSlice = createSlice({
         state.textureDefs = textureDefs;
         state.editedTextures = {};
         state.textureHistory = {};
+        state.textureFileType = undefined;
 
         state.polygonFileName = fileName;
         state.textureFileName = undefined;
@@ -693,13 +703,15 @@ const modelDataSlice = createSlice({
           textureDefs,
           fileName,
           hasCompressedTextures,
-          textureBufferUrl
+          textureBufferUrl,
+          textureFileType
         } = payload;
 
         state.textureDefs = textureDefs;
         state.editedTextures = {};
         state.hasEditedTextures = false;
         state.textureHistory = {};
+        state.textureFileType = textureFileType;
 
         state.textureFileName = fileName;
         state.hasCompressedTextures = hasCompressedTextures;

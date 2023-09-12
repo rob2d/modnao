@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
-import { CHARACTER_PORTRAITS_REGEX_FILE } from '@/hooks/useSupportedFilePicker';
+import { CHARACTER_PORTRAITS_REGEX_FILE } from '@/utils/textures/files/textureFileTypeMap';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
