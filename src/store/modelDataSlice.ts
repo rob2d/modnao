@@ -144,26 +144,31 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   // taking note of the offset/position of each texture
   const size = 12 + decompressedSections.reduce((a, s) => a + s.length, 0);
 
-  const assembledBuffer = new Uint8Array(size);
+  const beginningBuffer = new Uint8Array(size);
   let position = 12;
   const pointerSection = uint8Array.slice(0, position);
-  assembledBuffer.set(pointerSection, 0);
+  beginningBuffer.set(pointerSection, 0);
   const decompressedOffsets = [];
 
   for (const section of decompressedSections) {
-    assembledBuffer.set(section, position);
+    beginningBuffer.set(section, position);
     decompressedOffsets.push(position);
     position += section.length;
   }
 
-  const textureSizes = [
+  const endingSection = uint8Array.slice(position);
+  const assembledBuffer = new Uint8Array(size + endingSection.length);
+  assembledBuffer.set(beginningBuffer, 0);
+  assembledBuffer.set(endingSection, position);
+
+  const rleTextureSizes = [
     { width: 64, height: 64 },
     { width: 64, height: 64 },
     { width: 128, height: 128 }
   ];
 
   const textureDefs = decompressedOffsets.map((offset, i) => ({
-    ...textureSizes[i],
+    ...rleTextureSizes[i],
     colorFormat: 'RGB565',
     colorFormatValue: 2,
     bufferUrls: {
@@ -190,6 +195,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
           hasCompressedTextures: true,
           textureFileType: 'mvc2-character-portraits'
         };
+
         batch(() => {
           // revoke URL for existing texture buffer url in state
           dispatch({
@@ -203,8 +209,8 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
           });
           dispatch({ type: loadTextureFile.fulfilled.type, payload });
         });
-        resolve(payload);
 
+        resolve(payload);
         workerPool.unallocate(thread);
       };
     }
@@ -592,17 +598,23 @@ export const downloadTextureFile = createAsyncThunk<
   const { textureFileName, hasCompressedTextures, textureBufferUrl } =
     state.modelData;
   const textureDefs = selectSceneTextureDefs(state);
+  const textureFileType = state.modelData.textureFileType;
+
+  if (!textureFileType) {
+    window.alert('no valid texture filetype was loaded');
+    return;
+  }
 
   try {
     await exportTextureFile(
       textureDefs,
       textureFileName,
       hasCompressedTextures,
-      textureBufferUrl as string
+      textureBufferUrl as string,
+      textureFileType
     );
   } catch (error) {
     window.alert(error);
-    console.error(error);
   }
 });
 
