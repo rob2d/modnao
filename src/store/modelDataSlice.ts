@@ -129,37 +129,32 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const uint8Array = new Uint8Array(arrayBuffer);
 
   // retrieve the compressed sub-areas to decompress
-  const compressedSections = [
-    uint8Array.slice(pointers[0], pointers[1])
-    //uint8Array.slice(pointers[1], pointers[2])
-    // uint8Array.slice(pointers[2])
-  ];
+  const compressedSection = uint8Array.slice(pointers[0], pointers[1]);
 
-  // decompress the segments in parallel
-  const decompressedSections = await Promise.all(
-    compressedSections.map((s) => decompressTextureBuffer(Buffer.from(s)))
+  const decompressedSection = await decompressTextureBuffer(
+    Buffer.from(compressedSection)
   );
 
-  // @TODO: reassemble buffer into on for texture defs, while
-  // taking note of the offset/position of each texture
-  const size = 12 + decompressedSections.reduce((a, s) => a + s.length, 0);
+  const size = 12 + decompressedSection.length;
 
-  const beginningBuffer = new Uint8Array(size);
   let position = 12;
-  const pointerSection = uint8Array.slice(0, position);
-  beginningBuffer.set(pointerSection, 0);
+  const bufferStart = Buffer.alloc(size);
+  bufferStart.writeUInt32LE(12, 0);
+  bufferStart.writeUInt32LE(size, 4);
+  bufferStart.writeUInt32LE(size + (pointers[2] - pointers[1]), 8);
+
   const decompressedOffsets = [];
 
-  for (const section of decompressedSections) {
-    beginningBuffer.set(section, position);
+  for (const section of [decompressedSection]) {
+    bufferStart.set(section, position);
     decompressedOffsets.push(position);
     position += section.length;
   }
 
-  const endingSection = uint8Array.slice(position);
-  const assembledBuffer = new Uint8Array(size + endingSection.length);
-  assembledBuffer.set(beginningBuffer, 0);
-  assembledBuffer.set(endingSection, position);
+  const decompressedBuffer = Buffer.concat([
+    bufferStart,
+    uint8Array.slice(pointers[1])
+  ]);
 
   const rleTextureSizes = [
     { width: 64, height: 64 },
@@ -220,7 +215,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
       payload: {
         fileName: file.name,
         textureDefs,
-        buffer: assembledBuffer
+        buffer: decompressedBuffer
       }
     } as WorkerEvent);
   });
