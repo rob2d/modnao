@@ -69,7 +69,8 @@ export default async function exportTextureFile(
     // character portraits are an interesting niche case
     // where compression exists but not applied to the entire file
     case 'mvc2-character-portraits': {
-      const buffer = Buffer.from(new Uint8Array(textureBuffer));
+      const buffer = Buffer.alloc(textureBuffer.length);
+      textureBuffer.copy(buffer);
       const pointers = [
         textureBuffer.readUInt32LE(0),
         textureBuffer.readUInt32LE(4),
@@ -80,22 +81,22 @@ export default async function exportTextureFile(
         pointers[0],
         pointers[1]
       );
-      const compressedRleSection = compressTextureBuffer(
+      const compressedRleTexture = compressTextureBuffer(
         Buffer.from(decompressedRleSection)
       );
 
       buffer.writeUInt32LE(12, 0);
-      buffer.writeUInt32LE(12 + compressedRleSection.length, 4);
+      buffer.writeUInt32LE(12 + compressedRleTexture.length, 4);
       buffer.writeUInt32LE(
-        12 + compressedRleSection.length + (pointers[2] - pointers[1]),
+        12 + compressedRleTexture.length + (pointers[2] - pointers[1]),
         8
       );
 
       const uint8Array = new Uint8Array(buffer);
       const outputBuffer = Buffer.concat([
         uint8Array.slice(0, 12),
-        compressedRleSection,
         uint8Array.slice(12 + decompressedRleSection.length)
+        compressedRleTexture,
       ]);
 
       output = new Blob([outputBuffer], {

@@ -115,7 +115,7 @@ export default function GuiPanelViewOptions() {
     <GuiPanelSection title='Textures' subtitle={textureFileName}>
       <Styled className='textures'>
         {textures}
-        {!offsceneTextures.length ? undefined : (
+        {false ? undefined : (
           <>
             {!models.length ? undefined : (
               <Divider flexItem>
@@ -126,7 +126,7 @@ export default function GuiPanelViewOptions() {
           </>
         )}
       </Styled>
-      {canExportTextures ? undefined : (
+      {false ? undefined : (
         <div className='export-texture-button-container'>
           <GuiPanelButton
             tooltip='Download texture ROM binary with replaced images'

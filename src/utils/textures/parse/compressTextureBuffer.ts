@@ -147,8 +147,12 @@ export default function compressTextureBuffer(buffer: Buffer) {
     chunk %= 16;
   }
 
-  outputBuffer = outputBuffer.subarray(0, byteOffset + 2);
-  outputBuffer.writeUInt16LE(0, byteOffset);
+  if (bitmask > 0) {
+    outputBuffer = outputBuffer.subarray(0, byteOffset + 2);
+    outputBuffer.writeUInt16LE(0, byteOffset);
+  } else {
+    outputBuffer = outputBuffer.subarray(0, byteOffset);
+  }
 
   console.timeEnd('compressTextureBuffer');
   return outputBuffer;
