@@ -156,13 +156,6 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     uint8Array.slice(pointers[1])
   ]);
 
-  console.log('buffer.length ->', buffer.length);
-  console.log('decompressedBuffer ->', decompressedBuffer.length);
-  console.log(
-    'decompressed - buffer ->',
-    decompressedBuffer.length - buffer.length
-  );
-
   const rleTextureSizes = [
     { width: 64, height: 64 },
     { width: 64, height: 64 },

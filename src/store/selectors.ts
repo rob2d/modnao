@@ -163,5 +163,5 @@ export const selectCanExportTextures = createSelector(
   selectTextureFileName,
   (textureFileName) =>
     Boolean(textureFileName) &&
-    textureFileName?.match(CHARACTER_PORTRAITS_REGEX_FILE)
+    !textureFileName?.match(CHARACTER_PORTRAITS_REGEX_FILE)
 );

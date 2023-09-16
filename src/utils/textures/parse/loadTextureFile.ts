@@ -93,6 +93,7 @@ async function loadTextureBuffer(
 
 type Result = {
   textureDefs: NLTextureDef[];
+  textureFileType: TextureFileType;
   fileName: string;
   hasCompressedTextures: boolean;
   textureBufferUrl: string;
@@ -101,7 +102,8 @@ type Result = {
 export default async function loadTextureFile({
   buffer,
   textureDefs,
-  fileName
+  fileName,
+  textureFileType
 }: {
   textureDefs: NLTextureDef[];
   fileName: string;
@@ -125,6 +127,7 @@ export default async function loadTextureFile({
       textureBufferUrl: textureBufferUrl,
       hasCompressedTextures: false,
       fileName,
+      textureFileType,
       ...textureBufferData
     };
   } catch (error) {
@@ -148,6 +151,7 @@ export default async function loadTextureFile({
       textureBufferUrl: await bufferToObjectUrl(decompressedBuffer),
       fileName,
       hasCompressedTextures: true,
+      textureFileType,
       ...textureBufferData
     };
   }

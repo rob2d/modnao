@@ -5,6 +5,7 @@ import adjustTextureHsl from './utils/textures/adjustTextureHsl';
 import { SourceTextureData } from './utils/textures/SourceTextureData';
 import TransferrableBuffer from './types/TransferrableBuffer';
 import loadPolygonFile from './utils/polygons/parse/loadPolygonFile';
+import { TextureFileType } from './utils/textures/files/textureFileTypeMap';
 
 export type WorkerEvent =
   | {
@@ -18,6 +19,7 @@ export type WorkerEvent =
       type: 'loadTextureFile';
       payload: {
         buffer: Buffer;
+        textureFileType: TextureFileType;
         textureDefs: NLTextureDef[];
         fileName: string;
         sourceTextureData: SourceTextureData;

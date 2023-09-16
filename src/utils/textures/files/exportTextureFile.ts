@@ -71,6 +71,7 @@ export default async function exportTextureFile(
     case 'mvc2-character-portraits': {
       const buffer = Buffer.alloc(textureBuffer.length);
       textureBuffer.copy(buffer);
+
       const pointers = [
         textureBuffer.readUInt32LE(0),
         textureBuffer.readUInt32LE(4),
@@ -81,6 +82,7 @@ export default async function exportTextureFile(
         pointers[0],
         pointers[1]
       );
+
       const compressedRleTexture = compressTextureBuffer(
         Buffer.from(decompressedRleSection)
       );
@@ -95,8 +97,8 @@ export default async function exportTextureFile(
       const uint8Array = new Uint8Array(buffer);
       const outputBuffer = Buffer.concat([
         uint8Array.slice(0, 12),
-        uint8Array.slice(12 + decompressedRleSection.length)
         compressedRleTexture,
+        new Uint8Array(textureBuffer).slice(12 + decompressedRleSection.length)
       ]);
 
       output = new Blob([outputBuffer], {
