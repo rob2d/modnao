@@ -126,7 +126,7 @@ export default function GuiPanelViewOptions() {
           </>
         )}
       </Styled>
-      {canExportTextures ? undefined : (
+      {!canExportTextures ? undefined : (
         <div className='export-texture-button-container'>
           <GuiPanelButton
             tooltip='Download texture ROM binary with replaced images'

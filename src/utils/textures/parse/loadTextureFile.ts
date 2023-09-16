@@ -11,6 +11,7 @@ import {
 } from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { bufferToObjectUrl } from '@/utils/data';
+import { TextureFileType } from '../files/textureFileTypeMap';
 
 const COLOR_SIZE = 2;
 
@@ -92,6 +93,7 @@ async function loadTextureBuffer(
 
 type Result = {
   textureDefs: NLTextureDef[];
+  textureFileType: TextureFileType;
   fileName: string;
   hasCompressedTextures: boolean;
   textureBufferUrl: string;
@@ -100,11 +102,13 @@ type Result = {
 export default async function loadTextureFile({
   buffer,
   textureDefs,
-  fileName
+  fileName,
+  textureFileType
 }: {
   textureDefs: NLTextureDef[];
   fileName: string;
   buffer: Buffer;
+  textureFileType: TextureFileType;
 }) {
   let result: Result;
   // @TODO: DRY regexp from useSupportedFilePicker
@@ -123,6 +127,7 @@ export default async function loadTextureFile({
       textureBufferUrl: textureBufferUrl,
       hasCompressedTextures: false,
       fileName,
+      textureFileType,
       ...textureBufferData
     };
   } catch (error) {
@@ -146,6 +151,7 @@ export default async function loadTextureFile({
       textureBufferUrl: await bufferToObjectUrl(decompressedBuffer),
       fileName,
       hasCompressedTextures: true,
+      textureFileType,
       ...textureBufferData
     };
   }
