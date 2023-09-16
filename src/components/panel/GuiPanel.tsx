@@ -126,7 +126,7 @@ const StyledPaper = styled(Paper)(
       margin-top: ${theme.spacing(1)};
     }
 
-    & .MuiDivider-root:not(:first-child) {
+    & .MuiDivider-root:not(:first-child):not(.export-texture-button-container + .MuiDivider-root) {
       padding-top: ${theme.spacing(1)};
     }
 
