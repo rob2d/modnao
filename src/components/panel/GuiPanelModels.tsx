@@ -125,7 +125,9 @@ export default function GuiPanelModels() {
         Import Model/Texture
       </GuiPanelButton>
       <Button
-        onClick={() => {}}
+        onClick={() => {
+          alert('on click of supported files');
+        }}
         color='secondary'
         size='small'
         variant='text'

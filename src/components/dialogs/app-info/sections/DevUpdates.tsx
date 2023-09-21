@@ -78,6 +78,16 @@ const StyledContent = styled('div')(
   width: 15%; 
   height: 100%;
 }
+
+${theme.breakpoints.down('md')} {
+  & .vlog-entry-image {
+    display: none;
+  }
+
+  & .MuiCardContent-root {
+    flex-basis: 100%;
+  }
+}
 `
 );
 
@@ -156,6 +166,7 @@ export default function DevUpdates() {
                     component='img'
                     image={`${v.thumbnailUrl}`}
                     alt={`Watch ${v.vlogNumber} now`}
+                    className={'vlog-entry-image'}
                   />
                 </ButtonBase>
               </Card>

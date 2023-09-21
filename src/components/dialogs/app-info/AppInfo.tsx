@@ -31,7 +31,8 @@ const Styled = styled('div')(
 
     ${theme.breakpoints.down('lg')} {
       & {
-        grid-template-columns: 1fr;
+        grid-template-columns: none;
+        grid-template-rows: 3fr 2fr 3fr;
       }
     }
 
@@ -79,9 +80,7 @@ export default function AppInfo() {
 
   return (
     <Styled>
-      <div>
-        <GettingStarted />
-      </div>
+      <GettingStarted />
       <div className='updates-and-projects'>
         <DevUpdates />
         <Divider flexItem />
