@@ -37,7 +37,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# avoid distributing ROM
-# content for legal reasons 
-STG*.BIN
