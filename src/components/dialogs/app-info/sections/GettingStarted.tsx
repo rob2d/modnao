@@ -8,7 +8,7 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import DialogSectionHeader from '../../../DialogSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
 
@@ -59,15 +59,15 @@ export default function GettingStarted() {
                   GDI Explorer
                 </Link>
                 &nbsp;and extract your .cdi/.gdi file contents of your legally
-                owned Capcom vs SNK 2 or Marvel vs Capcom 2 ROM file.
+                owned and app-supported ROM file.
               </Typography>
             </StepContent>
           </Step>
           <Step key='Import Polygon and Texture Files' active={true}>
-            <StepLabel>Import Polygon and Texture Files</StepLabel>
+            <StepLabel>Import Polygon and/or Texture File</StepLabel>
             <StepContent>
               <Typography>
-                Click on the&nbsp;
+                Click&nbsp;
                 <Button
                   onClick={noop}
                   color='primary'
@@ -76,34 +76,9 @@ export default function GettingStarted() {
                 >
                   Import Model/Texture
                 </Button>
-                &nbsp; button to load a polygon and an optional associated
-                texture file.
-              </Typography>
-              <Typography>
-                Model files accepted are in the format:&nbsp;
-                <span className='highlight'>
-                  STG
-                  <span className='model-no-highlight'>XY</span>
-                  POL.BIN
-                </span>
-                &nbsp;or&nbsp;
-                <span className='highlight'>
-                  DM<span className='model-no-highlight'>XY</span>.BIN
-                </span>
-                , with optional associated texture files as&nbsp;
-                <span className='highlight'>
-                  STG
-                  <span className='model-no-highlight'>XY</span>
-                  TEX.BIN
-                </span>
-                &nbsp;or&nbsp;
-                <span className='highlight'>
-                  DM
-                  <span className='model-no-highlight'>XY</span>TEX.BIN
-                </span>
-                , representing the texture data associated with that polygon
-                file (where <span className='model-no-highlight'>XY</span> is
-                the number of the model). Hold control to multi select files.
+                &nbsp; to load a polygon and an associated texture file, or just
+                a dedicated texture file by itself. Hold control when clicking
+                to select multiple files.
               </Typography>
             </StepContent>
           </Step>

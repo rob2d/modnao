@@ -1,6 +1,7 @@
 import {
   Button,
   IconButton,
+  styled,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -21,6 +22,7 @@ import {
   selectObjectSelectionType,
   selectPolygonFileName,
   setObjectType,
+  showDialog,
   useAppDispatch,
   useAppSelector
 } from '@/store';
@@ -28,6 +30,15 @@ import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
 import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
+
+const Styled = styled('div')(
+  ({ theme }) => `& {
+  .supported-files {
+    width: 100%;
+    font-size: 8pt;
+    margin-top: -${theme.spacing(1)};
+  }`
+);
 
 export default function GuiPanelModels() {
   const dispatch = useAppDispatch();
@@ -106,17 +117,30 @@ export default function GuiPanelModels() {
     modelNoAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
   }
 
-  const importFileButton = (
-    <GuiPanelButton
-      tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
-      onClick={openFileSelector}
-    >
-      Import Model/Texture
-    </GuiPanelButton>
+  const importFiles = (
+    <Styled className='import-files'>
+      <GuiPanelButton
+        tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
+        onClick={openFileSelector}
+      >
+        Import Model/Texture
+      </GuiPanelButton>
+      <Button
+        onClick={() => {
+          dispatch(showDialog('file-support-info'));
+        }}
+        color='secondary'
+        size='small'
+        variant='text'
+        className='supported-files'
+      >
+        What Files Are Supported?
+      </Button>
+    </Styled>
   );
 
   return !polygonFileName ? (
-    <div className='selection'>{importFileButton}</div>
+    <div className='selection'>{importFiles}</div>
   ) : (
     <GuiPanelSection title='Models' subtitle={polygonFileName}>
       <div className='selection'>
@@ -181,7 +205,7 @@ export default function GuiPanelModels() {
             </ToggleButtonGroup>
           </Grid>
         </Grid>
-        {importFileButton}
+        {importFiles}
         {!model ? undefined : (
           <GuiPanelButton
             tooltip={

@@ -42,7 +42,13 @@ export default async function handler(
           }
 
           const [preTitle, vlogNumber] = results as RegExpMatchArray;
-          const title = sourceTitle.substring(preTitle.length);
+          let title = sourceTitle.substring(preTitle.length);
+
+          // strip any hashtags from the title after the first denoting the episode #
+          if (title.lastIndexOf('#') !== title.indexOf('#')) {
+            const titleArr = title.split('#');
+            title = titleArr.slice(0, 1).join('#');
+          }
 
           return {
             id: i.contentDetails.videoId,

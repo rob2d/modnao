@@ -10,7 +10,8 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import DialogSectionHeader from '../../../DialogSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
+import DialogSectionContentCards from '../../DialogSectionContentCards';
 dayjs.extend(advancedFormat);
 
 type Vlog = {
@@ -30,13 +31,6 @@ const StyledContent = styled('div')(
   flex-direction: column;
 }
 
-& .loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-grow: 1;
-}
-
 & .MuiButtonBase-root {
   width: 100%;
 }
@@ -46,25 +40,8 @@ const StyledContent = styled('div')(
   height: auto;
 }
 
-& .vlog-entry-iframe {
-  width: 100%;
-  height: auto;
-}
-
-& > div:nth-of-type(2) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-  padding: 0 ${theme.spacing(1)};
-}
-
 & .MuiCard-root {
   display: flex; 
-  margin-bottom: ${theme.spacing(2)};
-  margin-left: ${theme.spacing(1)};
-  margin-right: ${theme.spacing(1)};
-  flex-shrink: 0;
 }
 
 & .MuiCardContent-root {
@@ -77,6 +54,16 @@ const StyledContent = styled('div')(
 & .MuiCardMedia-root {
   width: 15%; 
   height: 100%;
+}
+
+${theme.breakpoints.down('md')} {
+  & .vlog-entry-image {
+    display: none;
+  }
+
+  & .MuiCardContent-root {
+    flex-basis: 100%;
+  }
 }
 `
 );
@@ -112,9 +99,9 @@ export default function DevUpdates() {
   const vlogs = useVlogApi();
 
   return (
-    <StyledContent className='app-info-section'>
-      <DialogSectionHeader>Development Updates / Vlog</DialogSectionHeader>
-      <div>
+    <StyledContent className='app-info-section scroll-body'>
+      <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
+      <DialogSectionContentCards>
         {!vlogs
           ? [1, 2, 3, 4, 5, 6].map((_, i) => (
               <Card key={i} elevation={2}>
@@ -156,11 +143,12 @@ export default function DevUpdates() {
                     component='img'
                     image={`${v.thumbnailUrl}`}
                     alt={`Watch ${v.vlogNumber} now`}
+                    className={'vlog-entry-image'}
                   />
                 </ButtonBase>
               </Card>
             ))}
-      </div>
+      </DialogSectionContentCards>
     </StyledContent>
   );
 }

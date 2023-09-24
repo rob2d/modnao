@@ -64,7 +64,7 @@ const Styled = styled('main')(
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      padding: ${theme.spacing(1)} ${theme.spacing(2)};
+      padding: ${theme.spacing(1)} 0px ${theme.spacing(1)} ${theme.spacing(2)};
       max-height: 100vh;
       max-width: 100%;
     }

@@ -18,8 +18,9 @@ import { closeDialog } from '@/store/dialogsSlice';
 const Styled = styled('div')(
   ({ theme }) => `
     & {
-      display: inline-grid;
+      display: grid;
       grid-template-columns: 5fr 7fr 5fr;
+      grid-template-rows: 1fr 1fr;
       gap: ${theme.spacing(2)};
     }
 
@@ -29,11 +30,33 @@ const Styled = styled('div')(
       right: ${theme.spacing(2)};
     }
 
-    ${theme.breakpoints.down('md')} {
-      & {
-        grid-template-columns: 1fr;
+    ${theme.breakpoints.up('lg')} {
+      // getting started
+      & *:nth-child(1) {
+        grid-row-start: 1;
+        grid-row-end: 3;
+      }
+
+      // dev updates
+      & *:nth-child(2) {
+        grid-row-start: 1;
+        grid-row-end: 2;
+      }
+
+      // howto-and-contribution
+      & *:nth-child(3) {
+        grid-row-start: 1;
+        grid-row-end: 4;
       }
     }
+
+
+    ${theme.breakpoints.down('lg')} {
+      & {
+        grid-template-rows: 1fr 1fr 1fr 1fr;
+        grid-template-columns: none;
+      }
+    }*
 
     & > * {
       overflow-y: auto;
@@ -41,15 +64,6 @@ const Styled = styled('div')(
 
     & .app-info-section:not(:last-child):not(.MuiDivider-root) {
       padding-bottom: ${theme.spacing(3)};
-    }
-
-    .updates-and-projects {
-      max-height: 100%;
-    }
-
-    .updates-and-projects > :nth-of-type(3) {
-      display: flex;
-      flex-direction: column;
     }
 
     .howto-and-contributions .MuiDivider-root {
@@ -79,14 +93,8 @@ export default function AppInfo() {
 
   return (
     <Styled>
-      <div>
-        <GettingStarted />
-      </div>
-      <div className='updates-and-projects'>
-        <DevUpdates />
-        <Divider flexItem />
-        <OtherProjects />
-      </div>
+      <GettingStarted />
+      <DevUpdates />
       <div className='howto-and-contributions'>
         <KeyboardShortcuts />
         <Divider />
@@ -103,6 +111,7 @@ export default function AppInfo() {
           </Button>
         )}
       </div>
+      <OtherProjects />
     </Styled>
   );
 }
