@@ -1,5 +1,5 @@
 import { styled, Typography } from '@mui/material';
-import DialogSectionHeader from '../../../DialogSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 
 const StyledContent = styled('div')(
   ({ theme }) => `
@@ -13,7 +13,7 @@ const StyledContent = styled('div')(
       margin-bottom: 0;
     }
 
-    & .MuiTypography-h6 {
+    & .MuiTypography-body2 {
       padding-left: ${theme.spacing(2)};
       margin-bottom: ${theme.spacing(2)};
     }
@@ -26,16 +26,16 @@ export default function Contributors() {
       <DialogSectionHeader>Contributions</DialogSectionHeader>
       <StyledContent>
         <Typography variant={'subtitle1'}>Design/Development</Typography>
-        <Typography variant={'h6'}>rob2d</Typography>
+        <Typography variant={'body2'}>rob2d</Typography>
         <Typography variant={'subtitle1'}>
           Various Binary Format / R.E. Details
         </Typography>
-        <Typography variant={'h6'}>
+        <Typography variant={'body2'}>
           VincentNL, egregiousguy, zocker-160, bankbank, TVIndustries,
           mountainmanjed
         </Typography>
         <Typography variant={'subtitle1'}>User Testing & Feedback</Typography>
-        <Typography variant={'h6'}>
+        <Typography variant={'body2'}>
           Magnetro2K, Paxtez, DJ Clayface, Toan, Blindfire604
         </Typography>
       </StyledContent>

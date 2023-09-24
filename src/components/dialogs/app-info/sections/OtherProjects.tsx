@@ -1,25 +1,14 @@
 import { styled } from '@mui/material';
-import DialogSectionHeader from '../../../DialogSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 import AppInfoProject from '../AppInfoProject';
+import DialogSectionContentCards from '../../DialogSectionContentCards';
 
 const Styled = styled('div')(
   ({ theme }) => `
+
   & {
-    flex-shrink: 0;
-  }
-
-  & > div:nth-of-type(2) {
-    overflow-y: auto;
-    padding: 0 ${theme.spacing(1)};
-  }
-
-  & .MuiCard-root {
-    margin-left: ${theme.spacing(1)};
-    margin-right: ${theme.spacing(1)};
-  }
-
-  & .MuiCard-root:not(:last-of-type) {
-    margin-bottom: ${theme.spacing(3)};
+    display: flex;
+    flex-direction: column;
   }
 
   & .MuiTypography-h6 {
@@ -30,9 +19,9 @@ const Styled = styled('div')(
 
 export default function OtherProjects() {
   return (
-    <Styled className='section'>
+    <Styled className='app-info-section scroll-body'>
       <DialogSectionHeader>Other Notable Projects</DialogSectionHeader>
-      <div>
+      <DialogSectionContentCards>
         <AppInfoProject
           url='https://paxtez.zachd.com'
           title={<>Paxtez&apos; MVC2 Mod Tool</>}
@@ -64,7 +53,7 @@ export default function OtherProjects() {
             </>
           }
         />
-      </div>
+      </DialogSectionContentCards>
     </Styled>
   );
 }

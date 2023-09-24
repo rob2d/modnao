@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import { mdiInformationOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import DialogSectionHeader from '../../../DialogSectionHeader';
+import DialogSectionHeader from '../../DialogSectionHeader';
 
 export default function KeyboardShortcuts() {
   return (
@@ -20,7 +20,7 @@ export default function KeyboardShortcuts() {
         <Typography
           variant={'body1'}
           alignItems={'center'}
-          display={'inline-flex'}
+          display={'flex'}
           marginTop={1}
         >
           <Icon path={mdiInformationOutline} size={1} />
