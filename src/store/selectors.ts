@@ -159,6 +159,9 @@ export const selectReplacementTextureIndex = (s: AppState) =>
 export const selectIsAppInfoDialogShown = (s: AppState) =>
   s.dialogs.dialogShown === 'app-info';
 
+export const selectIsFileSupportDialogShown = (s: AppState) =>
+  s.dialogs.dialogShown === 'file-support-info';
+
 export const selectCanExportTextures = createSelector(
   selectTextureFileName,
   (textureFileName) =>

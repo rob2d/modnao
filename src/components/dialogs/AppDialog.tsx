@@ -4,6 +4,7 @@ import { Dialog, DialogContent, styled } from '@mui/material';
 import { FC, useCallback } from 'react';
 import AppInfo from './app-info/AppInfo';
 import ReplaceTexture from './replace-texture/ReplaceTexture';
+import FileSupportInfo from './file-support-info/FileSupportInfo';
 
 const StyledDialog = styled(Dialog)(
   () => `
@@ -15,7 +16,8 @@ const StyledDialog = styled(Dialog)(
 
 const Dialogs: Record<DialogType, FC> = {
   'app-info': AppInfo,
-  'replace-texture': ReplaceTexture
+  'replace-texture': ReplaceTexture,
+  'file-support-info': FileSupportInfo
 };
 
 export default function AppDialog() {

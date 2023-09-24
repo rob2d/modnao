@@ -22,6 +22,7 @@ import {
   selectObjectSelectionType,
   selectPolygonFileName,
   setObjectType,
+  showDialog,
   useAppDispatch,
   useAppSelector
 } from '@/store';
@@ -126,7 +127,7 @@ export default function GuiPanelModels() {
       </GuiPanelButton>
       <Button
         onClick={() => {
-          alert('on click of supported files');
+          dispatch(showDialog('file-support-info'));
         }}
         color='secondary'
         size='small'

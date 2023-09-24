@@ -1,7 +1,7 @@
 import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
-export type DialogType = 'app-info' | 'replace-texture';
+export type DialogType = 'app-info' | 'replace-texture' | 'file-support-info';
 
 export interface DialogsState {
   dialogShown?: DialogType;
