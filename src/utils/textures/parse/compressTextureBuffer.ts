@@ -90,6 +90,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
       }
 
       if (length > sequenceLength) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         sequenceIndex = sequenceNode!.data;
         sequenceLength = length;
       }

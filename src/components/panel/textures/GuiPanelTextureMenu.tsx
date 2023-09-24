@@ -18,6 +18,7 @@ import { revertTextureImage, useAppDispatch, useAppSelector } from '@/store';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const { Jimp } = globalThis as any;
 
 const StyledMenuButtonContainer = styled('div')(
@@ -145,7 +146,8 @@ export default function GuiPanelTextureMenu({
           );
           new Jimp.read(
             { data: pixels, width, height },
-            (_: Error, image: any) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (_: Error, image: typeof Jimp) => {
               image.getBase64Async(Jimp.MIME_PNG).then((base64: string) => {
                 a.download = `modnao-texture-${textureIndex}.png`;
                 a.href = base64;
