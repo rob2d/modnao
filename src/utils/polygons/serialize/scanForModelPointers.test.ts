@@ -9,7 +9,7 @@ import scanForModelPointers from './scanForModelPointers';
 describe('scanForModelPointers', () => {
   it('returns the correct list of model pointer addresses in a stage file', async () => {
     const polygonFile = await fs.readFile(
-      path.join(__dirname, '../../../__mocks__/STGXXPOL.BIN')
+      path.join(process.cwd(), 'src/__mocks__/STGXXPOL.BIN')
     );
 
     const results = scanForModelPointers(polygonFile);
