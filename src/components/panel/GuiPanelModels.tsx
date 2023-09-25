@@ -11,7 +11,7 @@ import Icon from '@mdi/react';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelSection from './GuiPanelSection';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import {
   navToNextModel,
   navToPrevModel,
@@ -30,6 +30,7 @@ import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
 import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
 import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
+import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 const Styled = styled('div')(
   ({ theme }) => `& {
@@ -41,6 +42,7 @@ const Styled = styled('div')(
 );
 
 export default function GuiPanelModels() {
+  const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
   // @TODO use a more standard error dialog vs using window.alert here
   const openFileSelector = useSupportedFilePicker(globalThis.alert);
@@ -63,6 +65,10 @@ export default function GuiPanelModels() {
 
   const exportSelectionButton = useMemo(() => {
     {
+      if (!viewOptions.devOptionsVisible) {
+        return undefined;
+      }
+
       let title = 'Export Model JSON';
 
       if (objectKey) {
@@ -85,7 +91,13 @@ export default function GuiPanelModels() {
         </Tooltip>
       );
     }
-  }, [model, objectSelectionType, objectKey, onExportSelectionJson]);
+  }, [
+    model,
+    objectSelectionType,
+    objectKey,
+    onExportSelectionJson,
+    viewOptions.devOptionsVisible
+  ]);
 
   const [onStartPrevModelNav, onStopPrevModelNav] = useHeldRepetitionTimer();
   const [onStartNextModelNav, onStopNextModelNav] = useHeldRepetitionTimer();
@@ -206,7 +218,7 @@ export default function GuiPanelModels() {
           </Grid>
         </Grid>
         {importFiles}
-        {!model ? undefined : (
+        {!viewOptions.devOptionsVisible ? undefined : (
           <GuiPanelButton
             tooltip={
               <div>

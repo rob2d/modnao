@@ -15,6 +15,7 @@ import ViewOptionsContext, {
 } from '@/contexts/ViewOptionsContext';
 import {
   mdiAxisArrow,
+  mdiCodeArray,
   mdiCursorDefaultOutline,
   mdiFlipToBack,
   mdiTangram
@@ -110,6 +111,13 @@ export default function GuiPanelViewOptions() {
     [viewOptions.uvRegionsHighlighted]
   );
 
+  const onSetDevOptionsVisible = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      viewOptions.setDevOptionsVisible(value);
+    },
+    [viewOptions.devOptionsVisible]
+  );
+
   return (
     <GuiPanelSection title='View Options'>
       <Styled className='view-options'>
@@ -203,6 +211,16 @@ export default function GuiPanelViewOptions() {
               label={<Icon path={mdiTangram} size={1} />}
               labelPlacement='start'
               onChange={onSetUvRegionsHighlighted}
+            />
+          </Tooltip>
+        </div>
+        <div className='settings-row'>
+          <Tooltip title='Enable developer/debug option visibility'>
+            <FormControlLabel
+              control={<Checkbox checked={viewOptions.devOptionsVisible} />}
+              label={<Icon path={mdiCodeArray} size={1} />}
+              labelPlacement='start'
+              onChange={onSetDevOptionsVisible}
             />
           </Tooltip>
         </div>
