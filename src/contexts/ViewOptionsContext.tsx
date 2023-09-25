@@ -23,6 +23,7 @@ export type ViewOptions = {
   wireframeLineWidth: number;
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
+  devOptionsVisible: boolean;
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
@@ -34,6 +35,7 @@ export type ViewOptions = {
   setScenePalette: (_: ScenePalette | undefined) => void;
   setThemeKey: (theme: 'light' | 'dark') => void;
   toggleLightDarkTheme: () => void;
+  setDevOptionsVisible: (devOptions: boolean) => void;
 };
 
 export const ViewOptionsContext = React.createContext<ViewOptions>({
@@ -47,6 +49,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   wireframeLineWidth: 3,
   themeKey: undefined,
   scenePalette: undefined,
+  devOptionsVisible: false,
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
   setGuiPanelVisible: (_: boolean) => null,
@@ -57,7 +60,8 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   setWireframeLineWidth: (_: number) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
   setThemeKey: (_: 'light' | 'dark') => null,
-  toggleLightDarkTheme: () => null
+  toggleLightDarkTheme: () => null,
+  setDevOptionsVisible: (_: boolean) => null
 });
 
 type Props = { children: ReactNode };
@@ -82,6 +86,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
   >(undefined);
 
   const [uvRegionsHighlighted, handleSetUvRegionsHighlighted] =
+    useState<boolean>(false);
+  const [devOptionsVisible, handleSetDevOptionsVisible] =
     useState<boolean>(false);
 
   useEffect(() => {
@@ -141,6 +147,14 @@ export function ViewOptionsContextProvider({ children }: Props) {
       handleSetUvRegionsHighlighted(
         JSON.parse(
           localStorage.getItem(StorageKeys.UV_REGIONS_HIGHLIGHTED) || 'true'
+        ) as boolean
+      );
+    }
+
+    if (localStorage.getItem(StorageKeys.DEV_OPTIONS_VISIBLE) !== null) {
+      handleSetDevOptionsVisible(
+        JSON.parse(
+          localStorage.getItem(StorageKeys.DEV_OPTIONS_VISIBLE) || 'true'
         ) as boolean
       );
     }
@@ -262,6 +276,19 @@ export function ViewOptionsContextProvider({ children }: Props) {
     }
   }, [scenePalette, isDarkMode]);
 
+  const setDevOptionsVisible = useCallback(
+    (value: boolean) => {
+      if (devOptionsVisible !== value) {
+        localStorage.setItem(
+          StorageKeys.DEV_OPTIONS_VISIBLE,
+          JSON.stringify(value)
+        );
+        handleSetDevOptionsVisible(value);
+      }
+    },
+    [devOptionsVisible]
+  );
+
   const contextValue = useMemo<ViewOptions>(
     () => ({
       objectAddressesVisible,
@@ -284,7 +311,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setScenePalette,
       themeKey,
       setThemeKey,
-      toggleLightDarkTheme
+      toggleLightDarkTheme,
+      devOptionsVisible,
+      setDevOptionsVisible
     }),
     [
       objectAddressesVisible,
@@ -307,7 +336,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setScenePalette,
       themeKey,
       setThemeKey,
-      toggleLightDarkTheme
+      toggleLightDarkTheme,
+      devOptionsVisible,
+      setDevOptionsVisible
     ]
   );
 
