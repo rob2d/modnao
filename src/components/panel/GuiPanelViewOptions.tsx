@@ -22,6 +22,7 @@ import {
 } from '@mdi/js';
 import Icon from '@mdi/react';
 import PaletteEditor from './PaletteEditor';
+import ViewOptionCheckbox from './ViewOptionCheckbox';
 
 const Styled = styled('div')(
   {
@@ -156,73 +157,54 @@ export default function GuiPanelViewOptions() {
             labelPlacement='start'
           />
         )}
-        {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-          <Tooltip
-            title='Toggle selected polygon addresess visibility'
-            placement='top-start'
-          >
-            <FormControlLabel
-              control={
-                <Checkbox checked={viewOptions.objectAddressesVisible} />
-              }
-              label='Addresses'
-              labelPlacement='start'
-              onChange={onSetObjectAddressesVisible}
-            />
-          </Tooltip>
+        {viewOptions.meshDisplayMode !== 'wireframe' ||
+        !viewOptions.devOptionsVisible ? undefined : (
+          <ViewOptionCheckbox
+            checked={viewOptions.objectAddressesVisible}
+            tooltipHint='Toggle selected polygon addresess visibility'
+            tooltipPlacement='top-start'
+            label={'Addresses'}
+            onChange={onSetObjectAddressesVisible}
+          />
         )}
         <div className='settings-row'>
-          <Tooltip title='Toggle axes helper visibility'>
-            <FormControlLabel
-              control={<Checkbox checked={viewOptions.axesHelperVisible} />}
-              label={<Icon path={mdiAxisArrow} size={1} />}
-              labelPlacement='start'
-              onChange={onSetAxesHelperVisible}
-            />
-          </Tooltip>
-          <Tooltip title='Toggle scene cursor visibility'>
-            <FormControlLabel
-              control={<Checkbox checked={viewOptions.sceneCursorVisible} />}
-              label={<Icon path={mdiCursorDefaultOutline} size={1} />}
-              labelPlacement='start'
-              onChange={onSetSceneCursorVisible}
-            />
-          </Tooltip>
+          <ViewOptionCheckbox
+            checked={viewOptions.axesHelperVisible}
+            tooltipHint='Toggle axes helper visibility'
+            iconPath={mdiAxisArrow}
+            onChange={onSetAxesHelperVisible}
+          />
+          <ViewOptionCheckbox
+            checked={viewOptions.sceneCursorVisible}
+            tooltipHint='Toggle scene cursor visibility'
+            iconPath={mdiCursorDefaultOutline}
+            onChange={onSetSceneCursorVisible}
+          />
         </div>
         <div className='settings-row'>
-          <Tooltip title='Disable Backface Culling / Make material visible on both sides of polygons'>
-            <FormControlLabel
-              control={
-                <Checkbox checked={viewOptions.disableBackfaceCulling} />
-              }
-              label={<Icon path={mdiFlipToBack} size={1} />}
-              labelPlacement='start'
-              onChange={onSetDisableBackfaceCulling}
-            />
-          </Tooltip>
-          <Tooltip
-            title={
+          <ViewOptionCheckbox
+            checked={viewOptions.disableBackfaceCulling}
+            tooltipHint='Disable Backface Culling / Make material visible on both sides of polygons'
+            iconPath={mdiFlipToBack}
+            onChange={onSetDisableBackfaceCulling}
+          />
+          <ViewOptionCheckbox
+            checked={viewOptions.uvRegionsHighlighted}
+            tooltipHint={
               'View UV Clipping Regions when selecting a polygon that has an ' +
               'associated texture loaded.'
             }
-          >
-            <FormControlLabel
-              control={<Checkbox checked={viewOptions.uvRegionsHighlighted} />}
-              label={<Icon path={mdiTangram} size={1} />}
-              labelPlacement='start'
-              onChange={onSetUvRegionsHighlighted}
-            />
-          </Tooltip>
+            iconPath={mdiTangram}
+            onChange={onSetUvRegionsHighlighted}
+          />
         </div>
         <div className='settings-row'>
-          <Tooltip title='Enable developer/debug option visibility'>
-            <FormControlLabel
-              control={<Checkbox checked={viewOptions.devOptionsVisible} />}
-              label={<Icon path={mdiCodeArray} size={1} />}
-              labelPlacement='start'
-              onChange={onSetDevOptionsVisible}
-            />
-          </Tooltip>
+          <ViewOptionCheckbox
+            checked={viewOptions.devOptionsVisible}
+            tooltipHint='Enable developer/debug option visibility'
+            iconPath={mdiCodeArray}
+            onChange={onSetDevOptionsVisible}
+          />
         </div>
       </Styled>
     </GuiPanelSection>
