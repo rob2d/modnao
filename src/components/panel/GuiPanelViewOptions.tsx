@@ -1,11 +1,9 @@
 import {
-  Checkbox,
   FormControlLabel,
   Slider,
   styled,
   ToggleButton,
-  ToggleButtonGroup,
-  Tooltip
+  ToggleButtonGroup
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import GuiPanelSection from './GuiPanelSection';
@@ -20,7 +18,6 @@ import {
   mdiFlipToBack,
   mdiTangram
 } from '@mdi/js';
-import Icon from '@mdi/react';
 import PaletteEditor from './PaletteEditor';
 import ViewOptionCheckbox from './ViewOptionCheckbox';
 
