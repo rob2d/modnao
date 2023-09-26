@@ -330,10 +330,9 @@ export const nlColoredVertexConversions: NLPropConversion<NLVertex>[] = [
       vertex.colors = [
         values[2] / 0xff,
         values[1] / 0xff,
-        values[0] / 0xff
-      ] as [number, number, number];
-
-      vertex.alpha = values[3] / 0xff;
+        values[0] / 0xff,
+        values[3] / 0xff
+      ] as NLColorRGBA;
     }
   }
 ];

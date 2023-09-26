@@ -30,6 +30,7 @@ declare global {
   export type NLUV = [u: number, v: number];
 
   export type NLColor = [r: number, g: number, b: number];
+  export type NLColorRGBA = [r: number, g: number, b: number, a: number];
 
   export type NLPoint3D = [x: number, y: number, z: number];
 
@@ -42,7 +43,7 @@ declare global {
     vertexOffset: number;
     contentAddress: number;
     uv: NLUV;
-    colors?: NLColor;
+    colors?: NLColorRGBA;
     alpha?: number;
   } & ModNaoMemoryObject;
 

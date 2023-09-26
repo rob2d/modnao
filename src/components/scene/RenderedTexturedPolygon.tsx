@@ -3,6 +3,7 @@ import { MeshBasicMaterialProps } from '@react-three/fiber';
 type Props = {
   vertexPositions: Float32Array;
   indices: Uint16Array;
+  colors: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
   materialProps: Partial<MeshBasicMaterialProps>;
@@ -13,11 +14,16 @@ export default function RenderedTexturePolygon({
   uvs,
   normals,
   indices,
+  colors,
   materialProps
 }: Props) {
   return (
     <>
-      <meshBasicMaterial attach='material' {...materialProps} />
+      <meshBasicMaterial
+        attach='material'
+        vertexColors={true}
+        {...materialProps}
+      />
       <bufferGeometry attach='geometry'>
         <bufferAttribute
           attach='attributes-position'
@@ -36,6 +42,12 @@ export default function RenderedTexturePolygon({
           count={normals.length / 3}
           array={normals}
           itemSize={3}
+        />
+        <bufferAttribute
+          attach='attributes-color'
+          count={colors.length / 4}
+          array={colors}
+          itemSize={4}
         />
         <bufferAttribute
           array={indices}
