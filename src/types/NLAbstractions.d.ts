@@ -42,6 +42,8 @@ declare global {
     vertexOffset: number;
     contentAddress: number;
     uv: NLUV;
+    colors?: NLColor;
+    alpha?: number;
   } & ModNaoMemoryObject;
 
   export type NLMesh = {
@@ -51,6 +53,8 @@ declare global {
     position: NLPoint3D;
     color: NLColor;
     alpha: number;
+    specularColor: NLColor;
+    specularAlpha: number;
     polygonDataLength: number;
     textureWrappingValue: number;
     textureWrappingFlags: TextureWrappingFlags;

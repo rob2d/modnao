@@ -193,6 +193,20 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     }
   },
   {
+    targetOffset: O.Mesh.SPECULAR_ALPHA,
+    readOps: [readFloatLE],
+    updates(model: NLMesh, [value]) {
+      model.specularAlpha = value;
+    }
+  },
+  {
+    targetOffset: O.Mesh.SPECULAR_COLOR,
+    readOps: [readFloatLE, readFloatLE, readFloatLE],
+    updates(model: NLMesh, values) {
+      model.specularColor = values as [number, number, number];
+    }
+  },
+  {
     targetOffset: O.Mesh.VERTEX_DATA_LENGTH,
     readOps: [readUInt32LE],
     updates(mesh, [value]) {
@@ -305,6 +319,21 @@ export const nlColoredVertexConversions: NLPropConversion<NLVertex>[] = [
       vertex.normals = values.map((v: number) =>
         v > 0x7f ? (v - 0x100) / 0x80 : v / 0x7f
       ) as [number, number, number];
+    }
+  },
+  {
+    targetOffset: (v, address) =>
+      (v.contentAddress || address) + O.Vertex.COLORS,
+    readOps: [readUInt8, readUInt8, readUInt8, readUInt8],
+    useOffsetAsBase: true,
+    updates(vertex, values) {
+      vertex.colors = [
+        values[2] / 0xff,
+        values[1] / 0xff,
+        values[0] / 0xff
+      ] as [number, number, number];
+
+      vertex.alpha = values[3] / 0xff;
     }
   }
 ];

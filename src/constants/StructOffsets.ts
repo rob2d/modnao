@@ -39,11 +39,14 @@ const Offsets = {
     BASE_POINTER_OFFSET: 0x0c
   },
   Vertex: {
+    // common vertex flags
     NAN_CONTENT_MODE_FLAG: 0x00,
     VERTEX_OFFSET_VAR: 0x04,
     POSITION: 0x00,
+    UV: 0x18,
+    // colored vertices
     NORMALS: 0x0c,
-    UV: 0x18
+    COLORS: 0x10
   },
   TextureDef: {
     WIDTH: 0x00,
