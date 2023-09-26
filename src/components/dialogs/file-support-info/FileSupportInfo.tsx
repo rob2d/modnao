@@ -3,7 +3,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import DialogSectionHeader from '../DialogSectionHeader';
 
 const COMPRESSED_FILE_NOTE =
-  'These are compressed files; export is mostly supported but still experimental and in a few niche cases corrupts the ROM.';
+  'These are compressed files; export is supported but still experimental and in some cases corrupts the ROM based on the data contained.';
 
 const columns: GridColDef[] = [
   {
@@ -87,6 +87,13 @@ const rows = [
     notes: COMPRESSED_FILE_NOTE
   },
   {
+    title: 'Marvel vs Capcom 2',
+    filenameFormat: 'SELSTG.BIN',
+    filenameExample: 'SELSTG.BIN',
+    description: 'Stage select screen previews',
+    notes: COMPRESSED_FILE_NOTE
+  },
+  {
     title: 'Capcom vs SNK 2',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG02POL.BIN',
@@ -117,12 +124,16 @@ const rows = [
 ].map((r, id) => ({ ...r, id }));
 
 const Styled = styled('div')(
-  () => `
+  ({ theme }) => `
     & {
       display: flex;
       flex-direction: column;
       width: 100%;
-      min-height: calc(100vh - 120px);
+      min-height: calc(100vh - 90px);
+    }
+
+    & .MuiDataGrid-root {
+      margin-bottom: ${theme.spacing(3)};
     }
     
     & .MuiDataGrid-footerContainer {
