@@ -204,12 +204,14 @@ export default function GuiPanelViewOptions() {
           />
         </div>
         <div className='settings-row'>
-          <ViewOptionCheckbox
-            checked={viewOptions.enableVertexColors}
-            tooltipHint='Enable Vertex Colors; this is usually used for simulating shading and lighting effects.'
-            iconPath={mdiFormatColorFill}
-            onChange={onSetEnableVertexColors}
-          />
+          {viewOptions.meshDisplayMode === 'wireframe' ? undefined : (
+            <ViewOptionCheckbox
+              checked={viewOptions.enableVertexColors}
+              tooltipHint='Enable Vertex Colors; this is usually used for simulating shading and lighting effects.'
+              iconPath={mdiFormatColorFill}
+              onChange={onSetEnableVertexColors}
+            />
+          )}
           <ViewOptionCheckbox
             checked={viewOptions.devOptionsVisible}
             tooltipHint='Enable developer/debug option visibility'
