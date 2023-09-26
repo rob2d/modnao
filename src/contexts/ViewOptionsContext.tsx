@@ -19,6 +19,7 @@ export type ViewOptions = {
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
   disableBackfaceCulling: boolean;
+  enableVertexColors: boolean;
   uvRegionsHighlighted: boolean;
   wireframeLineWidth: number;
   themeKey?: 'light' | 'dark';
@@ -31,6 +32,7 @@ export type ViewOptions = {
   setUvRegionsHighlighted: (uvRegionsHighlighted: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
   setDisableBackfaceCulling: (disableBackfaceCulling: boolean) => void;
+  setEnableVertexColors: (enableVertexColors: boolean) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
   setScenePalette: (_: ScenePalette | undefined) => void;
   setThemeKey: (theme: 'light' | 'dark') => void;
@@ -45,6 +47,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   objectAddressesVisible: true,
   meshDisplayMode: 'wireframe',
   disableBackfaceCulling: false,
+  enableVertexColors: false,
   uvRegionsHighlighted: true,
   wireframeLineWidth: 3,
   themeKey: undefined,
@@ -56,6 +59,7 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
   setDisableBackfaceCulling: (_: boolean) => null,
+  setEnableVertexColors: (_: boolean) => null,
   setUvRegionsHighlighted: (_: boolean) => null,
   setWireframeLineWidth: (_: number) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
@@ -75,6 +79,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
     useState<MeshDisplayMode>('wireframe');
   const [disableBackfaceCulling, handleSetDisableBackfaceCulling] =
     useState(false);
+
+  const [enableVertexColors, handleSetEnableVertexColors] = useState(true);
   const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(true);
   const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(3);
   const [themeKey, handleSetThemeKey] = useState<'light' | 'dark' | undefined>(
@@ -218,6 +224,16 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [disableBackfaceCulling]
   );
 
+  const setEnableVertexColors = useCallback(
+    (value: boolean) => {
+      if (enableVertexColors !== value) {
+        localStorage.setItem(StorageKeys.ENABLE_VERTEX_COLORS, `${value}`);
+        handleSetEnableVertexColors(value);
+      }
+    },
+    [enableVertexColors]
+  );
+
   const setUvRegionsHighlighted = useCallback(
     (value: boolean) => {
       if (uvRegionsHighlighted !== value) {
@@ -301,6 +317,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setMeshDisplayMode,
       disableBackfaceCulling,
       setDisableBackfaceCulling,
+      enableVertexColors,
+      setEnableVertexColors,
       uvRegionsHighlighted,
       setUvRegionsHighlighted,
       guiPanelVisible,
@@ -326,6 +344,8 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setMeshDisplayMode,
       disableBackfaceCulling,
       setDisableBackfaceCulling,
+      enableVertexColors,
+      setEnableVertexColors,
       uvRegionsHighlighted,
       setUvRegionsHighlighted,
       wireframeLineWidth,

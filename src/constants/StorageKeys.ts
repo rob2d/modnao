@@ -13,5 +13,6 @@ export const StorageKeys = {
   SCENE_PALETTE: 'scenePalette',
   DISABLE_BACKFACE_CULLING: 'disableBackfaceCulling',
   UV_REGIONS_HIGHLIGHTED: 'uvRegionsHighlighted',
-  DEV_OPTIONS_VISIBLE: 'devOptionsVisible'
+  DEV_OPTIONS_VISIBLE: 'devOptionsVisible',
+  ENABLE_VERTEX_COLORS: 'enableVertexColors'
 } as const;

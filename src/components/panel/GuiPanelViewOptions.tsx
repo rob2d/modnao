@@ -16,6 +16,7 @@ import {
   mdiCodeArray,
   mdiCursorDefaultOutline,
   mdiFlipToBack,
+  mdiFormatColorFill,
   mdiTangram
 } from '@mdi/js';
 import PaletteEditor from './PaletteEditor';
@@ -100,6 +101,13 @@ export default function GuiPanelViewOptions() {
       viewOptions.setDisableBackfaceCulling(value);
     },
     [viewOptions.setDisableBackfaceCulling]
+  );
+
+  const onSetEnableVertexColors = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      viewOptions.setEnableVertexColors(value);
+    },
+    [viewOptions.setEnableVertexColors]
   );
 
   const onSetUvRegionsHighlighted = useCallback(
@@ -196,6 +204,12 @@ export default function GuiPanelViewOptions() {
           />
         </div>
         <div className='settings-row'>
+          <ViewOptionCheckbox
+            checked={viewOptions.enableVertexColors}
+            tooltipHint='Enable Vertex Colors; this is usually used for simulating shading and lighting effects.'
+            iconPath={mdiFormatColorFill}
+            onChange={onSetEnableVertexColors}
+          />
           <ViewOptionCheckbox
             checked={viewOptions.devOptionsVisible}
             tooltipHint='Enable developer/debug option visibility'

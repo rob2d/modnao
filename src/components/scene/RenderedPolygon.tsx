@@ -27,12 +27,13 @@ export default function RenderedPolygon({
   onSelectObjectKey: (key: string) => void;
   texture: Texture | null;
 }) {
+  const viewOptions = useContext(ViewOptionsContext);
   const {
     meshDisplayMode,
     objectAddressesVisible,
     wireframeLineWidth,
     disableBackfaceCulling
-  } = useContext(ViewOptionsContext);
+  } = viewOptions;
   const textRef = useRef();
   const theme = useTheme();
 
@@ -167,6 +168,7 @@ export default function RenderedPolygon({
               indices={indicesRendered}
               colors={colorsRendered}
               materialProps={texturedMaterialProps}
+              viewOptions={viewOptions}
             />
           ) : (
             <RenderedWireframePolygon
