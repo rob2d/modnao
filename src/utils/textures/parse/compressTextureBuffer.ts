@@ -139,8 +139,10 @@ export default function compressTextureBuffer(buffer: Buffer) {
         outputBuffer.writeUInt16LE((length << 11) | wordsBack, byteOffset);
         byteOffset += 2;
       } else {
-        outputBuffer.writeUInt32LE(wordsBack | (length << 16), byteOffset);
-        byteOffset += 4;
+        outputBuffer.writeUInt16LE(wordsBack, byteOffset);
+        byteOffset += 2;
+        outputBuffer.writeUInt16LE(length, byteOffset);
+        byteOffset += 2;
       }
     }
 
