@@ -75,7 +75,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
         sequenceNode.data < i &&
         sequenceNode.data + length < wordCount &&
         i + length < wordCount &&
-        length < W16_MAX_LOOKBACK - 1
+        length < 31
       ) {
         const sI = (sequenceNode.data + length) * WORD_SIZE;
         const sequenceWord = buffer[sI] | (buffer[sI + 1] << 8);
