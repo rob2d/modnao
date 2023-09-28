@@ -75,7 +75,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
         sequenceNode.data < i &&
         sequenceNode.data + length < wordCount &&
         i + length < wordCount &&
-        length < 31
+        length < W16_MAX_LOOKBACK - 1
       ) {
         const sI = (sequenceNode.data + length) * WORD_SIZE;
         const sequenceWord = buffer[sI] | (buffer[sI + 1] << 8);
@@ -139,8 +139,10 @@ export default function compressTextureBuffer(buffer: Buffer) {
         outputBuffer.writeUInt16LE((length << 11) | wordsBack, byteOffset);
         byteOffset += 2;
       } else {
-        outputBuffer.writeUInt32LE(wordsBack | (length << 16), byteOffset);
-        byteOffset += 4;
+        outputBuffer.writeUInt16LE(wordsBack, byteOffset);
+        byteOffset += 2;
+        outputBuffer.writeUInt16LE(length, byteOffset);
+        byteOffset += 2;
       }
     }
 
