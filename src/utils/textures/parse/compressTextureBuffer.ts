@@ -8,7 +8,7 @@ const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 /**
  * in 16 bit mode, can look back a max of 5 bits
  */
-const W16_MAX_LOOKBACK = 2048;
+const W16_MAX_LOOKBACK = 0b1_1111;
 
 /**
  * @param buffer decompressed buffer to compress
@@ -132,14 +132,14 @@ export default function compressTextureBuffer(buffer: Buffer) {
       outputBuffer.writeUInt16LE(value, byteOffset);
       byteOffset += 2;
     } else {
-      const [wordsBack, length] = value;
-      const is32Bit = length > 31 || wordsBack >= W16_MAX_LOOKBACK;
+      const [wordsBackCount, length] = value;
+      const is32Bit = length > 31 || wordsBackCount > W16_MAX_LOOKBACK;
 
       if (!is32Bit) {
-        outputBuffer.writeUInt16LE((length << 11) | wordsBack, byteOffset);
+        outputBuffer.writeUInt16LE((length << 11) | wordsBackCount, byteOffset);
         byteOffset += 2;
       } else {
-        outputBuffer.writeUInt16LE(wordsBack, byteOffset);
+        outputBuffer.writeUInt16LE(wordsBackCount, byteOffset);
         byteOffset += 2;
         outputBuffer.writeUInt16LE(length, byteOffset);
         byteOffset += 2;
@@ -150,7 +150,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
     chunk %= 16;
   }
 
-  if (bitmask > 0) {
+  if (bitmask !== 0) {
     outputBuffer = outputBuffer.subarray(0, byteOffset + 2);
     outputBuffer.writeUInt16LE(0, byteOffset);
   } else {

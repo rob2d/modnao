@@ -609,6 +609,7 @@ export const downloadTextureFile = createAsyncThunk<
       textureFileType
     );
   } catch (error) {
+    console.error(error);
     window.alert(error);
   }
 });
