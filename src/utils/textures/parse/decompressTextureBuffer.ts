@@ -33,7 +33,6 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
       break;
     } else {
       // if value (wordsBackCount) fits within 11 lsb,
-      // or the length fits within 5 msb,
       // this is a 32bit value
       const is32Bit = (word & BITS11) === word;
 

@@ -121,14 +121,12 @@ export default function compressTextureBuffer(buffer: Buffer) {
   }
 
   if(chunk !== 0) {
-    console.log('chunk was not zero ->', chunk, bitmask.toString(2));
     // fill last bitmasks with compress flag to exit when loading zero
     while(chunk < 16) {
       bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
       chunk++;
     }
     bitmasks.push(bitmask);
-    console.log('last binary bitmask ->',  bitmask.toString(2));
   }
 
   chunk = 0;
