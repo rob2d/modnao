@@ -3,6 +3,8 @@ const WORD_SIZE = 2;
 /** starts at F000 and shifted for a mask check based on the chunk */
 const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
+const BITS11 = 0b111_1111_1111;
+
 export default function decompressTextureBuffer(bufferPassed: Buffer) {
   const buffer = Buffer.from(bufferPassed);
   const output: number[] = [];
@@ -30,19 +32,18 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
     } else if (word === 0) {
       break;
     } else {
-      // check that only the lower 11-bits are used;
-      // this says it is a 4 byte value, where the number
-      // of words back to go is value & 0x7ff
-      const is32Bit = (word & 0b0111_1111_1111) === word;
+      // if value (wordsBackCount) fits within 11 lsb,
+      // this is a 32bit value
+      const is32Bit = (word & BITS11) === word;
 
       if (!is32Bit) {
         // the number of words to grab are in the 5 MSb
-        grabWordCount = (word >> 11) & 0b1111_1;
+        grabWordCount = (word >> 11) & 0b1_1111;
         // the number of words to go back are in the 11 LSb
-        wordsBackCount = word & 0b0111_1111_1111;
+        wordsBackCount = word & BITS11;
       } else {
         wordsBackCount = word;
-
+        
         // advance/read an extra 2 bytes
         grabWordCount = buffer.readUInt16LE(++i * WORD_SIZE);
       }

@@ -5,10 +5,8 @@ const WORD_SIZE = 2;
 /** starts at MSB and right-shifted using chunk to indicate compression ops */
 const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
-/**
- * in 16 bit mode, can look back a max of 5 bits
- */
-const W16_MAX_LOOKBACK = 2048;
+/** in 16 bit mode, can look back a max of 11 bits */
+const W16_MAX_LOOKBACK = 0b111_1111_1111;
 
 /**
  * @param buffer decompressed buffer to compress
@@ -43,12 +41,12 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
 
     const occurenceList = wordOccurences.get(word) as LinkedList<number>;
-
-    // clean up occurences not within targeted range
+    
     occurenceList.append(i);
+    // clean up occurences not within targeted range
     while (
       occurenceList.head &&
-      occurenceList.head.data <= i - W16_MAX_LOOKBACK
+      occurenceList.head.data + 1 <= i - W16_MAX_LOOKBACK
     ) {
       if (occurenceList.head.next === null) {
         break;
@@ -64,32 +62,37 @@ export default function compressTextureBuffer(buffer: Buffer) {
     let sequenceIndex = -1;
 
     while (sequenceNode) {
+      const wordsBackCount = i - sequenceNode!.data;
       let length = 1;
 
       // for each starting word, travel through to see
       // if there is a matching sequence
-      let hasMatch = true;
-
-      while (
-        hasMatch &&
-        sequenceNode.data < i &&
-        sequenceNode.data + length < wordCount &&
-        i + length < wordCount &&
-        length < W16_MAX_LOOKBACK - 1
-      ) {
-        const sI = (sequenceNode.data + length) * WORD_SIZE;
-        const sequenceWord = buffer[sI] | (buffer[sI + 1] << 8);
-
-        const nI = (i + length) * WORD_SIZE;
-        const nextWord = buffer[nI] | (buffer[nI + 1] << 8);
-        if (nextWord === sequenceWord) {
-          length++;
-        } else {
-          hasMatch = false;
+      
+      if(sequenceNode.data < i) {
+        let hasMatch = true;
+        while (
+          hasMatch &&
+          sequenceNode.data + length + 1 < wordCount &&
+          i + length + 1 < wordCount &&
+          length + 1 < W16_MAX_LOOKBACK &&
+          // 32 bit words must have wordsBackCount satisfying
+          // criteria of being at least 2047
+          ((wordsBackCount < W16_MAX_LOOKBACK && length < 31) || (wordsBackCount >= W16_MAX_LOOKBACK))
+        ) {
+          const sI = (sequenceNode.data + length) * WORD_SIZE;
+          const nI = (i + length) * WORD_SIZE;
+          const sequenceWord = buffer[sI] | (buffer[sI + 1] << 8);
+          const nextWord = buffer[nI] | (buffer[nI + 1] << 8);
+          
+          if (nextWord === sequenceWord) {
+            length++;
+          } else {
+            hasMatch = false;
+          }
         }
       }
 
-      if (length > sequenceLength) {
+      if (length >= sequenceLength) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         sequenceIndex = sequenceNode!.data;
         sequenceLength = length;
@@ -102,7 +105,8 @@ export default function compressTextureBuffer(buffer: Buffer) {
       values.push(word);
     } else {
       bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
-      values.push([i - sequenceIndex, sequenceLength]);
+      const wordsBackCount = i - sequenceIndex;
+      values.push([wordsBackCount, sequenceLength]);
     }
 
     i += sequenceLength;
@@ -114,6 +118,15 @@ export default function compressTextureBuffer(buffer: Buffer) {
       bitmask = 0;
       chunk -= 16;
     }
+  }
+
+  if(chunk !== 0) {
+    // fill last bitmasks with compress flag to exit when loading zero
+    while(chunk < 16) {
+      bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
+      chunk++;
+    }
+    bitmasks.push(bitmask);
   }
 
   chunk = 0;
@@ -132,14 +145,14 @@ export default function compressTextureBuffer(buffer: Buffer) {
       outputBuffer.writeUInt16LE(value, byteOffset);
       byteOffset += 2;
     } else {
-      const [wordsBack, length] = value;
-      const is32Bit = length > 31 || wordsBack >= W16_MAX_LOOKBACK;
+      const [wordsBackCount, length] = value;
+      const is32Bit = wordsBackCount >= W16_MAX_LOOKBACK;
 
       if (!is32Bit) {
-        outputBuffer.writeUInt16LE((length << 11) | wordsBack, byteOffset);
+        outputBuffer.writeUInt16LE((length << 11) | wordsBackCount, byteOffset);
         byteOffset += 2;
       } else {
-        outputBuffer.writeUInt16LE(wordsBack, byteOffset);
+        outputBuffer.writeUInt16LE(wordsBackCount, byteOffset);
         byteOffset += 2;
         outputBuffer.writeUInt16LE(length, byteOffset);
         byteOffset += 2;
@@ -150,7 +163,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
     chunk %= 16;
   }
 
-  if (bitmask > 0) {
+  if (chunk !== 0 && bitmask !== 0) {
     outputBuffer = outputBuffer.subarray(0, byteOffset + 2);
     outputBuffer.writeUInt16LE(0, byteOffset);
   } else {
