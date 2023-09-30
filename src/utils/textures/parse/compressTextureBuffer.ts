@@ -120,11 +120,14 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
   }
 
+  let escapeOpCount = 0;
+
   if(chunk !== 0) {
     // fill last bitmasks with compress flag to exit when loading zero
     while(chunk < 16) {
       bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
       chunk++;
+      escapeOpCount++;
     }
     bitmasks.push(bitmask);
   }
@@ -163,12 +166,13 @@ export default function compressTextureBuffer(buffer: Buffer) {
     chunk %= 16;
   }
 
-  if (chunk !== 0 && bitmask !== 0) {
-    outputBuffer = outputBuffer.subarray(0, byteOffset + 2);
+  outputBuffer = outputBuffer.subarray(0, byteOffset + 2 * escapeOpCount);
+
+  while(escapeOpCount) {
     outputBuffer.writeUInt16LE(0, byteOffset);
-  } else {
-    outputBuffer = outputBuffer.subarray(0, byteOffset);
-  }
+    byteOffset += 2;
+    escapeOpCount--;
+  } 
 
   console.timeEnd('compressTextureBuffer');
   return outputBuffer;
