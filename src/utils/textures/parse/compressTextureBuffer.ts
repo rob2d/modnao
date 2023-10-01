@@ -121,17 +121,26 @@ export default function compressTextureBuffer(buffer: Buffer, compressionVariant
     }
   }
 
-  let escapeOpCount = compressionVariant === 'double-zero-ending' ? 2 : 0;
+  let escapeWordCount = compressionVariant === 'double-zero-ending' ? 2 : 0;
 
   if(chunk !== 0) {
-    // fill last bitmasks with compress flag to exit when loading zero
-    while(chunk < 16) {
-      bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
-      chunk++;
-      if(compressionVariant === 'noop-zero-ending') {
-        escapeOpCount++;
+    switch(compressionVariant) {
+      case 'double-zero-ending': {
+        // one ending marker in double-zero-ending mode
+        bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
+        break;
+      }
+      default:
+      case 'zero-per-noop-ending': {
+        while(chunk < 16) {
+          bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
+          escapeWordCount++;
+          chunk++;
+        }
+        break;
       }
     }
+    
     bitmasks.push(bitmask);
   }
 
@@ -169,12 +178,12 @@ export default function compressTextureBuffer(buffer: Buffer, compressionVariant
     chunk %= 16;
   }
 
-  outputBuffer = outputBuffer.subarray(0, byteOffset + 2 * escapeOpCount);
+  outputBuffer = outputBuffer.subarray(0, byteOffset + 2 * escapeWordCount);
 
-  while(escapeOpCount) {
+  while(escapeWordCount) {
     outputBuffer.writeUInt16LE(0, byteOffset);
     byteOffset += 2;
-    escapeOpCount--;
+    escapeWordCount--;
   } 
 
   console.timeEnd('compressTextureBuffer');

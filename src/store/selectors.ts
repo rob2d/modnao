@@ -188,7 +188,7 @@ export const selectCompressionVariant = createSelector(
     if((textureType === 'polygon-mapped') || filename?.indexOf('DC') === 0) {
       return 'double-zero-ending'
     } else {
-      return 'noop-zero-ending';
+      return 'zero-per-noop-ending';
     }
   }
 );
