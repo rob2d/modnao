@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
 import { CHARACTER_PORTRAITS_REGEX_FILE } from '@/utils/textures/files/textureFileTypeMap';
+import CompressionVariant from '@/types/CompressionVariant';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
@@ -104,6 +105,7 @@ export const selectModel = createSelector(
   selectModels,
   (modelIndex, models) => models?.[modelIndex]
 );
+
 export type DisplayedMesh = NLMesh & { textureHash: string };
 export const selectDisplayedMeshes = createSelector(
   selectModel,
@@ -165,6 +167,28 @@ export const selectIsFileSupportDialogShown = (s: AppState) =>
 export const selectCanExportTextures = createSelector(
   selectTextureFileName,
   (textureFileName) =>
-    Boolean(textureFileName) &&
-    !textureFileName?.match(CHARACTER_PORTRAITS_REGEX_FILE)
+    Boolean(textureFileName)
+);
+
+export const selectTextureFileType = (s: AppState) => s.modelData.textureFileType;
+export const selectHasCompressedTextures = (s: AppState) => s.modelData.hasCompressedTextures;
+
+/**
+ * @TODO: revisit textureFileTypeMap so that manually using regex here to
+ * infer subtypes isn't necessary
+ */
+export const selectCompressionVariant = createSelector(
+  selectTextureFileName,
+  selectTextureFileType,
+  selectHasCompressedTextures,
+  (filename, textureType, hasCompressedTextures): CompressionVariant | undefined => {
+    if(!hasCompressedTextures) {
+      return;
+    }
+    if((textureType === 'polygon-mapped') || filename?.indexOf('DC') === 0) {
+      return 'double-zero-ending'
+    } else {
+      return 'noop-zero-ending';
+    }
+  }
 );

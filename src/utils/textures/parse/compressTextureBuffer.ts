@@ -1,3 +1,4 @@
+import CompressionVariant from '@/types/CompressionVariant';
 import LinkedList, { ListNode } from '@/utils/ds/LinkedList';
 
 const WORD_SIZE = 2;
@@ -11,7 +12,7 @@ const W16_MAX_LOOKBACK = 0b111_1111_1111;
 /**
  * @param buffer decompressed buffer to compress
  */
-export default function compressTextureBuffer(buffer: Buffer) {
+export default function compressTextureBuffer(buffer: Buffer, compressionVariant: CompressionVariant) {
   console.time('compressTextureBuffer');
   let i = 0;
 
@@ -120,14 +121,16 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
   }
 
-  let escapeOpCount = 0;
+  let escapeOpCount = compressionVariant === 'double-zero-ending' ? 2 : 0;
 
   if(chunk !== 0) {
     // fill last bitmasks with compress flag to exit when loading zero
     while(chunk < 16) {
       bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
       chunk++;
-      escapeOpCount++;
+      if(compressionVariant === 'noop-zero-ending') {
+        escapeOpCount++;
+      }
     }
     bitmasks.push(bitmask);
   }

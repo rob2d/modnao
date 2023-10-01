@@ -7,6 +7,7 @@ import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { compressTextureBuffer } from '@/utils/textures/parse';
 import { objectUrlToBuffer } from '@/utils/data';
 import { TextureFileType } from './textureFileTypeMap';
+import CompressionVariant from '@/types/CompressionVariant';
 
 const COLOR_SIZE = 2;
 
@@ -19,13 +20,20 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
     ARGB8888: () => 0
   };
 
-export default async function exportTextureFile(
-  textureDefs: NLTextureDef[],
+type ExportTextureOptions = { 
+  textureDefs: NLTextureDef[];
+  textureFileName?: string;
+  textureFileType: TextureFileType; 
+  textureBufferUrl: string;
+  compressionVariant?: CompressionVariant;
+};
+export default async function exportTextureFile({
+  textureDefs,
   textureFileName = '',
-  hasCompressedTextures: boolean,
-  textureBufferUrl: string,
-  textureFileType: TextureFileType
-): Promise<void> {
+  textureFileType,
+  textureBufferUrl,
+  compressionVariant
+}: ExportTextureOptions): Promise<void> {
   const textureBuffer = Buffer.from(await objectUrlToBuffer(textureBufferUrl));
   if (!textureBuffer) {
     return;
@@ -84,7 +92,7 @@ export default async function exportTextureFile(
       );
 
       const compressedRleTexture = compressTextureBuffer(
-        Buffer.from(decompressedRleSection)
+        Buffer.from(decompressedRleSection), 'noop-zero-ending'
       );
 
       buffer.writeUInt32LE(12, 0);
@@ -107,9 +115,9 @@ export default async function exportTextureFile(
       break;
     }
     default: {
-      const outputBuffer = !hasCompressedTextures
+      const outputBuffer = !compressionVariant
         ? textureBuffer
-        : compressTextureBuffer(textureBuffer);
+        : compressTextureBuffer(textureBuffer, compressionVariant);
 
       output = new Blob([outputBuffer], {
         type: 'application/octet-stream'
