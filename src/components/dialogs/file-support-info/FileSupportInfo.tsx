@@ -2,9 +2,6 @@ import { styled } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import DialogSectionHeader from '../DialogSectionHeader';
 
-const COMPRESSED_FILE_NOTE =
-  'These are compressed files; export is supported but still experimental and in some cases corrupts the ROM based on the data contained.';
-
 const columns: GridColDef[] = [
   {
     field: 'title',
@@ -69,7 +66,7 @@ const rows = [
     filenameFormat: 'PL{NN}_WIN.BIN',
     filenameExample: 'PL1B_WIN.BIN',
     description: 'Player win portrait texture',
-    notes: COMPRESSED_FILE_NOTE
+    notes: ''
   },
   {
     title: 'Marvel vs Capcom 2',
@@ -77,21 +74,21 @@ const rows = [
     filenameExample: 'PL0D_FAC.BIN',
     description: 'Player lifebar and superportraits',
     notes:
-      'This file has a very specific format including VQ images; currently can view a few of the images related to lifebars and export file support is W.I.P.'
+      'This file has a very specific format including VQ images; Can view a few of the images related to lifebars but export not yet supported'
   },
   {
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'END(DC|NM)TEX.BIN',
     filenameExample: 'ENDDCTEX.BIN',
     description: 'Game ending pictures and hi score name font.',
-    notes: COMPRESSED_FILE_NOTE
+    notes: ''
   },
   {
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'SELSTG.BIN',
     filenameExample: 'SELSTG.BIN',
     description: 'Stage select screen previews',
-    notes: COMPRESSED_FILE_NOTE
+    notes: ''
   },
   {
     title: 'Capcom vs SNK 2',
@@ -105,7 +102,7 @@ const rows = [
     filenameFormat: 'STG{NN}TEX.BIN',
     filenameExample: 'STG02TEX.BIN',
     description: 'Stage textures',
-    notes: `Must be loaded with a corresponding POL.BIN file. ${COMPRESSED_FILE_NOTE}`
+    notes: `Must be loaded with a corresponding POL.BIN file.`
   },
   {
     title: 'Capcom vs SNK 2',
@@ -119,7 +116,7 @@ const rows = [
     filenameFormat: 'DC{NN}TEX.BIN',
     filenameExample: 'DC02TEX.BIN',
     description: 'Menu/Gui textures',
-    notes: `Must be loaded with a corresponding POL.BIN file. ${COMPRESSED_FILE_NOTE} There also may be cases of VQ image data not yet supported that appear garbled.`
+    notes: `Must be loaded with a corresponding POL.BIN file. Export cannot be loaded in game and certain files are not able to load due to VQ sections.`
   }
 ].map((r, id) => ({ ...r, id }));
 

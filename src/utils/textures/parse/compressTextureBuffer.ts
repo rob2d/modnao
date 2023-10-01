@@ -1,3 +1,4 @@
+import CompressionVariant from '@/types/CompressionVariant';
 import LinkedList, { ListNode } from '@/utils/ds/LinkedList';
 
 const WORD_SIZE = 2;
@@ -11,7 +12,7 @@ const W16_MAX_LOOKBACK = 0b111_1111_1111;
 /**
  * @param buffer decompressed buffer to compress
  */
-export default function compressTextureBuffer(buffer: Buffer) {
+export default function compressTextureBuffer(buffer: Buffer, compressionVariant: CompressionVariant) {
   console.time('compressTextureBuffer');
   let i = 0;
 
@@ -120,15 +121,25 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
   }
 
-  let escapeOpCount = 0;
+  let escapeWordCount = compressionVariant === 'double-zero-ending' ? 2 : 0;
 
   if(chunk !== 0) {
-    // fill last bitmasks with compress flag to exit when loading zero
-    while(chunk < 16) {
-      bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
-      chunk++;
-      escapeOpCount++;
+    bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
+    switch(compressionVariant) {
+      case 'double-zero-ending': {
+        // one ending marker in double-zero-ending mode
+        break;
+      }
+      default:
+      case 'zero-per-noop-ending': {
+        while(chunk < 16) {
+          escapeWordCount++;
+          chunk++;
+        }
+        break;
+      }
     }
+    
     bitmasks.push(bitmask);
   }
 
@@ -166,12 +177,12 @@ export default function compressTextureBuffer(buffer: Buffer) {
     chunk %= 16;
   }
 
-  outputBuffer = outputBuffer.subarray(0, byteOffset + 2 * escapeOpCount);
+  outputBuffer = outputBuffer.subarray(0, byteOffset + 2 * escapeWordCount);
 
-  while(escapeOpCount) {
+  while(escapeWordCount) {
     outputBuffer.writeUInt16LE(0, byteOffset);
     byteOffset += 2;
-    escapeOpCount--;
+    escapeWordCount--;
   } 
 
   console.timeEnd('compressTextureBuffer');
