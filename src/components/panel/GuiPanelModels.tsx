@@ -27,7 +27,7 @@ import {
   useAppSelector
 } from '@/store';
 import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
-import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
+import useSceneGLTFFileDownloader from '@/hooks/useSceneOBJDownloader';
 import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
@@ -49,7 +49,7 @@ export default function GuiPanelModels() {
 
   const objectKey = useAppSelector(selectObjectKey);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
-  const onExportOBJFile = useSceneOBJFileDownloader();
+  const onExportGLTFFile = useSceneGLTFFileDownloader();
   const onExportSelectionJson = useModelSelectionExport();
   const onSetObjectSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
@@ -218,22 +218,22 @@ export default function GuiPanelModels() {
           </Grid>
         </Grid>
         {importFiles}
-        {!viewOptions.devOptionsVisible ? undefined : (
+        {
           <GuiPanelButton
             tooltip={
               <div>
                 <p>
-                  Export an.obj file representing the selected in-scene model
+                  Export a .gltf file representing the currently viewed in-scene model
                   meshes.
                 </p>
               </div>
             }
-            onClick={onExportOBJFile}
+            onClick={onExportGLTFFile}
             color='secondary'
           >
-            Export Model .OBJ
+            Export Model .GLTF
           </GuiPanelButton>
-        )}
+        }
         {exportSelectionButton}
       </div>
     </GuiPanelSection>

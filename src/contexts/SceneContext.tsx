@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState
 } from 'react';
-import { Scene } from 'three';
+import { SRGBColorSpace, Scene } from 'three';
 
 type SceneContextOptions = {
   scene: Scene | undefined;
@@ -28,10 +28,16 @@ export function useSceneContext() {
 // this stub component to retrieve what we need
 export function SceneContextSetup() {
   const { setScene } = useContext(SceneContext);
-  const { scene } = useThree();
+  const { scene, gl } = useThree();
   useEffect(() => {
     setScene(scene);
   }, [scene]);
+  
+  useEffect(() => {
+    if(gl) {
+      gl.outputColorSpace = SRGBColorSpace;
+    }
+  }, [gl]);
 
   return <></>;
 }

@@ -134,6 +134,6 @@ export default async function exportTextureFile({
   const extension = textureFileName.substring(
     textureFileName.lastIndexOf('.') + 1
   );
-  link.download = `${name}.modnao.${extension}`;
+  link.download = `${name}.mn.${extension}`;
   link.click();
 }
