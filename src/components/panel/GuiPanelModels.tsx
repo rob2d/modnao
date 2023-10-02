@@ -27,7 +27,7 @@ import {
   useAppSelector
 } from '@/store';
 import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
-import useSceneOBJFileDownloader from '@/hooks/useSceneOBJDownloader';
+import useSceneGLTFFileDownloader from '@/hooks/useSceneOBJDownloader';
 import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
@@ -37,7 +37,7 @@ const Styled = styled('div')(
   .supported-files {
     width: 100%;
     font-size: 8pt;
-    margin-top: -${theme.spacing(1)};
+    margin-top: -${theme.spacing(2)};
   }`
 );
 
@@ -49,7 +49,7 @@ export default function GuiPanelModels() {
 
   const objectKey = useAppSelector(selectObjectKey);
   const objectSelectionType = useAppSelector(selectObjectSelectionType);
-  const onExportOBJFile = useSceneOBJFileDownloader();
+  const onExportGLTFFile = useSceneGLTFFileDownloader();
   const onExportSelectionJson = useModelSelectionExport();
   const onSetObjectSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
@@ -218,22 +218,18 @@ export default function GuiPanelModels() {
           </Grid>
         </Grid>
         {importFiles}
-        {!viewOptions.devOptionsVisible ? undefined : (
+        {
           <GuiPanelButton
             tooltip={
-              <div>
-                <p>
-                  Export an.obj file representing the selected in-scene model
-                  meshes.
-                </p>
-              </div>
+              'Export a .gltf file representing the currently viewed in-scene model ' +
+              'meshes and textures to import into Maya or Blender.'
             }
-            onClick={onExportOBJFile}
+            onClick={onExportGLTFFile}
             color='secondary'
           >
-            Export Model .OBJ
+            Export Scene .GLTF
           </GuiPanelButton>
-        )}
+        }
         {exportSelectionButton}
       </div>
     </GuiPanelSection>

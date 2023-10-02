@@ -35,7 +35,6 @@ import {
   DataTexture,
   RepeatWrapping,
   RGBAFormat,
-  sRGBEncoding,
   UnsignedByteType,
   Vector2
 } from 'three';
@@ -46,7 +45,7 @@ THREE.ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
 
-const TEXTURE_ROTATION = (90 * Math.PI) / 180;
+const TEXTURE_ROTATION = 1.5708;
 const TEXTURE_CENTER = new Vector2(0.5, 0.5);
 
 const useClientLayoutEffect =
@@ -64,8 +63,19 @@ async function createTextureFromObjectUrl(
     width,
     height,
     RGBAFormat,
-    UnsignedByteType
+    UnsignedByteType,
+    THREE.Texture.DEFAULT_MAPPING,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    THREE.SRGBColorSpace
   );
+  texture.rotation = TEXTURE_ROTATION;
+  texture.center = TEXTURE_CENTER;
+  texture.repeat.y = -1;
+  texture.flipY = false;
   texture.needsUpdate = true;
 
   return texture;
@@ -127,15 +137,6 @@ export default function SceneCanvas() {
                     t.width,
                     t.height
                   );
-
-                  baseTexture.rotation = TEXTURE_ROTATION;
-                  baseTexture.center = TEXTURE_CENTER;
-                  baseTexture.repeat.y = -1;
-
-                  // addresses an issue in ThreeJS with
-                  // sRGB randomly not applying to textures depending
-                  // on how it is created
-                  baseTexture.encoding = sRGBEncoding;
                 }
 
                 const texture =

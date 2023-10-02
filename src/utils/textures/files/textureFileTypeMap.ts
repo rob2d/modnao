@@ -8,7 +8,7 @@ export type TextureFileType =
 export const CHARACTER_PORTRAITS_REGEX_FILE = /^PL[0-9A-Z]{2}_FAC.BIN$/i;
 export const MVC2_CHARACTER_WIN_REGEX_FILE = /^PL[0-9A-Z]{2}_WIN.BIN$/i;
 export const POLYGON_MAPPED_TEXTURE_FILE_REGEX =
-  /^((((STG|DM|DC)[0-9A-Z]{2})|EFKY)|(STGE[0-9]{1}))TEX(.modnao)?\.BIN$/i;
+  /^((((STG|DM|DC)[0-9A-Z]{2})|EFKY)|(STGE[0-9]{1}))TEX(.mn)?\.BIN$/i;
 export const MVC2_STAGE_PREVIEWS_FILE_REGEX = /^SELSTG\.BIN$/i;
 export const MVC2_END_FILE_REGEX = /^END(DC|NM)TEX\.BIN$/i;
 
