@@ -37,7 +37,7 @@ const Styled = styled('div')(
   .supported-files {
     width: 100%;
     font-size: 8pt;
-    margin-top: -${theme.spacing(1)};
+    margin-top: -${theme.spacing(2)};
   }`
 );
 
@@ -221,17 +221,13 @@ export default function GuiPanelModels() {
         {
           <GuiPanelButton
             tooltip={
-              <div>
-                <p>
-                  Export a .gltf file representing the currently viewed in-scene model
-                  meshes.
-                </p>
-              </div>
+              'Export a .gltf file representing the currently viewed in-scene model ' +
+              'meshes and textures to import into Maya or Blender.'
             }
             onClick={onExportGLTFFile}
             color='secondary'
           >
-            Export Model .GLTF
+            Export Scene .GLTF
           </GuiPanelButton>
         }
         {exportSelectionButton}
