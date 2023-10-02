@@ -109,7 +109,7 @@ const rows = [
     filenameFormat: 'DC{NN}POL.BIN',
     filenameExample: 'DC26POL.BIN',
     description: 'Menu/Gui polygons/models',
-    notes: `Corresponding textures are in similarly named TEX.BIN files.`
+    notes: `Corresponding textures are in similarly named TEX.BIN files. Exports become corrupt in game for unknown reason (perhaps cross reference check happens in-program).`
   },
   {
     title: 'Capcom vs SNK 2',
