@@ -127,7 +127,6 @@ export default function compressTextureBuffer(buffer: Buffer, compressionVariant
     bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
     switch(compressionVariant) {
       case 'double-zero-ending': {
-        // one ending marker in double-zero-ending mode
         break;
       }
       default:

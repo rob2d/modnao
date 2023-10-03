@@ -119,7 +119,6 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  // grab pointers
   const pointers = [
     buffer.readUInt32LE(0),
     buffer.readUInt32LE(4),
@@ -127,13 +126,12 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   ];
 
   const uint8Array = new Uint8Array(arrayBuffer);
-
-  // retrieve the compressed sub-areas to decompress
   const compressedSection = uint8Array.slice(pointers[0], pointers[1]);
-
-  const decompressedSection = await decompressTextureBuffer(
-    Buffer.from(compressedSection)
-  );
+  const decompressedSection = Buffer.concat([
+    await decompressTextureBuffer(Buffer.from(compressedSection)),
+    // ended/delineated by 16 bytes of zeroes
+    new Uint8Array(new Array(16).fill(0))
+  ]);
 
   const size = 12 + decompressedSection.length;
 
