@@ -74,7 +74,7 @@ const rows = [
     filenameExample: 'PL0D_FAC.BIN',
     description: 'Player lifebar and superportraits',
     notes:
-      'This file has a very specific format including VQ images; Can view a few of the images related to lifebars but export not yet supported'
+      'Superportraits not yet supported, but other content in this file can be safely edited.'
   },
   {
     title: 'Marvel vs Capcom 2',
@@ -121,18 +121,13 @@ const rows = [
 ].map((r, id) => ({ ...r, id }));
 
 const Styled = styled('div')(
-  ({ theme }) => `
+  () => `
     & {
       display: flex;
       flex-direction: column;
       width: 100%;
-      min-height: calc(100vh - 90px);
     }
 
-    & .MuiDataGrid-root {
-      margin-bottom: ${theme.spacing(3)};
-    }
-    
     & .MuiDataGrid-footerContainer {
       display: none;
     }`
