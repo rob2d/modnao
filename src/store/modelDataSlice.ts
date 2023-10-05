@@ -119,45 +119,51 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  const pointers = [
-    buffer.readUInt32LE(0),
-    buffer.readUInt32LE(4),
-    buffer.readUInt32LE(8)
-  ];
+  const startPointer = buffer.readUint32LE(0);
+  const pointers = [startPointer];
+
+  for(let i = 4; i < startPointer; i+= 4) {
+    pointers.push(buffer.readUInt32LE(i));
+  }
 
   const uint8Array = new Uint8Array(arrayBuffer);
-  const compressedSection = uint8Array.slice(pointers[0], pointers[1]);
-  const decompressedSection = Buffer.concat([
-    await decompressTextureBuffer(Buffer.from(compressedSection)),
-    // ended/delineated by 16 bytes of zeroes
-    new Uint8Array(new Array(16).fill(0))
-  ]);
+  const compressedJpLifebarAssets = uint8Array.slice(pointers[0], pointers[1]);
+  const jpLifebarAssets = await decompressTextureBuffer(Buffer.from(compressedJpLifebarAssets));
+  const compressedUsLifebarAssets = uint8Array.slice(pointers[3]);
+  const usLifebarAssets = await decompressTextureBuffer(Buffer.from(compressedUsLifebarAssets));
 
-  const size = 12 + decompressedSection.length;
-
-  let position = 12;
-  const bufferStart = Buffer.alloc(size);
-  bufferStart.writeUInt32LE(12, 0);
-  bufferStart.writeUInt32LE(size, 4);
-  bufferStart.writeUInt32LE(size + (pointers[2] - pointers[1]), 8);
-
+  const pointerBuffer = Buffer.alloc(startPointer);
+  pointerBuffer.writeUInt32LE(startPointer, 0);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebarAssets.length, 4);
+  pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(4) + (pointers[2] - pointers[1]), 8);
+  
+  if(pointers[3] !== undefined) {
+    pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + (pointers[3] - pointers[2]), 12);
+  }
+  
+  let position = startPointer;
   const decompressedOffsets = [];
+  decompressedOffsets.push(position);
+  position += jpLifebarAssets.length;
+  position += pointers[2] - pointers[1];
 
-  for (const section of [decompressedSection]) {
-    bufferStart.set(section, position);
+  if(pointers[3] !== undefined) {
+    position += pointers[3] - pointers[2];
     decompressedOffsets.push(position);
-    position += section.length;
   }
 
   const decompressedBuffer = Buffer.concat([
-    bufferStart,
-    uint8Array.slice(pointers[1])
+    pointerBuffer,
+    jpLifebarAssets,
+    uint8Array.slice(pointers[1], pointers[3] !== undefined ? pointers[3] : undefined),
+    ...(usLifebarAssets ? [usLifebarAssets] : [])
   ]);
 
   const rleTextureSizes = [
     { width: 64, height: 64 },
+    ...(pointers[3] ? ([{ width: 64, height: 64 }]) : []),
     { width: 64, height: 64 },
-    { width: 128, height: 128 }
+    { width: 128, height: 128 },
   ];
 
   const textureDefs = decompressedOffsets.map((offset, i) => ({
