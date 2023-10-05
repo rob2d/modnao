@@ -122,8 +122,8 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const startPointer = buffer.readUint32LE(0);
   const pointers = [startPointer];
 
-  for(let i = 4; i < startPointer; i+= 4) {
-    pointers.push(buffer.readUInt32LE(i));
+  for(let offset = 4; offset < startPointer; offset+= 4) {
+    pointers.push(buffer.readUInt32LE(offset));
   }
 
   const uint8Array = new Uint8Array(arrayBuffer);

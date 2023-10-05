@@ -12,7 +12,7 @@ const W16_MAX_LOOKBACK = 0b111_1111_1111;
 /**
  * @param buffer decompressed buffer to compress
  */
-export default function compressTextureBuffer(buffer: Buffer, compressionVariant: CompressionVariant) {
+export default function compressTextureBuffer(buffer: Buffer, compressionVariant: CompressionVariant = 'double-zero-ending') {
   console.time('compressTextureBuffer');
   let i = 0;
 

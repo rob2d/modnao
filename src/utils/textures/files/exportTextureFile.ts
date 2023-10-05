@@ -27,6 +27,25 @@ type ExportTextureOptions = {
   textureBufferUrl: string;
   compressionVariant?: CompressionVariant;
 };
+
+function padBufferForAlignment(alignmentPointer: number, buffer: Buffer) {
+  let b16Alignment = (buffer.length + alignmentPointer) % 16; 
+  let alignmentPadding: number; 
+
+  if(b16Alignment === alignmentPointer) {
+    alignmentPadding = 0;
+  } else if(b16Alignment > alignmentPointer) {
+    alignmentPadding = 16 - b16Alignment + alignmentPointer;
+  } else {
+    alignmentPadding = alignmentPointer - b16Alignment;
+  }
+
+  return Buffer.concat([
+    buffer,
+    new Uint8Array(new Array(alignmentPadding).fill(0))
+  ]);
+};
+
 export default async function exportTextureFile({
   textureDefs,
   textureFileName = '',
@@ -75,38 +94,50 @@ export default async function exportTextureFile({
 
   switch (textureFileType) {
     // character portraits are an interesting niche case
-    // where compression exists but not applied to the entire file
+    // where compression exists but not applied to the entire file;
+    // the file is also split into 3 (or 4 separate) sections
+    // depending on if a character has international name variant
     case 'mvc2-character-portraits': {
       const buffer = Buffer.alloc(textureBuffer.length);
       textureBuffer.copy(buffer);
 
-      const pointers = [
-        textureBuffer.readUInt32LE(0),
-        textureBuffer.readUInt32LE(4),
-        textureBuffer.readUInt32LE(8)
-      ];
+      const startPointer = buffer.readUint32LE(0);
+      const pointers = [startPointer];
+    
+      for(let offset = 4; offset < startPointer; offset+= 4) {
+        pointers.push(buffer.readUInt32LE(offset));
+      }
 
-      const decompressedRleSection = new Uint8Array(buffer).slice(
-        pointers[0],
-        pointers[1]
-      );
+      const jpSection = Buffer.from(new Uint8Array(buffer).slice(pointers[0], pointers[1]));
+      const compressedJpSection = padBufferForAlignment(startPointer, compressTextureBuffer(jpSection));
 
-      const compressedRleTexture = compressTextureBuffer(
-        Buffer.from(decompressedRleSection), 'double-zero-ending'
-      );
-
-      buffer.writeUInt32LE(12, 0);
-      buffer.writeUInt32LE(12 + compressedRleTexture.length, 4);
+      
+      buffer.writeUInt32LE(startPointer, 0);
+      buffer.writeUInt32LE(startPointer + compressedJpSection.length, 4);
       buffer.writeUInt32LE(
-        12 + compressedRleTexture.length + (pointers[2] - pointers[1]),
+        startPointer + compressedJpSection.length + (pointers[2] - pointers[1]),
         8
       );
 
       const uint8Array = new Uint8Array(buffer);
+      
+      const vqContent = uint8Array.slice(
+        pointers[1], 
+        pointers[3] !== undefined ? pointers[3] : undefined
+      );
+        
+      let compressedUsSection = Buffer.alloc(0);
+      if(pointers[3]) {
+        const usSection = Buffer.from(new Uint8Array(buffer).slice(pointers[3]));
+        compressedUsSection = padBufferForAlignment(startPointer, compressTextureBuffer(usSection));
+        buffer.writeUInt32LE(startPointer + compressedJpSection.length + vqContent.length, 12);
+      }
+
       const outputBuffer = Buffer.concat([
-        uint8Array.slice(0, 12),
-        compressedRleTexture,
-        new Uint8Array(textureBuffer).slice(12 + decompressedRleSection.length)
+        uint8Array.slice(0, pointers[0]),
+        compressedJpSection,
+        vqContent,
+        compressedUsSection
       ]);
 
       output = new Blob([outputBuffer], {
