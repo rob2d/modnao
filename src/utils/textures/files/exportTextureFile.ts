@@ -92,7 +92,7 @@ export default async function exportTextureFile({
       );
 
       const compressedRleTexture = compressTextureBuffer(
-        Buffer.from(decompressedRleSection), 'zero-per-noop-ending'
+        Buffer.from(decompressedRleSection), 'double-zero-ending'
       );
 
       buffer.writeUInt32LE(12, 0);
