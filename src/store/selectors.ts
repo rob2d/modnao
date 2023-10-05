@@ -185,10 +185,7 @@ export const selectCompressionVariant = createSelector(
     if(!hasCompressedTextures) {
       return;
     }
-    if((textureType === 'polygon-mapped') || filename?.indexOf('DC') === 0) {
-      return 'double-zero-ending'
-    } else {
-      return 'zero-per-noop-ending';
-    }
+    
+    return 'double-zero-ending';
   }
 );

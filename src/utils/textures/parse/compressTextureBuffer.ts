@@ -121,26 +121,8 @@ export default function compressTextureBuffer(buffer: Buffer, compressionVariant
     }
   }
 
-  let escapeWordCount = compressionVariant === 'double-zero-ending' ? 2 : 0;
-
-  if(chunk !== 0) {
-    bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
-    switch(compressionVariant) {
-      case 'double-zero-ending': {
-        break;
-      }
-      default:
-      case 'zero-per-noop-ending': {
-        while(chunk < 16) {
-          escapeWordCount++;
-          chunk++;
-        }
-        break;
-      }
-    }
-    
-    bitmasks.push(bitmask);
-  }
+  bitmask = bitmask | (COMPRESSION_FLAG >> chunk);
+  bitmasks.push(bitmask);
 
   chunk = 0;
   let bitmaskIndex = 0;
@@ -175,6 +157,8 @@ export default function compressTextureBuffer(buffer: Buffer, compressionVariant
     chunk += 1;
     chunk %= 16;
   }
+
+  let escapeWordCount = 2;
 
   outputBuffer = outputBuffer.subarray(0, byteOffset + 2 * escapeWordCount);
 

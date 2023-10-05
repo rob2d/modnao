@@ -1,3 +1,3 @@
-type CompressionVariant = 'double-zero-ending' | 'zero-per-noop-ending';
+type CompressionVariant = 'double-zero-ending';
 
 export default CompressionVariant;
