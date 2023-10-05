@@ -109,8 +109,8 @@ export const initialModelDataState: ModelDataState = {
   hasCompressedTextures: false
 };
 
-// @TODO: decompress image vector quantization for 2nd and 3rd texture
-// when loading a character portrait file
+// @TODO: decompress VQ image for 2nd and 3rd
+// texture when loading a character portrait file
 export const loadCharacterPortraitsFile = createAsyncThunk<
   LoadTexturesPayload,
   File,
@@ -144,6 +144,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   let position = startPointer;
   const decompressedOffsets = [];
   decompressedOffsets.push(position);
+
   position += jpLifebarAssets.length;
   position += pointers[2] - pointers[1];
 
@@ -152,10 +153,28 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     decompressedOffsets.push(position);
   }
 
+  const vqContent = uint8Array.slice(
+    pointers[1], 
+    pointers[3] !== undefined ? pointers[3] : undefined
+  );
+
+  const vqLength1 = pointers[2] - pointers[1];
+
+  // rewrite pointers to decompressed offsets
+
+  pointerBuffer.writeUInt32LE(startPointer, 0);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebarAssets.length, 4);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebarAssets.length + vqLength1, 8);
+
+  if(usLifebarAssets) {
+    const vqLength2 = pointers[3] - pointers[2];
+    pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + vqLength2, 12);
+  }
+
   const decompressedBuffer = Buffer.concat([
     pointerBuffer,
     jpLifebarAssets,
-    uint8Array.slice(pointers[1], pointers[3] !== undefined ? pointers[3] : undefined),
+    vqContent,
     ...(usLifebarAssets ? [usLifebarAssets] : [])
   ]);
 
