@@ -7,7 +7,6 @@ import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { compressTextureBuffer } from '@/utils/textures/parse';
 import { objectUrlToBuffer } from '@/utils/data';
 import { TextureFileType } from './textureFileTypeMap';
-import CompressionVariant from '@/types/CompressionVariant';
 
 const COLOR_SIZE = 2;
 
@@ -25,19 +24,19 @@ type ExportTextureOptions = {
   textureFileName?: string;
   textureFileType: TextureFileType; 
   textureBufferUrl: string;
-  compressionVariant?: CompressionVariant;
+  isCompressedTexture: boolean;
 };
 
-function padBufferForAlignment(alignmentPointer: number, buffer: Buffer) {
-  let b16Alignment = (buffer.length + alignmentPointer) % 16; 
+function padBufferForAlignment(alignment: number, buffer: Buffer) {
+  let b16Alignment = (buffer.length + alignment) % 16; 
   let alignmentPadding: number; 
 
-  if(b16Alignment === alignmentPointer) {
+  if(b16Alignment === alignment) {
     alignmentPadding = 0;
-  } else if(b16Alignment > alignmentPointer) {
-    alignmentPadding = 16 - b16Alignment + alignmentPointer;
+  } else if(b16Alignment > alignment) {
+    alignmentPadding = 16 - b16Alignment + alignment;
   } else {
-    alignmentPadding = alignmentPointer - b16Alignment;
+    alignmentPadding = alignment - b16Alignment;
   }
 
   return Buffer.concat([
@@ -51,7 +50,7 @@ export default async function exportTextureFile({
   textureFileName = '',
   textureFileType,
   textureBufferUrl,
-  compressionVariant
+  isCompressedTexture
 }: ExportTextureOptions): Promise<void> {
   const textureBuffer = Buffer.from(await objectUrlToBuffer(textureBufferUrl));
   if (!textureBuffer) {
@@ -146,9 +145,9 @@ export default async function exportTextureFile({
       break;
     }
     default: {
-      const outputBuffer = !compressionVariant
+      const outputBuffer = !isCompressedTexture
         ? textureBuffer
-        : compressTextureBuffer(textureBuffer, compressionVariant);
+        : compressTextureBuffer(textureBuffer);
 
       output = new Blob([outputBuffer], {
         type: 'application/octet-stream'

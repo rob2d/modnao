@@ -1,7 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
-import { CHARACTER_PORTRAITS_REGEX_FILE } from '@/utils/textures/files/textureFileTypeMap';
-import CompressionVariant from '@/types/CompressionVariant';
 
 export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
 
@@ -172,20 +170,3 @@ export const selectCanExportTextures = createSelector(
 
 export const selectTextureFileType = (s: AppState) => s.modelData.textureFileType;
 export const selectHasCompressedTextures = (s: AppState) => s.modelData.hasCompressedTextures;
-
-/**
- * @TODO: revisit textureFileTypeMap so that manually using regex here to
- * infer subtypes isn't necessary
- */
-export const selectCompressionVariant = createSelector(
-  selectTextureFileName,
-  selectTextureFileType,
-  selectHasCompressedTextures,
-  (filename, textureType, hasCompressedTextures): CompressionVariant | undefined => {
-    if(!hasCompressedTextures) {
-      return;
-    }
-    
-    return 'double-zero-ending';
-  }
-);

@@ -10,7 +10,7 @@ import { WorkerEvent } from '@/worker';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
-import { selectCompressionVariant, selectSceneTextureDefs, selectTextureFileType } from './selectors';
+import { selectHasCompressedTextures, selectSceneTextureDefs, selectTextureFileType } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import WorkerThreadPool from '../utils/WorkerThreadPool';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
@@ -617,7 +617,7 @@ export const downloadTextureFile = createAsyncThunk<
     state.modelData;
   const textureDefs = selectSceneTextureDefs(state);
   const textureFileType = selectTextureFileType(state);
-  const compressionVariant = selectCompressionVariant(state);
+  const isCompressedTexture = selectHasCompressedTextures(state);
 
   if (!textureFileType) {
     window.alert('no valid texture filetype was loaded');
@@ -631,7 +631,7 @@ export const downloadTextureFile = createAsyncThunk<
       textureFileName,
       textureBufferUrl: textureBufferUrl as string,
       textureFileType,
-      compressionVariant
+      isCompressedTexture
     });
   } catch (error) {
     console.error(error);
