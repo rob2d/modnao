@@ -7,7 +7,6 @@ import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { compressTextureBuffer } from '@/utils/textures/parse';
 import { objectUrlToBuffer } from '@/utils/data';
 import { TextureFileType } from './textureFileTypeMap';
-import CompressionVariant from '@/types/CompressionVariant';
 
 const COLOR_SIZE = 2;
 
@@ -25,14 +24,33 @@ type ExportTextureOptions = {
   textureFileName?: string;
   textureFileType: TextureFileType; 
   textureBufferUrl: string;
-  compressionVariant?: CompressionVariant;
+  isCompressedTexture: boolean;
 };
+
+function padBufferForAlignment(alignment: number, buffer: Buffer) {
+  let b16Alignment = (buffer.length + alignment) % 32; 
+  let alignmentPadding: number; 
+
+  if(b16Alignment === alignment) {
+    alignmentPadding = 0;
+  } else if(b16Alignment > alignment) {
+    alignmentPadding = 32 - b16Alignment + alignment;
+  } else {
+    alignmentPadding = alignment - b16Alignment;
+  }
+
+  return Buffer.concat([
+    buffer,
+    new Uint8Array(new Array(alignmentPadding).fill(0))
+  ]);
+};
+
 export default async function exportTextureFile({
   textureDefs,
   textureFileName = '',
   textureFileType,
   textureBufferUrl,
-  compressionVariant
+  isCompressedTexture
 }: ExportTextureOptions): Promise<void> {
   const textureBuffer = Buffer.from(await objectUrlToBuffer(textureBufferUrl));
   if (!textureBuffer) {
@@ -75,38 +93,50 @@ export default async function exportTextureFile({
 
   switch (textureFileType) {
     // character portraits are an interesting niche case
-    // where compression exists but not applied to the entire file
+    // where compression exists but not applied to the entire file;
+    // the file is also split into 3 (or 4 separate) sections
+    // depending on if a character has international name variant
     case 'mvc2-character-portraits': {
       const buffer = Buffer.alloc(textureBuffer.length);
       textureBuffer.copy(buffer);
 
-      const pointers = [
-        textureBuffer.readUInt32LE(0),
-        textureBuffer.readUInt32LE(4),
-        textureBuffer.readUInt32LE(8)
-      ];
-
-      const decompressedRleSection = new Uint8Array(buffer).slice(
-        pointers[0],
-        pointers[1]
-      );
-
-      const compressedRleTexture = compressTextureBuffer(
-        Buffer.from(decompressedRleSection), 'double-zero-ending'
-      );
-
-      buffer.writeUInt32LE(12, 0);
-      buffer.writeUInt32LE(12 + compressedRleTexture.length, 4);
+      const startPointer = buffer.readUint32LE(0);
+      const pointers = [startPointer];
+    
+      for(let offset = 4; offset < startPointer; offset+= 4) {
+        pointers.push(buffer.readUInt32LE(offset));
+      }
+      
+      const uint8Array = new Uint8Array(buffer);
+      const jpSection = Buffer.from(uint8Array.slice(pointers[0], pointers[1]));
+      const compressedJpSection = padBufferForAlignment(startPointer, compressTextureBuffer(jpSection));
+      
+      buffer.writeUInt32LE(startPointer, 0);
+      buffer.writeUInt32LE(startPointer + compressedJpSection.length, 4);
       buffer.writeUInt32LE(
-        12 + compressedRleTexture.length + (pointers[2] - pointers[1]),
+        startPointer + compressedJpSection.length + (pointers[2] - pointers[1]),
         8
       );
 
-      const uint8Array = new Uint8Array(buffer);
+      
+      const vqContent = uint8Array.slice(
+        pointers[1], 
+        pointers[3] !== undefined ? pointers[3] : undefined
+      );
+        
+      let compressedUsSection;
+
+      if(pointers[3]) {
+        const usSection = Buffer.from(new Uint8Array(buffer).slice(pointers[3]));
+        compressedUsSection = padBufferForAlignment(startPointer, compressTextureBuffer(usSection));
+        buffer.writeUInt32LE(startPointer + compressedJpSection.length + (pointers[2] - pointers[1]) + (pointers[3] - pointers[2]), 12);
+      }
+
       const outputBuffer = Buffer.concat([
-        uint8Array.slice(0, 12),
-        compressedRleTexture,
-        new Uint8Array(textureBuffer).slice(12 + decompressedRleSection.length)
+        new Uint8Array(buffer).slice(0, startPointer),
+        compressedJpSection,
+        vqContent,
+        ...(compressedUsSection ? [compressedUsSection] : []),
       ]);
 
       output = new Blob([outputBuffer], {
@@ -115,9 +145,9 @@ export default async function exportTextureFile({
       break;
     }
     default: {
-      const outputBuffer = !compressionVariant
+      const outputBuffer = !isCompressedTexture
         ? textureBuffer
-        : compressTextureBuffer(textureBuffer, compressionVariant);
+        : compressTextureBuffer(textureBuffer);
 
       output = new Blob([outputBuffer], {
         type: 'application/octet-stream'

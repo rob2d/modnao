@@ -10,7 +10,7 @@ import { WorkerEvent } from '@/worker';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
-import { selectCompressionVariant, selectSceneTextureDefs, selectTextureFileType } from './selectors';
+import { selectHasCompressedTextures, selectSceneTextureDefs, selectTextureFileType } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import WorkerThreadPool from '../utils/WorkerThreadPool';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
@@ -109,8 +109,8 @@ export const initialModelDataState: ModelDataState = {
   hasCompressedTextures: false
 };
 
-// @TODO: decompress image vector quantization for 2nd and 3rd texture
-// when loading a character portrait file
+// @TODO: decompress VQ image for 2nd and 3rd
+// texture when loading a character portrait file
 export const loadCharacterPortraitsFile = createAsyncThunk<
   LoadTexturesPayload,
   File,
@@ -119,45 +119,75 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  const pointers = [
-    buffer.readUInt32LE(0),
-    buffer.readUInt32LE(4),
-    buffer.readUInt32LE(8)
-  ];
+  const startPointer = buffer.readUint32LE(0);
+  const pointers = [startPointer];
+
+  for(let offset = 4; offset < startPointer; offset+= 4) {
+    pointers.push(buffer.readUInt32LE(offset));
+  }
 
   const uint8Array = new Uint8Array(arrayBuffer);
-  const compressedSection = uint8Array.slice(pointers[0], pointers[1]);
-  const decompressedSection = Buffer.concat([
-    await decompressTextureBuffer(Buffer.from(compressedSection)),
-    // ended/delineated by 16 bytes of zeroes
-    new Uint8Array(new Array(16).fill(0))
-  ]);
+  const compressedJpLifebarAssets = uint8Array.slice(pointers[0], pointers[1]);
+  const jpLifebar = await decompressTextureBuffer(Buffer.from(compressedJpLifebarAssets));
+  let usLifebar: Uint8Array | undefined;
+  
+  if(pointers[3]) {
+    const compressedUsLifebarAssets = uint8Array.slice(pointers[3]);
+    usLifebar = await decompressTextureBuffer(Buffer.from(compressedUsLifebarAssets));
+  }
 
-  const size = 12 + decompressedSection.length;
-
-  let position = 12;
-  const bufferStart = Buffer.alloc(size);
-  bufferStart.writeUInt32LE(12, 0);
-  bufferStart.writeUInt32LE(size, 4);
-  bufferStart.writeUInt32LE(size + (pointers[2] - pointers[1]), 8);
-
+  const pointerBuffer = Buffer.alloc(startPointer);
+  pointerBuffer.writeUInt32LE(startPointer, 0);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
+  pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(4) + (pointers[2] - pointers[1]), 8);
+  
+  if(pointers[3] !== undefined) {
+    console.log('3rd segment length ->', pointers[3] - pointers[2]);
+    pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + (pointers[3] - pointers[2]), 12);
+  }
+  
+  let position = startPointer;
   const decompressedOffsets = [];
+  decompressedOffsets.push(position);
 
-  for (const section of [decompressedSection]) {
-    bufferStart.set(section, position);
+  position += jpLifebar.length;
+
+  const vqLength1 = pointers[2] - pointers[1];
+  position += vqLength1;
+
+  if(pointers[3] !== undefined) {
+    position += pointers[3] - pointers[2];
     decompressedOffsets.push(position);
-    position += section.length;
+  }
+
+  const vqContent = uint8Array.slice(
+    pointers[1], 
+    pointers[3] !== undefined ? pointers[3] : undefined
+  );
+
+  // rewrite pointers to decompressed offsets
+
+  pointerBuffer.writeUInt32LE(startPointer, 0);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length + vqLength1, 8);
+
+  if(usLifebar) {
+    const vqLength2 = pointers[3] - pointers[2];
+    pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + vqLength2, 12);
   }
 
   const decompressedBuffer = Buffer.concat([
-    bufferStart,
-    uint8Array.slice(pointers[1])
+    pointerBuffer,
+    jpLifebar,
+    vqContent,
+    ...(usLifebar ? [usLifebar] : [])
   ]);
 
   const rleTextureSizes = [
     { width: 64, height: 64 },
+    ...(pointers[3] ? ([{ width: 64, height: 64 }]) : []),
     { width: 64, height: 64 },
-    { width: 128, height: 128 }
+    { width: 128, height: 128 },
   ];
 
   const textureDefs = decompressedOffsets.map((offset, i) => ({
@@ -592,7 +622,7 @@ export const downloadTextureFile = createAsyncThunk<
     state.modelData;
   const textureDefs = selectSceneTextureDefs(state);
   const textureFileType = selectTextureFileType(state);
-  const compressionVariant = selectCompressionVariant(state);
+  const isCompressedTexture = selectHasCompressedTextures(state);
 
   if (!textureFileType) {
     window.alert('no valid texture filetype was loaded');
@@ -606,7 +636,7 @@ export const downloadTextureFile = createAsyncThunk<
       textureFileName,
       textureBufferUrl: textureBufferUrl as string,
       textureFileType,
-      compressionVariant
+      isCompressedTexture
     });
   } catch (error) {
     console.error(error);

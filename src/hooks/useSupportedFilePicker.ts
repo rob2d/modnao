@@ -83,10 +83,7 @@ export const handleFileInput = async (
   });
 
   if (!selectedPolygonFile && !selectedTextureFile) {
-    handleError(
-      'Invalid file selected; Please select a file of either STG**POL.BIN ' +
-        'along with STG**TEX.BIN, or either PL**_FAC.BIN, PL**_WIN.BIN, or SELSTG.BIN'
-    );
+    handleError('Invalid file selected. See "What Files Can I Use" for more info.');
     return;
   }
 
@@ -99,8 +96,8 @@ export const handleFileInput = async (
       dispatch(loadTextureFile({ file: selectedTextureFile, textureFileType }));
     } else {
       handleError(
-        'For this type of texture file, you must load a polygon ' +
-          'file along with this one. You can hold control in most file selectors to select most files'
+        'For this type of texture file, you must load a polygon file along with it. ' + 
+        'You can hold control in most file selectors to select most files'
       );
       return;
     }

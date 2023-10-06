@@ -1,35 +1,7 @@
 import { styled } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid';
 import DialogSectionHeader from '../DialogSectionHeader';
-
-const columns: GridColDef[] = [
-  {
-    field: 'title',
-    headerName: 'Title',
-    width: 200
-  },
-  {
-    field: 'filenameFormat',
-    headerName: 'Filename Format',
-    width: 200
-  },
-  {
-    field: 'filenameExample',
-    headerName: 'Example',
-    width: 150
-  },
-  {
-    field: 'description',
-    headerName: 'Description',
-    width: 350
-  },
-  {
-    field: 'notes',
-    headerName: 'Notes',
-    sortable: false,
-    width: 400
-  }
-];
+import clsx from 'clsx';
 
 const rows = [
   {
@@ -72,9 +44,10 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'PL{NN}_FAC.BIN',
     filenameExample: 'PL0D_FAC.BIN',
-    description: 'Player lifebar and superportraits',
+    description: 'Player lifebars, superportraits (both Japanese & US/International)',
+    hasIssues: true,
     notes:
-      'Superportraits not yet supported, but other content in this file can be safely edited.'
+      'Superportraits not yet supported, but content viewable this file can be edited.  Somewhat experimental, exports may cause errors for some cases due to unknown edge cases in the binary format'
   },
   {
     title: 'Marvel vs Capcom 2',
@@ -109,29 +82,71 @@ const rows = [
     filenameFormat: 'DC{NN}POL.BIN',
     filenameExample: 'DC26POL.BIN',
     description: 'Menu/Gui polygons/models',
-    notes: `Corresponding textures are in similarly named TEX.BIN files. Exports become corrupt in game for unknown reason (perhaps cross reference check happens in-program).`
+    notes: `Corresponding textures are in similarly named TEX.BIN files.`
   },
   {
     title: 'Capcom vs SNK 2',
     filenameFormat: 'DC{NN}TEX.BIN',
     filenameExample: 'DC02TEX.BIN',
     description: 'Menu/Gui textures',
-    notes: `Must be loaded with a corresponding POL.BIN file. Export cannot be loaded in game and certain files are not able to load due to VQ sections.`
+    notes: `Must be loaded with a corresponding POL.BIN file. Export not supported and certain files are not able to load due to VQ sections.`,
+    hasIssues: true
   }
 ].map((r, id) => ({ ...r, id }));
 
 const Styled = styled('div')(
-  () => `
+  ({ theme: { palette } }) => `
     & {
       display: flex;
       flex-direction: column;
       width: 100%;
     }
 
+    & .MuiDataGrid-row {
+      position: relative;
+    }
+
+    & .MuiDataGrid-cell.has-issues, & .MuiDataGrid-cell.has-issues:hover {
+      background-color: ${palette.warningBackground};
+    }
+
     & .MuiDataGrid-footerContainer {
       display: none;
     }`
 );
+
+
+const columns: GridColDef[] = [
+  {
+    field: 'title',
+    headerName: 'Title',
+    width: 200,
+    cellClassName: (params: GridCellParams) => clsx(params.row.hasIssues ? 'has-issues' : '')
+  },
+  {
+    field: 'filenameFormat',
+    headerName: 'Filename Format',
+    width: 200,
+    cellClassName: (params: GridCellParams) => clsx(params.row.hasIssues ? 'has-issues' : '')
+  },
+  {
+    field: 'filenameExample',
+    headerName: 'Example',
+    width: 150
+  },
+  {
+    field: 'description',
+    headerName: 'Description',
+    width: 350
+  },
+  {
+    field: 'notes',
+    headerName: 'Notes',
+    sortable: false,
+    width: 400,
+    cellClassName: (params: GridCellParams) => clsx(params.row.hasIssues ? 'has-issues' : '')
+  }
+];
 
 const GET_AUTO_ROW_HEIGHT = () => 'auto' as const;
 

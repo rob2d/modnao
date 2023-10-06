@@ -22,15 +22,17 @@ declare module '@mui/material' {
   }
 
   interface PaletteOptions {
+    warningBackground: CSSProperties['color']
     scene: ScenePalette;
     panelTexture: PanelTexturePalette;
   }
 
   // note: redundancy is due to MUI typings
-  // perhaps should post an issue
   interface Palette {
+    warningBackground: CSSProperties['color']
     scene: ScenePalette;
     panelTexture: PanelTexturePalette;
+    
   }
 }
 
@@ -66,6 +68,7 @@ const themes = Object.fromEntries(
           main: '#00A5FF',
           contrastText: '#FFF'
         },
+        warningBackground: 'rgba(255, 0, 0, 0.1)',
         info: {
           main: mode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'
         },
