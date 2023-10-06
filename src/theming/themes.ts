@@ -1,10 +1,11 @@
 import { PaletteMode, Theme } from '@mui/material';
 import { CSSProperties } from 'react';
-import { Fira_Code } from 'next/font/google';
+import { Roboto_Mono } from 'next/font/google';
 
-export const firaCode = Fira_Code({
+export const robotoMono = Roboto_Mono({
+  display: 'block',
   subsets: ['latin'],
-  weight: ['300', '400', '500']
+  weight: ['300', '400', '700']
 });
 
 const modes: PaletteMode[] = ['dark', 'light'];
@@ -45,7 +46,7 @@ const themes = Object.fromEntries(
     mode,
     {
       typography: {
-        fontFamily: firaCode.style.fontFamily
+        fontFamily: robotoMono.style.fontFamily
       },
       components: {
         MuiCssBaseline: {},
