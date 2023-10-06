@@ -499,6 +499,60 @@ export const loadMvc2EndFile = createAsyncThunk<
   return result;
 });
 
+
+export const loadMvc2SelectionTexturesFile = createAsyncThunk<
+  LoadTexturesPayload,
+  File,
+  { state: AppState }
+>(`${sliceName}/loadMvc2SelectionTexturesFile`, async (file, { dispatch }) => {
+  const texDef: NLTextureDef = {
+    width: 256,
+    height: 256,
+    colorFormat: 'RGB565',
+    colorFormatValue: 2,
+    bufferUrls: {
+      translucent: undefined,
+      opaque: undefined
+    },
+    dataUrls: {
+      translucent: undefined,
+      opaque: undefined
+    },
+    type: 0,
+    address: 0,
+    baseLocation: 0,
+    ramOffset: 0
+  };
+
+  const textureDefs: NLTextureDef[] = [...Array(30).keys()].map(i =>
+    ({ 
+      ...texDef,
+      baseLocation: 256 * 256 * 2 * i
+    })
+  );
+
+  const result = (await loadCompressedTextureFiles(
+    file,
+    'mvc2-selection-textures',
+    textureDefs,
+    (payload: LoadTexturesPayload) =>
+      batch(() => {
+        dispatch({
+          type: loadPolygonFile.fulfilled.type,
+          payload: {
+            models: [],
+            fileName: undefined,
+            polygonBufferUrl: undefined,
+            textureDefs
+          }
+        });
+        dispatch({ type: loadTextureFile.fulfilled.type, payload });
+      })
+  )) as LoadTexturesPayload;
+
+  return result;
+});
+
 export const loadPolygonFile = createAsyncThunk<
   LoadPolygonsPayload,
   File,
