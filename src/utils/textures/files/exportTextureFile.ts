@@ -28,13 +28,13 @@ type ExportTextureOptions = {
 };
 
 function padBufferForAlignment(alignment: number, buffer: Buffer) {
-  let b16Alignment = (buffer.length + alignment) % 16; 
+  let b16Alignment = (buffer.length + alignment) % 32; 
   let alignmentPadding: number; 
 
   if(b16Alignment === alignment) {
     alignmentPadding = 0;
   } else if(b16Alignment > alignment) {
-    alignmentPadding = 16 - b16Alignment + alignment;
+    alignmentPadding = 32 - b16Alignment + alignment;
   } else {
     alignmentPadding = alignment - b16Alignment;
   }
@@ -106,10 +106,10 @@ export default async function exportTextureFile({
       for(let offset = 4; offset < startPointer; offset+= 4) {
         pointers.push(buffer.readUInt32LE(offset));
       }
-
-      const jpSection = Buffer.from(new Uint8Array(buffer).slice(pointers[0], pointers[1]));
+      
+      const uint8Array = new Uint8Array(buffer);
+      const jpSection = Buffer.from(uint8Array.slice(pointers[0], pointers[1]));
       const compressedJpSection = padBufferForAlignment(startPointer, compressTextureBuffer(jpSection));
-
       
       buffer.writeUInt32LE(startPointer, 0);
       buffer.writeUInt32LE(startPointer + compressedJpSection.length, 4);
@@ -118,25 +118,25 @@ export default async function exportTextureFile({
         8
       );
 
-      const uint8Array = new Uint8Array(buffer);
       
       const vqContent = uint8Array.slice(
         pointers[1], 
         pointers[3] !== undefined ? pointers[3] : undefined
       );
         
-      let compressedUsSection = Buffer.alloc(0);
+      let compressedUsSection;
+
       if(pointers[3]) {
         const usSection = Buffer.from(new Uint8Array(buffer).slice(pointers[3]));
         compressedUsSection = padBufferForAlignment(startPointer, compressTextureBuffer(usSection));
-        buffer.writeUInt32LE(startPointer + compressedJpSection.length + vqContent.length, 12);
+        buffer.writeUInt32LE(startPointer + compressedJpSection.length + (pointers[2] - pointers[1]) + (pointers[3] - pointers[2]), 12);
       }
 
       const outputBuffer = Buffer.concat([
-        uint8Array.slice(0, pointers[0]),
+        new Uint8Array(buffer).slice(0, startPointer),
         compressedJpSection,
         vqContent,
-        compressedUsSection
+        ...(compressedUsSection ? [compressedUsSection] : []),
       ]);
 
       output = new Blob([outputBuffer], {

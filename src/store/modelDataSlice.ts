@@ -128,16 +128,21 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
 
   const uint8Array = new Uint8Array(arrayBuffer);
   const compressedJpLifebarAssets = uint8Array.slice(pointers[0], pointers[1]);
-  const jpLifebarAssets = await decompressTextureBuffer(Buffer.from(compressedJpLifebarAssets));
-  const compressedUsLifebarAssets = uint8Array.slice(pointers[3]);
-  const usLifebarAssets = await decompressTextureBuffer(Buffer.from(compressedUsLifebarAssets));
+  const jpLifebar = await decompressTextureBuffer(Buffer.from(compressedJpLifebarAssets));
+  let usLifebar: Uint8Array | undefined;
+  
+  if(pointers[3]) {
+    const compressedUsLifebarAssets = uint8Array.slice(pointers[3]);
+    usLifebar = await decompressTextureBuffer(Buffer.from(compressedUsLifebarAssets));
+  }
 
   const pointerBuffer = Buffer.alloc(startPointer);
   pointerBuffer.writeUInt32LE(startPointer, 0);
-  pointerBuffer.writeUInt32LE(startPointer + jpLifebarAssets.length, 4);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
   pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(4) + (pointers[2] - pointers[1]), 8);
   
   if(pointers[3] !== undefined) {
+    console.log('3rd segment length ->', pointers[3] - pointers[2]);
     pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + (pointers[3] - pointers[2]), 12);
   }
   
@@ -145,8 +150,10 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const decompressedOffsets = [];
   decompressedOffsets.push(position);
 
-  position += jpLifebarAssets.length;
-  position += pointers[2] - pointers[1];
+  position += jpLifebar.length;
+
+  const vqLength1 = pointers[2] - pointers[1];
+  position += vqLength1;
 
   if(pointers[3] !== undefined) {
     position += pointers[3] - pointers[2];
@@ -158,24 +165,22 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     pointers[3] !== undefined ? pointers[3] : undefined
   );
 
-  const vqLength1 = pointers[2] - pointers[1];
-
   // rewrite pointers to decompressed offsets
 
   pointerBuffer.writeUInt32LE(startPointer, 0);
-  pointerBuffer.writeUInt32LE(startPointer + jpLifebarAssets.length, 4);
-  pointerBuffer.writeUInt32LE(startPointer + jpLifebarAssets.length + vqLength1, 8);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
+  pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length + vqLength1, 8);
 
-  if(usLifebarAssets) {
+  if(usLifebar) {
     const vqLength2 = pointers[3] - pointers[2];
     pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + vqLength2, 12);
   }
 
   const decompressedBuffer = Buffer.concat([
     pointerBuffer,
-    jpLifebarAssets,
+    jpLifebar,
     vqContent,
-    ...(usLifebarAssets ? [usLifebarAssets] : [])
+    ...(usLifebar ? [usLifebar] : [])
   ]);
 
   const rleTextureSizes = [
