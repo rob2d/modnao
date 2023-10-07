@@ -142,7 +142,6 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(4) + (pointers[2] - pointers[1]), 8);
   
   if(pointers[3] !== undefined) {
-    console.log('3rd segment length ->', pointers[3] - pointers[2]);
     pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + (pointers[3] - pointers[2]), 12);
   }
   
@@ -524,7 +523,7 @@ export const loadMvc2SelectionTexturesFile = createAsyncThunk<
     ramOffset: 0
   };
 
-  const textureDefs: NLTextureDef[] = [...Array(30).keys()].map(i =>
+  const textureDefs: NLTextureDef[] = [...Array(23).keys()].map(i =>
     ({ 
       ...texDef,
       baseLocation: 256 * 256 * 2 * i

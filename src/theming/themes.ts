@@ -33,7 +33,6 @@ declare module '@mui/material' {
     warningBackground: CSSProperties['color']
     scene: ScenePalette;
     panelTexture: PanelTexturePalette;
-    
   }
 }
 
