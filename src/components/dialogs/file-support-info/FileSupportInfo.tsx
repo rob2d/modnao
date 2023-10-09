@@ -47,7 +47,7 @@ const rows = [
     description: 'Player lifebars, superportraits (both Japanese & US/International)',
     hasIssues: true,
     notes:
-      'Superportraits not yet supported, but content viewable this file can be edited.  Somewhat experimental, exports may cause errors for some cases due to unknown edge cases in the binary format'
+      'Superportraits not yet supported, but content viewable this file can be edited. If errors exist, reduce the number of colors since compression needs iteration to get file size down within guaranteed acceptable limit.'
   },
   {
     title: 'Marvel vs Capcom 2',
@@ -62,6 +62,14 @@ const rows = [
     filenameExample: 'SELSTG.BIN',
     description: 'Stage select screen previews',
     notes: ''
+  },
+  {
+    title: 'Marvel vs Capcom 2',
+    filenameFormat: 'SELTEX.BIN',
+    filenameExample: 'SELTEX.BIN',
+    description: 'Stage select screen textures',
+    notes: 'File size must be within original size limit; may need to reduce color details until compression has been optimized further',
+    hasIssues: true
   },
   {
     title: 'Capcom vs SNK 2',
@@ -89,7 +97,7 @@ const rows = [
     filenameFormat: 'DC{NN}TEX.BIN',
     filenameExample: 'DC02TEX.BIN',
     description: 'Menu/Gui textures',
-    notes: `Must be loaded with a corresponding POL.BIN file. Export not supported and certain files are not able to load due to VQ sections.`,
+    notes: `Must be loaded with a corresponding POL.BIN file. Certain files are not able to load due to VQ sections, and may need to reduce number of colors if receiving export error due to current compression limitations.`,
     hasIssues: true
   }
 ].map((r, id) => ({ ...r, id }));
@@ -145,7 +153,7 @@ const columns: GridColDef[] = [
     headerName: 'Notes',
     sortable: false,
     width: 400,
-    cellClassName: (params: GridCellParams) => clsx(params.row.hasIssues ? 'has-issues' : '')
+    cellClassName: redIssueCellClassName
   }
 ];
 
