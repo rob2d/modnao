@@ -115,19 +115,20 @@ const Styled = styled('div')(
     }`
 );
 
+const redIssueCellClassName = (params: GridCellParams) => clsx(params.row.hasIssues ? 'has-issues' : '');
 
 const columns: GridColDef[] = [
   {
     field: 'title',
     headerName: 'Title',
     width: 200,
-    cellClassName: (params: GridCellParams) => clsx(params.row.hasIssues ? 'has-issues' : '')
+    cellClassName: redIssueCellClassName
   },
   {
     field: 'filenameFormat',
     headerName: 'Filename Format',
     width: 200,
-    cellClassName: (params: GridCellParams) => clsx(params.row.hasIssues ? 'has-issues' : '')
+    cellClassName: redIssueCellClassName
   },
   {
     field: 'filenameExample',

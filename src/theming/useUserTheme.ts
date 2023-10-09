@@ -38,8 +38,6 @@ export default function useUserTheme(
     )
   );
 
-  console.log('themeApplied ->', themeApplied);
-
   useEffect(() => {
     if (!hasInitialized) {
       hasInitialized = true;

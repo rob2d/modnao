@@ -142,7 +142,6 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(4) + (pointers[2] - pointers[1]), 8);
   
   if(pointers[3] !== undefined) {
-    console.log('3rd segment length ->', pointers[3] - pointers[2]);
     pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + (pointers[3] - pointers[2]), 12);
   }
   
@@ -480,6 +479,60 @@ export const loadMvc2EndFile = createAsyncThunk<
   const result = (await loadCompressedTextureFiles(
     file,
     'mvc2-end-file',
+    textureDefs,
+    (payload: LoadTexturesPayload) =>
+      batch(() => {
+        dispatch({
+          type: loadPolygonFile.fulfilled.type,
+          payload: {
+            models: [],
+            fileName: undefined,
+            polygonBufferUrl: undefined,
+            textureDefs
+          }
+        });
+        dispatch({ type: loadTextureFile.fulfilled.type, payload });
+      })
+  )) as LoadTexturesPayload;
+
+  return result;
+});
+
+
+export const loadMvc2SelectionTexturesFile = createAsyncThunk<
+  LoadTexturesPayload,
+  File,
+  { state: AppState }
+>(`${sliceName}/loadMvc2SelectionTexturesFile`, async (file, { dispatch }) => {
+  const texDef: NLTextureDef = {
+    width: 256,
+    height: 256,
+    colorFormat: 'RGB565',
+    colorFormatValue: 2,
+    bufferUrls: {
+      translucent: undefined,
+      opaque: undefined
+    },
+    dataUrls: {
+      translucent: undefined,
+      opaque: undefined
+    },
+    type: 0,
+    address: 0,
+    baseLocation: 0,
+    ramOffset: 0
+  };
+
+  const textureDefs: NLTextureDef[] = [...Array(23).keys()].map(i =>
+    ({ 
+      ...texDef,
+      baseLocation: 256 * 256 * 2 * i
+    })
+  );
+
+  const result = (await loadCompressedTextureFiles(
+    file,
+    'mvc2-selection-textures',
     textureDefs,
     (payload: LoadTexturesPayload) =>
       batch(() => {

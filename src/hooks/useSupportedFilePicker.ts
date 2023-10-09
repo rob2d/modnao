@@ -4,6 +4,7 @@ import {
   loadCharacterPortraitsFile,
   loadMvc2CharacterWinFile,
   loadMvc2EndFile,
+  loadMvc2SelectionTexturesFile,
   loadMvc2StagePreviewsFile,
   loadPolygonFile,
   loadTextureFile,
@@ -118,6 +119,10 @@ export const handleFileInput = async (
     }
     case 'mvc2-stage-preview': {
       dispatch(loadMvc2StagePreviewsFile(selectedTextureFile));
+      break;
+    }
+    case 'mvc2-selection-textures': {
+      dispatch(loadMvc2SelectionTexturesFile(selectedTextureFile));
       break;
     }
     case 'mvc2-end-file': {
