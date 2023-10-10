@@ -45,9 +45,8 @@ const rows = [
     filenameFormat: 'PL{NN}_FAC.BIN',
     filenameExample: 'PL0D_FAC.BIN',
     description: 'Player lifebars, superportraits (both Japanese & US/International)',
-    hasIssues: true,
     notes:
-      'Superportraits not yet supported, but content viewable this file can be edited. If errors exist, reduce the number of colors since compression needs iteration to get file size down within guaranteed acceptable limit.'
+      'Superportraits not yet supported, but content viewable this file can be edited. Palette will be limited (handled automatically on export).'
   },
   {
     title: 'Marvel vs Capcom 2',
@@ -60,7 +59,7 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'SELSTG.BIN',
     filenameExample: 'SELSTG.BIN',
-    description: 'Stage select screen previews',
+    description: 'Stage select screen previews.',
     notes: ''
   },
   {
@@ -68,8 +67,7 @@ const rows = [
     filenameFormat: 'SELTEX.BIN',
     filenameExample: 'SELTEX.BIN',
     description: 'Stage select screen textures',
-    notes: 'File size must be within original size limit; may need to reduce color details until compression has been optimized further',
-    hasIssues: true
+    notes: 'Palette will be limited to fit within size limits (handled automatically on export).'
   },
   {
     title: 'Capcom vs SNK 2',
@@ -80,7 +78,7 @@ const rows = [
   },
   {
     title: 'Capcom vs SNK 2',
-    filenameFormat: 'STG{NN}TEX.BIN',
+    filenameFormat: 'STG{NN}(E)TEX.BIN',
     filenameExample: 'STG02TEX.BIN',
     description: 'Stage textures',
     notes: `Must be loaded with a corresponding POL.BIN file.`
@@ -94,10 +92,10 @@ const rows = [
   },
   {
     title: 'Capcom vs SNK 2',
-    filenameFormat: 'DC{NN}TEX.BIN',
+    filenameFormat: 'DC(E){NN}TEX.BIN',
     filenameExample: 'DC02TEX.BIN',
     description: 'Menu/Gui textures',
-    notes: `Must be loaded with a corresponding POL.BIN file. Certain files are not able to load due to VQ sections, and may need to reduce number of colors if receiving export error due to current compression limitations.`,
+    notes: `Must be loaded with a corresponding POL.BIN file. Certain files are not able to load due to VQ sections, palette will be limited on export.`,
     hasIssues: true
   }
 ].map((r, id) => ({ ...r, id }));
