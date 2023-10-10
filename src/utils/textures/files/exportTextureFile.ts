@@ -74,15 +74,15 @@ export default async function exportTextureFile({
     switch(textureFileType) {
       case 'mvc2-character-portraits': {
         quantizeOptions = {
-          dithering: true,
-          colors: 20
+          dithering: false,
+          colors: 64
         };
         break;
       }
       case 'mvc2-selection-textures': {
         quantizeOptions = {
-          dithering: true,
-          colors: 96
+          dithering: false,
+          colors: 512
         };
         break;
       }
@@ -90,8 +90,8 @@ export default async function exportTextureFile({
         // CVS2 DC/DCE files (@TODO: use more DRY checks)
         if(textureFileName.indexOf('DC') === 0) {
           quantizeOptions = {
-            dithering: true,
-            colors: 96
+            dithering: false,
+            colors: 512
           }
         }
         break;
