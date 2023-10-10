@@ -1,3 +1,4 @@
+import quanti from 'quanti';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import decodeZMortonPosition from '@/utils/textures/serialize/decodeZMortonPosition';
 import rgbaToRgb565 from '@/utils/color-conversions/rgbaToRgb565';
@@ -45,6 +46,11 @@ function padBufferForAlignment(alignment: number, buffer: Buffer) {
   ]);
 };
 
+type QuantizeOptions = {
+  colors: number;
+  dithering: boolean;
+};
+
 export default async function exportTextureFile({
   textureDefs,
   textureFileName = '',
@@ -63,6 +69,46 @@ export default async function exportTextureFile({
     const pixelColors = new Uint8ClampedArray(
       await objectUrlToBuffer(t.bufferUrls.translucent as string)
     );
+
+    let quantizeOptions: QuantizeOptions | undefined;
+    switch(textureFileType) {
+      case 'mvc2-character-portraits': {
+        quantizeOptions = {
+          dithering: true,
+          colors: 20
+        };
+        break;
+      }
+      case 'mvc2-selection-textures': {
+        quantizeOptions = {
+          dithering: true,
+          colors: 96
+        };
+        break;
+      }
+      case 'polygon-mapped': {
+        // CVS2 DC/DCE files (@TODO: use more DRY checks)
+        if(textureFileName.indexOf('DC') === 0) {
+          quantizeOptions = {
+            dithering: true,
+            colors: 96
+          }
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    
+    if(quantizeOptions) {
+      const palette = quanti(pixelColors, quantizeOptions.colors, 4);
+      if(quantizeOptions.dithering) {
+        palette.ditherProcess(pixelColors, width);
+      } else {
+        palette.process(pixelColors);
+      }
+    }
+
 
     for (let y = 0; y < height; y++) {
       const yOffset = width * y;
