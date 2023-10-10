@@ -16,7 +16,7 @@ import textureFileTypeMap, {
 } from '@/utils/textures/files/textureFileTypeMap';
 
 /** polygon files which may be associated to textures */
-export const POLYGON_FILE = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL\.BIN$/i;
+export const POLYGON_FILE = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL.BIN$/i;
 
 const dedicatedTextureKVs = Object.entries(textureFileTypeMap).filter(
   ([k]) => k !== 'polygon-mapped'
