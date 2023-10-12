@@ -1,7 +1,7 @@
 import { useCallback, useContext } from 'react';
 import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
-import SceneCanvas from './scene/SceneCanvas';
+import SceneView from './SceneView';
 import { Button, Paper, styled, Tooltip, Typography } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
@@ -13,6 +13,7 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
+import TextureView from './TextureView';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -97,17 +98,11 @@ export default function MainView() {
 
   switch(contentViewMode) {
     case 'polygons': 
-      mainScene = <SceneCanvas />;
+      mainScene = <SceneView />;
       break;
     case 'textures':
       mainScene = (
-        <div className='welcome-panel'>
-          <Typography variant='h6'>Texture-only mode</Typography>
-          <Typography variant='subtitle2'>
-            No associated polygon/model files with these textures to display a
-            scene.
-          </Typography>
-        </div>
+        <TextureView />
       );
       break;
     default:

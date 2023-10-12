@@ -6,7 +6,8 @@ import { AnyAction } from '@reduxjs/toolkit';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import useHeldRepetitionTimer from './useHeldRepetitionTimer';
 
-export default function useSceneKeyboardControls() {
+/** controls left/right object nav as well as hides and shows the gui menu */
+export default function useObjectNavControls() {
   const dispatch = useDispatch();
   const viewOptions = useContext(ViewOptionsContext);
   const isLeftPressed = useKeyPress({ targetKey: 'ArrowLeft' });
@@ -14,26 +15,26 @@ export default function useSceneKeyboardControls() {
   const isControlPressed = useKeyPress({ targetKey: 'Control' });
   const isSlashPressed = useKeyPress({ targetKey: '\\' });
 
-  const [onStartPrevModelNav, onStopPrevModelNav] = useHeldRepetitionTimer();
-  const [onStartNextModelNav, onStopNextModelNav] = useHeldRepetitionTimer();
+  const [onStartPrevObjectNav, onStopPrevObjectNav] = useHeldRepetitionTimer();
+  const [onStartNextObjectNav, onStopNextObjectNav] = useHeldRepetitionTimer();
 
   useEffect(() => {
     if (isLeftPressed) {
-      onStartPrevModelNav(() => {
+      onStartPrevObjectNav(() => {
         dispatch(navToPrevObject() as unknown as AnyAction);
       });
     } else {
-      onStopPrevModelNav();
+      onStopPrevObjectNav();
     }
   }, [isLeftPressed]);
 
   useEffect(() => {
     if (isRightPressed) {
-      onStartNextModelNav(() => {
+      onStartNextObjectNav(() => {
         dispatch(navToNextObject() as unknown as AnyAction);
       });
     } else {
-      onStopNextModelNav();
+      onStopNextObjectNav();
     }
   }, [isRightPressed]);
 
