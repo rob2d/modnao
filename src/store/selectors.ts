@@ -1,9 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
 
-export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
+export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 
-export const selectObjectKey = (s: AppState) => s.modelViewer.objectKey;
+export const selectObjectKey = (s: AppState) => s.objectViewer.objectKey;
 
 export const selectModels = (s: AppState) => s.modelData.models;
 
@@ -27,7 +27,7 @@ export const selectModelCount = createSelector(
   (models) => models.length
 );
 export const selectObjectSelectionType = (s: AppState) =>
-  s.modelViewer.objectSelectionType;
+  s.objectViewer.objectSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
 export const selectTextureBufferUrlHistory = (s: AppState) =>

@@ -17,7 +17,7 @@ export const initialModelViewerState: ModelViewerState = {
   meshDisplayMode: 'textured'
 };
 
-const sliceName = 'modelViewer';
+const sliceName = 'objectViewer';
 
 /**
  * interfacing action for actual setModelViewedIndex
@@ -34,7 +34,7 @@ export const setModelViewedIndex = createAsyncThunk<
     const modelCount = (getState() as AppState).modelData.models.length;
     modelIndex = Math.min(modelIndex, modelCount - 1);
 
-    const { actions } = modelViewerSlice;
+    const { actions } = objectViewerSlice;
     dispatch(actions.setModelViewedIndex(modelIndex));
   }
 );
@@ -46,9 +46,9 @@ export const navToNextModel = createAsyncThunk<
 >(`${sliceName}/navToNextModel`, async (_, { dispatch, getState }) => {
   const state = getState();
   const modelCount = state.modelData.models.length;
-  const modelIndex = Math.min(state.modelViewer.modelIndex + 1, modelCount - 1);
+  const modelIndex = Math.min(state.objectViewer.modelIndex + 1, modelCount - 1);
 
-  const { actions } = modelViewerSlice;
+  const { actions } = objectViewerSlice;
   dispatch(actions.setModelViewedIndex(modelIndex));
 });
 
@@ -58,14 +58,14 @@ export const navToPrevModel = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/navToPrevModel`, async (_, { dispatch, getState }) => {
   const state = getState();
-  const modelIndex = Math.max(state.modelViewer.modelIndex - 1, 0);
+  const modelIndex = Math.max(state.objectViewer.modelIndex - 1, 0);
 
-  const { actions } = modelViewerSlice;
+  const { actions } = objectViewerSlice;
   dispatch(actions.setModelViewedIndex(modelIndex));
 });
 
-const modelViewerSlice = createSlice({
-  name: 'modelViewer',
+const objectViewerSlice = createSlice({
+  name: 'objectViewer',
   initialState: initialModelViewerState,
   reducers: {
     setModelViewedIndex(state, { payload: modelIndex }: { payload: number }) {
@@ -99,6 +99,6 @@ const modelViewerSlice = createSlice({
   }
 });
 
-export const { setObjectKey, setObjectType } = modelViewerSlice.actions;
+export const { setObjectKey, setObjectType } = objectViewerSlice.actions;
 
-export default modelViewerSlice;
+export default objectViewerSlice;
