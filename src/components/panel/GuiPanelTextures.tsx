@@ -12,7 +12,8 @@ import {
   selectSelectedTexture,
   useAppDispatch,
   useAppSelector,
-  selectContentViewMode
+  selectContentViewMode,
+  selectHasLoadedTextureFile
 } from '@/store';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
@@ -41,6 +42,7 @@ export default function GuiPanelViewOptions() {
   const textureFileName = useAppSelector(selectTextureFileName);
   const selectedTexture = useAppSelector(selectSelectedTexture);
   const contentViewMode = useAppSelector(selectContentViewMode);
+  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const models = useAppSelector(selectModels);
 
   const polygonIndex = useAppSelector(selectObjectPolygonIndex);
@@ -113,7 +115,10 @@ export default function GuiPanelViewOptions() {
   }, [model, meshIndex, textureDefs, selectedTexture, polygonIndex, contentViewMode]);
 
   return (
-    <GuiPanelSection title='Textures' subtitle={textureFileName}>
+    <GuiPanelSection 
+      title={`Textures ${hasLoadedTextureFile ? ` (${textureDefs.length})` : ''}`} 
+      subtitle={textureFileName}
+    >
       <Styled className='textures'>
         {textures}
         {!offsceneTextures.length ? undefined : (
