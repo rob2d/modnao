@@ -173,3 +173,25 @@ export const selectContentViewMode = createSelector(
     }
   }
 );
+
+export const selectSelectedTexture = createSelector(
+  selectContentViewMode,
+  selectModel,
+  selectObjectMeshIndex,
+  selectTextureIndex,
+  (contentViewMode, model, meshIndex, textureIndex) => {
+    switch(contentViewMode) {
+      case 'textures': {
+        return textureIndex;
+      }
+      case 'polygons': {
+        const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
+        return typeof textureIndex === 'number' ? textureIndex : -1
+      }
+      default:
+      case 'welcome': {
+        return -1;
+      }
+    }
+  }
+);

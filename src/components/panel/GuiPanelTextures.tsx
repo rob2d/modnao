@@ -9,8 +9,10 @@ import {
   selectObjectPolygonIndex,
   selectSceneTextureDefs,
   selectTextureFileName,
+  selectSelectedTexture,
   useAppDispatch,
-  useAppSelector
+  useAppSelector,
+  selectContentViewMode
 } from '@/store';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
@@ -37,25 +39,22 @@ export default function GuiPanelViewOptions() {
   const canExportTextures = useAppSelector(selectCanExportTextures);
   const textureDefs = useAppSelector(selectSceneTextureDefs);
   const textureFileName = useAppSelector(selectTextureFileName);
+  const selectedTexture = useAppSelector(selectSelectedTexture);
+  const contentViewMode = useAppSelector(selectContentViewMode);
   const models = useAppSelector(selectModels);
-
-  const selectedMeshTexture: number = useMemo(() => {
-    const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
-    return typeof textureIndex === 'number' ? textureIndex : -1;
-  }, [model?.meshes?.[meshIndex]?.textureIndex]);
 
   const polygonIndex = useAppSelector(selectObjectPolygonIndex);
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
     const textureEl = document.getElementById(
-      `gui-panel-t-${selectedMeshTexture}`
+      `gui-panel-t-${selectedTexture}`
     );
 
     if (textureEl) {
       textureEl.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [textureDefs && selectedMeshTexture]);
+  }, [textureDefs && selectedTexture]);
 
   const onExportTextureFile = useCallback(() => {
     dispatch(downloadTextureFile());
@@ -83,7 +82,8 @@ export default function GuiPanelViewOptions() {
               textureDef={textureDef}
               textureIndex={m.textureIndex}
               polygonIndex={polygonIndex}
-              selected={selectedMeshTexture === m.textureIndex}
+              selected={selectedTexture === m.textureIndex}
+              contentViewMode={contentViewMode}
             />
           );
         }
@@ -102,14 +102,15 @@ export default function GuiPanelViewOptions() {
             textureDef={textureDef}
             textureIndex={i}
             polygonIndex={polygonIndex}
-            selected={false}
+            selected={i === selectedTexture}
+            contentViewMode={contentViewMode}
           />
         );
       }
     }
 
     return [pTextures, opTextures];
-  }, [model, meshIndex, textureDefs, selectedMeshTexture, polygonIndex]);
+  }, [model, meshIndex, textureDefs, selectedTexture, polygonIndex, contentViewMode]);
 
   return (
     <GuiPanelSection title='Textures' subtitle={textureFileName}>

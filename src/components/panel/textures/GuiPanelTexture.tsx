@@ -10,6 +10,7 @@ import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 import uvToCssPathPoint from '@/utils/textures/uvToCssPathPoint';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import ContentViewMode from '@/types/ContentViewMode';
 
 const IMG_SIZE = '174px';
 
@@ -67,7 +68,7 @@ const StyledPanelTexture = styled('div')(
     pointer-events: none;
   }
 
-  &.uvs-enabled .selected .img {
+  &.uvs-enabled .selected.mode-polygons .img {
     filter: saturate(0);
     opacity: 0.25;
   }
@@ -109,20 +110,22 @@ export type GuiPanelTextureProps = {
   textureDef: NLTextureDef;
   textureIndex: number;
   polygonIndex: number;
+  contentViewMode: ContentViewMode;
 };
 
 export default function GuiPanelTexture({
   selected,
   textureIndex,
   textureDef,
-  polygonIndex
+  polygonIndex,
+  contentViewMode
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
   const viewOptions = useContext(ViewOptionsContext);
 
   const uvClipPaths = useMemo<string[]>(() => {
-    if (!(selected && mesh?.polygons.length)) {
+    if (!(selected && mesh?.polygons.length) || contentViewMode !== 'polygons') {
       return [];
     }
 
@@ -146,7 +149,7 @@ export default function GuiPanelTexture({
     });
 
     return paths;
-  }, [selected && mesh?.polygons, polygonIndex]);
+  }, [selected && mesh?.polygons, polygonIndex, contentViewMode !== 'polygons']);
 
   const onSelectNewImageFile = useCallback(
     async (imageFile: File) => {
@@ -216,6 +219,7 @@ export default function GuiPanelTexture({
         className={clsx(
           'image-area',
           selected && 'selected',
+          `mode-${contentViewMode}`,
           isDragActive && 'file-drag-active',
           viewOptions.uvRegionsHighlighted
         )}
