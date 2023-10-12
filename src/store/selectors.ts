@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
+import ContentViewMode from '../types/ContentViewMode';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 
@@ -12,12 +13,6 @@ export const selectHasLoadedPolygonFile = (s: AppState) =>
 
 export const selectHasLoadedTextureFile = (s: AppState) =>
   Boolean(s.modelData.textureFileName);
-
-export const selectHasLoadedFile = createSelector(
-  selectHasLoadedPolygonFile,
-  selectHasLoadedTextureFile,
-  (m, p) => m || p
-);
 
 export const selectHasEditedTextures = (s: AppState) =>
   s.modelData.hasEditedTextures;
@@ -170,3 +165,16 @@ export const selectCanExportTextures = createSelector(
 
 export const selectTextureFileType = (s: AppState) => s.modelData.textureFileType;
 export const selectHasCompressedTextures = (s: AppState) => s.modelData.hasCompressedTextures;
+
+export const selectContentViewMode = createSelector(
+  selectHasLoadedTextureFile, selectHasLoadedPolygonFile,
+  (hasLoadedTextures, hasLoadedPolygons): ContentViewMode =>{
+    if(hasLoadedTextures && !hasLoadedPolygons) {
+      return 'textures';
+    } else if(hasLoadedPolygons) {
+      return 'polygons';
+    } else {
+      return 'welcome';
+    }
+  }
+);

@@ -9,6 +9,7 @@ import GuiPanelModels from './GuiPanelModels';
 import {
   selectHasLoadedPolygonFile,
   selectHasLoadedTextureFile,
+  selectContentViewMode,
   useAppSelector
 } from '@/store';
 
@@ -144,9 +145,9 @@ const StyledPaper = styled(Paper)(
 
 export default function GuiPanel() {
   const viewOptions = useContext(ViewOptionsContext);
+  const contentViewMode = useAppSelector(selectContentViewMode);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
-  const isTextureOnlyMode = hasLoadedTextureFile && !hasLoadedPolygonFile;
 
   return (
     <StyledPaper
@@ -154,10 +155,10 @@ export default function GuiPanel() {
       className={clsx(viewOptions.guiPanelVisible && 'visible')}
     >
       <div className='content'>
-        {!hasLoadedPolygonFile && !hasLoadedTextureFile ? (
+        {contentViewMode !== 'welcome' ? undefined : (
           <Img alt='logo' src='/logo.svg' width={222} height={172} />
-        ) : undefined}
-        {!isTextureOnlyMode ? (
+        ) }
+        {contentViewMode !== 'textures' ? (
           <>
             <GuiPanelModels />
             {!hasLoadedTextureFile ? undefined : (
