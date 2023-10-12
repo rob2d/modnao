@@ -3,30 +3,25 @@ import { AppState } from './store';
 import ContentViewMode from '../types/ContentViewMode';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
-
+export const selectTextureIndex = (s: AppState) => s.objectViewer.textureIndex;
 export const selectObjectKey = (s: AppState) => s.objectViewer.objectKey;
-
 export const selectModels = (s: AppState) => s.modelData.models;
-
 export const selectHasLoadedPolygonFile = (s: AppState) =>
   Boolean(s.modelData.polygonFileName);
-
 export const selectHasLoadedTextureFile = (s: AppState) =>
   Boolean(s.modelData.textureFileName);
-
 export const selectHasEditedTextures = (s: AppState) =>
   s.modelData.hasEditedTextures;
-
 export const selectModelCount = createSelector(
   selectModels,
   (models) => models.length
 );
 export const selectMeshSelectionType = (s: AppState) =>
   s.objectViewer.meshSelectionType;
-
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
 export const selectTextureBufferUrlHistory = (s: AppState) =>
   s.modelData.textureHistory;
+
 /**
  * get a set of base texture urls to detect presence in O(1)
  */

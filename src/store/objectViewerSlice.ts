@@ -22,22 +22,10 @@ export const initialObjectViewerState: ObjectViewerState = {
 
 const sliceName = 'objectViewer';
 
-export const navToNextObject = createAsyncThunk<
-  void,
-  undefined,
-  { state: AppState }
->(`${sliceName}/navToNextObject`, async (_, { dispatch, getState }) => {
-  const state = getState();
-  const objectCount = state.modelData.models.length;
-  const objectIndex = Math.min(state.objectViewer.modelIndex + 1, objectCount - 1);
-
-  dispatch(setObjectViewedIndex(objectIndex));
-});
-
 export const setObjectViewedIndex = createAsyncThunk<
 { objectIndex: number, indexKey: 'modelIndex' | 'textureIndex' },
-  number,
-  { state: AppState }
+number,
+{ state: AppState }
 >(`${sliceName}/setObjectViewedIndex`, async (objectIndex, { getState }) => {
   const state = getState();
   const contentViewMode = selectContentViewMode(state);
@@ -46,15 +34,30 @@ export const setObjectViewedIndex = createAsyncThunk<
 });
 
 export const navToPrevObject = createAsyncThunk<
-  void,
-  undefined,
-  { state: AppState }
+void,
+undefined,
+{ state: AppState }
 >(`${sliceName}/navToPrevObject`, async (_, { dispatch, getState }) => {
   const state = getState();
   const contentViewMode = selectContentViewMode(state);
   const indexKey = contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
   let index = state.objectViewer[indexKey];
   const objectIndex = Math.max(index - 1, 0);
+  
+  dispatch(setObjectViewedIndex(objectIndex));
+});
+
+export const navToNextObject = createAsyncThunk<
+  void,
+  undefined,
+  { state: AppState }
+>(`${sliceName}/navToNextObject`, async (_, { dispatch, getState }) => {
+  const state = getState();
+  const contentViewMode = selectContentViewMode(state);
+  const indexKey = contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+  const objectsKey = contentViewMode === 'polygons' ? 'models' : 'textureDefs';
+  const objectCount = state.modelData[objectsKey].length;
+  const objectIndex = Math.min(state.objectViewer[indexKey] + 1, objectCount - 1);
 
   dispatch(setObjectViewedIndex(objectIndex));
 });
