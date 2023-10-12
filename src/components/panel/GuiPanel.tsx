@@ -13,7 +13,7 @@ import {
   useAppSelector
 } from '@/store';
 
-const WIDTH = 222;
+const PANEL_WIDTH = 222;
 
 const TRANSITION_TIME = `0.32s`;
 
@@ -33,7 +33,7 @@ const StyledPaper = styled(Paper)(
     }
 
     &.MuiPaper-root.visible {
-      width: ${WIDTH}px;
+      width: ${PANEL_WIDTH}px;
       flex-shrink: 0;
     }
 
@@ -47,7 +47,7 @@ const StyledPaper = styled(Paper)(
       position: absolute;
       top: 0;
       left: 0;
-      width: ${WIDTH}px;
+      width: ${PANEL_WIDTH}px;
       height: 100vh;
       flex-shrink: 0;
       
