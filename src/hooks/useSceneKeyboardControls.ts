@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
-import { navToNextModel, navToPrevModel } from '@/store';
+import { navToNextObject, navToPrevObject } from '@/store';
 import { AnyAction } from '@reduxjs/toolkit';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import useHeldRepetitionTimer from './useHeldRepetitionTimer';
@@ -20,7 +20,7 @@ export default function useSceneKeyboardControls() {
   useEffect(() => {
     if (isLeftPressed) {
       onStartPrevModelNav(() => {
-        dispatch(navToPrevModel() as unknown as AnyAction);
+        dispatch(navToPrevObject() as unknown as AnyAction);
       });
     } else {
       onStopPrevModelNav();
@@ -30,7 +30,7 @@ export default function useSceneKeyboardControls() {
   useEffect(() => {
     if (isRightPressed) {
       onStartNextModelNav(() => {
-        dispatch(navToNextModel() as unknown as AnyAction);
+        dispatch(navToNextObject() as unknown as AnyAction);
       });
     } else {
       onStopNextModelNav();

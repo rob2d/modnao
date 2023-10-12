@@ -4,7 +4,7 @@ import {
   selectModel,
   selectModelIndex,
   selectObjectKey,
-  selectObjectSelectionType,
+  selectMeshSelectionType,
   useAppSelector
 } from '@/store';
 
@@ -12,7 +12,7 @@ export default function useModelSelectionExport() {
   const model = useAppSelector(selectModel);
   const modelIndex = useAppSelector(selectModelIndex);
   const objectKey = useAppSelector(selectObjectKey);
-  const objectType = useAppSelector(selectObjectSelectionType);
+  const objectType = useAppSelector(selectMeshSelectionType);
 
   const data = useMemo(() => {
     if (!model) {

@@ -1,9 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
 
-export const selectModelIndex = (s: AppState) => s.modelViewer.modelIndex;
+export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 
-export const selectObjectKey = (s: AppState) => s.modelViewer.objectKey;
+export const selectObjectKey = (s: AppState) => s.objectViewer.objectKey;
 
 export const selectModels = (s: AppState) => s.modelData.models;
 
@@ -26,8 +26,8 @@ export const selectModelCount = createSelector(
   selectModels,
   (models) => models.length
 );
-export const selectObjectSelectionType = (s: AppState) =>
-  s.modelViewer.objectSelectionType;
+export const selectMeshSelectionType = (s: AppState) =>
+  s.objectViewer.meshSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
 export const selectTextureBufferUrlHistory = (s: AppState) =>
@@ -135,7 +135,7 @@ export const selectObjectMeshIndex = createSelector(
 /** infers mesh selection from selected object key */
 export const selectObjectPolygonIndex = createSelector(
   selectObjectKey,
-  selectObjectSelectionType,
+  selectMeshSelectionType,
   (objectKey: string | undefined, type) => {
     if (type === 'mesh' || !objectKey) {
       return -1;
