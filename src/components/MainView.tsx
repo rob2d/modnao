@@ -13,7 +13,6 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { useDebounce } from '@uidotdev/usehooks';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -93,8 +92,7 @@ export default function MainView() {
     dispatch(showDialog('app-info'));
   }, [dispatch]);
 
-  const contentViewModeValue = useAppSelector(selectContentViewMode);
-  const contentViewMode = useDebounce(contentViewModeValue, 500);
+  const contentViewMode = useAppSelector(selectContentViewMode);
   let mainScene;
 
   switch(contentViewMode) {
