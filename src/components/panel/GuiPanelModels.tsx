@@ -13,8 +13,8 @@ import GuiPanelButton from './GuiPanelButton';
 import GuiPanelSection from './GuiPanelSection';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import {
-  navToNextModel,
-  navToPrevModel,
+  navToNextObject,
+  navToPrevObject,
   selectModel,
   selectModelCount,
   selectModelIndex,
@@ -112,13 +112,13 @@ export default function GuiPanelModels() {
   }, []);
   const onStartModelPrevClick = useCallback(() => {
     onStartPrevModelNav(() => {
-      dispatch(navToPrevModel());
+      dispatch(navToPrevObject());
     });
   }, [modelIndex]);
 
   const onStartModelNextClick = useCallback(() => {
     onStartNextModelNav(() => {
-      dispatch(navToNextModel());
+      dispatch(navToNextObject());
     });
   }, [modelIndex]);
 

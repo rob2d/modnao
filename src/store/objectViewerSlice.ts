@@ -3,15 +3,17 @@ import { HYDRATE } from 'next-redux-wrapper';
 import { loadPolygonFile } from './modelDataSlice';
 import { AppState } from './store';
 
-export interface ModelViewerState {
+export interface ObjectViewerState {
   modelIndex: number;
+  textureIndex: number;
   objectKey?: string;
   objectSelectionType: 'mesh' | 'polygon';
   meshDisplayMode: 'wireframe' | 'textured';
 }
 
-export const initialModelViewerState: ModelViewerState = {
-  modelIndex: 0,
+export const initialObjectViewerState: ObjectViewerState = {
+  modelIndex: -1,
+  textureIndex: -1,
   objectKey: undefined,
   objectSelectionType: 'mesh',
   meshDisplayMode: 'textured'
@@ -20,57 +22,59 @@ export const initialModelViewerState: ModelViewerState = {
 const sliceName = 'objectViewer';
 
 /**
- * interfacing action for actual setModelViewedIndex
- * for toolkit thunk api access
+ * @TODO: based on model or texture edit mode,
+ * edit the appropriate variable so that we can
+ * keep persistent state if switching between files
  */
-export const setModelViewedIndex = createAsyncThunk<
+export const setObjectViewedIndex = createAsyncThunk<
   void,
   number,
   { state: AppState }
 >(
-  `${sliceName}/setModelViewedIndexInterface`,
+  `${sliceName}/setObjectViewedIndexInterface`,
   async (nextIndex: number, { dispatch, getState }) => {
-    let modelIndex = Math.max(0, nextIndex);
-    const modelCount = (getState() as AppState).modelData.models.length;
-    modelIndex = Math.min(modelIndex, modelCount - 1);
+    let objectIndex = Math.max(0, nextIndex);
+
+    const objectCount = (getState() as AppState).modelData.models.length;
+    objectIndex = Math.min(objectIndex, objectCount - 1);
 
     const { actions } = objectViewerSlice;
-    dispatch(actions.setModelViewedIndex(modelIndex));
+    dispatch(actions.setObjectViewedIndex(objectIndex));
   }
 );
 
-export const navToNextModel = createAsyncThunk<
+export const navToNextObject = createAsyncThunk<
   void,
   undefined,
   { state: AppState }
->(`${sliceName}/navToNextModel`, async (_, { dispatch, getState }) => {
+>(`${sliceName}/navToNextObject`, async (_, { dispatch, getState }) => {
   const state = getState();
-  const modelCount = state.modelData.models.length;
-  const modelIndex = Math.min(state.objectViewer.modelIndex + 1, modelCount - 1);
+  const objectCount = state.modelData.models.length;
+  const objectIndex = Math.min(state.objectViewer.modelIndex + 1, objectCount - 1);
 
   const { actions } = objectViewerSlice;
-  dispatch(actions.setModelViewedIndex(modelIndex));
+  dispatch(actions.setObjectViewedIndex(objectIndex));
 });
 
-export const navToPrevModel = createAsyncThunk<
+export const navToPrevObject = createAsyncThunk<
   void,
   undefined,
   { state: AppState }
->(`${sliceName}/navToPrevModel`, async (_, { dispatch, getState }) => {
+>(`${sliceName}/navToPrevObject`, async (_, { dispatch, getState }) => {
   const state = getState();
   const modelIndex = Math.max(state.objectViewer.modelIndex - 1, 0);
 
   const { actions } = objectViewerSlice;
-  dispatch(actions.setModelViewedIndex(modelIndex));
+  dispatch(actions.setObjectViewedIndex(modelIndex));
 });
 
 const objectViewerSlice = createSlice({
   name: 'objectViewer',
-  initialState: initialModelViewerState,
+  initialState: initialObjectViewerState,
   reducers: {
-    setModelViewedIndex(state, { payload: modelIndex }: { payload: number }) {
+    setObjectViewedIndex(state, { payload: objectIndex }: { payload: number }) {
       Object.assign(state, {
-        modelIndex,
+        modelIndex: objectIndex,
         objectKey: undefined
       });
     },
