@@ -8,7 +8,7 @@ import {
   Typography
 } from '@mui/material';
 import Icon from '@mdi/react';
-import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
+import Grid from '@mui/material/Unstable_Grid2';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelSection from './GuiPanelSection';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
@@ -19,7 +19,7 @@ import {
   selectModelCount,
   selectModelIndex,
   selectObjectKey,
-  selectObjectSelectionType,
+  selectMeshSelectionType,
   selectPolygonFileName,
   setObjectType,
   showDialog,
@@ -48,14 +48,14 @@ export default function GuiPanelModels() {
   const openFileSelector = useSupportedFilePicker(globalThis.alert);
 
   const objectKey = useAppSelector(selectObjectKey);
-  const objectSelectionType = useAppSelector(selectObjectSelectionType);
+  const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const onExportGLTFFile = useSceneGLTFFileDownloader();
   const onExportSelectionJson = useModelSelectionExport();
-  const onSetObjectSelectionType = useCallback(
+  const onSetMeshSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
       type && dispatch(setObjectType(type));
     },
-    [objectSelectionType]
+    [meshSelectionType]
   );
 
   const polygonFileName = useAppSelector(selectPolygonFileName);
@@ -73,7 +73,7 @@ export default function GuiPanelModels() {
 
       if (objectKey) {
         title = `Export ${
-          objectSelectionType === 'mesh' ? 'Mesh' : 'Polygon'
+          meshSelectionType === 'mesh' ? 'Mesh' : 'Polygon'
         } JSON`;
       }
 
@@ -93,7 +93,7 @@ export default function GuiPanelModels() {
     }
   }, [
     model,
-    objectSelectionType,
+    meshSelectionType,
     objectKey,
     onExportSelectionJson,
     viewOptions.devOptionsVisible
@@ -206,10 +206,10 @@ export default function GuiPanelModels() {
             <ToggleButtonGroup
               orientation='vertical'
               color='secondary'
-              value={objectSelectionType}
+              value={meshSelectionType}
               size='small'
               exclusive
-              onChange={onSetObjectSelectionType}
+              onChange={onSetMeshSelectionType}
               aria-label='text alignment'
             >
               <ToggleButton value='mesh'>mesh</ToggleButton>

@@ -7,7 +7,7 @@ export interface ObjectViewerState {
   modelIndex: number;
   textureIndex: number;
   objectKey?: string;
-  objectSelectionType: 'mesh' | 'polygon';
+  meshSelectionType: 'mesh' | 'polygon';
   meshDisplayMode: 'wireframe' | 'textured';
 }
 
@@ -15,7 +15,7 @@ export const initialObjectViewerState: ObjectViewerState = {
   modelIndex: -1,
   textureIndex: -1,
   objectKey: undefined,
-  objectSelectionType: 'mesh',
+  meshSelectionType: 'mesh',
   meshDisplayMode: 'textured'
 };
 
@@ -83,10 +83,10 @@ const objectViewerSlice = createSlice({
       Object.assign(state, { objectKey });
     },
 
-    setObjectType(state, { payload: objectSelectionType }) {
+    setObjectType(state, { payload: meshSelectionType }) {
       Object.assign(state, {
         objectKey: undefined,
-        objectSelectionType
+        meshSelectionType
       });
     }
   },

@@ -15,7 +15,7 @@ import {
   selectDisplayedMeshes,
   selectModel,
   selectObjectKey,
-  selectObjectSelectionType,
+  selectMeshSelectionType,
   selectSceneTextureDefs,
   selectUneditedTextureUrls
 } from '@/store/selectors';
@@ -91,7 +91,7 @@ export default function SceneCanvas() {
 
   const dispatch = useAppDispatch();
   const objectKey = useAppSelector(selectObjectKey);
-  const objectSelectionType = useAppSelector(selectObjectSelectionType);
+  const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const onSelectObjectKey = useCallback(
     (key: string) => {
       dispatch(setObjectKey(objectKey !== key ? key : undefined));
@@ -199,7 +199,7 @@ export default function SceneCanvas() {
             {...p}
             key={`${m.address}_${p.address}`}
             objectKey={
-              objectSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
+              meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
             }
             selectedObjectKey={objectKey}
             onSelectObjectKey={onSelectObjectKey}
@@ -207,7 +207,7 @@ export default function SceneCanvas() {
           />
         ));
       }),
-    [model, textureMap, objectKey, objectSelectionType, onSelectObjectKey]
+    [model, textureMap, objectKey, meshSelectionType, onSelectObjectKey]
   );
 
   return (

@@ -26,8 +26,8 @@ export const selectModelCount = createSelector(
   selectModels,
   (models) => models.length
 );
-export const selectObjectSelectionType = (s: AppState) =>
-  s.objectViewer.objectSelectionType;
+export const selectMeshSelectionType = (s: AppState) =>
+  s.objectViewer.meshSelectionType;
 
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
 export const selectTextureBufferUrlHistory = (s: AppState) =>
@@ -135,7 +135,7 @@ export const selectObjectMeshIndex = createSelector(
 /** infers mesh selection from selected object key */
 export const selectObjectPolygonIndex = createSelector(
   selectObjectKey,
-  selectObjectSelectionType,
+  selectMeshSelectionType,
   (objectKey: string | undefined, type) => {
     if (type === 'mesh' || !objectKey) {
       return -1;
