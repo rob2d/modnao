@@ -6,12 +6,6 @@
   ],
   "plugins": ["import", "prettier"],
   "rules": {
-    "prefer-const": [
-      "error",
-      {
-        "auto": false
-      }
-    ],
     "prettier/prettier": ["error", { "endOfLine": "auto" }],
     "react-hooks/exhaustive-deps": 0,
     "sort-imports": [
