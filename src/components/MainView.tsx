@@ -2,7 +2,7 @@ import { useCallback, useContext } from 'react';
 import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
 import SceneView from './SceneView';
-import { Button, Paper, styled, Tooltip, Typography } from '@mui/material';
+import { Button, Paper, styled, Tooltip } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
@@ -96,14 +96,12 @@ export default function MainView() {
   const contentViewMode = useAppSelector(selectContentViewMode);
   let mainScene;
 
-  switch(contentViewMode) {
-    case 'polygons': 
+  switch (contentViewMode) {
+    case 'polygons':
       mainScene = <SceneView />;
       break;
     case 'textures':
-      mainScene = (
-        <TextureView />
-      );
+      mainScene = <TextureView />;
       break;
     default:
       mainScene = (

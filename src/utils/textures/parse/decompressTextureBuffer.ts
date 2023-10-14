@@ -43,7 +43,7 @@ export default function decompressTextureBuffer(bufferPassed: Buffer) {
         wordsBackCount = word & BITS11;
       } else {
         wordsBackCount = word;
-        
+
         // advance/read an extra 2 bytes
         grabWordCount = buffer.readUInt16LE(++i * WORD_SIZE);
       }

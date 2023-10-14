@@ -13,9 +13,9 @@ import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import {
   selectDisplayedMeshes,
+  selectMeshSelectionType,
   selectModel,
   selectObjectKey,
-  selectMeshSelectionType,
   selectSceneTextureDefs,
   selectUneditedTextureUrls
 } from '@/store/selectors';
@@ -198,9 +198,7 @@ export default function SceneView() {
           <RenderedPolygon
             {...p}
             key={`${m.address}_${p.address}`}
-            objectKey={
-              meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
-            }
+            objectKey={meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`}
             selectedObjectKey={objectKey}
             onSelectObjectKey={onSelectObjectKey}
             texture={texture}

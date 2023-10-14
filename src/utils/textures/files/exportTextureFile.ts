@@ -20,21 +20,21 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
     ARGB8888: () => 0
   };
 
-type ExportTextureOptions = { 
+type ExportTextureOptions = {
   textureDefs: NLTextureDef[];
   textureFileName?: string;
-  textureFileType: TextureFileType; 
+  textureFileType: TextureFileType;
   textureBufferUrl: string;
   isCompressedTexture: boolean;
 };
 
 function padBufferForAlignment(alignment: number, buffer: Buffer) {
-  let b16Alignment = (buffer.length + alignment) % 32; 
-  let alignmentPadding: number; 
+  const b16Alignment = (buffer.length + alignment) % 32;
+  let alignmentPadding: number;
 
-  if(b16Alignment === alignment) {
+  if (b16Alignment === alignment) {
     alignmentPadding = 0;
-  } else if(b16Alignment > alignment) {
+  } else if (b16Alignment > alignment) {
     alignmentPadding = 32 - b16Alignment + alignment;
   } else {
     alignmentPadding = alignment - b16Alignment;
@@ -44,7 +44,7 @@ function padBufferForAlignment(alignment: number, buffer: Buffer) {
     buffer,
     new Uint8Array(new Array(alignmentPadding).fill(0))
   ]);
-};
+}
 
 type QuantizeOptions = {
   colors: number;
@@ -71,7 +71,7 @@ export default async function exportTextureFile({
     );
 
     let quantizeOptions: QuantizeOptions | undefined;
-    switch(textureFileType) {
+    switch (textureFileType) {
       case 'mvc2-character-portraits': {
         quantizeOptions = {
           dithering: false,
@@ -88,27 +88,26 @@ export default async function exportTextureFile({
       }
       case 'polygon-mapped': {
         // CVS2 DC/DCE files (@TODO: use more DRY checks)
-        if(textureFileName.indexOf('DC') === 0) {
+        if (textureFileName.indexOf('DC') === 0) {
           quantizeOptions = {
             dithering: false,
             colors: 512
-          }
+          };
         }
         break;
       }
       default:
         break;
     }
-    
-    if(quantizeOptions) {
+
+    if (quantizeOptions) {
       const palette = quanti(pixelColors, quantizeOptions.colors, 4);
-      if(quantizeOptions.dithering) {
+      if (quantizeOptions.dithering) {
         palette.ditherProcess(pixelColors, width);
       } else {
         palette.process(pixelColors);
       }
     }
-
 
     for (let y = 0; y < height; y++) {
       const yOffset = width * y;
@@ -148,15 +147,18 @@ export default async function exportTextureFile({
 
       const startPointer = buffer.readUint32LE(0);
       const pointers = [startPointer];
-    
-      for(let offset = 4; offset < startPointer; offset+= 4) {
+
+      for (let offset = 4; offset < startPointer; offset += 4) {
         pointers.push(buffer.readUInt32LE(offset));
       }
-      
+
       const uint8Array = new Uint8Array(buffer);
       const jpSection = Buffer.from(uint8Array.slice(pointers[0], pointers[1]));
-      const compressedJpSection = padBufferForAlignment(startPointer, compressTextureBuffer(jpSection));
-      
+      const compressedJpSection = padBufferForAlignment(
+        startPointer,
+        compressTextureBuffer(jpSection)
+      );
+
       buffer.writeUInt32LE(startPointer, 0);
       buffer.writeUInt32LE(startPointer + compressedJpSection.length, 4);
       buffer.writeUInt32LE(
@@ -164,25 +166,35 @@ export default async function exportTextureFile({
         8
       );
 
-      
       const vqContent = uint8Array.slice(
-        pointers[1], 
+        pointers[1],
         pointers[3] !== undefined ? pointers[3] : undefined
       );
-        
+
       let compressedUsSection;
 
-      if(pointers[3]) {
-        const usSection = Buffer.from(new Uint8Array(buffer).slice(pointers[3]));
-        compressedUsSection = padBufferForAlignment(startPointer, compressTextureBuffer(usSection));
-        buffer.writeUInt32LE(startPointer + compressedJpSection.length + (pointers[2] - pointers[1]) + (pointers[3] - pointers[2]), 12);
+      if (pointers[3]) {
+        const usSection = Buffer.from(
+          new Uint8Array(buffer).slice(pointers[3])
+        );
+        compressedUsSection = padBufferForAlignment(
+          startPointer,
+          compressTextureBuffer(usSection)
+        );
+        buffer.writeUInt32LE(
+          startPointer +
+            compressedJpSection.length +
+            (pointers[2] - pointers[1]) +
+            (pointers[3] - pointers[2]),
+          12
+        );
       }
 
       const outputBuffer = Buffer.concat([
         new Uint8Array(buffer).slice(0, startPointer),
         compressedJpSection,
         vqContent,
-        ...(compressedUsSection ? [compressedUsSection] : []),
+        ...(compressedUsSection ? [compressedUsSection] : [])
       ]);
 
       output = new Blob([outputBuffer], {

@@ -23,27 +23,29 @@ export const initialObjectViewerState: ObjectViewerState = {
 const sliceName = 'objectViewer';
 
 export const setObjectViewedIndex = createAsyncThunk<
-{ objectIndex: number, indexKey: 'modelIndex' | 'textureIndex' },
-number,
-{ state: AppState }
+  { objectIndex: number; indexKey: 'modelIndex' | 'textureIndex' },
+  number,
+  { state: AppState }
 >(`${sliceName}/setObjectViewedIndex`, async (objectIndex, { getState }) => {
   const state = getState();
   const contentViewMode = selectContentViewMode(state);
-  const indexKey = contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+  const indexKey =
+    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
   return { objectIndex, indexKey };
 });
 
 export const navToPrevObject = createAsyncThunk<
-void,
-undefined,
-{ state: AppState }
+  void,
+  undefined,
+  { state: AppState }
 >(`${sliceName}/navToPrevObject`, async (_, { dispatch, getState }) => {
   const state = getState();
   const contentViewMode = selectContentViewMode(state);
-  const indexKey = contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
-  let index = state.objectViewer[indexKey];
+  const indexKey =
+    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+  const index = state.objectViewer[indexKey];
   const objectIndex = Math.max(index - 1, 0);
-  
+
   dispatch(setObjectViewedIndex(objectIndex));
 });
 
@@ -54,10 +56,14 @@ export const navToNextObject = createAsyncThunk<
 >(`${sliceName}/navToNextObject`, async (_, { dispatch, getState }) => {
   const state = getState();
   const contentViewMode = selectContentViewMode(state);
-  const indexKey = contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+  const indexKey =
+    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
   const objectsKey = contentViewMode === 'polygons' ? 'models' : 'textureDefs';
   const objectCount = state.modelData[objectsKey].length;
-  const objectIndex = Math.min(state.objectViewer[indexKey] + 1, objectCount - 1);
+  const objectIndex = Math.min(
+    state.objectViewer[indexKey] + 1,
+    objectCount - 1
+  );
 
   dispatch(setObjectViewedIndex(objectIndex));
 });
@@ -89,12 +95,15 @@ const objectViewerSlice = createSlice({
       });
     });
 
-    builder.addCase(setObjectViewedIndex.fulfilled, (state, { payload: { objectIndex, indexKey } }) => {
-      Object.assign(state, {
-        [indexKey]: objectIndex,
-        objectKey: undefined
-      });
-    });
+    builder.addCase(
+      setObjectViewedIndex.fulfilled,
+      (state, { payload: { objectIndex, indexKey } }) => {
+        Object.assign(state, {
+          [indexKey]: objectIndex,
+          objectKey: undefined
+        });
+      }
+    );
   }
 });
 

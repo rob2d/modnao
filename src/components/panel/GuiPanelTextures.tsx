@@ -3,17 +3,17 @@ import { useCallback, useEffect, useMemo } from 'react';
 import {
   downloadTextureFile,
   selectCanExportTextures,
+  selectContentViewMode,
+  selectHasLoadedTextureFile,
   selectModel,
   selectModels,
   selectObjectMeshIndex,
   selectObjectPolygonIndex,
   selectSceneTextureDefs,
-  selectTextureFileName,
   selectSelectedTexture,
+  selectTextureFileName,
   useAppDispatch,
-  useAppSelector,
-  selectContentViewMode,
-  selectHasLoadedTextureFile
+  useAppSelector
 } from '@/store';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
@@ -49,9 +49,7 @@ export default function GuiPanelViewOptions() {
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
-    const textureEl = document.getElementById(
-      `gui-panel-t-${selectedTexture}`
-    );
+    const textureEl = document.getElementById(`gui-panel-t-${selectedTexture}`);
 
     if (textureEl) {
       textureEl.scrollIntoView({ behavior: 'smooth' });
@@ -112,11 +110,20 @@ export default function GuiPanelViewOptions() {
     }
 
     return [pTextures, opTextures];
-  }, [model, meshIndex, textureDefs, selectedTexture, polygonIndex, contentViewMode]);
+  }, [
+    model,
+    meshIndex,
+    textureDefs,
+    selectedTexture,
+    polygonIndex,
+    contentViewMode
+  ]);
 
   return (
-    <GuiPanelSection 
-      title={`Textures ${hasLoadedTextureFile ? ` (${textureDefs.length})` : ''}`} 
+    <GuiPanelSection
+      title={`Textures ${
+        hasLoadedTextureFile ? ` (${textureDefs.length})` : ''
+      }`}
       subtitle={textureFileName}
     >
       <Styled className='textures'>

@@ -7,9 +7,9 @@ import GuiPanelViewOptions from './GuiPanelViewOptions';
 import GuiPanelTextures from './GuiPanelTextures';
 import GuiPanelModels from './GuiPanelModels';
 import {
+  selectContentViewMode,
   selectHasLoadedPolygonFile,
   selectHasLoadedTextureFile,
-  selectContentViewMode,
   useAppSelector
 } from '@/store';
 
@@ -157,7 +157,7 @@ export default function GuiPanel() {
       <div className='content'>
         {contentViewMode !== 'welcome' ? undefined : (
           <Img alt='logo' src='/logo.svg' width={222} height={172} />
-        ) }
+        )}
         {contentViewMode !== 'textures' ? (
           <>
             <GuiPanelModels />

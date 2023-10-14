@@ -44,7 +44,8 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'PL{NN}_FAC.BIN',
     filenameExample: 'PL0D_FAC.BIN',
-    description: 'Player lifebars, superportraits (both Japanese & US/International)',
+    description:
+      'Player lifebars, superportraits (both Japanese & US/International)',
     notes:
       'Superportraits not yet supported, but content viewable this file can be edited. Palette will be limited (handled automatically on export).'
   },
@@ -67,7 +68,8 @@ const rows = [
     filenameFormat: 'SELTEX.BIN',
     filenameExample: 'SELTEX.BIN',
     description: 'Stage select screen textures',
-    notes: 'Palette will be limited to fit within size limits (handled automatically on export).'
+    notes:
+      'Palette will be limited to fit within size limits (handled automatically on export).'
   },
   {
     title: 'Capcom vs SNK 2',
@@ -121,7 +123,8 @@ const Styled = styled('div')(
     }`
 );
 
-const redIssueCellClassName = (params: GridCellParams) => clsx(params.row.hasIssues ? 'has-issues' : '');
+const redIssueCellClassName = (params: GridCellParams) =>
+  clsx(params.row.hasIssues ? 'has-issues' : '');
 
 const columns: GridColDef[] = [
   {

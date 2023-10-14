@@ -41,7 +41,7 @@ export default function compressTextureBuffer(buffer: Buffer) {
     }
 
     const occurenceList = wordOccurences.get(word) as LinkedList<number>;
-    
+
     occurenceList.append(i);
     // clean up occurences not within targeted range
     while (
@@ -62,13 +62,13 @@ export default function compressTextureBuffer(buffer: Buffer) {
     let sequenceIndex = -1;
 
     while (sequenceNode) {
-      const wordsBackCount = i - sequenceNode!.data;
+      const wordsBackCount = i - sequenceNode?.data;
       let length = 1;
 
       // for each starting word, travel through to see
       // if there is a matching sequence
-      
-      if(sequenceNode.data < i) {
+
+      if (sequenceNode.data < i) {
         let hasMatch = true;
         while (
           hasMatch &&
@@ -77,13 +77,14 @@ export default function compressTextureBuffer(buffer: Buffer) {
           length + 1 < W16_MAX_LOOKBACK &&
           // 32 bit words must have wordsBackCount satisfying
           // criteria of being at least 2047
-          ((wordsBackCount < W16_MAX_LOOKBACK && length < 31) || (wordsBackCount >= W16_MAX_LOOKBACK))
+          ((wordsBackCount < W16_MAX_LOOKBACK && length < 31) ||
+            wordsBackCount >= W16_MAX_LOOKBACK)
         ) {
           const sI = (sequenceNode.data + length) * WORD_SIZE;
           const nI = (i + length) * WORD_SIZE;
           const sequenceWord = buffer[sI] | (buffer[sI + 1] << 8);
           const nextWord = buffer[nI] | (buffer[nI + 1] << 8);
-          
+
           if (nextWord === sequenceWord) {
             length++;
           } else {
@@ -161,11 +162,11 @@ export default function compressTextureBuffer(buffer: Buffer) {
 
   outputBuffer = outputBuffer.subarray(0, byteOffset + 2 * escapeWordCount);
 
-  while(escapeWordCount) {
+  while (escapeWordCount) {
     outputBuffer.writeUInt16LE(0, byteOffset);
     byteOffset += 2;
     escapeWordCount--;
-  } 
+  }
 
   console.timeEnd('compressTextureBuffer');
   return outputBuffer;

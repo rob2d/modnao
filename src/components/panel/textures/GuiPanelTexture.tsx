@@ -125,7 +125,10 @@ export default function GuiPanelTexture({
   const viewOptions = useContext(ViewOptionsContext);
 
   const uvClipPaths = useMemo<string[]>(() => {
-    if (!(selected && mesh?.polygons.length) || contentViewMode !== 'polygons') {
+    if (
+      !(selected && mesh?.polygons.length) ||
+      contentViewMode !== 'polygons'
+    ) {
       return [];
     }
 
@@ -149,7 +152,11 @@ export default function GuiPanelTexture({
     });
 
     return paths;
-  }, [selected && mesh?.polygons, polygonIndex, contentViewMode !== 'polygons']);
+  }, [
+    selected && mesh?.polygons,
+    polygonIndex,
+    contentViewMode !== 'polygons'
+  ]);
 
   const onSelectNewImageFile = useCallback(
     async (imageFile: File) => {

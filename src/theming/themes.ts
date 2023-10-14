@@ -23,14 +23,14 @@ declare module '@mui/material' {
   }
 
   interface PaletteOptions {
-    warningBackground: CSSProperties['color']
+    warningBackground: CSSProperties['color'];
     scene: ScenePalette;
     panelTexture: PanelTexturePalette;
   }
 
   // note: redundancy is due to MUI typings
   interface Palette {
-    warningBackground: CSSProperties['color']
+    warningBackground: CSSProperties['color'];
     scene: ScenePalette;
     panelTexture: PanelTexturePalette;
   }
