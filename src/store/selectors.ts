@@ -154,19 +154,21 @@ export const selectIsFileSupportDialogShown = (s: AppState) =>
 
 export const selectCanExportTextures = createSelector(
   selectTextureFileName,
-  (textureFileName) =>
-    Boolean(textureFileName)
+  (textureFileName) => Boolean(textureFileName)
 );
 
-export const selectTextureFileType = (s: AppState) => s.modelData.textureFileType;
-export const selectHasCompressedTextures = (s: AppState) => s.modelData.hasCompressedTextures;
+export const selectTextureFileType = (s: AppState) =>
+  s.modelData.textureFileType;
+export const selectHasCompressedTextures = (s: AppState) =>
+  s.modelData.hasCompressedTextures;
 
 export const selectContentViewMode = createSelector(
-  selectHasLoadedTextureFile, selectHasLoadedPolygonFile,
-  (hasLoadedTextures, hasLoadedPolygons): ContentViewMode =>{
-    if(hasLoadedTextures && !hasLoadedPolygons) {
+  selectHasLoadedTextureFile,
+  selectHasLoadedPolygonFile,
+  (hasLoadedTextures, hasLoadedPolygons): ContentViewMode => {
+    if (hasLoadedTextures && !hasLoadedPolygons) {
       return 'textures';
-    } else if(hasLoadedPolygons) {
+    } else if (hasLoadedPolygons) {
       return 'polygons';
     } else {
       return 'welcome';
@@ -180,18 +182,50 @@ export const selectSelectedTexture = createSelector(
   selectObjectMeshIndex,
   selectTextureIndex,
   (contentViewMode, model, meshIndex, textureIndex) => {
-    switch(contentViewMode) {
+    switch (contentViewMode) {
       case 'textures': {
         return textureIndex;
       }
       case 'polygons': {
         const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
-        return typeof textureIndex === 'number' ? textureIndex : -1
+        return typeof textureIndex === 'number' ? textureIndex : -1;
       }
       default:
       case 'welcome': {
         return -1;
       }
+    }
+  }
+);
+
+export const selectObjectIndex = createSelector(
+  selectContentViewMode,
+  selectModelIndex,
+  selectTextureIndex,
+  (viewMode, modelIndex, textureIndex) => {
+    switch (viewMode) {
+      case 'polygons':
+        return modelIndex;
+      case 'textures':
+        return textureIndex;
+      default:
+        return -1;
+    }
+  }
+);
+
+export const selectObjectCount = createSelector(
+  selectContentViewMode,
+  selectModels,
+  selectTextureDefs,
+  (viewMode, models, textureDefs) => {
+    switch (viewMode) {
+      case 'polygons':
+        return models.length;
+      case 'textures':
+        return textureDefs.length;
+      default:
+        return 0;
     }
   }
 );

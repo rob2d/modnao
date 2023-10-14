@@ -11,24 +11,25 @@ import Icon from '@mdi/react';
 import Grid from '@mui/material/Unstable_Grid2';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelSection from './GuiPanelSection';
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import {
-  navToNextObject,
-  navToPrevObject,
+  selectMeshSelectionType,
   selectModel,
   selectModelCount,
   selectModelIndex,
   selectObjectKey,
-  selectMeshSelectionType,
   selectPolygonFileName,
   setObjectType,
   showDialog,
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { useHeldRepetitionTimer, useModelSelectionExport } from '@/hooks';
-import useSceneGLTFFileDownloader from '@/hooks/useSceneOBJDownloader';
-import useSupportedFilePicker from '@/hooks/useSupportedFilePicker';
+import {
+  useModelSelectionExport,
+  useObjectUINav,
+  useSceneGLTFFileDownloader,
+  useSupportedFilePicker
+} from '@/hooks';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
@@ -46,6 +47,7 @@ export default function GuiPanelModels() {
   const dispatch = useAppDispatch();
   // @TODO use a more standard error dialog vs using window.alert here
   const openFileSelector = useSupportedFilePicker(globalThis.alert);
+  const uiNav = useObjectUINav();
 
   const objectKey = useAppSelector(selectObjectKey);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
@@ -99,29 +101,6 @@ export default function GuiPanelModels() {
     viewOptions.devOptionsVisible
   ]);
 
-  const [onStartPrevModelNav, onStopPrevModelNav] = useHeldRepetitionTimer();
-  const [onStartNextModelNav, onStopNextModelNav] = useHeldRepetitionTimer();
-
-  useEffect(() => {
-    window.addEventListener('mouseup', onStopPrevModelNav);
-    window.addEventListener('mouseup', onStopNextModelNav);
-    return () => {
-      window.removeEventListener('mouseup', onStopPrevModelNav);
-      window.removeEventListener('mouseup', onStopNextModelNav);
-    };
-  }, []);
-  const onStartModelPrevClick = useCallback(() => {
-    onStartPrevModelNav(() => {
-      dispatch(navToPrevObject());
-    });
-  }, [modelIndex]);
-
-  const onStartModelNextClick = useCallback(() => {
-    onStartNextModelNav(() => {
-      dispatch(navToNextObject());
-    });
-  }, [modelIndex]);
-
   let modelNoAndCount = '--';
 
   if (model) {
@@ -167,9 +146,8 @@ export default function GuiPanelModels() {
               className='model-nav-button'
               color='primary'
               aria-haspopup='true'
-              onMouseDown={onStartModelPrevClick}
-              onMouseUp={onStopPrevModelNav}
-              disabled={!model || modelIndex === 0}
+              {...uiNav.prevButtonProps}
+              disabled={!model || uiNav.prevButtonProps.disabled}
             >
               <Icon path={mdiMenuLeftOutline} size={1} />
             </IconButton>
@@ -180,9 +158,8 @@ export default function GuiPanelModels() {
               className='model-nav-button'
               color='primary'
               aria-haspopup='true'
-              onMouseDown={onStartModelNextClick}
-              onMouseUp={onStopNextModelNav}
-              disabled={!model || modelIndex === modelCount - 1}
+              {...uiNav.nextButtonProps}
+              disabled={!model || uiNav.prevButtonProps.disabled}
             >
               <Icon path={mdiMenuRightOutline} size={1} />
             </IconButton>
