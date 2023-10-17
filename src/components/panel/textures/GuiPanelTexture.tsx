@@ -2,14 +2,26 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import Img from 'next/image';
-import { Skeleton, styled, Typography } from '@mui/material';
+import {
+  ButtonBase,
+  Skeleton,
+  styled,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
-import { selectMesh, useAppDispatch, useAppSelector } from '@/store';
+import {
+  selectMesh,
+  setObjectViewedIndex,
+  useAppDispatch,
+  useAppSelector
+} from '@/store';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 import uvToCssPathPoint from '@/utils/textures/uvToCssPathPoint';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import ContentViewMode from '@/types/ContentViewMode';
 
 const IMG_SIZE = '174px';
 
@@ -67,9 +79,13 @@ const StyledPanelTexture = styled('div')(
     pointer-events: none;
   }
 
-  &.uvs-enabled .selected .img {
+  &.uvs-enabled.mode-polygons .selected .img {
     filter: saturate(0);
     opacity: 0.25;
+  }
+
+  &.mode-textures {
+    cursor: pointer;
   }
 
   .uv-overlay {
@@ -109,20 +125,25 @@ export type GuiPanelTextureProps = {
   textureDef: NLTextureDef;
   textureIndex: number;
   polygonIndex: number;
+  contentViewMode: ContentViewMode;
 };
 
 export default function GuiPanelTexture({
   selected,
   textureIndex,
   textureDef,
-  polygonIndex
+  polygonIndex,
+  contentViewMode
 }: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
   const viewOptions = useContext(ViewOptionsContext);
 
   const uvClipPaths = useMemo<string[]>(() => {
-    if (!(selected && mesh?.polygons.length)) {
+    if (
+      !(selected && mesh?.polygons.length) ||
+      contentViewMode !== 'polygons'
+    ) {
       return [];
     }
 
@@ -146,7 +167,11 @@ export default function GuiPanelTexture({
     });
 
     return paths;
-  }, [selected && mesh?.polygons, polygonIndex]);
+  }, [
+    selected && mesh?.polygons,
+    polygonIndex,
+    contentViewMode !== 'polygons'
+  ]);
 
   const onSelectNewImageFile = useCallback(
     async (imageFile: File) => {
@@ -207,47 +232,81 @@ export default function GuiPanelTexture({
     [uvClipPaths, imageDataUrl, width, height, viewOptions.uvRegionsHighlighted]
   );
 
+  const isSelectable = contentViewMode === 'textures' && !selected;
+
+  const mainContentProps = useMemo(
+    () => ({
+      id: `gui-panel-t-${textureIndex}`,
+      className: clsx(
+        'image-area',
+        selected && 'selected',
+        isDragActive && 'file-drag-active',
+        viewOptions.uvRegionsHighlighted
+      ),
+      ...getDragProps(),
+      ...(!isSelectable
+        ? {}
+        : {
+            onClick: () => dispatch(setObjectViewedIndex(textureIndex)),
+            tabIndex: 0,
+            title: 'select this texture'
+          })
+    }),
+    [
+      isDragActive,
+      viewOptions.uvRegionsHighlighted,
+      selected,
+      textureIndex,
+      isSelectable,
+      dispatch
+    ]
+  );
+
+  const content = (
+    <>
+      {!imageDataUrl ? (
+        <Skeleton variant='rectangular' height={170} width='100%' />
+      ) : (
+        <Img
+          src={imageDataUrl}
+          width={width}
+          height={height}
+          alt={`Texture # ${textureIndex}`}
+          className='img'
+        />
+      )}
+      {uvOverlays}
+      <Typography
+        variant='subtitle2'
+        textAlign='right'
+        className='size-notation'
+      >
+        {textureDef.width}x{textureDef.height} [{textureIndex}]
+      </Typography>
+      <GuiPanelTextureMenu
+        textureIndex={textureIndex}
+        width={textureDef.width}
+        height={textureDef.height}
+        pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
+        onReplaceImageFile={onSelectNewImageFile}
+      />
+    </>
+  );
+
   return (
     <StyledPanelTexture
-      className={clsx(viewOptions.uvRegionsHighlighted && 'uvs-enabled')}
+      className={clsx(
+        `mode-${contentViewMode}`,
+        viewOptions.uvRegionsHighlighted && 'uvs-enabled'
+      )}
     >
-      <div
-        id={`gui-panel-t-${textureIndex}`}
-        className={clsx(
-          'image-area',
-          selected && 'selected',
-          isDragActive && 'file-drag-active',
-          viewOptions.uvRegionsHighlighted
-        )}
-        {...getDragProps()}
-      >
-        {!imageDataUrl ? (
-          <Skeleton variant='rectangular' height={170} width='100%' />
-        ) : (
-          <Img
-            src={imageDataUrl}
-            width={width}
-            height={height}
-            alt={`Texture # ${textureIndex}`}
-            className='img'
-          />
-        )}
-        {uvOverlays}
-        <Typography
-          variant='subtitle2'
-          textAlign='right'
-          className='size-notation'
-        >
-          {textureDef.width}x{textureDef.height} [{textureIndex}]
-        </Typography>
-        <GuiPanelTextureMenu
-          textureIndex={textureIndex}
-          width={textureDef.width}
-          height={textureDef.height}
-          pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
-          onReplaceImageFile={onSelectNewImageFile}
-        />
-      </div>
+      {!isSelectable ? (
+        <div {...mainContentProps}>{content}</div>
+      ) : (
+        <Tooltip title='Select this texture'>
+          <ButtonBase {...mainContentProps}>{content}</ButtonBase>
+        </Tooltip>
+      )}
     </StyledPanelTexture>
   );
 }

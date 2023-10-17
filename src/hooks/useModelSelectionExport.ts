@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from 'react';
 import exportFromJSON from 'export-from-json';
 import {
+  selectMeshSelectionType,
   selectModel,
   selectModelIndex,
   selectObjectKey,
-  selectMeshSelectionType,
   useAppSelector
 } from '@/store';
 

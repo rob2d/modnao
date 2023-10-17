@@ -1,20 +1,19 @@
 import { useCallback, useContext } from 'react';
 import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
-import SceneCanvas from './scene/SceneCanvas';
-import { Button, Paper, styled, Tooltip, Typography } from '@mui/material';
+import SceneView from './SceneView';
+import { Button, Paper, styled, Tooltip } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import {
-  selectHasLoadedFile,
-  selectHasLoadedPolygonFile,
+  selectContentViewMode,
   showDialog,
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { useDebounce } from '@uidotdev/usehooks';
+import TextureView from './TextureView';
 
 const Styled = styled('main')(
   ({ theme }) => `
@@ -94,38 +93,32 @@ export default function MainView() {
     dispatch(showDialog('app-info'));
   }, [dispatch]);
 
-  const hasLoadedFileValue = useAppSelector(selectHasLoadedFile);
-  const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
-  const hasLoadedFile = useDebounce(hasLoadedFileValue, 500);
+  const contentViewMode = useAppSelector(selectContentViewMode);
   let mainScene;
 
-  if (hasLoadedFile) {
-    mainScene = hasLoadedPolygonFile ? (
-      <SceneCanvas />
-    ) : (
-      <div className='welcome-panel'>
-        <Typography variant='h6'>Texture-only mode</Typography>
-        <Typography variant='subtitle2'>
-          No associated polygon/model files with these textures to display a
-          scene.
-        </Typography>
-      </div>
-    );
-  } else {
-    mainScene = (
-      <div className='welcome-panel'>
-        <Paper variant='outlined'>
-          <AppInfo />
-        </Paper>
-      </div>
-    );
+  switch (contentViewMode) {
+    case 'polygons':
+      mainScene = <SceneView />;
+      break;
+    case 'textures':
+      mainScene = <TextureView />;
+      break;
+    default:
+      mainScene = (
+        <div className='welcome-panel'>
+          <Paper variant='outlined'>
+            <AppInfo />
+          </Paper>
+        </div>
+      );
+      break;
   }
 
   return (
     <Styled>
       <div>
         {mainScene}
-        {!hasLoadedFile ? undefined : (
+        {contentViewMode === 'welcome' ? undefined : (
           <Tooltip
             title='View app info and usage tips'
             disableInteractive={!guiPanelVisible}

@@ -2,6 +2,7 @@ import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { loadPolygonFile } from './modelDataSlice';
 import { AppState } from './store';
+import { selectContentViewMode } from './selectors';
 
 export interface ObjectViewerState {
   modelIndex: number;
@@ -21,39 +22,16 @@ export const initialObjectViewerState: ObjectViewerState = {
 
 const sliceName = 'objectViewer';
 
-/**
- * @TODO: based on model or texture edit mode,
- * edit the appropriate variable so that we can
- * keep persistent state if switching between files
- */
 export const setObjectViewedIndex = createAsyncThunk<
-  void,
+  { objectIndex: number; indexKey: 'modelIndex' | 'textureIndex' },
   number,
   { state: AppState }
->(
-  `${sliceName}/setObjectViewedIndexInterface`,
-  async (nextIndex: number, { dispatch, getState }) => {
-    let objectIndex = Math.max(0, nextIndex);
-
-    const objectCount = (getState() as AppState).modelData.models.length;
-    objectIndex = Math.min(objectIndex, objectCount - 1);
-
-    const { actions } = objectViewerSlice;
-    dispatch(actions.setObjectViewedIndex(objectIndex));
-  }
-);
-
-export const navToNextObject = createAsyncThunk<
-  void,
-  undefined,
-  { state: AppState }
->(`${sliceName}/navToNextObject`, async (_, { dispatch, getState }) => {
+>(`${sliceName}/setObjectViewedIndex`, async (objectIndex, { getState }) => {
   const state = getState();
-  const objectCount = state.modelData.models.length;
-  const objectIndex = Math.min(state.objectViewer.modelIndex + 1, objectCount - 1);
-
-  const { actions } = objectViewerSlice;
-  dispatch(actions.setObjectViewedIndex(objectIndex));
+  const contentViewMode = selectContentViewMode(state);
+  const indexKey =
+    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+  return { objectIndex, indexKey };
 });
 
 export const navToPrevObject = createAsyncThunk<
@@ -62,23 +40,38 @@ export const navToPrevObject = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/navToPrevObject`, async (_, { dispatch, getState }) => {
   const state = getState();
-  const modelIndex = Math.max(state.objectViewer.modelIndex - 1, 0);
+  const contentViewMode = selectContentViewMode(state);
+  const indexKey =
+    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+  const index = state.objectViewer[indexKey];
+  const objectIndex = Math.max(index - 1, 0);
 
-  const { actions } = objectViewerSlice;
-  dispatch(actions.setObjectViewedIndex(modelIndex));
+  dispatch(setObjectViewedIndex(objectIndex));
+});
+
+export const navToNextObject = createAsyncThunk<
+  void,
+  undefined,
+  { state: AppState }
+>(`${sliceName}/navToNextObject`, async (_, { dispatch, getState }) => {
+  const state = getState();
+  const contentViewMode = selectContentViewMode(state);
+  const indexKey =
+    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+  const objectsKey = contentViewMode === 'polygons' ? 'models' : 'textureDefs';
+  const objectCount = state.modelData[objectsKey].length;
+  const objectIndex = Math.min(
+    state.objectViewer[indexKey] + 1,
+    objectCount - 1
+  );
+
+  dispatch(setObjectViewedIndex(objectIndex));
 });
 
 const objectViewerSlice = createSlice({
   name: 'objectViewer',
   initialState: initialObjectViewerState,
   reducers: {
-    setObjectViewedIndex(state, { payload: objectIndex }: { payload: number }) {
-      Object.assign(state, {
-        modelIndex: objectIndex,
-        objectKey: undefined
-      });
-    },
-
     setObjectKey(state, { payload: objectKey }) {
       Object.assign(state, { objectKey });
     },
@@ -97,9 +90,20 @@ const objectViewerSlice = createSlice({
     builder.addCase(loadPolygonFile.fulfilled, (state) => {
       Object.assign(state, {
         modelIndex: 0,
+        textureIndex: 0,
         objectKey: undefined
       });
     });
+
+    builder.addCase(
+      setObjectViewedIndex.fulfilled,
+      (state, { payload: { objectIndex, indexKey } }) => {
+        Object.assign(state, {
+          [indexKey]: objectIndex,
+          objectKey: undefined
+        });
+      }
+    );
   }
 });
 

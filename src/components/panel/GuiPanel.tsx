@@ -7,12 +7,13 @@ import GuiPanelViewOptions from './GuiPanelViewOptions';
 import GuiPanelTextures from './GuiPanelTextures';
 import GuiPanelModels from './GuiPanelModels';
 import {
+  selectContentViewMode,
   selectHasLoadedPolygonFile,
   selectHasLoadedTextureFile,
   useAppSelector
 } from '@/store';
 
-const WIDTH = 222;
+const PANEL_WIDTH = 222;
 
 const TRANSITION_TIME = `0.32s`;
 
@@ -32,7 +33,7 @@ const StyledPaper = styled(Paper)(
     }
 
     &.MuiPaper-root.visible {
-      width: ${WIDTH}px;
+      width: ${PANEL_WIDTH}px;
       flex-shrink: 0;
     }
 
@@ -46,7 +47,7 @@ const StyledPaper = styled(Paper)(
       position: absolute;
       top: 0;
       left: 0;
-      width: ${WIDTH}px;
+      width: ${PANEL_WIDTH}px;
       height: 100vh;
       flex-shrink: 0;
       
@@ -144,9 +145,9 @@ const StyledPaper = styled(Paper)(
 
 export default function GuiPanel() {
   const viewOptions = useContext(ViewOptionsContext);
+  const contentViewMode = useAppSelector(selectContentViewMode);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
-  const isTextureOnlyMode = hasLoadedTextureFile && !hasLoadedPolygonFile;
 
   return (
     <StyledPaper
@@ -154,10 +155,10 @@ export default function GuiPanel() {
       className={clsx(viewOptions.guiPanelVisible && 'visible')}
     >
       <div className='content'>
-        {!hasLoadedPolygonFile && !hasLoadedTextureFile ? (
+        {contentViewMode !== 'welcome' ? undefined : (
           <Img alt='logo' src='/logo.svg' width={222} height={172} />
-        ) : undefined}
-        {!isTextureOnlyMode ? (
+        )}
+        {contentViewMode !== 'textures' ? (
           <>
             <GuiPanelModels />
             {!hasLoadedTextureFile ? undefined : (

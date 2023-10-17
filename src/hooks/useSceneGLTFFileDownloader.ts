@@ -9,8 +9,8 @@ async function rotateDataUri(dataURI: string): Promise<string> {
     img.src = dataURI;
 
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
       const width = img.height;
       const height = img.width;
@@ -49,17 +49,21 @@ export default function useSceneGLTFFileDownloader() {
       throw new Error('no scene instantiated to get GLTF file');
     }
 
-    const output = await exporter.parseAsync(scene) as { images: GLTFImage[] };
+    const output = (await exporter.parseAsync(scene)) as {
+      images: GLTFImage[];
+    };
 
     const rotationPromises = output.images.map(async (img) => {
       const uri = await rotateDataUri(img.uri);
       return { ...img, uri };
     });
-    
-    const rotatedImages = await Promise.all(rotationPromises);    
+
+    const rotatedImages = await Promise.all(rotationPromises);
     output.images = rotatedImages;
-   
-    const file = new Blob([JSON.stringify(output, null, 2)], { type: 'application/object' });
+
+    const file = new Blob([JSON.stringify(output, null, 2)], {
+      type: 'application/object'
+    });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(file);
     const name = polygonFileName.substring(0, polygonFileName.lastIndexOf('.'));

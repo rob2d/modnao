@@ -1,37 +1,27 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
+import ContentViewMode from '../types/ContentViewMode';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
-
+export const selectTextureIndex = (s: AppState) => s.objectViewer.textureIndex;
 export const selectObjectKey = (s: AppState) => s.objectViewer.objectKey;
-
 export const selectModels = (s: AppState) => s.modelData.models;
-
 export const selectHasLoadedPolygonFile = (s: AppState) =>
   Boolean(s.modelData.polygonFileName);
-
 export const selectHasLoadedTextureFile = (s: AppState) =>
   Boolean(s.modelData.textureFileName);
-
-export const selectHasLoadedFile = createSelector(
-  selectHasLoadedPolygonFile,
-  selectHasLoadedTextureFile,
-  (m, p) => m || p
-);
-
 export const selectHasEditedTextures = (s: AppState) =>
   s.modelData.hasEditedTextures;
-
 export const selectModelCount = createSelector(
   selectModels,
   (models) => models.length
 );
 export const selectMeshSelectionType = (s: AppState) =>
   s.objectViewer.meshSelectionType;
-
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
 export const selectTextureBufferUrlHistory = (s: AppState) =>
   s.modelData.textureHistory;
+
 /**
  * get a set of base texture urls to detect presence in O(1)
  */
@@ -164,9 +154,78 @@ export const selectIsFileSupportDialogShown = (s: AppState) =>
 
 export const selectCanExportTextures = createSelector(
   selectTextureFileName,
-  (textureFileName) =>
-    Boolean(textureFileName)
+  (textureFileName) => Boolean(textureFileName)
 );
 
-export const selectTextureFileType = (s: AppState) => s.modelData.textureFileType;
-export const selectHasCompressedTextures = (s: AppState) => s.modelData.hasCompressedTextures;
+export const selectTextureFileType = (s: AppState) =>
+  s.modelData.textureFileType;
+export const selectHasCompressedTextures = (s: AppState) =>
+  s.modelData.hasCompressedTextures;
+
+export const selectContentViewMode = createSelector(
+  selectHasLoadedTextureFile,
+  selectHasLoadedPolygonFile,
+  (hasLoadedTextures, hasLoadedPolygons): ContentViewMode => {
+    if (hasLoadedTextures && !hasLoadedPolygons) {
+      return 'textures';
+    } else if (hasLoadedPolygons) {
+      return 'polygons';
+    } else {
+      return 'welcome';
+    }
+  }
+);
+
+export const selectSelectedTexture = createSelector(
+  selectContentViewMode,
+  selectModel,
+  selectObjectMeshIndex,
+  selectTextureIndex,
+  (contentViewMode, model, meshIndex, textureIndex) => {
+    switch (contentViewMode) {
+      case 'textures': {
+        return textureIndex;
+      }
+      case 'polygons': {
+        const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
+        return typeof textureIndex === 'number' ? textureIndex : -1;
+      }
+      default:
+      case 'welcome': {
+        return -1;
+      }
+    }
+  }
+);
+
+export const selectObjectIndex = createSelector(
+  selectContentViewMode,
+  selectModelIndex,
+  selectTextureIndex,
+  (viewMode, modelIndex, textureIndex) => {
+    switch (viewMode) {
+      case 'polygons':
+        return modelIndex;
+      case 'textures':
+        return textureIndex;
+      default:
+        return -1;
+    }
+  }
+);
+
+export const selectObjectCount = createSelector(
+  selectContentViewMode,
+  selectModels,
+  selectTextureDefs,
+  (viewMode, models, textureDefs) => {
+    switch (viewMode) {
+      case 'polygons':
+        return models.length;
+      case 'textures':
+        return textureDefs.length;
+      default:
+        return 0;
+    }
+  }
+);

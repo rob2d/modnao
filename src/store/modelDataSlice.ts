@@ -10,7 +10,11 @@ import { WorkerEvent } from '@/worker';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
-import { selectHasCompressedTextures, selectSceneTextureDefs, selectTextureFileType } from './selectors';
+import {
+  selectHasCompressedTextures,
+  selectSceneTextureDefs,
+  selectTextureFileType
+} from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import WorkerThreadPool from '../utils/WorkerThreadPool';
 import { decompressTextureBuffer } from '@/utils/textures/parse';
@@ -122,29 +126,39 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const startPointer = buffer.readUint32LE(0);
   const pointers = [startPointer];
 
-  for(let offset = 4; offset < startPointer; offset+= 4) {
+  for (let offset = 4; offset < startPointer; offset += 4) {
     pointers.push(buffer.readUInt32LE(offset));
   }
 
   const uint8Array = new Uint8Array(arrayBuffer);
   const compressedJpLifebarAssets = uint8Array.slice(pointers[0], pointers[1]);
-  const jpLifebar = await decompressTextureBuffer(Buffer.from(compressedJpLifebarAssets));
+  const jpLifebar = await decompressTextureBuffer(
+    Buffer.from(compressedJpLifebarAssets)
+  );
   let usLifebar: Uint8Array | undefined;
-  
-  if(pointers[3]) {
+
+  if (pointers[3]) {
     const compressedUsLifebarAssets = uint8Array.slice(pointers[3]);
-    usLifebar = await decompressTextureBuffer(Buffer.from(compressedUsLifebarAssets));
+    usLifebar = await decompressTextureBuffer(
+      Buffer.from(compressedUsLifebarAssets)
+    );
   }
 
   const pointerBuffer = Buffer.alloc(startPointer);
   pointerBuffer.writeUInt32LE(startPointer, 0);
   pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
-  pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(4) + (pointers[2] - pointers[1]), 8);
-  
-  if(pointers[3] !== undefined) {
-    pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + (pointers[3] - pointers[2]), 12);
+  pointerBuffer.writeUInt32LE(
+    pointerBuffer.readUInt32LE(4) + (pointers[2] - pointers[1]),
+    8
+  );
+
+  if (pointers[3] !== undefined) {
+    pointerBuffer.writeUInt32LE(
+      pointerBuffer.readUInt32LE(8) + (pointers[3] - pointers[2]),
+      12
+    );
   }
-  
+
   let position = startPointer;
   const decompressedOffsets = [];
   decompressedOffsets.push(position);
@@ -154,13 +168,13 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const vqLength1 = pointers[2] - pointers[1];
   position += vqLength1;
 
-  if(pointers[3] !== undefined) {
+  if (pointers[3] !== undefined) {
     position += pointers[3] - pointers[2];
     decompressedOffsets.push(position);
   }
 
   const vqContent = uint8Array.slice(
-    pointers[1], 
+    pointers[1],
     pointers[3] !== undefined ? pointers[3] : undefined
   );
 
@@ -170,7 +184,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
   pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length + vqLength1, 8);
 
-  if(usLifebar) {
+  if (usLifebar) {
     const vqLength2 = pointers[3] - pointers[2];
     pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + vqLength2, 12);
   }
@@ -184,9 +198,9 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
 
   const rleTextureSizes = [
     { width: 64, height: 64 },
-    ...(pointers[3] ? ([{ width: 64, height: 64 }]) : []),
+    ...(pointers[3] ? [{ width: 64, height: 64 }] : []),
     { width: 64, height: 64 },
-    { width: 128, height: 128 },
+    { width: 128, height: 128 }
   ];
 
   const textureDefs = decompressedOffsets.map((offset, i) => ({
@@ -498,7 +512,6 @@ export const loadMvc2EndFile = createAsyncThunk<
   return result;
 });
 
-
 export const loadMvc2SelectionTexturesFile = createAsyncThunk<
   LoadTexturesPayload,
   File,
@@ -523,12 +536,10 @@ export const loadMvc2SelectionTexturesFile = createAsyncThunk<
     ramOffset: 0
   };
 
-  const textureDefs: NLTextureDef[] = [...Array(23).keys()].map(i =>
-    ({ 
-      ...texDef,
-      baseLocation: 256 * 256 * 2 * i
-    })
-  );
+  const textureDefs: NLTextureDef[] = [...Array(23).keys()].map((i) => ({
+    ...texDef,
+    baseLocation: 256 * 256 * 2 * i
+  }));
 
   const result = (await loadCompressedTextureFiles(
     file,
@@ -671,8 +682,7 @@ export const downloadTextureFile = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/downloadTextureFile`, async (_, { getState }) => {
   const state = getState();
-  const { textureFileName, textureBufferUrl } =
-    state.modelData;
+  const { textureFileName, textureBufferUrl } = state.modelData;
   const textureDefs = selectSceneTextureDefs(state);
   const textureFileType = selectTextureFileType(state);
   const isCompressedTexture = selectHasCompressedTextures(state);
@@ -683,7 +693,6 @@ export const downloadTextureFile = createAsyncThunk<
   }
 
   try {
-
     await exportTextureFile({
       textureDefs,
       textureFileName,

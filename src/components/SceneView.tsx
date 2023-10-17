@@ -13,14 +13,14 @@ import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import {
   selectDisplayedMeshes,
+  selectMeshSelectionType,
   selectModel,
   selectObjectKey,
-  selectMeshSelectionType,
   selectSceneTextureDefs,
   selectUneditedTextureUrls
 } from '@/store/selectors';
 import { setObjectKey, useAppDispatch, useAppSelector } from '@/store';
-import { useSceneKeyboardControls } from '@/hooks';
+import { useObjectNavControls } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
 import { SceneContextSetup } from '@/contexts/SceneContext';
@@ -39,7 +39,7 @@ import {
   Vector2
 } from 'three';
 import { objectUrlToBuffer } from '@/utils/data';
-import RenderedPolygon from './RenderedPolygon';
+import RenderedPolygon from './scene/RenderedPolygon';
 
 THREE.ColorManagement.enabled = true;
 
@@ -83,8 +83,8 @@ async function createTextureFromObjectUrl(
 
 const axesHelper = <axesHelper args={[50]} />;
 
-export default function SceneCanvas() {
-  useSceneKeyboardControls();
+export default function SceneView() {
+  useObjectNavControls();
   const [textureMap, setTextureMap] = useState<Map<string, DataTexture>>();
   const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
   const viewOptions = useContext(ViewOptionsContext);
@@ -198,9 +198,7 @@ export default function SceneCanvas() {
           <RenderedPolygon
             {...p}
             key={`${m.address}_${p.address}`}
-            objectKey={
-              meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
-            }
+            objectKey={meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`}
             selectedObjectKey={objectKey}
             onSelectObjectKey={onSelectObjectKey}
             texture={texture}
