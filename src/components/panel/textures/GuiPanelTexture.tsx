@@ -1,6 +1,6 @@
+import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import clsx from 'clsx';
 import Img from 'next/image';
 import {
   ButtonBase,
@@ -17,9 +17,8 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { SourceTextureData } from '@/utils/textures/SourceTextureData';
+import { SourceTextureData, uvToCssPathPoint } from '@/utils/textures';
 import { selectReplacementTexture } from '@/store/replaceTextureSlice';
-import uvToCssPathPoint from '@/utils/textures/uvToCssPathPoint';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ContentViewMode from '@/types/ContentViewMode';
 

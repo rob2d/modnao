@@ -1,12 +1,16 @@
 import quanti from 'quanti';
 import { NLTextureDef } from '@/types/NLAbstractions';
-import decodeZMortonPosition from '@/utils/textures/serialize/decodeZMortonPosition';
-import rgbaToRgb565 from '@/utils/color-conversions/rgbaToRgb565';
-import rgbaToArgb1555 from '@/utils/color-conversions/rgbaToArgb1555';
-import rgbaToArgb4444 from '@/utils/color-conversions/rgbaToArgb4444';
-import { RgbaColor, TextureColorFormat } from '@/utils/textures';
-import { compressTextureBuffer } from '@/utils/textures/parse';
-import { objectUrlToBuffer } from '@/utils/data';
+import {
+  rgbaToArgb1555,
+  rgbaToArgb4444,
+  rgbaToRgb565
+} from '@/utils/color-conversions';
+import {
+  decodeZMortonPosition,
+  RgbaColor,
+  TextureColorFormat
+} from '@/utils/textures';
+import { compressLzssBuffer, objectUrlToBuffer } from '@/utils/data';
 import { TextureFileType } from './textureFileTypeMap';
 
 const COLOR_SIZE = 2;
@@ -156,7 +160,7 @@ export default async function exportTextureFile({
       const jpSection = Buffer.from(uint8Array.slice(pointers[0], pointers[1]));
       const compressedJpSection = padBufferForAlignment(
         startPointer,
-        compressTextureBuffer(jpSection)
+        compressLzssBuffer(jpSection)
       );
 
       buffer.writeUInt32LE(startPointer, 0);
@@ -179,7 +183,7 @@ export default async function exportTextureFile({
         );
         compressedUsSection = padBufferForAlignment(
           startPointer,
-          compressTextureBuffer(usSection)
+          compressLzssBuffer(usSection)
         );
         buffer.writeUInt32LE(
           startPointer +
@@ -205,7 +209,7 @@ export default async function exportTextureFile({
     default: {
       const outputBuffer = !isCompressedTexture
         ? textureBuffer
-        : compressTextureBuffer(textureBuffer);
+        : compressLzssBuffer(textureBuffer);
 
       output = new Blob([outputBuffer], {
         type: 'application/octet-stream'

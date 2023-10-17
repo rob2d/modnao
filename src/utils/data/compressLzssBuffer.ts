@@ -8,11 +8,9 @@ const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 /** in 16 bit mode, can look back a max of 11 bits */
 const W16_MAX_LOOKBACK = 0b111_1111_1111;
 
-/**
- * @param buffer decompressed buffer to compress
- */
-export default function compressTextureBuffer(buffer: Buffer) {
-  console.time('compressTextureBuffer');
+/** @param buffer decompressed buffer to compress */
+export default function compressLzssBuffer(buffer: Buffer) {
+  console.time('compressLzssBuffer');
   let i = 0;
 
   // create a structure that maps sequences of word ops
@@ -168,6 +166,6 @@ export default function compressTextureBuffer(buffer: Buffer) {
     escapeWordCount--;
   }
 
-  console.timeEnd('compressTextureBuffer');
+  console.timeEnd('compressLzssBuffer');
   return outputBuffer;
 }

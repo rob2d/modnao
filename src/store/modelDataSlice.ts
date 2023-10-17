@@ -17,9 +17,9 @@ import {
 } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import WorkerThreadPool from '../utils/WorkerThreadPool';
-import { decompressTextureBuffer } from '@/utils/textures/parse';
 import { batch } from 'react-redux';
 import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
+import { decompressLzssBuffer } from '@/utils/data';
 
 const workerPool = new WorkerThreadPool();
 
@@ -132,14 +132,14 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
 
   const uint8Array = new Uint8Array(arrayBuffer);
   const compressedJpLifebarAssets = uint8Array.slice(pointers[0], pointers[1]);
-  const jpLifebar = await decompressTextureBuffer(
+  const jpLifebar = await decompressLzssBuffer(
     Buffer.from(compressedJpLifebarAssets)
   );
   let usLifebar: Uint8Array | undefined;
 
   if (pointers[3]) {
     const compressedUsLifebarAssets = uint8Array.slice(pointers[3]);
-    usLifebar = await decompressTextureBuffer(
+    usLifebar = await decompressLzssBuffer(
       Buffer.from(compressedUsLifebarAssets)
     );
   }
@@ -276,7 +276,7 @@ const loadCompressedTextureFiles = async (
     return;
   }
   const arrayBuffer = await file.arrayBuffer();
-  const buffer = decompressTextureBuffer(Buffer.from(arrayBuffer));
+  const buffer = decompressLzssBuffer(Buffer.from(arrayBuffer));
 
   const result = await new Promise<LoadTexturesPayload>((resolve) => {
     if (thread) {

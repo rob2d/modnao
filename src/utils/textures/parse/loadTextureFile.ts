@@ -1,8 +1,5 @@
 import { Image } from 'image-js';
-import {
-  decompressTextureBuffer,
-  encodeZMortonPosition
-} from '@/utils/textures/parse';
+import { encodeZMortonPosition } from '@/utils/textures/parse';
 import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import {
   argb1555ToRgba8888,
@@ -10,7 +7,7 @@ import {
   rgb565ToRgba8888
 } from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
-import { bufferToObjectUrl } from '@/utils/data';
+import { bufferToObjectUrl, decompressLzssBuffer } from '@/utils/data';
 import { TextureFileType } from '../files/textureFileTypeMap';
 
 const COLOR_SIZE = 2;
@@ -139,7 +136,7 @@ export default async function loadTextureFile({
       throw error;
     }
 
-    const decompressedBuffer = decompressTextureBuffer(buffer);
+    const decompressedBuffer = decompressLzssBuffer(buffer);
 
     const textureBufferData = await loadTextureBuffer(
       decompressedBuffer,
