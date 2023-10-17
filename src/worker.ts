@@ -1,10 +1,10 @@
-import loadTextureFile from './utils/textures/parse/loadTextureFile';
 import { NLTextureDef } from './types/NLAbstractions';
 import HslValues from './utils/textures/HslValues';
 import adjustTextureHsl from './utils/textures/adjustTextureHsl';
 import { SourceTextureData } from './utils/textures/SourceTextureData';
 import TransferrableBuffer from './types/TransferrableBuffer';
 import loadPolygonFile from './utils/polygons/parse/loadPolygonFile';
+import loadTextureFile from './utils/textures/parse/loadTextureFile';
 import { TextureFileType } from './utils/textures/files/textureFileTypeMap';
 
 export type WorkerEvent =

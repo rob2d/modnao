@@ -5,7 +5,7 @@ const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
 const BITS11 = 0b111_1111_1111;
 
-export default function decompressTextureBuffer(bufferPassed: Buffer) {
+export default function decompressLzssBuffer(bufferPassed: Buffer) {
   const buffer = Buffer.from(bufferPassed);
   const output: number[] = [];
   let applyBitmask = true;
