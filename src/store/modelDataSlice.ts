@@ -20,6 +20,7 @@ import WorkerThreadPool from '../utils/WorkerThreadPool';
 import { batch } from 'react-redux';
 import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
+import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 
 const workerPool = new WorkerThreadPool();
 
@@ -137,6 +138,26 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   );
   let usLifebar: Uint8Array | undefined;
 
+  console.log('uint8Array ->', uint8Array);
+  const compressedVq1Image = uint8Array.slice(pointers[1], pointers[2]);
+  console.log('pointer 2 - 1 ->', pointers[2] - pointers[1]);
+  console.log('decompressed vq1 section ->', compressedVq1Image);
+  const vq1Image = decompressVqBuffer(
+    decompressLzssBuffer(Buffer.from(compressedVq1Image)),
+    256,
+    256
+  );
+
+  const compressedVq2Image = uint8Array.slice(
+    ...[pointers[2], ...(pointers[3] ? [pointers[3]] : [])]
+  );
+
+  const vq2Image = decompressVqBuffer(
+    decompressLzssBuffer(Buffer.from(compressedVq2Image)),
+    128,
+    128
+  );
+
   if (pointers[3]) {
     const compressedUsLifebarAssets = uint8Array.slice(pointers[3]);
     usLifebar = await decompressLzssBuffer(
@@ -148,7 +169,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   pointerBuffer.writeUInt32LE(startPointer, 0);
   pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
   pointerBuffer.writeUInt32LE(
-    pointerBuffer.readUInt32LE(4) + (pointers[2] - pointers[1]),
+    pointerBuffer.readUInt32LE(4) + vq1Image.length,
     8
   );
 
@@ -164,48 +185,50 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   decompressedOffsets.push(position);
 
   position += jpLifebar.length;
+  decompressedOffsets.push(position);
 
-  const vqLength1 = pointers[2] - pointers[1];
-  position += vqLength1;
+  position += vq1Image.length;
+  decompressedOffsets.push(position);
 
   if (pointers[3] !== undefined) {
-    position += pointers[3] - pointers[2];
+    position += vq2Image.length;
     decompressedOffsets.push(position);
   }
-
-  const vqContent = uint8Array.slice(
-    pointers[1],
-    pointers[3] !== undefined ? pointers[3] : undefined
-  );
 
   // rewrite pointers to decompressed offsets
 
   pointerBuffer.writeUInt32LE(startPointer, 0);
   pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
-  pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length + vqLength1, 8);
+  pointerBuffer.writeUInt32LE(
+    startPointer + jpLifebar.length + vq1Image.length,
+    8
+  );
 
   if (usLifebar) {
-    const vqLength2 = pointers[3] - pointers[2];
+    const vqLength2 = vq2Image.length;
     pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + vqLength2, 12);
   }
 
   const decompressedBuffer = Buffer.concat([
     pointerBuffer,
     jpLifebar,
-    vqContent,
+    vq1Image,
+    vq2Image,
     ...(usLifebar ? [usLifebar] : [])
   ]);
 
-  const rleTextureSizes = [
-    { width: 64, height: 64 },
+  const rleTextures = [
+    { width: 64, height: 64, colorFormat: 'RGB565' },
+    { width: 256, height: 256, colorFormat: 'RGB565' },
+    { width: 128, height: 128, colorFormat: 'RGB565' },
     ...(pointers[3] ? [{ width: 64, height: 64 }] : []),
     { width: 64, height: 64 },
     { width: 128, height: 128 }
   ];
 
   const textureDefs = decompressedOffsets.map((offset, i) => ({
-    ...rleTextureSizes[i],
     colorFormat: 'RGB565',
+    ...rleTextures[i],
     colorFormatValue: 2,
     bufferUrls: {
       translucent: undefined,

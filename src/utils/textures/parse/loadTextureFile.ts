@@ -128,6 +128,7 @@ export default async function loadTextureFile({
       ...textureBufferData
     };
   } catch (error) {
+    console.error(error);
     // if an overflow error occurs, this is an indicator that the
     // file loaded is compressed; this is common for certain
     // game texture formats like Capcom vs SNK 2
