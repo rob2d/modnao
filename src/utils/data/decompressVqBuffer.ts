@@ -20,40 +20,22 @@ export default function vectorDequantizeBuffer(
     for (let i = 0; i < CODEBOOK_SIZE; i++) {
       const entry = [];
 
-      for (let j = 0; j < 4; j++) {
-        try {
-          const position = i * j * 2;
-          const word = buffer.readUInt16LE(position);
-          entry.push(word);
-        } catch (error) {
-          console.error('buffer length ->', buffer.length, 'i ->', i);
-        }
+      for (let j = 0; j < VECTOR_LENGTH; j++) {
+        const position = (i * VECTOR_LENGTH + j) * WORD_SIZE;
+        const word = buffer.readUInt16LE(position);
+        entry.push(word);
       }
-
       codebook.push(entry);
     }
 
-    const encode = (i) => encodeZMortonPosition(i % w, Math.floor(i / w));
-
     for (let i = 0; i < buffer.length - CODEWORD_START; i += 1) {
-      try {
-        const codewords = buffer.readUInt8(i + CODEWORD_START);
-        const vector = codebook[codewords];
-        const ai = i * 4;
-        const bi = i * 4 + 1;
-        const ci = i * 4 + 2;
-        const di = i * 4 + 3;
-        const max = Math.pow(2, 16) - 1;
+      const codewords = buffer.readUInt8(i + CODEWORD_START);
+      const vector = codebook[codewords];
 
-        const intensity = vector[0];
-        output[ai] = vector[0];
-        output[bi] = vector[1];
-        output[ci] = vector[2];
-        output[di] = vector[3];
-      } catch (error) {
-        console.log('error at i ->', i);
-        console.log('error ->', error);
-      }
+      output[i * 4] = vector[0];
+      output[i * 4 + 1] = vector[1];
+      output[i * 4 + 2] = vector[2];
+      output[i * 4 + 3] = vector[3];
     }
   } catch (error) {
     console.error(error);

@@ -217,10 +217,10 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     ...(usLifebar ? [usLifebar] : [])
   ]);
 
-  const rleTextures = [
-    { width: 64, height: 64, colorFormat: 'RGB565' },
-    { width: 256, height: 256, colorFormat: 'RGB565' },
-    { width: 128, height: 128, colorFormat: 'RGB565' },
+  const textureStructure: Partial<NLTextureDef>[] = [
+    { width: 64, height: 64 },
+    { width: 256, height: 256, disableEdits: true },
+    { width: 128, height: 128, disableEdits: true },
     ...(pointers[3] ? [{ width: 64, height: 64 }] : []),
     { width: 64, height: 64 },
     { width: 128, height: 128 }
@@ -228,7 +228,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
 
   const textureDefs = decompressedOffsets.map((offset, i) => ({
     colorFormat: 'RGB565',
-    ...rleTextures[i],
+    ...textureStructure[i],
     colorFormatValue: 2,
     bufferUrls: {
       translucent: undefined,
