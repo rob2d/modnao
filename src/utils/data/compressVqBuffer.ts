@@ -1,9 +1,5 @@
 import { kmeans } from '@thi.ng/k-means';
-import {
-  decodeZMortonPosition,
-  RgbaColor,
-  TextureColorFormat
-} from '../textures';
+import { TextureColorFormat } from '../textures';
 import { rgb565ToRgba8888, rgbaToRgb565 } from '../color-conversions';
 
 const WORD_SIZE = 2;
@@ -12,18 +8,20 @@ const VECTOR_LENGTH = 4;
 /** @param buffer decompressed buffer to compress */
 export default function compressVqBuffer(
   buffer: Buffer,
-  /** TODO: look up conversion dict */
-  imageFormat: TextureColorFormat
+  /* @ TODO: use a conversion dict */
+  imageFormat: TextureColorFormat = 'RGB565'
 ) {
   console.time('compressVqBuffer');
 
   const codewords: number[][] = [];
 
-  for (let i = 0; i < buffer.length; i += 8) {
+  for (let i = 0; i < buffer.length; i += VECTOR_LENGTH * WORD_SIZE) {
     const w1 = buffer.readUInt16LE(i);
-    const w2 = buffer.length > i + 2 ? buffer.readUint16LE(i + 2) : 0;
-    const w3 = buffer.length > i + 4 ? buffer.readUint16LE(i + 4) : 0;
-    const w4 = buffer.length > i + 6 ? buffer.readUint16LE(i + 6) : 0;
+    const w2 = buffer.length > i + 2 ? buffer.readUint16LE(i + WORD_SIZE) : 0;
+    const w3 =
+      buffer.length > i + 4 ? buffer.readUint16LE(i + 2 * WORD_SIZE) : 0;
+    const w4 =
+      buffer.length > i + 6 ? buffer.readUint16LE(i + 3 * WORD_SIZE) : 0;
     const c1 = rgb565ToRgba8888(w1);
     const c2 = rgb565ToRgba8888(w2);
     const c3 = rgb565ToRgba8888(w3);
@@ -54,12 +52,12 @@ export default function compressVqBuffer(
   //assemble indexes into lookup for writing back
   clusters.forEach((cluster, clusterIndex: number) => {
     const codebookEntry = [];
-    for (let i = 0; i < 12; i++) {
-      const word = [...cluster.centroid].slice(i * 3, i * 3 + 3);
-      const color = { r: word[0], g: word[1], b: word[2], a: 255 };
-      const rgb565Color = rgbaToRgb565(color);
-      codebookEntry.push(rgb565Color);
+
+    for (let i = 0; i < 12; i += 3) {
+      const word = [...cluster.centroid].slice(i, i + 3);
+      codebookEntry.push(word[0], word[1], word[2]);
     }
+
     codebook.push(codebookEntry);
 
     cluster.items.forEach((item: number) => {
@@ -67,20 +65,36 @@ export default function compressVqBuffer(
     });
   });
 
+  while (codebook.length < 256) {
+    // eslint-disable-next-line prettier/prettier
+    codebook.push([
+      127, 127, 127, 
+      127, 127, 127,
+      127, 127, 127,
+      127, 127, 127,
+    ]);
+  }
+
   const outputBytes: number[] = [];
 
   // write initial codebook
   codebook.forEach((codebookEntry) => {
-    codebookEntry.forEach((word) => {
-      // note: these may be flipped; double check endianness
-      outputBytes.push(word & 0xff);
-      outputBytes.push((word >> 8) & 0xff);
-    });
+    for (let i = 0; i < 12; i += 3) {
+      const word = codebookEntry.slice(i, i + 3);
+      const rgba = { r: word[0], g: word[1], b: word[2], a: 255 };
+      const rgb565 = rgbaToRgb565(rgba);
+
+      outputBytes.push(rgb565 & 0xff);
+      outputBytes.push((rgb565 >> 8) & 0xff);
+    }
   });
 
-  for (const [index, codebookIndex] of indexWordMap.entries()) {
-    outputBytes.push(index, codebookIndex);
+  for (let i = 0; i < indexWordMap.size; i++) {
+    outputBytes.push(indexWordMap.get(i) || 0);
   }
 
+  const outputBuffer = Buffer.from(outputBytes);
+
   console.timeEnd('compressVqBuffer');
+  return outputBuffer;
 }

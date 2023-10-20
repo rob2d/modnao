@@ -1,13 +1,9 @@
-import { off } from 'process';
-import { encodeZMortonPosition } from '../textures';
-import { rgb565ToRgba8888, rgbaToRgb565 } from '../color-conversions';
-
 const WORD_SIZE = 2;
 const VECTOR_LENGTH = 4;
 const CODEBOOK_SIZE = 256;
 const CODEWORD_START = WORD_SIZE * VECTOR_LENGTH * CODEBOOK_SIZE;
 
-export default function vectorDequantizeBuffer(
+export default function decompressVqBuffer(
   bufferPassed: Buffer,
   w: number,
   h: number
