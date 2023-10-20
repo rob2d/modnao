@@ -4,7 +4,7 @@ import {
   RgbaColor,
   TextureColorFormat
 } from '../textures';
-import { rgb565ToRgba8888 } from '../color-conversions';
+import { rgb565ToRgba8888, rgbaToRgb565 } from '../color-conversions';
 
 const WORD_SIZE = 2;
 const VECTOR_LENGTH = 4;
@@ -12,6 +12,7 @@ const VECTOR_LENGTH = 4;
 /** @param buffer decompressed buffer to compress */
 export default function compressVqBuffer(
   buffer: Buffer,
+  /** TODO: look up conversion dict */
   imageFormat: TextureColorFormat
 ) {
   console.time('compressVqBuffer');
@@ -46,16 +47,40 @@ export default function compressVqBuffer(
     codewords.push(codeword);
   }
 
-  const clusters = kmeans(256, codewords);
+  const clusters = kmeans(256, codewords, { maxIter: 10 });
   const indexWordMap = new Map<number, number>();
+  const codebook: number[][] = [];
 
   //assemble indexes into lookup for writing back
-  clusters.forEach((cluster: { items: number[] }, clusterIndex: number) => {
-    // @TODO: also break into rgb565 word to streamline writing back
+  clusters.forEach((cluster, clusterIndex: number) => {
+    const codebookEntry = [];
+    for (let i = 0; i < 12; i++) {
+      const word = [...cluster.centroid].slice(i * 3, i * 3 + 3);
+      const color = { r: word[0], g: word[1], b: word[2], a: 255 };
+      const rgb565Color = rgbaToRgb565(color);
+      codebookEntry.push(rgb565Color);
+    }
+    codebook.push(codebookEntry);
+
     cluster.items.forEach((item: number) => {
       indexWordMap.set(item, clusterIndex);
     });
   });
+
+  const outputBytes: number[] = [];
+
+  // write initial codebook
+  codebook.forEach((codebookEntry) => {
+    codebookEntry.forEach((word) => {
+      // note: these may be flipped; double check endianness
+      outputBytes.push(word & 0xff);
+      outputBytes.push((word >> 8) & 0xff);
+    });
+  });
+
+  for (const [index, codebookIndex] of indexWordMap.entries()) {
+    outputBytes.push(index, codebookIndex);
+  }
 
   console.timeEnd('compressVqBuffer');
 }
