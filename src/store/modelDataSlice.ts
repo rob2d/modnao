@@ -21,6 +21,7 @@ import { batch } from 'react-redux';
 import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
+import compressVqBuffer from '@/utils/data/compressVqBuffer';
 
 const workerPool = new WorkerThreadPool();
 
@@ -138,10 +139,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   );
   let usLifebar: Uint8Array | undefined;
 
-  console.log('uint8Array ->', uint8Array);
   const compressedVq1Image = uint8Array.slice(pointers[1], pointers[2]);
-  console.log('pointer 2 - 1 ->', pointers[2] - pointers[1]);
-  console.log('decompressed vq1 section ->', compressedVq1Image);
   const vq1Image = decompressVqBuffer(
     decompressLzssBuffer(Buffer.from(compressedVq1Image)),
     256,
@@ -175,7 +173,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
 
   if (pointers[3] !== undefined) {
     pointerBuffer.writeUInt32LE(
-      pointerBuffer.readUInt32LE(8) + (pointers[3] - pointers[2]),
+      pointerBuffer.readUInt32LE(8) + vq2Image.length,
       12
     );
   }
@@ -205,8 +203,10 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   );
 
   if (usLifebar) {
-    const vqLength2 = vq2Image.length;
-    pointerBuffer.writeUInt32LE(pointerBuffer.readUInt32LE(8) + vqLength2, 12);
+    pointerBuffer.writeUInt32LE(
+      pointerBuffer.readUInt32LE(8) + vq2Image.length,
+      12
+    );
   }
 
   const decompressedBuffer = Buffer.concat([
