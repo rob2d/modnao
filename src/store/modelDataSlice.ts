@@ -209,12 +209,19 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     );
   }
 
+  const trailingSection = new Uint8Array(buffer).slice(
+    usLifebar
+      ? pointerBuffer.readUint32LE(12) + usLifebar.length
+      : pointerBuffer.readUint32LE(8) + vq2Image.length
+  );
+
   const decompressedBuffer = Buffer.concat([
     pointerBuffer,
     jpLifebar,
     vq1Image,
     vq2Image,
-    ...(usLifebar ? [usLifebar] : [])
+    ...(usLifebar ? [usLifebar] : []),
+    trailingSection
   ]);
 
   const textureStructure: Partial<NLTextureDef>[] = [

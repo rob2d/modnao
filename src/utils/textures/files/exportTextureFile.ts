@@ -170,8 +170,9 @@ export default async function exportTextureFile({
         uint8Array.slice(pointers[1], pointers[2])
       );
 
-      const compressedVq1Section = compressLzssBuffer(
-        compressVqBuffer(vq1Section, 'RGB565')
+      const compressedVq1Section = padBufferForAlignment(
+        pointers[1],
+        compressLzssBuffer(compressVqBuffer(vq1Section, 'RGB565'))
       );
 
       const vq2Section = Buffer.from(
@@ -180,8 +181,9 @@ export default async function exportTextureFile({
         )
       );
 
-      const compressedVq2Section = compressLzssBuffer(
-        compressVqBuffer(vq2Section, 'RGB565')
+      const compressedVq2Section = padBufferForAlignment(
+        pointers[2],
+        compressLzssBuffer(compressVqBuffer(vq2Section, 'RGB565'))
       );
 
       buffer.writeUInt32LE(startPointer, 0);
@@ -211,12 +213,19 @@ export default async function exportTextureFile({
         );
       }
 
+      const trailingSection = new Uint8Array(buffer).slice(
+        compressedUsSection
+          ? buffer.readUint32LE(12) + compressedUsSection.length
+          : buffer.readUint32LE(8) + compressedVq2Section.length
+      );
+
       const outputBuffer = Buffer.concat([
         new Uint8Array(buffer).slice(0, startPointer),
         compressedJpSection,
         compressedVq1Section,
         compressedVq2Section,
-        ...(compressedUsSection ? [compressedUsSection] : [])
+        ...(compressedUsSection ? [compressedUsSection] : []),
+        trailingSection
       ]);
 
       output = new Blob([outputBuffer], {
