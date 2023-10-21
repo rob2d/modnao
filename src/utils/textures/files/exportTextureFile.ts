@@ -172,7 +172,7 @@ export default async function exportTextureFile({
 
       const compressedVq1Section = padBufferForAlignment(
         pointers[1],
-        compressLzssBuffer(compressVqBuffer(vq1Section, 'RGB565'))
+        compressLzssBuffer(compressVqBuffer(vq1Section))
       );
 
       const vq2Section = Buffer.from(
@@ -183,7 +183,7 @@ export default async function exportTextureFile({
 
       const compressedVq2Section = padBufferForAlignment(
         pointers[2],
-        compressLzssBuffer(compressVqBuffer(vq2Section, 'RGB565'))
+        compressLzssBuffer(compressVqBuffer(vq2Section))
       );
 
       buffer.writeUInt32LE(startPointer, 0);

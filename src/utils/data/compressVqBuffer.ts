@@ -1,16 +1,11 @@
 import { kmeans } from '@thi.ng/k-means';
-import { TextureColorFormat } from '../textures';
 import { rgb565ToRgba8888, rgbaToRgb565 } from '../color-conversions';
 
 const WORD_SIZE = 2;
 const VECTOR_LENGTH = 4;
 
 /** @param buffer decompressed buffer to compress */
-export default function compressVqBuffer(
-  buffer: Buffer,
-  /* @ TODO: use a conversion dict */
-  imageFormat: TextureColorFormat = 'RGB565'
-) {
+export default function compressVqBuffer(buffer: Buffer) {
   console.time('compressVqBuffer');
 
   const codewords: number[][] = [];
