@@ -170,20 +170,17 @@ export default async function exportTextureFile({
         uint8Array.slice(pointers[1], pointers[2])
       );
 
-      const compressedVq1Section = padBufferForAlignment(
-        pointers[1],
-        compressLzssBuffer(compressVqBuffer(vq1Section))
+      const compressedVq1Section = compressLzssBuffer(
+        compressVqBuffer(vq1Section)
       );
-
       const vq2Section = Buffer.from(
         uint8Array.slice(
           ...[pointers[2], ...(pointers[3] ? [pointers[3]] : [])]
         )
       );
 
-      const compressedVq2Section = padBufferForAlignment(
-        pointers[2],
-        compressLzssBuffer(compressVqBuffer(vq2Section))
+      const compressedVq2Section = compressLzssBuffer(
+        compressVqBuffer(vq2Section)
       );
 
       buffer.writeUInt32LE(startPointer, 0);
