@@ -134,6 +134,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   const jpLifebar = await decompressLzssBuffer(
     Buffer.from(compressedJpLifebarAssets)
   );
+  let compressedUsLifebar: Uint8Array | undefined;
   let usLifebar: Uint8Array | undefined;
 
   const compressedVq1Image = uint8Array.slice(pointers[1], pointers[2]);
@@ -154,10 +155,8 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   );
 
   if (pointers[3]) {
-    const compressedUsLifebarAssets = uint8Array.slice(pointers[3]);
-    usLifebar = await decompressLzssBuffer(
-      Buffer.from(compressedUsLifebarAssets)
-    );
+    compressedUsLifebar = uint8Array.slice(pointers[3]);
+    usLifebar = await decompressLzssBuffer(Buffer.from(compressedUsLifebar));
   }
 
   const pointerBuffer = Buffer.alloc(startPointer);
@@ -207,9 +206,9 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   }
 
   const trailingSection = new Uint8Array(buffer).slice(
-    usLifebar
-      ? pointerBuffer.readUint32LE(12) + usLifebar.length
-      : pointerBuffer.readUint32LE(8) + vq2Image.length
+    compressedUsLifebar
+      ? pointerBuffer.readUint32LE(12) + compressedUsLifebar.length
+      : pointerBuffer.readUint32LE(8) + compressedVq2Image.length
   );
 
   const decompressedBuffer = Buffer.concat([
