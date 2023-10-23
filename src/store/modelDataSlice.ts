@@ -21,7 +21,6 @@ import { batch } from 'react-redux';
 import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import compressVqBuffer from '@/utils/data/compressVqBuffer';
 
 const workerPool = new WorkerThreadPool();
 
@@ -115,13 +114,11 @@ export const initialModelDataState: ModelDataState = {
   hasCompressedTextures: false
 };
 
-// @TODO: decompress VQ image for 2nd and 3rd
-// texture when loading a character portrait file
 export const loadCharacterPortraitsFile = createAsyncThunk<
   LoadTexturesPayload,
   File,
   { state: AppState }
->(`${sliceName}/loadCharacterPortraitsFile`, async (file, { dispatch }) => {
+>(`${sliceName}/loadCharacterPortraitWsFile`, async (file, { dispatch }) => {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
@@ -228,9 +225,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     { width: 64, height: 64 },
     { width: 256, height: 256, disableEdits: true },
     { width: 128, height: 128, disableEdits: true },
-    ...(pointers[3] ? [{ width: 64, height: 64 }] : []),
-    { width: 64, height: 64 },
-    { width: 128, height: 128 }
+    ...(pointers[3] ? [{ width: 64, height: 64 }] : [])
   ];
 
   const textureDefs = decompressedOffsets.map((offset, i) => ({
