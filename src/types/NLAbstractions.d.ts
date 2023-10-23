@@ -100,6 +100,7 @@ export type NLTextureDef = {
   type: number;
   baseLocation: number;
   ramOffset: number;
+  disableEdits?: boolean;
   bufferUrls: {
     translucent?: string;
     opaque?: string;

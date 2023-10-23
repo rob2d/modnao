@@ -12,6 +12,7 @@ import {
 } from '@/utils/textures';
 import { compressLzssBuffer, objectUrlToBuffer } from '@/utils/data';
 import { TextureFileType } from './textureFileTypeMap';
+import compressVqBuffer from '@/utils/data/compressVqBuffer';
 
 const COLOR_SIZE = 2;
 
@@ -75,11 +76,13 @@ export default async function exportTextureFile({
     );
 
     let quantizeOptions: QuantizeOptions | undefined;
+
     switch (textureFileType) {
       case 'mvc2-character-portraits': {
         quantizeOptions = {
           dithering: false,
-          colors: 64
+          // restrict colors further on smaller lifegauge imgs
+          colors: width === 64 ? 64 : 256
         };
         break;
       }
@@ -163,16 +166,28 @@ export default async function exportTextureFile({
         compressLzssBuffer(jpSection)
       );
 
+      const vq1Section = Buffer.from(
+        uint8Array.slice(pointers[1], pointers[2])
+      );
+
+      const compressedVq1Section = compressLzssBuffer(
+        compressVqBuffer(vq1Section)
+      );
+      const vq2Section = Buffer.from(
+        uint8Array.slice(
+          ...[pointers[2], ...(pointers[3] ? [pointers[3]] : [])]
+        )
+      );
+
+      const compressedVq2Section = compressLzssBuffer(
+        compressVqBuffer(vq2Section)
+      );
+
       buffer.writeUInt32LE(startPointer, 0);
       buffer.writeUInt32LE(startPointer + compressedJpSection.length, 4);
       buffer.writeUInt32LE(
-        startPointer + compressedJpSection.length + (pointers[2] - pointers[1]),
+        startPointer + compressedJpSection.length + compressedVq1Section.length,
         8
-      );
-
-      const vqContent = uint8Array.slice(
-        pointers[1],
-        pointers[3] !== undefined ? pointers[3] : undefined
       );
 
       let compressedUsSection;
@@ -185,20 +200,29 @@ export default async function exportTextureFile({
           startPointer,
           compressLzssBuffer(usSection)
         );
+
         buffer.writeUInt32LE(
           startPointer +
             compressedJpSection.length +
-            (pointers[2] - pointers[1]) +
-            (pointers[3] - pointers[2]),
+            compressedVq1Section.length +
+            compressedVq2Section.length,
           12
         );
       }
 
+      const trailingSection = new Uint8Array(buffer).slice(
+        compressedUsSection
+          ? buffer.readUint32LE(12) + compressedUsSection.length
+          : buffer.readUint32LE(8) + compressedVq2Section.length
+      );
+
       const outputBuffer = Buffer.concat([
         new Uint8Array(buffer).slice(0, startPointer),
         compressedJpSection,
-        vqContent,
-        ...(compressedUsSection ? [compressedUsSection] : [])
+        compressedVq1Section,
+        compressedVq2Section,
+        ...(compressedUsSection ? [compressedUsSection] : []),
+        trailingSection
       ]);
 
       output = new Blob([outputBuffer], {
