@@ -23,6 +23,11 @@ const customJestConfig = {
     // https://jestjs.io/docs/webpack#mocking-css-modules
     '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
 
+    // workaround to support non esmodule compiled package:
+    // jest-module name mapping will actually roll up packages
+    // with name transforms, even if they are accessed the same way
+    kmeans: ['<rootDir>/node_modules/@thi.ng/k-means'],
+
     // Handle CSS imports (without CSS modules)
     '^.+\\.(css|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
 
@@ -35,14 +40,16 @@ const customJestConfig = {
   },
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/(!(@thi.ng/k-means)/)'
+  ],
   testEnvironment: 'jest-environment-jsdom',
   transform: {
     // Use babel-jest to transpile tests with the next/babel preset
     // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }]
-  },
-  transformIgnorePatterns: ['/node_modules/', '^.+\\.module\\.(css|sass|scss)$']
+  }
 };
 
 module.exports = async () => ({

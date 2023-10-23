@@ -5,7 +5,8 @@ const nextConfig = {
     '@mui/material',
     '@mui/system',
     '@mui/icons-material',
-    'three'
+    'three',
+    '@thi.ng/k-means'
   ],
   modularizeImports: {
     '@mui/icons-material/?(((\\w*)?/?)*)': {
