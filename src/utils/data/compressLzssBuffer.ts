@@ -125,7 +125,7 @@ export default function compressLzssBuffer(buffer: Buffer) {
   chunk = 0;
   let bitmaskIndex = 0;
   let byteOffset = 0;
-  let outputBuffer = Buffer.alloc(buffer.length);
+  let outputBuffer = Buffer.alloc(buffer.length * 2);
 
   for (const value of values) {
     if (chunk === 0) {
