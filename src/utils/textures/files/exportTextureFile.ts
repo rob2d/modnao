@@ -173,9 +173,14 @@ export default async function exportTextureFile({
       const compressedVq1Section = compressLzssBuffer(
         compressVqBuffer(vq1Section)
       );
+
+      const tSectionPointer = Buffer.from(uint8Array).readUInt32LE(
+        uint8Array.length - 4
+      );
+
       const vq2Section = Buffer.from(
         uint8Array.slice(
-          ...[pointers[2], ...(pointers[3] ? [pointers[3]] : [])]
+          ...[pointers[2], ...(pointers[3] ? [pointers[3]] : [tSectionPointer])]
         )
       );
 
@@ -190,17 +195,17 @@ export default async function exportTextureFile({
         8
       );
 
+      let usSection;
       let compressedUsSection;
 
       if (pointers[3]) {
-        const usSection = Buffer.from(
-          new Uint8Array(buffer).slice(pointers[3])
-        );
+        usSection = Buffer.from(new Uint8Array(buffer).slice(pointers[3]));
         compressedUsSection = padBufferForAlignment(
           startPointer,
           compressLzssBuffer(usSection)
         );
 
+        // us section, 12
         buffer.writeUInt32LE(
           startPointer +
             compressedJpSection.length +
@@ -211,9 +216,8 @@ export default async function exportTextureFile({
       }
 
       const trailingSection = new Uint8Array(buffer).slice(
-        compressedUsSection
-          ? buffer.readUint32LE(12) + compressedUsSection.length
-          : buffer.readUint32LE(8) + compressedVq2Section.length
+        tSectionPointer,
+        buffer.length - 4
       );
 
       const outputBuffer = Buffer.concat([

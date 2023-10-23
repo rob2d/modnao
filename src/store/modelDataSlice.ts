@@ -207,9 +207,16 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
 
   const trailingSection = new Uint8Array(buffer).slice(
     compressedUsLifebar
-      ? pointerBuffer.readUint32LE(12) + compressedUsLifebar.length
-      : pointerBuffer.readUint32LE(8) + compressedVq2Image.length
+      ? pointers[3] + compressedUsLifebar.length
+      : pointers[2] + compressedVq2Image.length
   );
+
+  const tSectionPointer = usLifebar
+    ? pointerBuffer.readUint32LE(12) + usLifebar.length
+    : pointerBuffer.readUint32LE(8) + vq2Image.length;
+
+  const tSectionBytes = Buffer.from(new Uint8Array(4));
+  tSectionBytes.writeUInt32LE(tSectionPointer, 0);
 
   const decompressedBuffer = Buffer.concat([
     pointerBuffer,
@@ -217,7 +224,8 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     vq1Image,
     vq2Image,
     ...(usLifebar ? [usLifebar] : []),
-    trailingSection
+    trailingSection,
+    tSectionBytes
   ]);
 
   const textureStructure: Partial<NLTextureDef>[] = [
