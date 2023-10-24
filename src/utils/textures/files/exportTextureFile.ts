@@ -33,16 +33,20 @@ type ExportTextureOptions = {
   isCompressedTexture: boolean;
 };
 
-function padBufferForAlignment(alignment: number, buffer: Buffer) {
-  const b16Alignment = (buffer.length + alignment) % 32;
+function padBufferForAlignment(
+  alignment: number,
+  buffer: Buffer,
+  startLocation = 0
+) {
+  const b32Alignment = (startLocation + buffer.length) % 32;
   let alignmentPadding: number;
 
-  if (b16Alignment === alignment) {
+  if (b32Alignment === alignment) {
     alignmentPadding = 0;
-  } else if (b16Alignment > alignment) {
-    alignmentPadding = 32 - b16Alignment + alignment;
+  } else if (b32Alignment > alignment) {
+    alignmentPadding = 32 - b32Alignment + alignment;
   } else {
-    alignmentPadding = alignment - b16Alignment;
+    alignmentPadding = alignment - b32Alignment;
   }
 
   return Buffer.concat([
@@ -184,8 +188,10 @@ export default async function exportTextureFile({
         )
       );
 
-      const compressedVq2Section = compressLzssBuffer(
-        compressVqBuffer(vq2Section)
+      const compressedVq2Section = padBufferForAlignment(
+        startPointer,
+        compressLzssBuffer(compressVqBuffer(vq2Section)),
+        startPointer + compressedJpSection.length + compressedVq1Section.length
       );
 
       buffer.writeUInt32LE(startPointer, 0);
