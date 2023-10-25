@@ -29,6 +29,7 @@ import {
   selectReplacementImage,
   selectReplacementTextureIndex,
   selectTextureDefs,
+  selectUpdatedTextureDefs,
   useAppDispatch,
   useAppSelector
 } from '@/store';
@@ -284,7 +285,7 @@ export default function ReplaceTexture() {
     dispatch(applyReplacedTextureImage(processedRgba));
   }, [processedRgba, dispatch]);
 
-  const textureDefs: NLTextureDef[] = useAppSelector(selectTextureDefs);
+  const textureDefs: NLTextureDef[] = useAppSelector(selectUpdatedTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
   const replacementImage = useAppSelector(selectReplacementImage);
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;

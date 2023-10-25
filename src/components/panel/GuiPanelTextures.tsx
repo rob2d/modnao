@@ -9,9 +9,9 @@ import {
   selectModels,
   selectObjectMeshIndex,
   selectObjectPolygonIndex,
-  selectUpdatedTextureDefs,
   selectSelectedTexture,
   selectTextureFileName,
+  selectUpdatedTextureDefs,
   useAppDispatch,
   useAppSelector
 } from '@/store';
