@@ -44,11 +44,10 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'PL{NN}_FAC.BIN',
     filenameExample: 'PL0D_FAC.BIN',
-    hasIssues: true,
     description:
       'Player lifebars (both Japanese & US/International), super portrait and v.s. portrait',
     notes:
-      'Palette will be limited (handled automatically on export). Note that portraits are in a lossy format, and also use a machine learning algorithm that can take up to a minute or two to generate. Because of this, you may want to keep a copy of the original image for any edits vs re-downloading/editing from a lossy format. Note: these are new/experimental and may corrupt your ROM!'
+      'Palette will be limited (handled automatically on export). Note that portraits are in a lossy format, and also use a machine learning algorithm that can take up to a minute or two to generate. Because of this, you may want to keep a copy of the original image for any edits vs re-downloading/editing from a lossy format.'
   },
   {
     title: 'Marvel vs Capcom 2',
