@@ -16,7 +16,7 @@ import {
   selectMeshSelectionType,
   selectModel,
   selectObjectKey,
-  selectSceneTextureDefs,
+  selectUpdatedTextureDefs,
   selectUneditedTextureUrls
 } from '@/store/selectors';
 import { setObjectKey, useAppDispatch, useAppSelector } from '@/store';
@@ -100,7 +100,7 @@ export default function SceneView() {
   );
 
   const uneditedTextureUrls = useAppSelector(selectUneditedTextureUrls);
-  const textureDefs = useAppSelector(selectSceneTextureDefs);
+  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
 

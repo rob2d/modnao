@@ -57,7 +57,7 @@ export const selectEditedTextures = (s: AppState) => s.modelData.editedTextures;
  * combines texture defs with any edited data urls
  * to display on scene in real-time
  */
-export const selectSceneTextureDefs = createSelector(
+export const selectUpdatedTextureDefs = createSelector(
   selectTextureDefs,
   selectEditedTextures,
   (textureDefs, bufferUrlEntries): typeof textureDefs => {
@@ -97,7 +97,7 @@ export const selectModel = createSelector(
 export type DisplayedMesh = NLMesh & { textureHash: string };
 export const selectDisplayedMeshes = createSelector(
   selectModel,
-  selectSceneTextureDefs,
+  selectUpdatedTextureDefs,
   (model, textureDefs) =>
     (model?.meshes || []).reduce<DisplayedMesh[]>((meshes, m) => {
       const tDef = textureDefs[m.textureIndex];

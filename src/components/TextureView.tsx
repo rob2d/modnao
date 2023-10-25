@@ -4,7 +4,11 @@ import Icon from '@mdi/react';
 import Img from 'next/image';
 import useViewportSizes from 'use-viewport-sizes';
 import { useObjectNavControls, useObjectUINav } from '@/hooks';
-import { selectTextureDefs, selectTextureIndex, useAppSelector } from '@/store';
+import {
+  selectTextureIndex,
+  selectUpdatedTextureDefs,
+  useAppSelector
+} from '@/store';
 
 const Styled = styled('div')(
   () =>
@@ -52,7 +56,7 @@ export default function TextureView() {
   const [vpW] = useViewportSizes();
   const size = Math.round((vpW - 222) * 0.66);
   const textureIndex = useAppSelector(selectTextureIndex);
-  const textureDefs = useAppSelector(selectTextureDefs);
+  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const textureUrl = textureDefs?.[textureIndex]?.dataUrls?.opaque;
 
   return (

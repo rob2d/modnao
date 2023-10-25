@@ -12,7 +12,7 @@ import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import {
   selectHasCompressedTextures,
-  selectSceneTextureDefs,
+  selectUpdatedTextureDefs,
   selectTextureFileType
 } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
@@ -715,7 +715,7 @@ export const downloadTextureFile = createAsyncThunk<
 >(`${sliceName}/downloadTextureFile`, async (_, { getState }) => {
   const state = getState();
   const { textureFileName, textureBufferUrl } = state.modelData;
-  const textureDefs = selectSceneTextureDefs(state);
+  const textureDefs = selectUpdatedTextureDefs(state);
   const textureFileType = selectTextureFileType(state);
   const isCompressedTexture = selectHasCompressedTextures(state);
 
