@@ -16,8 +16,8 @@ import {
   selectMeshSelectionType,
   selectModel,
   selectObjectKey,
-  selectUpdatedTextureDefs,
-  selectUneditedTextureUrls
+  selectUneditedTextureUrls,
+  selectUpdatedTextureDefs
 } from '@/store/selectors';
 import { setObjectKey, useAppDispatch, useAppSelector } from '@/store';
 import { useObjectNavControls } from '@/hooks';

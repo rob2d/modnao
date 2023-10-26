@@ -36,12 +36,8 @@ import { TextureColorFormat } from '@/utils/textures';
 import { objectUrlToBuffer } from '@/utils/data';
 import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
-import {
-  applyReplacedTextureImage,
-  updateReplacementTexture
-} from '@/store/replaceTextureSlice';
+import { applyReplacedTextureImage } from '@/store/replaceTextureSlice';
 import { NLTextureDef } from '@/types/NLAbstractions';
-import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import { useFilePicker } from 'use-file-picker';
 import themeMixins from '@/theming/themeMixins';
