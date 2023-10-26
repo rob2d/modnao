@@ -9,9 +9,9 @@ import {
   selectModels,
   selectObjectMeshIndex,
   selectObjectPolygonIndex,
-  selectSceneTextureDefs,
   selectSelectedTexture,
   selectTextureFileName,
+  selectUpdatedTextureDefs,
   useAppDispatch,
   useAppSelector
 } from '@/store';
@@ -38,7 +38,7 @@ export default function GuiPanelViewOptions() {
   const model = useAppSelector(selectModel);
   const meshIndex = useAppSelector(selectObjectMeshIndex);
   const canExportTextures = useAppSelector(selectCanExportTextures);
-  const textureDefs = useAppSelector(selectSceneTextureDefs);
+  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const textureFileName = useAppSelector(selectTextureFileName);
   const selectedTexture = useAppSelector(selectSelectedTexture);
   const contentViewMode = useAppSelector(selectContentViewMode);

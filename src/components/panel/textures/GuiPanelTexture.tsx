@@ -21,6 +21,8 @@ import { SourceTextureData, uvToCssPathPoint } from '@/utils/textures';
 import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ContentViewMode from '@/types/ContentViewMode';
+import themeMixins from '@/theming/themeMixins';
+import { useTextureReplaceDropzone } from '@/hooks';
 
 const IMG_SIZE = '174px';
 
@@ -42,17 +44,7 @@ const StyledPanelTexture = styled('div')(
   }
 
   & .image-area.file-drag-active:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: ${theme.palette.secondary.light};
-    border: 3px solid ${theme.palette.secondary.main};
-    mix-blend-mode: hard-light;
-    opacity: 0.75;
-    pointer-events: none;
+    ${themeMixins.fileDragActiveAfter(theme)}
   }
     
   & .img {
@@ -83,7 +75,7 @@ const StyledPanelTexture = styled('div')(
     opacity: 0.25;
   }
 
-  &.mode-textures {
+  &.mode-textures.selectable {
     cursor: pointer;
   }
 
@@ -172,31 +164,8 @@ export default function GuiPanelTexture({
     contentViewMode !== 'polygons'
   ]);
 
-  const onSelectNewImageFile = useCallback(
-    async (imageFile: File) => {
-      dispatch(selectReplacementTexture({ imageFile, textureIndex }));
-    },
-    [textureIndex]
-  );
-
-  const onDrop = useCallback(
-    async ([file]: File[]) => {
-      onSelectNewImageFile(file);
-    },
-    [onSelectNewImageFile]
-  );
-
-  const { getRootProps: getDragProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    noClick: true,
-    accept: {
-      'image/bmp': ['.bmp'],
-      'image/png': ['.png'],
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/gif': ['.gif']
-    }
-  });
+  const { getDragProps, isDragActive, onSelectNewImageFile } =
+    useTextureReplaceDropzone(textureIndex);
 
   const { width, height } = textureDef;
 
@@ -296,6 +265,7 @@ export default function GuiPanelTexture({
     <StyledPanelTexture
       className={clsx(
         `mode-${contentViewMode}`,
+        isSelectable && 'selectable',
         viewOptions.uvRegionsHighlighted && 'uvs-enabled'
       )}
     >

@@ -28,22 +28,19 @@ import {
   closeDialog,
   selectReplacementImage,
   selectReplacementTextureIndex,
-  selectTextureDefs,
+  selectUpdatedTextureDefs,
   useAppDispatch,
   useAppSelector
 } from '@/store';
 import { TextureColorFormat } from '@/utils/textures';
 import { objectUrlToBuffer } from '@/utils/data';
-import { useDebouncedEffect } from '@/hooks';
+import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
-import {
-  applyReplacedTextureImage,
-  updateReplacementTexture
-} from '@/store/replaceTextureSlice';
+import { applyReplacedTextureImage } from '@/store/replaceTextureSlice';
 import { NLTextureDef } from '@/types/NLAbstractions';
-import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import { useFilePicker } from 'use-file-picker';
+import themeMixins from '@/theming/themeMixins';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -64,17 +61,7 @@ const Styled = styled('div')(
 }
 
 & .content.file-drag-active:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: ${theme.palette.secondary.light};
-    border: 3px solid ${theme.palette.secondary.main};
-    mix-blend-mode: hard-light;
-    opacity: 0.75;
-    pointer-events: none;
+    ${themeMixins.fileDragActiveAfter}
 }
 
 & .section {
@@ -284,7 +271,7 @@ export default function ReplaceTexture() {
     dispatch(applyReplacedTextureImage(processedRgba));
   }, [processedRgba, dispatch]);
 
-  const textureDefs: NLTextureDef[] = useAppSelector(selectTextureDefs);
+  const textureDefs: NLTextureDef[] = useAppSelector(selectUpdatedTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
   const replacementImage = useAppSelector(selectReplacementImage);
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;
@@ -413,12 +400,8 @@ export default function ReplaceTexture() {
     200
   );
 
-  const onSelectNewImageFile = useCallback(
-    async (imageFile: File) => {
-      dispatch(updateReplacementTexture({ imageFile }));
-    },
-    [textureIndex]
-  );
+  const { getDragProps, isDragActive, onSelectNewImageFile } =
+    useTextureReplaceDropzone(textureIndex);
 
   const [
     openImageFileSelector,
@@ -438,25 +421,6 @@ export default function ReplaceTexture() {
 
     onSelectNewImageFile(selectedImageFile);
   }, [selectedImageFile]);
-
-  const onDrop = useCallback(
-    async ([file]: File[]) => {
-      onSelectNewImageFile(file);
-    },
-    [onSelectNewImageFile]
-  );
-
-  const { getRootProps: getDragProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    noClick: true,
-    accept: {
-      'image/bmp': ['.bmp'],
-      'image/png': ['.png'],
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/gif': ['.gif']
-    }
-  });
 
   useEffect(() => {
     (async () => {
