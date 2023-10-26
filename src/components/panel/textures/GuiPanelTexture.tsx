@@ -163,6 +163,7 @@ export default function GuiPanelTexture({
     contentViewMode !== 'polygons'
   ]);
 
+  // @TODO: DRY
   const onSelectNewImageFile = useCallback(
     async (imageFile: File) => {
       dispatch(selectReplacementTexture({ imageFile, textureIndex }));

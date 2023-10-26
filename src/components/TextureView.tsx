@@ -7,11 +7,17 @@ import { useObjectNavControls, useObjectUINav } from '@/hooks';
 import {
   selectTextureIndex,
   selectUpdatedTextureDefs,
+  useAppDispatch,
   useAppSelector
 } from '@/store';
+import { useDropzone } from 'react-dropzone';
+import { useCallback } from 'react';
+import clsx from 'clsx';
+import themeMixins from '@/theming/themeMixins';
+import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 
 const Styled = styled('div')(
-  () =>
+  ({ theme }) =>
     `& {
       display: flex;
       flex-direction: column;
@@ -40,23 +46,61 @@ const Styled = styled('div')(
     }
 
     & .texture-preview {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     
-    & .texture-preview > img {
+    & .texture-preview > div {
       transform: rotate(-90deg);
+    }
+
+    & .texture-preview > * {
+      position: relative;
+    }
+    
+    & .texture-preview > div.file-drag-active:after {
+      ${themeMixins.fileDragActiveAfter(theme)}
     }`
 );
 
 export default function TextureView() {
   useObjectNavControls();
+  const dispatch = useAppDispatch();
   const uiControls = useObjectUINav();
   const [vpW] = useViewportSizes();
   const size = Math.round((vpW - 222) * 0.66);
   const textureIndex = useAppSelector(selectTextureIndex);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+
+  // @TODO: DRY w GuiPanelTexture
+  const onSelectNewImageFile = useCallback(
+    async (imageFile: File) => {
+      dispatch(selectReplacementTexture({ imageFile, textureIndex }));
+    },
+    [textureIndex]
+  );
+
+  const onDrop = useCallback(
+    async ([file]: File[]) => {
+      onSelectNewImageFile(file);
+    },
+    [onSelectNewImageFile]
+  );
+
+  const { getRootProps: getDragProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    noClick: true,
+    accept: {
+      'image/bmp': ['.bmp'],
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/gif': ['.gif']
+    }
+  });
+
   const textureUrl = textureDefs?.[textureIndex]?.dataUrls?.opaque;
 
   return (
@@ -70,22 +114,18 @@ export default function TextureView() {
         >
           <Icon path={mdiMenuLeftOutline} size={2} />
         </IconButton>
-        <div className='texture-preview'>
+        <div className='texture-preview' {...getDragProps()}>
           {!textureUrl ? (
-            <Skeleton
-              className='texture-preview'
-              variant='rectangular'
-              width={size}
-              height={size}
-            />
+            <Skeleton variant='rectangular' width={size} height={size} />
           ) : (
-            <Img
-              alt='texture preview'
-              className='texture-preview'
-              width={size}
-              height={size}
-              src={textureUrl}
-            />
+            <div className={clsx(isDragActive && 'file-drag-active')}>
+              <Img
+                alt='texture preview'
+                width={size}
+                height={size}
+                src={textureUrl}
+              />
+            </div>
           )}
         </div>
         <IconButton
