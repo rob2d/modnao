@@ -34,7 +34,7 @@ import {
 } from '@/store';
 import { TextureColorFormat } from '@/utils/textures';
 import { objectUrlToBuffer } from '@/utils/data';
-import { useDebouncedEffect } from '@/hooks';
+import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
 import {
   applyReplacedTextureImage,
@@ -404,12 +404,8 @@ export default function ReplaceTexture() {
     200
   );
 
-  const onSelectNewImageFile = useCallback(
-    async (imageFile: File) => {
-      dispatch(updateReplacementTexture({ imageFile }));
-    },
-    [textureIndex]
-  );
+  const { getDragProps, isDragActive, onSelectNewImageFile } =
+    useTextureReplaceDropzone(textureIndex);
 
   const [
     openImageFileSelector,
@@ -429,25 +425,6 @@ export default function ReplaceTexture() {
 
     onSelectNewImageFile(selectedImageFile);
   }, [selectedImageFile]);
-
-  const onDrop = useCallback(
-    async ([file]: File[]) => {
-      onSelectNewImageFile(file);
-    },
-    [onSelectNewImageFile]
-  );
-
-  const { getRootProps: getDragProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    noClick: true,
-    accept: {
-      'image/bmp': ['.bmp'],
-      'image/png': ['.png'],
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/gif': ['.gif']
-    }
-  });
 
   useEffect(() => {
     (async () => {

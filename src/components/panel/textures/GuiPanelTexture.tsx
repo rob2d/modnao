@@ -22,6 +22,7 @@ import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ContentViewMode from '@/types/ContentViewMode';
 import themeMixins from '@/theming/themeMixins';
+import { useTextureReplaceDropzone } from '@/hooks';
 
 const IMG_SIZE = '174px';
 
@@ -163,32 +164,8 @@ export default function GuiPanelTexture({
     contentViewMode !== 'polygons'
   ]);
 
-  // @TODO: DRY
-  const onSelectNewImageFile = useCallback(
-    async (imageFile: File) => {
-      dispatch(selectReplacementTexture({ imageFile, textureIndex }));
-    },
-    [textureIndex]
-  );
-
-  const onDrop = useCallback(
-    async ([file]: File[]) => {
-      onSelectNewImageFile(file);
-    },
-    [onSelectNewImageFile]
-  );
-
-  const { getRootProps: getDragProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    noClick: true,
-    accept: {
-      'image/bmp': ['.bmp'],
-      'image/png': ['.png'],
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/gif': ['.gif']
-    }
-  });
+  const { getDragProps, isDragActive, onSelectNewImageFile } =
+    useTextureReplaceDropzone(textureIndex);
 
   const { width, height } = textureDef;
 
