@@ -12,8 +12,8 @@ import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import {
   selectHasCompressedTextures,
-  selectUpdatedTextureDefs,
-  selectTextureFileType
+  selectTextureFileType,
+  selectUpdatedTextureDefs
 } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
 import WorkerThreadPool from '../utils/WorkerThreadPool';

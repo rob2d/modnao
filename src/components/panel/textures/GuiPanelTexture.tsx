@@ -75,7 +75,7 @@ const StyledPanelTexture = styled('div')(
     opacity: 0.25;
   }
 
-  &.mode-textures {
+  &.mode-textures.selectable {
     cursor: pointer;
   }
 
@@ -265,6 +265,7 @@ export default function GuiPanelTexture({
     <StyledPanelTexture
       className={clsx(
         `mode-${contentViewMode}`,
+        isSelectable && 'selectable',
         viewOptions.uvRegionsHighlighted && 'uvs-enabled'
       )}
     >
