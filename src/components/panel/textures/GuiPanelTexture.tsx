@@ -21,6 +21,7 @@ import { SourceTextureData, uvToCssPathPoint } from '@/utils/textures';
 import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ContentViewMode from '@/types/ContentViewMode';
+import themeMixins from '@/theming/themeMixins';
 
 const IMG_SIZE = '174px';
 
@@ -42,17 +43,7 @@ const StyledPanelTexture = styled('div')(
   }
 
   & .image-area.file-drag-active:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: ${theme.palette.secondary.light};
-    border: 3px solid ${theme.palette.secondary.main};
-    mix-blend-mode: hard-light;
-    opacity: 0.75;
-    pointer-events: none;
+    ${themeMixins.fileDragActiveAfter(theme)}
   }
     
   & .img {

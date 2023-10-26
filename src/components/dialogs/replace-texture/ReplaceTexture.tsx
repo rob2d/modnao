@@ -28,7 +28,6 @@ import {
   closeDialog,
   selectReplacementImage,
   selectReplacementTextureIndex,
-  selectTextureDefs,
   selectUpdatedTextureDefs,
   useAppDispatch,
   useAppSelector
@@ -45,6 +44,7 @@ import { NLTextureDef } from '@/types/NLAbstractions';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import { useFilePicker } from 'use-file-picker';
+import themeMixins from '@/theming/themeMixins';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -65,17 +65,7 @@ const Styled = styled('div')(
 }
 
 & .content.file-drag-active:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: ${theme.palette.secondary.light};
-    border: 3px solid ${theme.palette.secondary.main};
-    mix-blend-mode: hard-light;
-    opacity: 0.75;
-    pointer-events: none;
+    ${themeMixins.fileDragActiveAfter}
 }
 
 & .section {
