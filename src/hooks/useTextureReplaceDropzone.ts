@@ -27,7 +27,9 @@ export default function useTextureReplaceDropzone(textureIndex: number) {
       'image/bmp': ['.bmp'],
       'image/png': ['.png'],
       'image/jpeg': ['.jpg', '.jpeg'],
-      'image/gif': ['.gif']
+      'image/gif': ['.gif'],
+      'image/tiff': ['.tif', '.tiff'],
+      'image/webp': ['.webp']
     }
   });
 
