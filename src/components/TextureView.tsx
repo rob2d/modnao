@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { IconButton, Skeleton, styled } from '@mui/material';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import Icon from '@mdi/react';
@@ -11,14 +12,9 @@ import {
 import {
   selectTextureIndex,
   selectUpdatedTextureDefs,
-  useAppDispatch,
   useAppSelector
 } from '@/store';
-import { useDropzone } from 'react-dropzone';
-import { useCallback } from 'react';
-import clsx from 'clsx';
 import themeMixins from '@/theming/themeMixins';
-import { selectReplacementTexture } from '@/store/replaceTextureSlice';
 
 const Styled = styled('div')(
   ({ theme }) =>
@@ -32,13 +28,13 @@ const Styled = styled('div')(
       overflow-y: hidden;
     }
 
-    & .main-preview {
+    & .main {
       display: grid;
       flex-grow: 1;
       grid-template-columns: min-content auto min-content;
     }
 
-    & .main-preview > * {
+    & .main > * {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -57,6 +53,9 @@ const Styled = styled('div')(
     }
     
     & .texture-preview > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transform: rotate(-90deg);
     }
 
@@ -84,7 +83,7 @@ export default function TextureView() {
 
   return (
     <Styled>
-      <div className='main-preview'>
+      <div className='main'>
         <IconButton
           className='model-nav-button'
           color='primary'
