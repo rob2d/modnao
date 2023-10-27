@@ -27,6 +27,7 @@ const IMG_SIZE = '174px';
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
     `& {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -248,13 +249,6 @@ export default function GuiPanelTexture({
       >
         {textureDef.width}x{textureDef.height} [{textureIndex}]
       </Typography>
-      <GuiPanelTextureMenu
-        textureIndex={textureIndex}
-        width={textureDef.width}
-        height={textureDef.height}
-        pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
-        onReplaceImageFile={onSelectNewImageFile}
-      />
     </>
   );
 
@@ -273,6 +267,13 @@ export default function GuiPanelTexture({
           <ButtonBase {...mainContentProps}>{content}</ButtonBase>
         </Tooltip>
       )}
+      <GuiPanelTextureMenu
+        textureIndex={textureIndex}
+        width={textureDef.width}
+        height={textureDef.height}
+        pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
+        onReplaceImageFile={onSelectNewImageFile}
+      />
     </StyledPanelTexture>
   );
 }
