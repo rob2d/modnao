@@ -1,4 +1,4 @@
-import { ListItem, Slider, styled, Typography } from '@mui/material';
+import { ListItem, Slider, styled, Tooltip, Typography } from '@mui/material';
 
 const StyledListItem = styled(ListItem)(
   ({ theme }) =>
@@ -15,6 +15,7 @@ type Props = {
   min: number;
   max: number;
   value: number;
+  labelTooltip: string;
   onChange: (event: Event, value: number | number[]) => void;
 };
 
@@ -28,11 +29,14 @@ export default function GuiPanelMenuSlider({
   max,
   value,
   label,
+  labelTooltip,
   onChange
 }: Props) {
   return (
     <StyledListItem>
-      <Typography variant='body1'>{label}</Typography>
+      <Tooltip title={labelTooltip} placement='left'>
+        <Typography variant='body1'>{label}</Typography>
+      </Tooltip>
       <Slider
         size='small'
         min={min}

@@ -214,8 +214,7 @@ export default function GuiPanelTexture({
         ? {}
         : {
             onClick: () => dispatch(setObjectViewedIndex(textureIndex)),
-            tabIndex: 0,
-            title: 'select this texture'
+            tabIndex: 0
           })
     }),
     [

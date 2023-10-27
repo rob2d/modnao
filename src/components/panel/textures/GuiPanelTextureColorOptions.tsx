@@ -127,6 +127,7 @@ export default function GuiPanelTextureColorOptions({
       }
     >
       <GuiPanelMenuSlider
+        labelTooltip={`Hue`}
         label={'H'}
         min={-180}
         max={180}
@@ -134,6 +135,7 @@ export default function GuiPanelTextureColorOptions({
         onChange={onSetH}
       />
       <GuiPanelMenuSlider
+        labelTooltip={`Saturation`}
         label={'S'}
         min={-100}
         max={100}
@@ -141,6 +143,7 @@ export default function GuiPanelTextureColorOptions({
         onChange={onSetS}
       />
       <GuiPanelMenuSlider
+        labelTooltip={`Lightness`}
         label={'L'}
         min={-100}
         max={100}
