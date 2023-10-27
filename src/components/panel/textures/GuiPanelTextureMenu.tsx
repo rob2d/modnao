@@ -13,7 +13,7 @@ import {
 import { Divider, styled, Tooltip } from '@mui/material';
 import { objectUrlToBuffer } from '@/utils/data';
 import { useFilePicker } from 'use-file-picker';
-import GuiPanelTextureColorOptions from './GuiPanelTextureColorOptions';
+import TextureColorOptions from '../../TextureColorOptions';
 import { revertTextureImage, useAppDispatch, useAppSelector } from '@/store';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
@@ -222,7 +222,7 @@ export default function GuiPanelTextureMenu({
           </Tooltip>
         ))}
         <Divider />
-        <GuiPanelTextureColorOptions textureIndex={textureIndex} />
+        <TextureColorOptions textureIndex={textureIndex} variant='menu' />
       </StyledMenu>
     </StyledMenuButtonContainer>
   );

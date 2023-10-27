@@ -16,14 +16,15 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import GuiPanelMenuSlider from '../GuiPanelMenuSlider';
+import GuiPanelMenuSlider from './panel/GuiPanelMenuSlider';
 import Icon from '@mdi/react';
 import { mdiRefresh } from '@mdi/js';
 import { batch } from 'react-redux';
+import clsx from 'clsx';
 
-const StyledButton = styled(Button)(
+const StyledList = styled(List)(
   ({ theme }) =>
-    `& svg {
+    `& .MuiButton svg {
     margin-right: ${theme.spacing(1)};
   }`
 );
@@ -34,10 +35,12 @@ const DEFAULT_HSL = {
   l: 0
 };
 
-export default function GuiPanelTextureColorOptions({
-  textureIndex
+export default function TextureColorOptions({
+  textureIndex,
+  variant = 'menu'
 }: {
   textureIndex: number;
+  variant: 'menu' | 'texture-view';
 }) {
   const dispatch = useAppDispatch();
   const textureDefs = useAppSelector(selectTextureDefs);
@@ -96,7 +99,7 @@ export default function GuiPanelTextureColorOptions({
     }) => (
       <ListItem>
         <Tooltip title={tooltip} placement='left-start'>
-          <StyledButton
+          <Button
             onClick={onClick}
             color='secondary'
             size='small'
@@ -104,7 +107,7 @@ export default function GuiPanelTextureColorOptions({
             fullWidth
           >
             {label}
-          </StyledButton>
+          </Button>
         </Tooltip>
       </ListItem>
     ),
@@ -117,9 +120,9 @@ export default function GuiPanelTextureColorOptions({
     DEFAULT_HSL.l !== hsl.l;
 
   return (
-    <List
+    <StyledList
       dense
-      className={'hsv-sliders'}
+      className={clsx('hsv-sliders', variant)}
       subheader={
         <ListSubheader component='div' id='nested-list-subheader'>
           Color Adjustment
@@ -169,6 +172,6 @@ export default function GuiPanelTextureColorOptions({
           label={'APPLY TO ALL'}
         />
       )}
-    </List>
+    </StyledList>
   );
 }
