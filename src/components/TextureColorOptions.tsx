@@ -24,9 +24,30 @@ import clsx from 'clsx';
 
 const StyledList = styled(List)(
   ({ theme }) =>
-    `& .MuiButton svg {
-    margin-right: ${theme.spacing(1)};
-  }`
+    `
+    &.texture-view {
+      display: flex;
+      padding: 0;
+    }
+
+    ${theme.breakpoints.down('md')} {
+      &.texture-view {
+        flex-direction: column;
+      }
+    }
+
+    &.texture-view .MuiSlider-root.MuiSlider-sizeSmall {
+      width: 100px;
+    }
+
+    &.texture-view .MuiListItem-root {
+      padding-left: ${theme.spacing(1)};
+      padding-right: ${theme.spacing(1)};
+    }
+
+    & .MuiButton svg {
+      margin-right: ${theme.spacing(1)};
+    }`
 );
 
 const DEFAULT_HSL = {
@@ -46,13 +67,24 @@ export default function TextureColorOptions({
   const textureDefs = useAppSelector(selectTextureDefs);
   const editedTextures = useAppSelector(selectEditedTextures);
   const [hsl, setHsl] = useState<HslValues>(() => {
-    if (!editedTextures[textureIndex]?.hsl) {
+    if (!editedTextures?.[textureIndex]?.hsl) {
       return DEFAULT_HSL;
     }
 
     const { h, s, l } = editedTextures[textureIndex].hsl;
     return h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL;
   });
+
+  useEffect(() => {
+    if (!editedTextures?.[textureIndex]?.hsl) {
+      setHsl(DEFAULT_HSL);
+      return;
+    }
+
+    const { h, s, l } = editedTextures[textureIndex].hsl;
+    setHsl(h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL);
+  }, [textureIndex]);
+
   const getHslSetter = useCallback(
     (key: keyof HslValues) => (_: Event, v: number | number[]) =>
       setHsl({
@@ -119,16 +151,8 @@ export default function TextureColorOptions({
     DEFAULT_HSL.s !== hsl.s ||
     DEFAULT_HSL.l !== hsl.l;
 
-  return (
-    <StyledList
-      dense
-      className={clsx('hsv-sliders', variant)}
-      subheader={
-        <ListSubheader component='div' id='nested-list-subheader'>
-          Color Adjustment
-        </ListSubheader>
-      }
-    >
+  const hslSliders = (
+    <>
       <GuiPanelMenuSlider
         labelTooltip={`Hue`}
         label={'H'}
@@ -153,6 +177,24 @@ export default function TextureColorOptions({
         value={hsl.l}
         onChange={onSetL}
       />
+    </>
+  );
+
+  if (variant === 'texture-view') {
+    return <StyledList className={variant}>{hslSliders}</StyledList>;
+  }
+
+  return (
+    <StyledList
+      dense
+      className={clsx('hsv-sliders', variant)}
+      subheader={
+        <ListSubheader component='div' id='nested-list-subheader'>
+          Color Adjustment
+        </ListSubheader>
+      }
+    >
+      {hslSliders}
       {!hasChanges ? undefined : (
         <ButtonOption
           tooltip='Reset color changes to this texture'
