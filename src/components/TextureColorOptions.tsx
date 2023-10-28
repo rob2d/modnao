@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import {
   Button,
   List,
@@ -16,9 +16,7 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import GuiPanelMenuSlider from './panel/GuiPanelMenuSlider';
-import Icon from '@mdi/react';
-import { mdiRefresh } from '@mdi/js';
+import NumericSliderInput from './NumericSliderInput';
 import { batch } from 'react-redux';
 import clsx from 'clsx';
 
@@ -36,13 +34,9 @@ const StyledList = styled(List)(
       }
     }
 
-    &.texture-view .MuiSlider-root.MuiSlider-sizeSmall {
-      width: 100px;
-    }
-
     &.texture-view .MuiListItem-root {
-      padding-left: ${theme.spacing(1)};
-      padding-right: ${theme.spacing(1)};
+      padding-left: ${theme.spacing(0)};
+      padding-right: ${theme.spacing(0)};
     }
 
     & .MuiButton svg {
@@ -86,7 +80,7 @@ export default function TextureColorOptions({
   }, [textureIndex]);
 
   const getHslSetter = useCallback(
-    (key: keyof HslValues) => (_: Event, v: number | number[]) =>
+    (key: keyof HslValues) => (v: number | number[]) =>
       setHsl({
         ...DEFAULT_HSL,
         ...hsl,
@@ -123,11 +117,13 @@ export default function TextureColorOptions({
     ({
       tooltip,
       onClick,
-      label
+      label,
+      disabled
     }: {
       tooltip: string;
       onClick: () => void;
       label: JSX.Element | string;
+      disabled?: boolean;
     }) => (
       <ListItem>
         <Tooltip title={tooltip} placement='left-start'>
@@ -137,6 +133,7 @@ export default function TextureColorOptions({
             size='small'
             variant='outlined'
             fullWidth
+            disabled={disabled}
           >
             {label}
           </Button>
@@ -153,25 +150,28 @@ export default function TextureColorOptions({
 
   const hslSliders = (
     <>
-      <GuiPanelMenuSlider
+      <NumericSliderInput
         labelTooltip={`Hue`}
         label={'H'}
+        defaultValue={0}
         min={-180}
         max={180}
         value={hsl.h}
         onChange={onSetH}
       />
-      <GuiPanelMenuSlider
+      <NumericSliderInput
         labelTooltip={`Saturation`}
         label={'S'}
+        defaultValue={0}
         min={-100}
         max={100}
         value={hsl.s}
         onChange={onSetS}
       />
-      <GuiPanelMenuSlider
+      <NumericSliderInput
         labelTooltip={`Lightness`}
         label={'L'}
+        defaultValue={0}
         min={-100}
         max={100}
         value={hsl.l}
@@ -180,8 +180,21 @@ export default function TextureColorOptions({
     </>
   );
 
+  const buttons = (
+    <ButtonOption
+      tooltip='Apply color changes to all loaded textures'
+      onClick={onApplyToAll}
+      label={<>Apply to All</>}
+    />
+  );
+
   if (variant === 'texture-view') {
-    return <StyledList className={variant}>{hslSliders}</StyledList>;
+    return (
+      <StyledList className={variant}>
+        {hslSliders}
+        {buttons}
+      </StyledList>
+    );
   }
 
   return (
@@ -195,25 +208,7 @@ export default function TextureColorOptions({
       }
     >
       {hslSliders}
-      {!hasChanges ? undefined : (
-        <ButtonOption
-          tooltip='Reset color changes to this texture'
-          onClick={onResetValues}
-          label={
-            <>
-              <Icon path={mdiRefresh} size={1} />
-              RESET
-            </>
-          }
-        />
-      )}
-      {!hasChanges ? undefined : (
-        <ButtonOption
-          tooltip='Apply color changes to all loaded textures'
-          onClick={onApplyToAll}
-          label={'APPLY TO ALL'}
-        />
-      )}
+      {buttons}
     </StyledList>
   );
 }

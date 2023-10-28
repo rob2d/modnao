@@ -448,7 +448,7 @@ export default function ReplaceTexture() {
           {...getDragProps()}
         >
           <div className='replacement-setup section'>
-            <Typography variant='h6'>New Source Image</Typography>
+            <Typography variant='h6'>Source Image</Typography>
             <div className='cropper'>
               <Cropper
                 image={imageDataUrl}

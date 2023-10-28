@@ -1,5 +1,12 @@
 import clsx from 'clsx';
-import { IconButton, Skeleton, styled, Typography } from '@mui/material';
+import {
+  Chip,
+  Divider,
+  IconButton,
+  Skeleton,
+  styled,
+  Typography
+} from '@mui/material';
 import {
   mdiCropFree,
   mdiFileDownload,
@@ -182,6 +189,7 @@ export default function TextureView() {
                 variant='texture-view'
               />
             </div>
+            <Divider flexItem />
             <div>
               <TextureViewControlsButton
                 onClick={() => {}}
