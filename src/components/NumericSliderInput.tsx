@@ -53,10 +53,11 @@ const StyledListItem = styled(ListItem)(
     }
 
     & .MuiTextField-root.input  {
-      width: 56px;
+      width: 72px;
     }
 
     & .MuiTextField-root.input input {
+      text-align: right;
       padding: ${theme.spacing(0)} ${theme.spacing(1)};
     }
 `
