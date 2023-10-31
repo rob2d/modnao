@@ -199,7 +199,7 @@ export default function TextureView() {
               <TextureViewControlsButton
                 onClick={() => {}}
                 iconPath={mdiFileUndo}
-                label='Undo Replace'
+                label='Undo Image Change'
                 disabled
               />
               <TextureViewControlsButton

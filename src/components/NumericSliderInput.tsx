@@ -13,6 +13,7 @@ import {
   FocusEventHandler,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState
 } from 'react';
@@ -36,10 +37,11 @@ const StyledListItem = styled(ListItem)(
       align-items: center;
       padding-left: ${theme.spacing(3)};
       padding-right: ${theme.spacing(2)};
-      justify-content: space-between;
+      justify-content: flex-end;
 
       & .MuiIconButton-root {
         padding: 0 0;
+        margin-left: ${theme.spacing(2)};
       }
     }
     
@@ -121,6 +123,15 @@ export default function NumericSliderInput({
     [onChange]
   );
 
+  const onResetValue = useCallback(() => {
+    onChange(defaultValue);
+  }, [defaultValue]);
+
+  const inputProps = useMemo(
+    () => ({ inputMode: 'numeric', min, max }),
+    [min, max]
+  );
+
   return (
     <StyledListItem>
       <div className='slider'>
@@ -144,19 +155,13 @@ export default function NumericSliderInput({
           color='secondary'
           size='small'
           type='text'
-          inputProps={{ inputMode: 'numeric', min, max }}
+          inputProps={inputProps}
           className='input'
           onBlur={onChangeTextField}
           inputRef={inputRef}
           inputMode='numeric'
         />
-        <IconButton
-          size='small'
-          color='secondary'
-          onClick={() => {
-            onChange(defaultValue);
-          }}
-        >
+        <IconButton size='small' color='secondary' onClick={onResetValue}>
           <Icon path={mdiRefresh} size={1} />
         </IconButton>
       </div>

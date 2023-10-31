@@ -181,7 +181,7 @@ export default function GuiPanelTextureMenu({
               label: (
                 <>
                   <Icon path={mdiFileUndo} size={1} />
-                  Undo Replace
+                  Undo Image Change
                 </>
               ),
               tooltip: 'Undo a previously replaced texture operation',
