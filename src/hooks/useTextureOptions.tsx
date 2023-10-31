@@ -7,7 +7,12 @@ import {
 } from '@/store';
 import { objectUrlToBuffer } from '@/utils/data';
 import { SourceTextureData } from '@/utils/textures';
-import { mdiFileDownload, mdiFileReplace, mdiFileUndo } from '@mdi/js';
+import {
+  mdiCropFree,
+  mdiFileDownload,
+  mdiFileReplace,
+  mdiFileUndo
+} from '@mdi/js';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
@@ -42,7 +47,7 @@ export default function useTextureOptions(
   textureIndex: number,
   pixelsObjectUrls: SourceTextureData,
   onReplaceImageFile: (file: File) => void,
-  open: boolean,
+  disableFunctionality?: boolean,
   onSelectOption?: () => void
 ) {
   const dispatch = useAppDispatch();
@@ -55,16 +60,16 @@ export default function useTextureOptions(
   const [dlAsTranslucent, setDlAsTranslucent] = useState(() => false);
 
   useEffect(() => {
-    if (open && translucentHotkeyPressed) {
+    if (!disableFunctionality && translucentHotkeyPressed) {
       setDlAsTranslucent(!dlAsTranslucent);
     }
-  }, [open && translucentHotkeyPressed]);
+  }, [!disableFunctionality && translucentHotkeyPressed]);
 
   useEffect(() => {
-    if (!open && dlAsTranslucent) {
+    if (disableFunctionality && dlAsTranslucent) {
       setDlAsTranslucent(false);
     }
-  }, [dlAsTranslucent && !open]);
+  }, [dlAsTranslucent && disableFunctionality]);
 
   const textureHistory = useAppSelector(
     (s) => s.modelData.textureHistory[textureIndex]
@@ -72,6 +77,40 @@ export default function useTextureOptions(
 
   const options = useMemo(
     () => [
+      {
+        label: 'Undo Change',
+        iconPath: mdiFileUndo,
+        tooltip:
+          'Undo a previous replace-texture or crop/resize operation; does not include color changes',
+        disabled: !textureHistory?.length,
+        onClick() {
+          if (textureHistory?.length) {
+            dispatch(revertTextureImage({ textureIndex }));
+          }
+          onSelectOption?.();
+        }
+      },
+      {
+        label: 'Crop/Rotate',
+        iconPath: mdiCropFree,
+        tooltip:
+          'Open image replace dialog with existing image to crop/rotate in-place',
+        onClick() {
+          window.alert('not yet implemented');
+        }
+      },
+      {
+        label: 'Replace',
+        iconPath: mdiFileReplace,
+        tooltip:
+          'Replace this texture with another image file.' +
+          'Special zero-alpha pixels will be auto re-applied ' +
+          'once you have imported the image and zoomed/cropped/rotated it.',
+        onClick() {
+          openFileSelector();
+          onSelectOption?.();
+        }
+      },
       {
         label: `Download ${dlAsTranslucent ? '(T)' : '(O)'}`,
         iconPath: mdiFileDownload,
@@ -105,34 +144,7 @@ export default function useTextureOptions(
             }
           );
         }
-      },
-      {
-        label: 'Replace',
-        iconPath: mdiFileReplace,
-        tooltip:
-          'Replace this texture with another image file.' +
-          'Special zero-alpha pixels will be auto re-applied ' +
-          'once you have imported the image and zoomed/cropped/rotated it.',
-        onClick() {
-          openFileSelector();
-          onSelectOption?.();
-        }
-      },
-      ...(!textureHistory?.length
-        ? []
-        : [
-            {
-              label: 'Undo Image Change',
-              iconPath: mdiFileUndo,
-              tooltip: 'Undo a previously replaced texture operation',
-              onClick() {
-                if (textureHistory?.length) {
-                  dispatch(revertTextureImage({ textureIndex }));
-                }
-                onSelectOption?.();
-              }
-            }
-          ])
+      }
     ],
     [
       pixelsObjectUrls,

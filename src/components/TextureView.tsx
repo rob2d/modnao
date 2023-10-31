@@ -1,26 +1,19 @@
 import clsx from 'clsx';
 import {
-  Chip,
   Divider,
   IconButton,
   Skeleton,
   styled,
   Typography
 } from '@mui/material';
-import {
-  mdiCropFree,
-  mdiFileDownload,
-  mdiFileReplace,
-  mdiFileUndo,
-  mdiMenuLeftOutline,
-  mdiMenuRightOutline
-} from '@mdi/js';
+import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import Icon from '@mdi/react';
 import Img from 'next/image';
 import useViewportSizes from 'use-viewport-sizes';
 import {
   useObjectNavControls,
   useObjectUINav,
+  useTextureOptions,
   useTextureReplaceDropzone
 } from '@/hooks';
 import {
@@ -30,6 +23,7 @@ import {
 } from '@/store';
 import themeMixins from '@/theming/themeMixins';
 import TextureColorOptions from './TextureColorOptions';
+import { SourceTextureData } from '@/utils/textures';
 
 const Styled = styled('div')(
   ({ theme }) =>
@@ -150,10 +144,18 @@ export default function TextureView() {
   const textureIndex = useAppSelector(selectTextureIndex);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
 
-  const { isDragActive, getDragProps } =
+  const { isDragActive, getDragProps, onSelectNewImageFile } =
     useTextureReplaceDropzone(textureIndex);
 
   const textureUrl = textureDefs?.[textureIndex]?.dataUrls?.opaque;
+  const bufferUrls = textureDefs?.[textureIndex]
+    ?.bufferUrls as SourceTextureData;
+
+  const options = useTextureOptions(
+    textureIndex,
+    bufferUrls,
+    onSelectNewImageFile as (file: File) => void
+  );
 
   return (
     <Styled>
@@ -191,27 +193,9 @@ export default function TextureView() {
             </div>
             <Divider flexItem />
             <div>
-              <TextureViewControlsButton
-                onClick={() => {}}
-                iconPath={mdiCropFree}
-                label='Crop/Rotate'
-              />
-              <TextureViewControlsButton
-                onClick={() => {}}
-                iconPath={mdiFileUndo}
-                label='Undo Image Change'
-                disabled
-              />
-              <TextureViewControlsButton
-                onClick={() => {}}
-                iconPath={mdiFileReplace}
-                label={`Replace`}
-              />
-              <TextureViewControlsButton
-                onClick={() => {}}
-                iconPath={mdiFileDownload}
-                label={`Download${true ? ' (T)' : ' (O)'}`}
-              />
+              {options.map((o) => (
+                <TextureViewControlsButton key={o.label} {...o} />
+              ))}
             </div>
           </div>
         </div>

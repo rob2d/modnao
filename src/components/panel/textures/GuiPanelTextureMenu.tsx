@@ -81,16 +81,16 @@ export default function GuiPanelTextureMenu({
     textureIndex,
     pixelsObjectUrls,
     onReplaceImageFile,
-    open
+    !open
   );
 
   const options = useMemo(
     () =>
       optionsSources.map((o, i) => (
         <Tooltip title={o.tooltip} key={i} placement='left'>
-          <MenuItem onClick={o.onClick}>
+          <MenuItem onClick={o.onClick} disabled={o.disabled}>
             <>
-              <Icon path={mdiFileDownload} size={1} />
+              <Icon path={o.iconPath} size={1} />
               {o.label}
             </>
           </MenuItem>
