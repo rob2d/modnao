@@ -95,8 +95,14 @@ export default function useTextureOptions(
         iconPath: mdiCropFree,
         tooltip:
           'Open image replace dialog with existing image to crop/rotate in-place',
-        onClick() {
-          window.alert('not yet implemented');
+        async onClick() {
+          const dataUrl =
+            textureDefs?.[textureIndex].dataUrls?.translucent || '';
+          const fetchResult = await fetch(dataUrl);
+          const arrayBuffer = await fetchResult.arrayBuffer();
+          const file = new File([arrayBuffer], 'workingfile.png');
+
+          onReplaceImageFile(file);
         }
       },
       {
