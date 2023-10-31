@@ -1,3 +1,4 @@
+import 'jimp';
 import {
   revertTextureImage,
   selectUpdatedTextureDefs,
@@ -7,9 +8,7 @@ import {
 import { objectUrlToBuffer } from '@/utils/data';
 import { SourceTextureData } from '@/utils/textures';
 import { mdiFileDownload, mdiFileReplace, mdiFileUndo } from '@mdi/js';
-import { Icon } from '@mdi/react';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
-import 'jimp';
 import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
 
@@ -43,12 +42,11 @@ export default function useTextureOptions(
   textureIndex: number,
   pixelsObjectUrls: SourceTextureData,
   onReplaceImageFile: (file: File) => void,
+  open: boolean,
   onSelectOption?: () => void
 ) {
   const dispatch = useAppDispatch();
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
 
   // when menu is open, toggle translucent download
@@ -75,12 +73,8 @@ export default function useTextureOptions(
   const options = useMemo(
     () => [
       {
-        label: (
-          <>
-            <Icon path={mdiFileDownload} size={1} />
-            Download&nbsp;{dlAsTranslucent ? '(T)' : '(O)'}
-          </>
-        ),
+        label: `Download ${dlAsTranslucent ? '(T)' : '(O)'}`,
+        iconPath: mdiFileDownload,
         tooltip: `Download texture as a PNG [${
           dlAsTranslucent ? 'translucent' : 'opaque'
         }]. Press 'T' key to toggle translucency.`,
@@ -113,7 +107,7 @@ export default function useTextureOptions(
         }
       },
       {
-        title: 'Replace',
+        label: 'Replace',
         iconPath: mdiFileReplace,
         tooltip:
           'Replace this texture with another image file.' +
@@ -128,7 +122,7 @@ export default function useTextureOptions(
         ? []
         : [
             {
-              title: 'Undo Image Change',
+              label: 'Undo Image Change',
               iconPath: mdiFileUndo,
               tooltip: 'Undo a previously replaced texture operation',
               onClick() {

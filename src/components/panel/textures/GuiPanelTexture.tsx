@@ -270,8 +270,6 @@ export default function GuiPanelTexture({
       {!isSelectable ? undefined : (
         <GuiPanelTextureMenu
           textureIndex={textureIndex}
-          width={textureDef.width}
-          height={textureDef.height}
           pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
           onReplaceImageFile={onSelectNewImageFile}
         />

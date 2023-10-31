@@ -4,22 +4,12 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Icon from '@mdi/react';
-import {
-  mdiDotsVertical,
-  mdiFileDownload,
-  mdiFileReplace,
-  mdiFileUndo
-} from '@mdi/js';
+import { mdiDotsVertical, mdiFileDownload } from '@mdi/js';
 import { Divider, styled, Tooltip } from '@mui/material';
-import { objectUrlToBuffer } from '@/utils/data';
-import { useFilePicker } from 'use-file-picker';
 import TextureColorOptions from '../../TextureColorOptions';
-import { revertTextureImage, useAppDispatch, useAppSelector } from '@/store';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const { Jimp } = globalThis as any;
+import { useTextureOptions } from '@/hooks';
 
 const StyledMenuButtonContainer = styled('div')(
   ({ theme }) => `& {
@@ -50,44 +40,15 @@ const StyledMenu = styled(Menu)(
 const MENU_OFFSET_STYLE = { transform: 'translateX(-200px)' } as const;
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 
-function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
-  const [
-    openFileSelector,
-    {
-      plainFiles: [file]
-    }
-  ] = useFilePicker({
-    multiple: false,
-    readAs: 'ArrayBuffer',
-    accept: ['image/*']
-  });
-
-  useEffect(() => {
-    if (!file) {
-      return;
-    }
-
-    onReplaceImageFile(file);
-  }, [file]);
-
-  return openFileSelector;
-}
-
 export default function GuiPanelTextureMenu({
   textureIndex,
-  width,
-  height,
   pixelsObjectUrls,
   onReplaceImageFile
 }: {
   textureIndex: number;
-  width: number;
-  height: number;
   pixelsObjectUrls: SourceTextureData;
   onReplaceImageFile: (file: File) => void;
 }) {
-  const dispatch = useAppDispatch();
-  const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -116,92 +77,26 @@ export default function GuiPanelTextureMenu({
     setAnchorEl(null);
   }, [setAnchorEl]);
 
-  const textureHistory = useAppSelector(
-    (s) => s.modelData.textureHistory[textureIndex]
+  const optionsSources = useTextureOptions(
+    textureIndex,
+    pixelsObjectUrls,
+    onReplaceImageFile,
+    open
   );
 
-  const options = useMemo<
-    { label: JSX.Element | string; tooltip: string; onClick: () => void }[]
-  >(
-    () => [
-      {
-        label: (
-          <>
-            <Icon path={mdiFileDownload} size={1} />
-            Download{dlAsTranslucent ? ' (T)' : ' (O)'}
-          </>
-        ),
-        tooltip: `Download texture as a PNG [${
-          dlAsTranslucent ? 'translucent' : 'opaque'
-        }]. Press 'T' key to toggle translucency.`,
-        onClick: async () => {
-          const bufferUrl =
-            (!dlAsTranslucent
-              ? pixelsObjectUrls.opaque || pixelsObjectUrls.translucent
-              : pixelsObjectUrls.translucent) || '';
-          const a = document.createElement('a');
-
-          const pixels = new Uint8ClampedArray(
-            await objectUrlToBuffer(bufferUrl)
-          );
-          new Jimp.read(
-            { data: pixels, width, height },
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (_: Error, image: typeof Jimp) => {
-              image.getBase64Async(Jimp.MIME_PNG).then((base64: string) => {
-                a.download = `modnao-texture-${textureIndex}.png`;
-                a.href = base64;
-                a.click();
-                handleClose();
-              });
-            }
-          );
-        }
-      },
-      {
-        label: (
-          <>
-            <Icon path={mdiFileReplace} size={1} />
-            Replace
-          </>
-        ),
-        tooltip:
-          'Replace this texture with another image file.' +
-          'Special zero-alpha pixels will be auto re-applied ' +
-          'once you have imported the image and zoomed/cropped/rotated it.',
-        onClick() {
-          openFileSelector();
-          handleClose();
-        }
-      },
-      ...(!textureHistory?.length
-        ? []
-        : [
-            {
-              label: (
-                <>
-                  <Icon path={mdiFileUndo} size={1} />
-                  Undo Image Change
-                </>
-              ),
-              tooltip: 'Undo a previously replaced texture operation',
-              onClick() {
-                if (textureHistory?.length) {
-                  dispatch(revertTextureImage({ textureIndex }));
-                }
-                handleClose();
-              }
-            }
-          ])
-    ],
-    [
-      pixelsObjectUrls,
-      dlAsTranslucent,
-      textureIndex,
-      textureHistory,
-      openFileSelector,
-      handleClose
-    ]
+  const options = useMemo(
+    () =>
+      optionsSources.map((o, i) => (
+        <Tooltip title={o.tooltip} key={i} placement='left'>
+          <MenuItem onClick={o.onClick}>
+            <>
+              <Icon path={mdiFileDownload} size={1} />
+              {o.label}
+            </>
+          </MenuItem>
+        </Tooltip>
+      )),
+    [optionsSources]
   );
 
   return (
@@ -216,11 +111,7 @@ export default function GuiPanelTextureMenu({
         onClose={handleClose}
         anchorOrigin={MENU_ANCHOR_ORIGIN}
       >
-        {options.map((option, i) => (
-          <Tooltip title={option.tooltip} key={i} placement='left'>
-            <MenuItem onClick={option.onClick}>{option.label}</MenuItem>
-          </Tooltip>
-        ))}
+        {options}
         <Divider />
         <TextureColorOptions textureIndex={textureIndex} variant='menu' />
       </StyledMenu>
