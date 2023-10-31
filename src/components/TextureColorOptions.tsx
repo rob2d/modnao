@@ -16,16 +16,32 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import GuiPanelMenuSlider from '../GuiPanelMenuSlider';
-import Icon from '@mdi/react';
-import { mdiRefresh } from '@mdi/js';
+import NumericSliderInput from './NumericSliderInput';
 import { batch } from 'react-redux';
+import clsx from 'clsx';
 
-const StyledButton = styled(Button)(
+const StyledList = styled(List)(
   ({ theme }) =>
-    `& svg {
-    margin-right: ${theme.spacing(1)};
-  }`
+    `
+    &.texture-view {
+      display: flex;
+      padding: 0;
+    }
+
+    ${theme.breakpoints.down('md')} {
+      &.texture-view {
+        flex-direction: column;
+      }
+    }
+
+    &.texture-view .MuiListItem-root {
+      padding-left: ${theme.spacing(0)};
+      padding-right: ${theme.spacing(0)};
+    }
+
+    & .MuiButton svg {
+      margin-right: ${theme.spacing(1)};
+    }`
 );
 
 const DEFAULT_HSL = {
@@ -34,24 +50,37 @@ const DEFAULT_HSL = {
   l: 0
 };
 
-export default function GuiPanelTextureColorOptions({
-  textureIndex
+export default function TextureColorOptions({
+  textureIndex,
+  variant = 'menu'
 }: {
   textureIndex: number;
+  variant: 'menu' | 'texture-view';
 }) {
   const dispatch = useAppDispatch();
   const textureDefs = useAppSelector(selectTextureDefs);
   const editedTextures = useAppSelector(selectEditedTextures);
   const [hsl, setHsl] = useState<HslValues>(() => {
-    if (!editedTextures[textureIndex]?.hsl) {
+    if (!editedTextures?.[textureIndex]?.hsl) {
       return DEFAULT_HSL;
     }
 
     const { h, s, l } = editedTextures[textureIndex].hsl;
     return h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL;
   });
+
+  useEffect(() => {
+    if (!editedTextures?.[textureIndex]?.hsl) {
+      setHsl(DEFAULT_HSL);
+      return;
+    }
+
+    const { h, s, l } = editedTextures[textureIndex].hsl;
+    setHsl(h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL);
+  }, [textureIndex]);
+
   const getHslSetter = useCallback(
-    (key: keyof HslValues) => (_: Event, v: number | number[]) =>
+    (key: keyof HslValues) => (v: number | number[]) =>
       setHsl({
         ...DEFAULT_HSL,
         ...hsl,
@@ -70,8 +99,6 @@ export default function GuiPanelTextureColorOptions({
     dispatch(adjustTextureHsl({ hsl: processedHsl, textureIndex }));
   }, [processedHsl]);
 
-  const onResetValues = useCallback(() => setHsl(DEFAULT_HSL), [setHsl]);
-
   const onApplyToAll = useCallback(() => {
     batch(() => {
       for (
@@ -88,84 +115,93 @@ export default function GuiPanelTextureColorOptions({
     ({
       tooltip,
       onClick,
-      label
+      label,
+      disabled
     }: {
       tooltip: string;
       onClick: () => void;
       label: JSX.Element | string;
+      disabled?: boolean;
     }) => (
       <ListItem>
         <Tooltip title={tooltip} placement='left-start'>
-          <StyledButton
+          <Button
             onClick={onClick}
             color='secondary'
             size='small'
             variant='outlined'
             fullWidth
+            disabled={disabled}
           >
             {label}
-          </StyledButton>
+          </Button>
         </Tooltip>
       </ListItem>
     ),
     []
   );
 
-  const hasChanges =
-    DEFAULT_HSL.h !== hsl.h ||
-    DEFAULT_HSL.s !== hsl.s ||
-    DEFAULT_HSL.l !== hsl.l;
+  const hslSliders = (
+    <>
+      <NumericSliderInput
+        labelTooltip={`Hue`}
+        label={'H'}
+        defaultValue={0}
+        min={-180}
+        max={180}
+        value={hsl.h}
+        onChange={onSetH}
+      />
+      <NumericSliderInput
+        labelTooltip={`Saturation`}
+        label={'S'}
+        defaultValue={0}
+        min={-100}
+        max={100}
+        value={hsl.s}
+        onChange={onSetS}
+      />
+      <NumericSliderInput
+        labelTooltip={`Lightness`}
+        label={'L'}
+        defaultValue={0}
+        min={-100}
+        max={100}
+        value={hsl.l}
+        onChange={onSetL}
+      />
+    </>
+  );
+
+  const buttons = (
+    <ButtonOption
+      tooltip='Apply color changes to all loaded textures'
+      onClick={onApplyToAll}
+      label={<>Apply to All</>}
+    />
+  );
+
+  if (variant === 'texture-view') {
+    return (
+      <StyledList className={variant}>
+        {hslSliders}
+        {buttons}
+      </StyledList>
+    );
+  }
 
   return (
-    <List
+    <StyledList
       dense
-      className={'hsv-sliders'}
+      className={clsx('hsv-sliders', variant)}
       subheader={
         <ListSubheader component='div' id='nested-list-subheader'>
           Color Adjustment
         </ListSubheader>
       }
     >
-      <GuiPanelMenuSlider
-        label={'H'}
-        min={-180}
-        max={180}
-        value={hsl.h}
-        onChange={onSetH}
-      />
-      <GuiPanelMenuSlider
-        label={'S'}
-        min={-100}
-        max={100}
-        value={hsl.s}
-        onChange={onSetS}
-      />
-      <GuiPanelMenuSlider
-        label={'L'}
-        min={-100}
-        max={100}
-        value={hsl.l}
-        onChange={onSetL}
-      />
-      {!hasChanges ? undefined : (
-        <ButtonOption
-          tooltip='Reset color changes to this texture'
-          onClick={onResetValues}
-          label={
-            <>
-              <Icon path={mdiRefresh} size={1} />
-              RESET
-            </>
-          }
-        />
-      )}
-      {!hasChanges ? undefined : (
-        <ButtonOption
-          tooltip='Apply color changes to all loaded textures'
-          onClick={onApplyToAll}
-          label={'APPLY TO ALL'}
-        />
-      )}
-    </List>
+      {hslSliders}
+      {buttons}
+    </StyledList>
   );
 }

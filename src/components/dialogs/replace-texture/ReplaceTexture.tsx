@@ -219,8 +219,6 @@ export default function ReplaceTexture() {
   const [previewDataUrl, setPreviewDataUrl] = useState(() => '');
   const [flip, setFlip] = useState(() => DEFAULT_FLIP_STATE);
 
-  const textureFormat: TextureColorFormat = 'ARGB4444';
-
   const onCropComplete = useCallback(
     (croppedArea: Area, croppedAreaPixels: Area) => {
       setCroppedAreaPixels(croppedAreaPixels);
@@ -276,6 +274,7 @@ export default function ReplaceTexture() {
   const replacementImage = useAppSelector(selectReplacementImage);
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;
   const originalHeight = textureDefs?.[textureIndex]?.height || 0;
+  const textureFormat = textureDefs?.[textureIndex]?.colorFormat;
 
   const referenceTextureStyle = useMemo(
     () => ({
@@ -449,7 +448,7 @@ export default function ReplaceTexture() {
           {...getDragProps()}
         >
           <div className='replacement-setup section'>
-            <Typography variant='h6'>New Source Image</Typography>
+            <Typography variant='h6'>Source Image</Typography>
             <div className='cropper'>
               <Cropper
                 image={imageDataUrl}

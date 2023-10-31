@@ -27,6 +27,7 @@ const IMG_SIZE = '174px';
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
     `& {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -214,8 +215,7 @@ export default function GuiPanelTexture({
         ? {}
         : {
             onClick: () => dispatch(setObjectViewedIndex(textureIndex)),
-            tabIndex: 0,
-            title: 'select this texture'
+            tabIndex: 0
           })
     }),
     [
@@ -249,13 +249,6 @@ export default function GuiPanelTexture({
       >
         {textureDef.width}x{textureDef.height} [{textureIndex}]
       </Typography>
-      <GuiPanelTextureMenu
-        textureIndex={textureIndex}
-        width={textureDef.width}
-        height={textureDef.height}
-        pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
-        onReplaceImageFile={onSelectNewImageFile}
-      />
     </>
   );
 
@@ -273,6 +266,13 @@ export default function GuiPanelTexture({
         <Tooltip title='Select this texture'>
           <ButtonBase {...mainContentProps}>{content}</ButtonBase>
         </Tooltip>
+      )}
+      {!isSelectable ? undefined : (
+        <GuiPanelTextureMenu
+          textureIndex={textureIndex}
+          pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
+          onReplaceImageFile={onSelectNewImageFile}
+        />
       )}
     </StyledPanelTexture>
   );
