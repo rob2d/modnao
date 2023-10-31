@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Button,
   List,
@@ -99,8 +99,6 @@ export default function TextureColorOptions({
     dispatch(adjustTextureHsl({ hsl: processedHsl, textureIndex }));
   }, [processedHsl]);
 
-  const onResetValues = useCallback(() => setHsl(DEFAULT_HSL), [setHsl]);
-
   const onApplyToAll = useCallback(() => {
     batch(() => {
       for (
@@ -142,11 +140,6 @@ export default function TextureColorOptions({
     ),
     []
   );
-
-  const hasChanges =
-    DEFAULT_HSL.h !== hsl.h ||
-    DEFAULT_HSL.s !== hsl.s ||
-    DEFAULT_HSL.l !== hsl.l;
 
   const hslSliders = (
     <>

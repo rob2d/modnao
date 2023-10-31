@@ -1,4 +1,4 @@
-import { mdiRefresh, mdiRefreshCircle } from '@mdi/js';
+import { mdiRefresh } from '@mdi/js';
 import Icon from '@mdi/react';
 import {
   IconButton,
@@ -130,7 +130,7 @@ export default function NumericSliderInput({
   const inputProps = useMemo(
     () => ({ inputMode: 'numeric', min, max }),
     [min, max]
-  );
+  ) as { inputMode: 'numeric'; min: number; max: number };
 
   return (
     <StyledListItem>

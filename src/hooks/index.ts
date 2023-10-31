@@ -6,3 +6,4 @@ export { default as useDebouncedEffect } from './useDebouncedEffect';
 export { default as useSceneGLTFFileDownloader } from './useSceneGLTFFileDownloader';
 export { default as useSupportedFilePicker } from './useSupportedFilePicker';
 export { default as useTextureReplaceDropzone } from './useTextureReplaceDropzone';
+export { default as useTextureOptions } from './useTextureOptions';
