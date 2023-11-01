@@ -2,6 +2,14 @@ import { NLTextureDef } from '@/types/NLAbstractions';
 import createTextureDef from '../createTextureDef';
 import { TextureFileType } from './textureFileTypeMap';
 
+const mvc2PlFacStructure: Partial<NLTextureDef>[] = [
+  { width: 64, height: 64 },
+  { width: 256, height: 256 },
+  { width: 128, height: 128 },
+  // may be omitted based on if last pointer exists
+  { width: 64, height: 64 }
+];
+
 const fontTextureArgs: Partial<NLTextureDef> = {
   width: 128,
   height: 128,
@@ -10,7 +18,14 @@ const fontTextureArgs: Partial<NLTextureDef> = {
 };
 
 const textureShapesMap: Record<TextureFileType, NLTextureDef[]> = {
-  'mvc2-character-portraits': [],
+  'mvc2-character-portraits': mvc2PlFacStructure.map((t) =>
+    createTextureDef({
+      ...t,
+      colorFormat: 'RGB565',
+      colorFormatValue: 1,
+      baseLocation: 0 //TODO: determine how to use these/how these will be injected
+    })
+  ),
   'mvc2-stage-preview': [
     ...[...Array(18).keys()].map((i) =>
       createTextureDef({
@@ -37,11 +52,9 @@ const textureShapesMap: Record<TextureFileType, NLTextureDef[]> = {
       colorFormatValue: 2
     })
   ],
-  'mvc2-selection-textures': [
-    ...[...Array(23).keys()].map((i) =>
-      createTextureDef({ baseLocation: 256 * 256 * 2 * i })
-    )
-  ],
+  'mvc2-selection-textures': [...Array(23).keys()].map((i) =>
+    createTextureDef({ baseLocation: 256 * 256 * 2 * i })
+  ),
   'mvc2-end-file': [
     ...[...Array(16).keys()].map((i) =>
       createTextureDef({
