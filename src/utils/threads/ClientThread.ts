@@ -1,4 +1,4 @@
-import WorkerThreadPool from '../utils/WorkerThreadPool';
+import WorkerThreadPool from './WorkerThreadPool';
 
 const workerPool = new WorkerThreadPool();
 

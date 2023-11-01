@@ -20,7 +20,7 @@ import { batch } from 'react-redux';
 import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import ClientThread from '@/utils/ClientThread';
+import { ClientThread } from '@/utils/threads';
 
 export type LoadPolygonsResult = {
   type: 'loadPolygonFile';

@@ -6,4 +6,4 @@ export { default as modelDataSlice } from './modelDataSlice';
 export * from './dialogsSlice';
 export { default as dialogsSlice } from './dialogsSlice';
 export * from './modelDataSlice';
-export * from '../utils/WorkerThreadPool';
+export * from '../utils/threads/WorkerThreadPool';

@@ -15,7 +15,7 @@ export default class WorkerThreadPool {
     }
 
     if (!this.unusedThreads.length) {
-      const worker = new Worker(new URL('../worker.ts', import.meta.url), {
+      const worker = new Worker(new URL('../../worker.ts', import.meta.url), {
         type: 'module'
       });
       this.activeThreads.add(worker);
@@ -30,6 +30,7 @@ export default class WorkerThreadPool {
     if (this.activeThreads.has(worker)) {
       this.activeThreads.delete(worker);
     }
+
     this.unusedThreads.push(worker);
   };
 }
