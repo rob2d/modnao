@@ -317,7 +317,7 @@ const loadCompressedTextureFiles = async (
       thread.unallocate();
     };
 
-    thread?.postMessage({
+    thread.postMessage({
       type: 'loadTextureFile',
       payload: {
         fileName: file.name,
@@ -610,7 +610,7 @@ export const loadPolygonFile = createAsyncThunk<
         thread.unallocate();
       };
 
-      thread?.postMessage({
+      thread.postMessage({
         type: 'loadPolygonFile',
         payload: { buffer, fileName: file.name }
       } as WorkerEvent);
@@ -646,7 +646,7 @@ export const loadTextureFile = createAsyncThunk<
       };
 
       const fileName = file.name;
-      thread?.postMessage({
+      thread.postMessage({
         type: 'loadTextureFile',
         payload: {
           fileName,

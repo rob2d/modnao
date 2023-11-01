@@ -32,7 +32,6 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { TextureColorFormat } from '@/utils/textures';
 import { objectUrlToBuffer } from '@/utils/data';
 import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
