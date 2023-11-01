@@ -16,13 +16,11 @@ import {
   selectUpdatedTextureDefs
 } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import WorkerThreadPool from '../utils/WorkerThreadPool';
 import { batch } from 'react-redux';
 import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-
-const workerPool = new WorkerThreadPool();
+import { ClientThread } from '@/utils/threads';
 
 export type LoadPolygonsResult = {
   type: 'loadPolygonFile';
@@ -253,10 +251,10 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     ramOffset: 0
   }));
 
-  const thread = workerPool.allocate();
+  const thread = new ClientThread();
 
-  const result = await new Promise<LoadTexturesPayload>((resolve) => {
-    if (thread) {
+  const result: LoadTexturesPayload = await new Promise<LoadTexturesPayload>(
+    (resolve) => {
       thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
         const payload: LoadTexturesPayload = {
           ...event.data.result,
@@ -279,19 +277,19 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
         });
 
         resolve(payload);
-        workerPool.unallocate(thread);
+        thread.unallocate();
       };
-    }
 
-    thread?.postMessage({
-      type: 'loadTextureFile',
-      payload: {
-        fileName: file.name,
-        textureDefs,
-        buffer: decompressedBuffer
-      }
-    } as WorkerEvent);
-  });
+      thread.postMessage({
+        type: 'loadTextureFile',
+        payload: {
+          fileName: file.name,
+          textureDefs,
+          buffer: decompressedBuffer
+        }
+      });
+    }
+  );
 
   return result;
 });
@@ -302,30 +300,24 @@ const loadCompressedTextureFiles = async (
   textureDefs: NLTextureDef[],
   onDispatch: (payload: LoadTexturesPayload) => void
 ) => {
-  const thread = workerPool.allocate();
+  const thread = new ClientThread();
 
-  if (!thread) {
-    return;
-  }
   const arrayBuffer = await file.arrayBuffer();
   const buffer = decompressLzssBuffer(Buffer.from(arrayBuffer));
 
   const result = await new Promise<LoadTexturesPayload>((resolve) => {
-    if (thread) {
-      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-        const payload: LoadTexturesPayload = {
-          ...event.data.result,
-          hasCompressedTextures: true,
-          textureFileType
-        };
-        onDispatch(payload);
-        resolve(payload);
-
-        workerPool.unallocate(thread);
+    thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
+      const payload: LoadTexturesPayload = {
+        ...event.data.result,
+        hasCompressedTextures: true,
+        textureFileType
       };
-    }
+      onDispatch(payload);
+      resolve(payload);
+      thread.unallocate();
+    };
 
-    thread?.postMessage({
+    thread.postMessage({
       type: 'loadTextureFile',
       payload: {
         fileName: file.name,
@@ -604,26 +596,24 @@ export const loadPolygonFile = createAsyncThunk<
   async (file: File, { getState }): Promise<LoadPolygonsPayload> => {
     const { modelData } = getState();
     const buffer = await file.arrayBuffer();
-    const thread = workerPool.allocate();
+    const thread = new ClientThread();
 
     const result = await new Promise<LoadPolygonsPayload>((resolve) => {
-      if (thread) {
-        const prevPolygonBufferUrl = modelData.polygonBufferUrl;
-        thread.onmessage = (event: MessageEvent<LoadPolygonsResult>) => {
-          resolve(event.data.result);
+      const prevPolygonBufferUrl = modelData.polygonBufferUrl;
+      thread.onmessage = (event: MessageEvent<LoadPolygonsResult>) => {
+        resolve(event.data.result);
 
-          if (prevPolygonBufferUrl) {
-            URL.revokeObjectURL(prevPolygonBufferUrl);
-          }
+        if (prevPolygonBufferUrl) {
+          URL.revokeObjectURL(prevPolygonBufferUrl);
+        }
 
-          workerPool.unallocate(thread);
-        };
+        thread.unallocate();
+      };
 
-        thread?.postMessage({
-          type: 'loadPolygonFile',
-          payload: { buffer, fileName: file.name }
-        } as WorkerEvent);
-      }
+      thread.postMessage({
+        type: 'loadPolygonFile',
+        payload: { buffer, fileName: file.name }
+      } as WorkerEvent);
     });
 
     return result;
@@ -641,31 +631,29 @@ export const loadTextureFile = createAsyncThunk<
     const { textureDefs } = state.modelData;
     const buffer = new Uint8Array(await file.arrayBuffer());
     const prevTextureBufferUrl = state.modelData.textureBufferUrl;
-    const thread = workerPool.allocate();
+    const thread = new ClientThread();
 
     const result = await new Promise<LoadTexturesPayload>((resolve) => {
-      if (thread) {
-        thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-          resolve(event.data.result);
+      thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
+        resolve(event.data.result);
 
-          // deallocate existing blob
-          if (prevTextureBufferUrl) {
-            URL.revokeObjectURL(prevTextureBufferUrl);
-          }
+        // deallocate existing blob
+        if (prevTextureBufferUrl) {
+          URL.revokeObjectURL(prevTextureBufferUrl);
+        }
 
-          workerPool.unallocate(thread);
-        };
+        thread.unallocate();
+      };
 
-        const fileName = file.name;
-        thread?.postMessage({
-          type: 'loadTextureFile',
-          payload: {
-            fileName,
-            textureDefs,
-            buffer
-          }
-        } as WorkerEvent);
-      }
+      const fileName = file.name;
+      thread.postMessage({
+        type: 'loadTextureFile',
+        payload: {
+          fileName,
+          textureDefs,
+          buffer
+        }
+      } as WorkerEvent);
     });
 
     return { ...result, textureFileType };
@@ -682,26 +670,24 @@ export const adjustTextureHsl = createAsyncThunk<
     const state = getState();
     const textureDef = state.modelData.textureDefs[textureIndex];
     const { width, height, bufferUrls: sourceTextureData } = textureDef;
-    const thread = workerPool.allocate();
+    const thread = new ClientThread();
 
     const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
-      if (thread) {
-        thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
-          resolve(event.data.result);
-          workerPool.unallocate(thread);
-        };
+      thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
+        resolve(event.data.result);
+        thread.unallocate();
+      };
 
-        thread?.postMessage({
-          type: 'adjustTextureHsl',
-          payload: {
-            hsl,
-            textureIndex,
-            sourceTextureData,
-            width,
-            height
-          }
-        } as WorkerEvent);
-      }
+      thread.postMessage({
+        type: 'adjustTextureHsl',
+        payload: {
+          hsl,
+          textureIndex,
+          sourceTextureData,
+          width,
+          height
+        }
+      } as WorkerEvent);
     });
 
     return result;

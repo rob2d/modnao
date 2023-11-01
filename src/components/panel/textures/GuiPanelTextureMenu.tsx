@@ -4,7 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Icon from '@mdi/react';
-import { mdiDotsVertical, mdiFileDownload } from '@mdi/js';
+import { mdiDotsVertical } from '@mdi/js';
 import { Divider, styled, Tooltip } from '@mui/material';
 import TextureColorOptions from '../../TextureColorOptions';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
