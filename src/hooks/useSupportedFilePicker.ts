@@ -3,7 +3,6 @@ import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,
   loadPolygonFile,
-  loadStandardCompressedTexture,
   loadTextureFile,
   useAppDispatch,
   useAppSelector
@@ -117,9 +116,10 @@ export const handleFileInput = async (
     case 'mvc2-selection-textures':
     case 'mvc2-end-file': {
       dispatch(
-        loadStandardCompressedTexture({
+        loadTextureFile({
           file: selectedTextureFile,
-          textureFileType
+          textureFileType,
+          isCompressed: true
         })
       );
       break;
