@@ -21,6 +21,7 @@ import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { ClientThread } from '@/utils/threads';
+import { createTextureDef } from '@/utils/textures';
 
 export type LoadPolygonsResult = {
   type: 'loadPolygonFile';
@@ -233,23 +234,14 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
     ...(pointers[3] ? [{ width: 64, height: 64 }] : [])
   ];
 
-  const textureDefs = decompressedOffsets.map((offset, i) => ({
-    colorFormat: 'RGB565',
-    ...textureStructure[i],
-    colorFormatValue: 2,
-    bufferUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    dataUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    type: 0,
-    address: 0,
-    baseLocation: offset,
-    ramOffset: 0
-  }));
+  const textureDefs = decompressedOffsets.map((offset, i) =>
+    createTextureDef({
+      colorFormat: 'RGB565',
+      ...textureStructure[i],
+      colorFormatValue: 2,
+      baseLocation: offset
+    })
+  );
 
   const thread = new ClientThread();
 
@@ -294,7 +286,7 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
   return result;
 });
 
-const loadCompressedTextureFiles = async (
+const loadCompressedTextureFile = async (
   file: File,
   textureFileType: TextureFileType,
   textureDefs: NLTextureDef[],
@@ -336,27 +328,15 @@ export const loadMvc2CharacterWinFile = createAsyncThunk<
   { state: AppState }
 >(`${sliceName}/loadMvc2CharacterWinFile`, async (file, { dispatch }) => {
   const textureDefs: NLTextureDef[] = [
-    {
+    createTextureDef({
       width: 256,
       height: 256,
       colorFormat: 'ARGB4444',
-      colorFormatValue: 2,
-      bufferUrls: {
-        translucent: undefined,
-        opaque: undefined
-      },
-      dataUrls: {
-        translucent: undefined,
-        opaque: undefined
-      },
-      type: 0,
-      address: 0,
-      baseLocation: 0,
-      ramOffset: 0
-    }
+      colorFormatValue: 2
+    })
   ];
 
-  const result = (await loadCompressedTextureFiles(
+  const result = (await loadCompressedTextureFile(
     file,
     'mvc2-character-win',
     textureDefs,
@@ -386,24 +366,15 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
   const textureDefs: NLTextureDef[] = [];
 
   for (let i = 0; i < 18; i++) {
-    textureDefs.push({
-      width: 128,
-      height: 128,
-      colorFormat: 'RGB565',
-      colorFormatValue: 2,
-      bufferUrls: {
-        translucent: undefined,
-        opaque: undefined
-      },
-      dataUrls: {
-        translucent: undefined,
-        opaque: undefined
-      },
-      type: 0,
-      address: 0,
-      baseLocation: i * 128 * 128 * 2,
-      ramOffset: 0
-    });
+    textureDefs.push(
+      createTextureDef({
+        width: 128,
+        height: 128,
+        colorFormat: 'RGB565',
+        colorFormatValue: 2,
+        baseLocation: i * 128 * 128 * 2
+      })
+    );
   }
 
   textureDefs.push({
@@ -425,7 +396,7 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
     ramOffset: 0
   });
 
-  const result = (await loadCompressedTextureFiles(
+  const result = (await loadCompressedTextureFile(
     file,
     'mvc2-stage-preview',
     textureDefs,
@@ -456,65 +427,38 @@ export const loadMvc2EndFile = createAsyncThunk<
   const textureDefs: NLTextureDef[] = [];
 
   for (let i = 0; i < 16; i++) {
-    textureDefs.push({
-      width: 256,
-      height: 256,
-      colorFormat: 'RGB565',
-      colorFormatValue: 2,
-      bufferUrls: {
-        translucent: undefined,
-        opaque: undefined
-      },
-      dataUrls: {
-        translucent: undefined,
-        opaque: undefined
-      },
-      type: 0,
-      address: 0,
-      baseLocation: i * 256 * 256 * 2,
-      ramOffset: 0
-    });
+    textureDefs.push(
+      createTextureDef({
+        width: 256,
+        height: 256,
+        colorFormat: 'RGB565',
+        colorFormatValue: 2,
+        baseLocation: i * 256 * 256 * 2
+      })
+    );
   }
 
-  textureDefs.push({
-    width: 128,
-    height: 128,
-    colorFormat: 'ARGB4444',
-    colorFormatValue: 2,
-    bufferUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    dataUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    type: 0,
-    address: 0,
-    baseLocation: 256 * 256 * 16 * 2,
-    ramOffset: 0
-  });
+  textureDefs.push(
+    createTextureDef({
+      width: 128,
+      height: 128,
+      colorFormat: 'ARGB4444',
+      colorFormatValue: 2,
+      baseLocation: 256 * 256 * 16 * 2
+    })
+  );
 
-  textureDefs.push({
-    width: 128,
-    height: 128,
-    colorFormat: 'ARGB4444',
-    colorFormatValue: 2,
-    bufferUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    dataUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    type: 0,
-    address: 0,
-    baseLocation: 256 * 256 * 16 * 2 + 128 * 128 * 2,
-    ramOffset: 0
-  });
+  textureDefs.push(
+    createTextureDef({
+      width: 128,
+      height: 128,
+      colorFormat: 'ARGB4444',
+      colorFormatValue: 2,
+      baseLocation: 256 * 256 * 16 * 2 + 128 * 128 * 2
+    })
+  );
 
-  const result = (await loadCompressedTextureFiles(
+  const result = (await loadCompressedTextureFile(
     file,
     'mvc2-end-file',
     textureDefs,
@@ -541,31 +485,13 @@ export const loadMvc2SelectionTexturesFile = createAsyncThunk<
   File,
   { state: AppState }
 >(`${sliceName}/loadMvc2SelectionTexturesFile`, async (file, { dispatch }) => {
-  const texDef: NLTextureDef = {
-    width: 256,
-    height: 256,
-    colorFormat: 'RGB565',
-    colorFormatValue: 2,
-    bufferUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    dataUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    type: 0,
-    address: 0,
-    baseLocation: 0,
-    ramOffset: 0
-  };
+  const textureDefs: NLTextureDef[] = [...Array(23).keys()].map((i) =>
+    createTextureDef({
+      baseLocation: 256 * 256 * 2 * i
+    })
+  );
 
-  const textureDefs: NLTextureDef[] = [...Array(23).keys()].map((i) => ({
-    ...texDef,
-    baseLocation: 256 * 256 * 2 * i
-  }));
-
-  const result = (await loadCompressedTextureFiles(
+  const result = (await loadCompressedTextureFile(
     file,
     'mvc2-selection-textures',
     textureDefs,
