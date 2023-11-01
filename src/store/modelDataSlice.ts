@@ -2,7 +2,8 @@ import {
   AnyAction,
   createAsyncThunk,
   createSlice,
-  PayloadAction
+  PayloadAction,
+  ThunkDispatch
 } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { NLTextureDef } from '@/types/NLAbstractions';
@@ -59,12 +60,19 @@ export type LoadTexturesPayload = {
   textureFileType: TextureFileType;
 };
 
-export type LoadPolygonsPayload = {
-  models: NLModel[];
-  textureDefs: NLTextureDef[];
-  fileName: string;
-  polygonBufferUrl: string;
-};
+export type LoadPolygonsPayload =
+  | {
+      models: NLModel[];
+      textureDefs: NLTextureDef[];
+      fileName: string;
+      polygonBufferUrl: string;
+    }
+  | {
+      models: [];
+      textureDefs: NLTextureDef[];
+      fileName: undefined;
+      polygonBufferUrl: undefined;
+    };
 
 export type AdjustTextureHslPayload = {
   textureIndex: number;
@@ -254,19 +262,11 @@ export const loadCharacterPortraitsFile = createAsyncThunk<
           textureFileType: 'mvc2-character-portraits'
         };
 
-        batch(() => {
-          // revoke URL for existing texture buffer url in state
-          dispatch({
-            type: loadPolygonFile.fulfilled.type,
-            payload: {
-              models: [],
-              fileName: undefined,
-              polygonBufferUrl: undefined,
-              textureDefs
-            }
-          });
-          dispatch({ type: loadTextureFile.fulfilled.type, payload });
-        });
+        handleTextureLoadFulfilled(
+          dispatch,
+          'mvc2-character-portraits',
+          payload
+        );
 
         resolve(payload);
         thread.unallocate();
@@ -322,6 +322,27 @@ const loadCompressedTextureFile = async (
   return result;
 };
 
+const handleTextureLoadFulfilled = (
+  dispatch: ThunkDispatch<AppState, unknown, AnyAction>,
+  textureFileType: TextureFileType,
+  payload: LoadTexturesPayload
+) =>
+  batch(() => {
+    dispatch({
+      type: loadPolygonFile.fulfilled.type,
+      payload: {
+        models: [],
+        fileName: undefined,
+        polygonBufferUrl: undefined,
+        textureDefs: payload.textureDefs
+      }
+    });
+    dispatch({
+      type: loadTextureFile.fulfilled.type,
+      payload: { ...payload, textureFileType }
+    });
+  });
+
 export const loadMvc2CharacterWinFile = createAsyncThunk<
   LoadTexturesPayload,
   File,
@@ -341,18 +362,7 @@ export const loadMvc2CharacterWinFile = createAsyncThunk<
     'mvc2-character-win',
     textureDefs,
     (payload: LoadTexturesPayload) =>
-      batch(() => {
-        dispatch({
-          type: loadPolygonFile.fulfilled.type,
-          payload: {
-            models: [],
-            fileName: undefined,
-            polygonBufferUrl: undefined,
-            textureDefs
-          }
-        });
-        dispatch({ type: loadTextureFile.fulfilled.type, payload });
-      })
+      handleTextureLoadFulfilled(dispatch, 'mvc2-character-win', payload)
   )) as LoadTexturesPayload;
 
   return result;
@@ -401,19 +411,7 @@ export const loadMvc2StagePreviewsFile = createAsyncThunk<
     'mvc2-stage-preview',
     textureDefs,
     (payload: LoadTexturesPayload) =>
-      // TODO: DRY into action
-      batch(() => {
-        dispatch({
-          type: loadPolygonFile.fulfilled.type,
-          payload: {
-            models: [],
-            fileName: undefined,
-            polygonBufferUrl: undefined,
-            textureDefs
-          }
-        });
-        dispatch({ type: loadTextureFile.fulfilled.type, payload });
-      })
+      handleTextureLoadFulfilled(dispatch, 'mvc2-stage-preview', payload)
   )) as LoadTexturesPayload;
 
   return result;
@@ -463,18 +461,7 @@ export const loadMvc2EndFile = createAsyncThunk<
     'mvc2-end-file',
     textureDefs,
     (payload: LoadTexturesPayload) =>
-      batch(() => {
-        dispatch({
-          type: loadPolygonFile.fulfilled.type,
-          payload: {
-            models: [],
-            fileName: undefined,
-            polygonBufferUrl: undefined,
-            textureDefs
-          }
-        });
-        dispatch({ type: loadTextureFile.fulfilled.type, payload });
-      })
+      handleTextureLoadFulfilled(dispatch, 'mvc2-end-file', payload)
   )) as LoadTexturesPayload;
 
   return result;
@@ -496,18 +483,7 @@ export const loadMvc2SelectionTexturesFile = createAsyncThunk<
     'mvc2-selection-textures',
     textureDefs,
     (payload: LoadTexturesPayload) =>
-      batch(() => {
-        dispatch({
-          type: loadPolygonFile.fulfilled.type,
-          payload: {
-            models: [],
-            fileName: undefined,
-            polygonBufferUrl: undefined,
-            textureDefs
-          }
-        });
-        dispatch({ type: loadTextureFile.fulfilled.type, payload });
-      })
+      handleTextureLoadFulfilled(dispatch, 'mvc2-selection-textures', payload)
   )) as LoadTexturesPayload;
 
   return result;
