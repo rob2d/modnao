@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 import Cropper, { Area } from 'react-easy-crop';
 import { Image } from 'image-js';
 import Img from 'next/image';
@@ -25,6 +26,7 @@ import {
   Typography
 } from '@mui/material';
 import {
+  applyReplacedTextureImage,
   closeDialog,
   selectReplacementImage,
   selectReplacementTextureIndex,
@@ -35,9 +37,7 @@ import {
 import { objectUrlToBuffer } from '@/utils/data';
 import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
-import { applyReplacedTextureImage } from '@/store/replaceTextureSlice';
 import { NLTextureDef } from '@/types/NLAbstractions';
-import clsx from 'clsx';
 import { useFilePicker } from 'use-file-picker';
 import themeMixins from '@/theming/themeMixins';
 

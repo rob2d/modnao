@@ -10,7 +10,6 @@ import dialogs from './dialogsSlice';
 import objectViewerSlice from './objectViewerSlice';
 import modelDataSlice from './modelDataSlice';
 import replaceTextureSlice from './replaceTextureSlice';
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 const store = configureStore({
   reducer: {
@@ -34,9 +33,6 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   Action
 >;
 
-export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;
-type DispatchFunc = () => AppDispatch;
-export const useAppDispatch: DispatchFunc = useDispatch;
 export type AppThunkDispatch = ThunkDispatch<AppState, unknown, AnyAction>;
 
 export { store };

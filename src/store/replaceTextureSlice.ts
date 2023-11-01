@@ -1,12 +1,13 @@
 import { Image } from 'image-js';
-import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from './dialogsSlice';
-import { AppState, AppThunk } from './store';
+import { AppThunk } from './store';
 import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { replaceTextureImage } from './modelDataSlice';
 import { batch } from 'react-redux';
+import { createAppAsyncThunk } from './typedFunctions';
 
 export type ReplacementImage = {
   bufferObjectUrl: string;
@@ -26,13 +27,12 @@ export const initialReplaceTextureState: ReplaceTextureState = {
 
 const sliceName = 'replaceTexture';
 
-export const selectReplacementTexture = createAsyncThunk<
-  { replacementImage: ReplacementImage; textureIndex: number },
-  { imageFile: File; textureIndex: number },
-  { state: AppState }
->(
+export const selectReplacementTexture = createAppAsyncThunk(
   `${sliceName}/selectReplacementTexture`,
-  async ({ imageFile, textureIndex }, { dispatch }) => {
+  async (
+    { imageFile, textureIndex }: { imageFile: File; textureIndex: number },
+    { dispatch }
+  ) => {
     const [buffer, , width, height] = await loadRGBABuffersFromFile(imageFile);
     const bufferObjectUrl = await bufferToObjectUrl(buffer);
 
@@ -53,20 +53,23 @@ export const updateReplacementTexture =
   ({ imageFile }: { imageFile: File }): AppThunk =>
   (dispatch, getState) => {
     const { textureIndex } = getState().replaceTexture;
-    dispatch(selectReplacementTexture({ textureIndex, imageFile }));
+    dispatch({
+      type: selectReplacementTexture.pending.type,
+      payload: { textureIndex, imageFile }
+    });
+
     dispatch({
       type: `${sliceName}/updateReplacementTexture`,
       payload: { imageFile }
     });
   };
 
-export const applyReplacedTextureImage = createAsyncThunk<
-  void,
-  Uint8Array | Uint8ClampedArray,
-  { state: AppState }
->(
+export const applyReplacedTextureImage = createAppAsyncThunk(
   `${sliceName}/applyReplacedTextureImage`,
-  async (rgbaBuffer, { getState, dispatch }) => {
+  async (
+    rgbaBuffer: Uint8Array | Uint8ClampedArray,
+    { getState, dispatch }
+  ) => {
     const state = getState();
     const { textureIndex } = state.replaceTexture;
     const { width, height } = state.modelData.textureDefs[textureIndex];

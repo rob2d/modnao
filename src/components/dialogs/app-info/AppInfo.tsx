@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Button, Divider, styled } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiChevronDoubleRight } from '@mdi/js';
@@ -7,13 +8,12 @@ import SceneNavigationHints from './sections/SceneNavigationHints';
 import DevUpdates from './sections/DevUpdates';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
-import { useCallback } from 'react';
 import {
+  closeDialog,
   selectIsAppInfoDialogShown,
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { closeDialog } from '@/store/dialogsSlice';
 
 const Styled = styled('div')(
   ({ theme }) => `

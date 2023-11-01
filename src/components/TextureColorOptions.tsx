@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import clsx from 'clsx';
 import {
   Button,
   List,
@@ -18,7 +19,6 @@ import {
 } from '@/store';
 import NumericSliderInput from './NumericSliderInput';
 import { batch } from 'react-redux';
-import clsx from 'clsx';
 
 const StyledList = styled(List)(
   ({ theme }) =>

@@ -1,14 +1,13 @@
 import { useContext, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
-import { navToNextObject, navToPrevObject } from '@/store';
+import { navToNextObject, navToPrevObject, useAppDispatch } from '@/store';
 import { AnyAction } from '@reduxjs/toolkit';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import useHeldRepetitionTimer from './useHeldRepetitionTimer';
 
 /** controls left/right object nav as well as hides and shows the gui menu */
 export default function useObjectNavControls() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const viewOptions = useContext(ViewOptionsContext);
   const isLeftPressed = useKeyPress({ targetKey: 'ArrowLeft' });
   const isRightPressed = useKeyPress({ targetKey: 'ArrowRight' });

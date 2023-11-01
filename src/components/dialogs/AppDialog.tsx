@@ -1,5 +1,9 @@
-import { useAppDispatch, useAppSelector } from '@/store';
-import { closeDialog, DialogType } from '@/store/dialogsSlice';
+import {
+  closeDialog,
+  DialogType,
+  useAppDispatch,
+  useAppSelector
+} from '@/store';
 import { Dialog, DialogContent, styled } from '@mui/material';
 import { FC, useCallback } from 'react';
 import AppInfo from './app-info/AppInfo';

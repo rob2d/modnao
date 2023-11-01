@@ -17,9 +17,11 @@ import {
   selectModel,
   selectObjectKey,
   selectUneditedTextureUrls,
-  selectUpdatedTextureDefs
-} from '@/store/selectors';
-import { setObjectKey, useAppDispatch, useAppSelector } from '@/store';
+  selectUpdatedTextureDefs,
+  setObjectKey,
+  useAppDispatch,
+  useAppSelector
+} from '@/store';
 import { useObjectNavControls } from '@/hooks';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';

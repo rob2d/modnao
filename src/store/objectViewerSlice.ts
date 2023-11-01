@@ -1,8 +1,8 @@
-import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { loadPolygonFile } from './modelDataSlice';
-import { AppState } from './store';
 import { selectContentViewMode } from './selectors';
+import { createAppAsyncThunk } from './typedFunctions';
 
 export interface ObjectViewerState {
   modelIndex: number;
@@ -22,51 +22,49 @@ export const initialObjectViewerState: ObjectViewerState = {
 
 const sliceName = 'objectViewer';
 
-export const setObjectViewedIndex = createAsyncThunk<
-  { objectIndex: number; indexKey: 'modelIndex' | 'textureIndex' },
-  number,
-  { state: AppState }
->(`${sliceName}/setObjectViewedIndex`, async (objectIndex, { getState }) => {
-  const state = getState();
-  const contentViewMode = selectContentViewMode(state);
-  const indexKey =
-    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
-  return { objectIndex, indexKey };
-});
+export const setObjectViewedIndex = createAppAsyncThunk(
+  `${sliceName}/setObjectViewedIndex`,
+  async (objectIndex: number, { getState }) => {
+    const state = getState();
+    const contentViewMode = selectContentViewMode(state);
+    const indexKey =
+      contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+    return { objectIndex, indexKey };
+  }
+);
 
-export const navToPrevObject = createAsyncThunk<
-  void,
-  undefined,
-  { state: AppState }
->(`${sliceName}/navToPrevObject`, async (_, { dispatch, getState }) => {
-  const state = getState();
-  const contentViewMode = selectContentViewMode(state);
-  const indexKey =
-    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
-  const index = state.objectViewer[indexKey];
-  const objectIndex = Math.max(index - 1, 0);
+export const navToPrevObject = createAppAsyncThunk(
+  `${sliceName}/navToPrevObject`,
+  async (_, { dispatch, getState }) => {
+    const state = getState();
+    const contentViewMode = selectContentViewMode(state);
+    const indexKey =
+      contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+    const index = state.objectViewer[indexKey];
+    const objectIndex = Math.max(index - 1, 0);
 
-  dispatch(setObjectViewedIndex(objectIndex));
-});
+    dispatch(setObjectViewedIndex(objectIndex));
+  }
+);
 
-export const navToNextObject = createAsyncThunk<
-  void,
-  undefined,
-  { state: AppState }
->(`${sliceName}/navToNextObject`, async (_, { dispatch, getState }) => {
-  const state = getState();
-  const contentViewMode = selectContentViewMode(state);
-  const indexKey =
-    contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
-  const objectsKey = contentViewMode === 'polygons' ? 'models' : 'textureDefs';
-  const objectCount = state.modelData[objectsKey].length;
-  const objectIndex = Math.min(
-    state.objectViewer[indexKey] + 1,
-    objectCount - 1
-  );
+export const navToNextObject = createAppAsyncThunk(
+  `${sliceName}/navToNextObject`,
+  async (_, { dispatch, getState }) => {
+    const state = getState();
+    const contentViewMode = selectContentViewMode(state);
+    const indexKey =
+      contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+    const objectsKey =
+      contentViewMode === 'polygons' ? 'models' : 'textureDefs';
+    const objectCount = state.modelData[objectsKey].length;
+    const objectIndex = Math.min(
+      state.objectViewer[indexKey] + 1,
+      objectCount - 1
+    );
 
-  dispatch(setObjectViewedIndex(objectIndex));
-});
+    dispatch(setObjectViewedIndex(objectIndex));
+  }
+);
 
 const objectViewerSlice = createSlice({
   name: 'objectViewer',
