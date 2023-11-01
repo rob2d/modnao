@@ -2,10 +2,6 @@ import { useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,
-  loadMvc2CharacterWinFile,
-  loadMvc2EndFile,
-  loadMvc2SelectionTexturesFile,
-  loadMvc2StagePreviewsFile,
   loadPolygonFile,
   loadTextureFile,
   useAppDispatch,
@@ -115,20 +111,17 @@ export const handleFileInput = async (
       dispatch(loadCharacterPortraitsFile(selectedTextureFile));
       break;
     }
-    case 'mvc2-character-win': {
-      dispatch(loadMvc2CharacterWinFile(selectedTextureFile));
-      break;
-    }
-    case 'mvc2-stage-preview': {
-      dispatch(loadMvc2StagePreviewsFile(selectedTextureFile));
-      break;
-    }
-    case 'mvc2-selection-textures': {
-      dispatch(loadMvc2SelectionTexturesFile(selectedTextureFile));
-      break;
-    }
+    case 'mvc2-character-win':
+    case 'mvc2-stage-preview':
+    case 'mvc2-selection-textures':
     case 'mvc2-end-file': {
-      dispatch(loadMvc2EndFile(selectedTextureFile));
+      dispatch(
+        loadTextureFile({
+          file: selectedTextureFile,
+          textureFileType,
+          isCompressed: true
+        })
+      );
       break;
     }
     default: {

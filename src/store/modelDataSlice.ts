@@ -1,14 +1,8 @@
-import {
-  AnyAction,
-  createSlice,
-  PayloadAction,
-  ThunkDispatch
-} from '@reduxjs/toolkit';
+import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { NLTextureDef } from '@/types/NLAbstractions';
 import { WorkerEvent } from '@/worker';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
-import { AppState } from './store';
 import HslValues from '@/utils/textures/HslValues';
 import {
   selectHasCompressedTextures,
@@ -16,13 +10,12 @@ import {
   selectUpdatedTextureDefs
 } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import { batch } from 'react-redux';
 import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { ClientThread } from '@/utils/threads';
-import { createTextureDef } from '@/utils/textures';
 import { createAppAsyncThunk } from './typedFunctions';
+import textureShapesMap from '@/utils/textures/files/textureShapesMap';
 
 export type LoadPolygonsResult = {
   type: 'loadPolygonFile';
@@ -183,7 +176,7 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
     }
 
     let position = startPointer;
-    const decompressedOffsets = [];
+    const decompressedOffsets: number[] = [];
     decompressedOffsets.push(position);
 
     position += jpLifebar.length;
@@ -236,246 +229,19 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
       tSectionBytes
     ]);
 
-    const textureStructure: Partial<NLTextureDef>[] = [
-      { width: 64, height: 64 },
-      { width: 256, height: 256, disableEdits: true },
-      { width: 128, height: 128, disableEdits: true },
-      ...(pointers[3] ? [{ width: 64, height: 64 }] : [])
-    ];
+    const textureFileType = 'mvc2-character-portraits';
+    const textureDefs = textureShapesMap[textureFileType]
+      .slice(0, pointers.length)
+      .map((d, i) => ({ ...d, baseLocation: decompressedOffsets[i] }));
 
-    const textureDefs = decompressedOffsets.map((offset, i) =>
-      createTextureDef({
-        colorFormat: 'RGB565',
-        ...textureStructure[i],
-        colorFormatValue: 2,
-        baseLocation: offset
+    dispatch(
+      loadTextureFile({
+        file,
+        textureFileType,
+        providedTextureDefs: textureDefs,
+        providedBuffer: decompressedBuffer
       })
     );
-
-    const thread = new ClientThread();
-
-    const result: LoadTexturesPayload = await new Promise<LoadTexturesPayload>(
-      (resolve) => {
-        thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-          const payload: LoadTexturesPayload = {
-            ...event.data.result,
-            hasCompressedTextures: true,
-            textureFileType: 'mvc2-character-portraits'
-          };
-
-          handleTextureLoadFulfilled(
-            dispatch,
-            'mvc2-character-portraits',
-            payload
-          );
-
-          resolve(payload);
-          thread.unallocate();
-        };
-
-        thread.postMessage({
-          type: 'loadTextureFile',
-          payload: {
-            fileName: file.name,
-            textureDefs,
-            buffer: decompressedBuffer
-          }
-        });
-      }
-    );
-
-    return result;
-  }
-);
-
-const loadCompressedTextureFile = async (
-  file: File,
-  textureFileType: TextureFileType,
-  textureDefs: NLTextureDef[],
-  onDispatch: (payload: LoadTexturesPayload) => void
-) => {
-  const thread = new ClientThread();
-
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = decompressLzssBuffer(Buffer.from(arrayBuffer));
-
-  const result = await new Promise<LoadTexturesPayload>((resolve) => {
-    thread.onmessage = (event: MessageEvent<LoadTexturesResult>) => {
-      const payload: LoadTexturesPayload = {
-        ...event.data.result,
-        hasCompressedTextures: true,
-        textureFileType
-      };
-      onDispatch(payload);
-      resolve(payload);
-      thread.unallocate();
-    };
-
-    thread.postMessage({
-      type: 'loadTextureFile',
-      payload: {
-        fileName: file.name,
-        textureDefs,
-        buffer
-      }
-    } as WorkerEvent);
-  });
-
-  return result;
-};
-
-const handleTextureLoadFulfilled = (
-  dispatch: ThunkDispatch<AppState, unknown, AnyAction>,
-  textureFileType: TextureFileType,
-  payload: LoadTexturesPayload
-) =>
-  batch(() => {
-    dispatch({
-      type: loadPolygonFile.fulfilled.type,
-      payload: {
-        models: [],
-        fileName: undefined,
-        polygonBufferUrl: undefined,
-        textureDefs: payload.textureDefs
-      }
-    });
-    dispatch({
-      type: loadTextureFile.fulfilled.type,
-      payload: { ...payload, textureFileType }
-    });
-  });
-
-export const loadMvc2CharacterWinFile = createAppAsyncThunk(
-  `${sliceName}/loadMvc2CharacterWinFile`,
-  async (file: File, { dispatch }) => {
-    const textureDefs: NLTextureDef[] = [
-      createTextureDef({
-        width: 256,
-        height: 256,
-        colorFormat: 'ARGB4444',
-        colorFormatValue: 2
-      })
-    ];
-
-    const result = (await loadCompressedTextureFile(
-      file,
-      'mvc2-character-win',
-      textureDefs,
-      (payload: LoadTexturesPayload) =>
-        handleTextureLoadFulfilled(dispatch, 'mvc2-character-win', payload)
-    )) as LoadTexturesPayload;
-
-    return result;
-  }
-);
-
-export const loadMvc2StagePreviewsFile = createAppAsyncThunk(
-  `${sliceName}/loadMvc2StagePreviewsFile`,
-  async (file: File, { dispatch }) => {
-    const textureDefs: NLTextureDef[] = [];
-
-    for (let i = 0; i < 18; i++) {
-      textureDefs.push(
-        createTextureDef({
-          width: 128,
-          height: 128,
-          colorFormat: 'RGB565',
-          colorFormatValue: 2,
-          baseLocation: i * 128 * 128 * 2
-        })
-      );
-    }
-
-    textureDefs.push(
-      createTextureDef({
-        width: 64,
-        height: 64,
-        colorFormat: 'ARGB4444',
-        colorFormatValue: 2,
-        baseLocation: 18 * 128 * 128 * 2
-      })
-    );
-
-    const result = (await loadCompressedTextureFile(
-      file,
-      'mvc2-stage-preview',
-      textureDefs,
-      (payload: LoadTexturesPayload) =>
-        handleTextureLoadFulfilled(dispatch, 'mvc2-stage-preview', payload)
-    )) as LoadTexturesPayload;
-
-    return result;
-  }
-);
-
-export const loadMvc2EndFile = createAppAsyncThunk<
-  LoadTexturesPayload,
-  File,
-  { state: AppState }
->(`${sliceName}/loadMvc2EndFile`, async (file, { dispatch }) => {
-  const textureDefs: NLTextureDef[] = [];
-
-  for (let i = 0; i < 16; i++) {
-    textureDefs.push(
-      createTextureDef({
-        width: 256,
-        height: 256,
-        colorFormat: 'RGB565',
-        colorFormatValue: 2,
-        baseLocation: i * 256 * 256 * 2
-      })
-    );
-  }
-
-  textureDefs.push(
-    createTextureDef({
-      width: 128,
-      height: 128,
-      colorFormat: 'ARGB4444',
-      colorFormatValue: 2,
-      baseLocation: 256 * 256 * 16 * 2
-    })
-  );
-
-  textureDefs.push(
-    createTextureDef({
-      width: 128,
-      height: 128,
-      colorFormat: 'ARGB4444',
-      colorFormatValue: 2,
-      baseLocation: 256 * 256 * 16 * 2 + 128 * 128 * 2
-    })
-  );
-
-  const result = (await loadCompressedTextureFile(
-    file,
-    'mvc2-end-file',
-    textureDefs,
-    (payload: LoadTexturesPayload) =>
-      handleTextureLoadFulfilled(dispatch, 'mvc2-end-file', payload)
-  )) as LoadTexturesPayload;
-
-  return result;
-});
-
-export const loadMvc2SelectionTexturesFile = createAppAsyncThunk(
-  `${sliceName}/loadMvc2SelectionTexturesFile`,
-  async (file: File, { dispatch }) => {
-    const textureDefs: NLTextureDef[] = [...Array(23).keys()].map((i) =>
-      createTextureDef({
-        baseLocation: 256 * 256 * 2 * i
-      })
-    );
-
-    const result = (await loadCompressedTextureFile(
-      file,
-      'mvc2-selection-textures',
-      textureDefs,
-      (payload: LoadTexturesPayload) =>
-        handleTextureLoadFulfilled(dispatch, 'mvc2-selection-textures', payload)
-    )) as LoadTexturesPayload;
-
-    return result;
   }
 );
 
@@ -511,12 +277,48 @@ export const loadPolygonFile = createAppAsyncThunk(
 export const loadTextureFile = createAppAsyncThunk(
   `${sliceName}/loadTextureFile`,
   async (
-    { file, textureFileType }: { file: File; textureFileType: TextureFileType },
-    { getState }
+    {
+      file,
+      textureFileType,
+      providedBuffer,
+      providedTextureDefs,
+      isCompressed
+    }: {
+      file: File;
+      textureFileType: TextureFileType;
+      isCompressed?: boolean;
+      providedBuffer?: Buffer;
+      providedTextureDefs?: NLTextureDef[];
+    },
+    { getState, dispatch }
   ) => {
     const state = getState();
-    const { textureDefs } = state.modelData;
-    const buffer = new Uint8Array(await file.arrayBuffer());
+
+    let textureDefs: NLTextureDef[];
+
+    if (textureFileType !== 'polygon-mapped') {
+      textureDefs = providedTextureDefs || textureShapesMap[textureFileType];
+      // clear polygons if texture headers aren't from poly file
+      dispatch({
+        type: loadPolygonFile.fulfilled.type,
+        payload: {
+          models: [],
+          fileName: undefined,
+          polygonBufferUrl: undefined,
+          textureDefs
+        }
+      });
+    } else {
+      textureDefs = state.modelData.textureDefs;
+    }
+
+    let buffer = providedBuffer || new Uint8Array(await file.arrayBuffer());
+
+    if (isCompressed) {
+      const arrayBuffer = await file.arrayBuffer();
+      buffer = decompressLzssBuffer(Buffer.from(arrayBuffer));
+    }
+
     const prevTextureBufferUrl = state.modelData.textureBufferUrl;
     const thread = new ClientThread();
 
@@ -535,11 +337,7 @@ export const loadTextureFile = createAppAsyncThunk(
       const fileName = file.name;
       thread.postMessage({
         type: 'loadTextureFile',
-        payload: {
-          fileName,
-          textureDefs,
-          buffer
-        }
+        payload: { fileName, textureDefs, buffer }
       } as WorkerEvent);
     });
 
