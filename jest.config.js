@@ -27,6 +27,7 @@ const customJestConfig = {
     // jest-module name mapping will actually roll up packages
     // with name transforms, even if they are accessed the same way
     kmeans: ['<rootDir>/node_modules/@thi.ng/k-means'],
+    uiDotEnv: ['<rootDir>/node_modules/@uidotdev/usehooks'],
 
     // Handle CSS imports (without CSS modules)
     '^.+\\.(css|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
@@ -38,11 +39,15 @@ const customJestConfig = {
     // Handle module aliases
     '^@/(.*)$': '<rootDir>/src/$1'
   },
+  setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
-    '<rootDir>/node_modules/(!(@thi.ng/k-means)/)'
+    '<rootDir>/node_modules/(!(@thi.ng/k-means)/(!@uidotdev/usehooks))'
+  ],
+  transformIgnorePatterns: [
+    '<rootDir>/node_modules/(!(@thi.ng/k-means)/(!@uidotdev/usehooks))'
   ],
   testEnvironment: 'jest-environment-jsdom',
   transform: {

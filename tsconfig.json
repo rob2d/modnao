@@ -19,7 +19,13 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "types.d.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "types.d.ts",
+    "./jest.setup.mjs"
+  ],
   "exclude": ["node_modules"],
   "typeroots": ["./node_modules/@types", "./src/types"]
 }
