@@ -12,6 +12,7 @@ import { Select } from '@react-three/postprocessing';
 type Point3D = [x: number, y: number, z: number];
 
 export default function RenderedPolygon({
+  flags,
   vertexGroupMode,
   vertices,
   indices,
@@ -139,9 +140,9 @@ export default function RenderedPolygon({
       transparent: true,
       opacity: 1,
       alphaTest: 0.0001,
-      side: disableBackfaceCulling ? DoubleSide : FrontSide
+      side: disableBackfaceCulling || !flags.culling ? DoubleSide : FrontSide
     }),
-    [texture, isSelected, disableBackfaceCulling]
+    [texture, isSelected, disableBackfaceCulling || !flags.culling]
   );
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
