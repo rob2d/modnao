@@ -1,6 +1,6 @@
 const getPolyTypeFlags = (v: number): PolyTypeFlags => ({
-  culling: ((v >> 1) & 1) == 1,
   cullingType: ((v >> 0) & 1) == 1 ? 'back' : 'front',
+  culling: ((v >> 1) & 1) == 1,
   spriteQuad: ((v >> 2) & 1) == 1,
   triangles: ((v >> 3) & 1) == 1,
   strip: ((v >> 4) & 1) == 1,
