@@ -3,7 +3,6 @@ import {
   AnyAction,
   combineReducers,
   configureStore,
-  EmptyObject,
   PreloadedState,
   ThunkAction,
   ThunkDispatch
@@ -13,7 +12,6 @@ import dialogs from './dialogsSlice';
 import objectViewerSlice from './objectViewerSlice';
 import modelDataSlice from './modelDataSlice';
 import replaceTextureSlice from './replaceTextureSlice';
-import { ToolkitStore } from '@reduxjs/toolkit/dist/configureStore';
 
 export const rootReducer = combineReducers({
   [dialogs.name]: dialogs.reducer,

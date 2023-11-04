@@ -8,7 +8,6 @@ import {
   useRef,
   useState
 } from 'react';
-import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import {
@@ -34,16 +33,19 @@ import {
 import { BlendFunction } from 'postprocessing';
 import {
   ClampToEdgeWrapping,
+  ColorManagement,
   DataTexture,
   RepeatWrapping,
   RGBAFormat,
+  SRGBColorSpace,
+  Texture,
   UnsignedByteType,
   Vector2
 } from 'three';
 import { objectUrlToBuffer } from '@/utils/data';
 import RenderedPolygon from './scene/RenderedPolygon';
 
-THREE.ColorManagement.enabled = true;
+ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
 
@@ -66,13 +68,13 @@ async function createTextureFromObjectUrl(
     height,
     RGBAFormat,
     UnsignedByteType,
-    THREE.Texture.DEFAULT_MAPPING,
+    Texture.DEFAULT_MAPPING,
     undefined,
     undefined,
     undefined,
     undefined,
     undefined,
-    THREE.SRGBColorSpace
+    SRGBColorSpace
   );
   texture.rotation = TEXTURE_ROTATION;
   texture.center = TEXTURE_CENTER;
