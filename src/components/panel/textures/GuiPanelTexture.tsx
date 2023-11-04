@@ -267,13 +267,11 @@ export default function GuiPanelTexture({
           <ButtonBase {...mainContentProps}>{content}</ButtonBase>
         </Tooltip>
       )}
-      {!isSelectable ? undefined : (
-        <GuiPanelTextureMenu
-          textureIndex={textureIndex}
-          pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
-          onReplaceImageFile={onSelectNewImageFile}
-        />
-      )}
+      <GuiPanelTextureMenu
+        textureIndex={textureIndex}
+        pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
+        onReplaceImageFile={onSelectNewImageFile}
+      />
     </StyledPanelTexture>
   );
 }
