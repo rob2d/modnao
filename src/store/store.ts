@@ -1,7 +1,10 @@
 import {
   Action,
   AnyAction,
+  combineReducers,
   configureStore,
+  EmptyObject,
+  PreloadedState,
   ThunkAction,
   ThunkDispatch
 } from '@reduxjs/toolkit';
@@ -10,21 +13,25 @@ import dialogs from './dialogsSlice';
 import objectViewerSlice from './objectViewerSlice';
 import modelDataSlice from './modelDataSlice';
 import replaceTextureSlice from './replaceTextureSlice';
+import { ToolkitStore } from '@reduxjs/toolkit/dist/configureStore';
 
-const store = configureStore({
-  reducer: {
-    [dialogs.name]: dialogs.reducer,
-    [objectViewerSlice.name]: objectViewerSlice.reducer,
-    [modelDataSlice.name]: modelDataSlice.reducer,
-    [replaceTextureSlice.name]: replaceTextureSlice.reducer
-  },
-  devTools: process.env.NODE_ENV === 'development'
+export const rootReducer = combineReducers({
+  [dialogs.name]: dialogs.reducer,
+  [objectViewerSlice.name]: objectViewerSlice.reducer,
+  [modelDataSlice.name]: modelDataSlice.reducer,
+  [replaceTextureSlice.name]: replaceTextureSlice.reducer
 });
 
-const makeStore = () => store;
+export const setupStore = (preloadedState?: PreloadedState<AppState>) =>
+  configureStore({
+    preloadedState,
+    reducer: rootReducer,
+    devTools: process.env.NODE_ENV === 'development'
+  });
 
-export type AppStore = ReturnType<typeof makeStore>;
-export type AppState = ReturnType<AppStore['getState']>;
+export const store = setupStore();
+export type AppStore = ReturnType<typeof setupStore>;
+export type AppState = ReturnType<typeof rootReducer>;
 export type AppDispatch = AppStore['dispatch'];
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
@@ -34,6 +41,6 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 >;
 
 export type AppThunkDispatch = ThunkDispatch<AppState, unknown, AnyAction>;
-
-export { store };
-export const wrapper = createWrapper<AppStore>(makeStore);
+export const wrapper = createWrapper<AppStore>(
+  setupStore as () => typeof store
+);

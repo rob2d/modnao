@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest --watch",
-    "test:ci": "jest --ci",
+    "test:ci": "NODE_ENV=test jest --ci",
     "test:snapshots": "jest --updateSnapshot"
   },
   "dependencies": {

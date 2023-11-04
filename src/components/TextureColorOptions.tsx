@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
+import { batch } from 'react-redux';
 import {
   Button,
   List,
@@ -18,7 +19,6 @@ import {
   useAppSelector
 } from '@/store';
 import NumericSliderInput from './NumericSliderInput';
-import { batch } from 'react-redux';
 
 const StyledList = styled(List)(
   ({ theme }) =>
@@ -41,6 +41,11 @@ const StyledList = styled(List)(
 
     & .MuiButton svg {
       margin-right: ${theme.spacing(1)};
+    }
+    
+    & .slider p {
+      display: flex;
+      align-items: center;
     }`
 );
 
