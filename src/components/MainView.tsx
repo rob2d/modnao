@@ -14,7 +14,6 @@ import {
   useAppSelector
 } from '@/store';
 import TextureView from './TextureView';
-
 const Styled = styled('main')(
   ({ theme }) => `
     & {
@@ -26,12 +25,16 @@ const Styled = styled('main')(
       flex-basis: 100%;
     }
 
-    & > :first-child {
+    ${
+      !process.env.JEST_WORKER_ID
+        ? `& > :first-child {
       position: relative;
       flex-grow: 1;
       height: 100%;
       display: flex;
       zIndex: -1;
+    }`
+        : ''
     }
 
     .scene-button {
