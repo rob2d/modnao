@@ -48,7 +48,7 @@ describe('TextureColorOptions', () => {
 
     const [subtitleText, hSlider, sSlider, lSlider, applyToAll] =
       await Promise.all([
-        screen.getByText('Color Adjustment'),
+        screen.findByText('Color Adjustment'),
         screen.findByLabelText('H'),
         screen.findByLabelText('S'),
         screen.findByLabelText('L'),
