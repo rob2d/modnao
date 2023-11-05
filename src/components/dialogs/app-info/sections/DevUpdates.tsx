@@ -103,7 +103,7 @@ export default function DevUpdates() {
       <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
       <DialogSectionContentCards>
         {!vlogs
-          ? [1, 2, 3, 4, 5, 6].map((_, i) => (
+          ? [1, 2, 3].map((_, i) => (
               <Card key={i} elevation={2}>
                 <CardContent>
                   <Typography component='div' variant='subtitle1'>
