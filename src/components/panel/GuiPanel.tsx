@@ -14,7 +14,6 @@ import {
 } from '@/store';
 
 const PANEL_WIDTH = 222;
-
 const TRANSITION_TIME = `0.32s`;
 
 const StyledPaper = styled(Paper)(
