@@ -28,6 +28,7 @@ const customJestConfig = {
     // with name transforms, even if they are accessed the same way
     kmeans: ['<rootDir>/node_modules/@thi.ng/k-means'],
     uiDotEnv: ['<rootDir>/node_modules/@uidotdev/usehooks'],
+    nanoid: ['<rootDir>/node_modules/nanoid'],
 
     // Handle CSS imports (without CSS modules)
     '^.+\\.(css|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
@@ -42,12 +43,9 @@ const customJestConfig = {
   setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testPathIgnorePatterns: [
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/(!(@thi.ng/k-means)/(!@uidotdev/usehooks))'
-  ],
+  testPathIgnorePatterns: ['<rootDir>/.next/'],
   transformIgnorePatterns: [
-    '<rootDir>/node_modules/(!(@thi.ng/k-means)/(!@uidotdev/usehooks))'
+    '<rootDir>/node_modules/((!@thi.ng/k-means)|(!@uidotdev/usehooks)|(!nanoid))'
   ],
   testEnvironment: 'jest-environment-jsdom',
   transform: {
