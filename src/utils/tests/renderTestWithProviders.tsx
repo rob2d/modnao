@@ -14,12 +14,12 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   store?: AppStore;
 }
 
-export default function renderWithProviders(
+const defaultAppState = {};
+
+export default function renderTestWIthProviders(
   ui: React.ReactElement,
   {
-    preloadedState = {} as AppState,
-    // Automatically create a store instance if no store was passed in
-    store = setupStore(preloadedState),
+    preloadedState = defaultAppState as AppState,
     ...renderOptions
   }: ExtendedRenderOptions = {}
 ) {
@@ -34,14 +34,30 @@ export default function renderWithProviders(
     return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
   }
 
-  function Wrapper({ children }: PropsWithChildren<unknown>): JSX.Element {
+  let store: ReturnType<typeof setupStore> | undefined;
+
+  if (preloadedState) {
+    store = setupStore(preloadedState);
+  }
+
+  function AppStateWrapper({
+    children
+  }: PropsWithChildren<unknown>): JSX.Element {
     return (
-      <Provider store={store}>
+      <Provider store={store as ReturnType<typeof setupStore>}>
         <ThemedContent>{children}</ThemedContent>
       </Provider>
     );
   }
 
+  function Wrapper({ children }: PropsWithChildren<unknown>): JSX.Element {
+    return <ThemedContent>{children}</ThemedContent>;
+  }
+
+  const wrapper = store ? AppStateWrapper : Wrapper;
+
+  const renderResult = render(ui, { wrapper, ...renderOptions });
+
   // Return an object with the store and all of RTL's query functions
-  return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) };
+  return { store, renderResult };
 }
