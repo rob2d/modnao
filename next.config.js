@@ -7,7 +7,8 @@ const nextConfig = {
     '@mui/icons-material',
     'three',
     '@thi.ng/k-means',
-    '@uidotdev/usehooks'
+    '@uidotdev/usehooks',
+    'nanoid'
   ],
   modularizeImports: {
     '@mui/icons-material/?(((\\w*)?/?)*)': {

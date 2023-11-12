@@ -14,8 +14,7 @@ const StyledDialog = styled(Dialog)(
   () => `
 & .MuiDialogContent-root {
   display: flex;
-}
-`
+}`
 );
 
 const Dialogs: Record<DialogType, FC> = {
@@ -49,7 +48,7 @@ export default function AppDialog() {
       fullWidth={true}
       maxWidth='xl'
     >
-      <DialogContent>
+      <DialogContent data-testid='app-dialog'>
         <Dialog />
       </DialogContent>
     </StyledDialog>

@@ -7,6 +7,7 @@ type Props = {
   tooltip: React.ReactNode | string;
   color?: 'primary' | 'inherit' | 'secondary';
 };
+
 export default function GuiPanelButton({
   tooltip,
   color = 'primary',

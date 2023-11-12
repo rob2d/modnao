@@ -14,7 +14,6 @@ import {
 } from '@/store';
 
 const PANEL_WIDTH = 222;
-
 const TRANSITION_TIME = `0.32s`;
 
 const StyledPaper = styled(Paper)(
@@ -127,9 +126,14 @@ const StyledPaper = styled(Paper)(
       margin-top: ${theme.spacing(1)};
     }
 
-    & .MuiDivider-root:not(:first-child):not(.export-texture-button-container + .MuiDivider-root) {
-      padding-top: ${theme.spacing(1)};
+    ${
+      !process.env.JEST_WORKER_ID
+        ? `& .MuiDivider-root:not(:first-child):not(.export-texture-button-container + .MuiDivider-root) {
+          padding-top: ${theme.spacing(1)};
+        }`
+        : ''
     }
+    
 
     & .MuiIconButton-root.model-nav-button {
       width: 28px;
