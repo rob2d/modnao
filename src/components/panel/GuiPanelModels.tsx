@@ -145,7 +145,6 @@ export default function GuiPanelModels() {
             <IconButton
               className='model-nav-button'
               color='primary'
-              aria-haspopup='true'
               {...uiNav.prevButtonProps}
               disabled={!model || uiNav.prevButtonProps.disabled}
             >
@@ -157,9 +156,8 @@ export default function GuiPanelModels() {
             <IconButton
               className='model-nav-button'
               color='primary'
-              aria-haspopup='true'
               {...uiNav.nextButtonProps}
-              disabled={!model || uiNav.prevButtonProps.disabled}
+              disabled={!model || uiNav.nextButtonProps.disabled}
             >
               <Icon path={mdiMenuRightOutline} size={1} />
             </IconButton>

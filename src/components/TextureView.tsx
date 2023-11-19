@@ -123,12 +123,7 @@ function TextureViewControlsButton({
 }) {
   return (
     <div>
-      <IconButton
-        color='primary'
-        aria-haspopup='true'
-        onClick={onClick}
-        disabled={disabled}
-      >
+      <IconButton color='primary' onClick={onClick} disabled={disabled}>
         <Icon path={iconPath} size={1} />
         <Typography variant='button'>{label}</Typography>
       </IconButton>
@@ -161,11 +156,7 @@ export default function TextureView() {
     <Styled>
       <div className='main'>
         <div className='model-nav-button'>
-          <IconButton
-            color='primary'
-            aria-haspopup='true'
-            {...uiControls.prevButtonProps}
-          >
+          <IconButton color='primary' {...uiControls.prevButtonProps}>
             <Icon path={mdiMenuLeftOutline} size={2} />
           </IconButton>
         </div>
@@ -200,11 +191,7 @@ export default function TextureView() {
           </div>
         </div>
         <div className='model-nav-button'>
-          <IconButton
-            color='primary'
-            aria-haspopup='true'
-            {...uiControls.nextButtonProps}
-          >
+          <IconButton color='primary' {...uiControls.nextButtonProps}>
             <Icon path={mdiMenuRightOutline} size={2} />
           </IconButton>
         </div>
