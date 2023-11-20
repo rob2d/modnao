@@ -50,7 +50,7 @@ export const defaultValues: ViewOptions = {
   enableVertexColors: false,
   uvRegionsHighlighted: true,
   wireframeLineWidth: 3,
-  themeKey: undefined,
+  themeKey: 'light',
   scenePalette: undefined,
   devOptionsVisible: false,
   setAxesHelperVisible: (_: boolean) => null,
@@ -148,9 +148,16 @@ export function ViewOptionsContextProvider({ children }: Props) {
 
     if (localStorage.getItem(StorageKeys.THEME_KEY) !== null) {
       handleSetThemeKey(
+        (localStorage.getItem(StorageKeys.THEME_KEY) ||
+          defaultValues.themeKey) as 'light' | 'dark'
+      );
+    }
+
+    if (localStorage.getItem(StorageKeys.DISABLE_BACKFACE_CULLING) !== null) {
+      handleSetDisableBackfaceCulling(
         JSON.parse(
-          localStorage.getItem(StorageKeys.THEME_KEY) || 'undefined'
-        ) as 'light' | 'dark'
+          localStorage.getItem(StorageKeys.DISABLE_BACKFACE_CULLING) || 'true'
+        ) as boolean
       );
     }
 
