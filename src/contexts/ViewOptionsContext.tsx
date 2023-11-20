@@ -25,6 +25,7 @@ export type ViewOptions = {
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
   devOptionsVisible: boolean;
+  renderAllModels: boolean;
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
@@ -38,6 +39,7 @@ export type ViewOptions = {
   setThemeKey: (theme: 'light' | 'dark') => void;
   toggleLightDarkTheme: () => void;
   setDevOptionsVisible: (devOptions: boolean) => void;
+  setRenderAllModels: (devOptions: boolean) => void;
 };
 
 export const defaultValues: ViewOptions = {
@@ -53,6 +55,7 @@ export const defaultValues: ViewOptions = {
   themeKey: 'light',
   scenePalette: undefined,
   devOptionsVisible: false,
+  renderAllModels: false,
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
   setGuiPanelVisible: (_: boolean) => null,
@@ -65,7 +68,8 @@ export const defaultValues: ViewOptions = {
   setScenePalette: (_: ScenePalette | undefined) => null,
   setThemeKey: (_: 'light' | 'dark') => null,
   toggleLightDarkTheme: () => null,
-  setDevOptionsVisible: (_: boolean) => null
+  setDevOptionsVisible: (_: boolean) => null,
+  setRenderAllModels: (_: boolean) => null
 } as const;
 export const ViewOptionsContext =
   React.createContext<ViewOptions>(defaultValues);
@@ -73,7 +77,12 @@ export const ViewOptionsContext =
 type Props = { children: ReactNode };
 
 export function ViewOptionsContextProvider({ children }: Props) {
-  const [axesHelperVisible, handleSetAxesHelperVisible] = useState(true);
+  const [axesHelperVisible, handleSetAxesHelperVisible] = useState(
+    defaultValues.axesHelperVisible
+  );
+  const [renderAllModels, handleSetRenderAllModels] = useState(
+    defaultValues.renderAllModels
+  );
   const [objectAddressesVisible, handleSetObjectAddressesVisible] = useState(
     defaultValues.objectAddressesVisible
   );
@@ -325,6 +334,13 @@ export function ViewOptionsContextProvider({ children }: Props) {
     [devOptionsVisible]
   );
 
+  const setRenderAllModels = useCallback(
+    (value: boolean) => {
+      handleSetRenderAllModels(value);
+    },
+    [renderAllModels]
+  );
+
   const contextValue = useMemo<ViewOptions>(
     () => ({
       objectAddressesVisible,
@@ -351,7 +367,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setThemeKey,
       toggleLightDarkTheme,
       devOptionsVisible,
-      setDevOptionsVisible
+      setDevOptionsVisible,
+      renderAllModels,
+      setRenderAllModels
     }),
     [
       objectAddressesVisible,
@@ -378,7 +396,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setThemeKey,
       toggleLightDarkTheme,
       devOptionsVisible,
-      setDevOptionsVisible
+      setDevOptionsVisible,
+      renderAllModels,
+      setRenderAllModels
     ]
   );
 

@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
 import ContentViewMode from '../types/ContentViewMode';
+import { NLTextureDef } from '@/types/NLAbstractions';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 export const selectTextureIndex = (s: AppState) => s.objectViewer.textureIndex;
@@ -95,24 +96,35 @@ export const selectModel = createSelector(
 );
 
 export type DisplayedMesh = NLMesh & { textureHash: string };
+
+const getDisplayedMeshes = (model: NLModel, textureDefs: NLTextureDef[]) =>
+  (model?.meshes || []).reduce<DisplayedMesh[]>((meshes, m) => {
+    const tDef = textureDefs[m.textureIndex];
+    if (!tDef) {
+      meshes.push({ ...m, textureHash: '' });
+      return meshes;
+    }
+
+    const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
+    const { hRepeat, vRepeat } = m.textureWrappingFlags;
+    const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
+
+    meshes.push({ ...m, textureHash });
+    return meshes;
+  }, []);
+
 export const selectDisplayedMeshes = createSelector(
   selectModel,
   selectUpdatedTextureDefs,
-  (model, textureDefs) =>
-    (model?.meshes || []).reduce<DisplayedMesh[]>((meshes, m) => {
-      const tDef = textureDefs[m.textureIndex];
-      if (!tDef) {
-        meshes.push({ ...m, textureHash: '' });
-        return meshes;
-      }
+  (model: NLModel, textureDefs: NLTextureDef[]) =>
+    getDisplayedMeshes(model, textureDefs)
+);
 
-      const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
-      const { hRepeat, vRepeat } = m.textureWrappingFlags;
-      const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
-
-      meshes.push({ ...m, textureHash });
-      return meshes;
-    }, [])
+export const selectAllDisplayedMeshes = createSelector(
+  selectModels,
+  selectUpdatedTextureDefs,
+  (models, textureDef) =>
+    models.map((model) => getDisplayedMeshes(model, textureDef))
 );
 
 /** infers mesh selection from selected object key */
