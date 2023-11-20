@@ -1,5 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
+import { render, screen } from '@testing-library/react';
 import GuiPanelButton from './GuiPanelButton';
 
 describe('GuiPanelButton', () => {

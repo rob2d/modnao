@@ -7,8 +7,6 @@ export const StorageKeys = {
   WIREFRAME_LINE_WIDTH: 'wireframeLineWidth',
   AXES_HELPER_VISIBLE: 'axesHelperVisible',
   OBJECT_ADDRESSES_VISIBLE: 'objectAddressesVisible',
-  SCENE_CURSOR_VISIBLE: 'sceneCursorVisible',
-  GUI_PANEL_VISIBLE: 'guiPanelVisible',
   THEME_KEY: 'themeKey',
   SCENE_PALETTE: 'scenePalette',
   DISABLE_BACKFACE_CULLING: 'disableBackfaceCulling',

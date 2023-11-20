@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:w": "jest --watch",
+    "test:changes": "jest --onlyChanged",
     "test:ci": "NODE_ENV=test jest --ci",
     "test:snapshots": "jest --updateSnapshot"
   },

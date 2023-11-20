@@ -40,17 +40,17 @@ export type ViewOptions = {
   setDevOptionsVisible: (devOptions: boolean) => void;
 };
 
-export const ViewOptionsContext = React.createContext<ViewOptions>({
+export const defaultValues: ViewOptions = {
   axesHelperVisible: true,
   sceneCursorVisible: true,
   guiPanelVisible: true,
-  objectAddressesVisible: true,
+  objectAddressesVisible: false,
   meshDisplayMode: 'wireframe',
   disableBackfaceCulling: false,
   enableVertexColors: false,
   uvRegionsHighlighted: true,
   wireframeLineWidth: 3,
-  themeKey: undefined,
+  themeKey: 'light',
   scenePalette: undefined,
   devOptionsVisible: false,
   setAxesHelperVisible: (_: boolean) => null,
@@ -66,35 +66,48 @@ export const ViewOptionsContext = React.createContext<ViewOptions>({
   setThemeKey: (_: 'light' | 'dark') => null,
   toggleLightDarkTheme: () => null,
   setDevOptionsVisible: (_: boolean) => null
-});
+} as const;
+export const ViewOptionsContext =
+  React.createContext<ViewOptions>(defaultValues);
 
 type Props = { children: ReactNode };
 
 export function ViewOptionsContextProvider({ children }: Props) {
   const [axesHelperVisible, handleSetAxesHelperVisible] = useState(true);
-  const [objectAddressesVisible, handleSetObjectAddressesVisible] =
-    useState(true);
-  const [guiPanelVisible, handleSetGuiPanelVisible] = useState(true);
+  const [objectAddressesVisible, handleSetObjectAddressesVisible] = useState(
+    defaultValues.objectAddressesVisible
+  );
+  const [guiPanelVisible, handleSetGuiPanelVisible] = useState(
+    defaultValues.guiPanelVisible
+  );
   const [meshDisplayMode, handleSetMeshDisplayMode] =
     useState<MeshDisplayMode>('wireframe');
-  const [disableBackfaceCulling, handleSetDisableBackfaceCulling] =
-    useState(false);
+  const [disableBackfaceCulling, handleSetDisableBackfaceCulling] = useState(
+    defaultValues.disableBackfaceCulling
+  );
 
-  const [enableVertexColors, handleSetEnableVertexColors] = useState(true);
-  const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(true);
-  const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(3);
+  const [enableVertexColors, handleSetEnableVertexColors] = useState(
+    defaultValues.enableVertexColors
+  );
+  const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(
+    defaultValues.sceneCursorVisible
+  );
+  const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(
+    defaultValues.wireframeLineWidth
+  );
   const [themeKey, handleSetThemeKey] = useState<'light' | 'dark' | undefined>(
-    undefined
+    defaultValues.themeKey
   );
 
   const [scenePalette, handleSetScenePalette] = useState<
     ScenePalette | undefined
-  >(undefined);
+  >(defaultValues.scenePalette);
 
   const [uvRegionsHighlighted, handleSetUvRegionsHighlighted] =
-    useState<boolean>(false);
-  const [devOptionsVisible, handleSetDevOptionsVisible] =
-    useState<boolean>(false);
+    useState<boolean>(defaultValues.uvRegionsHighlighted);
+  const [devOptionsVisible, handleSetDevOptionsVisible] = useState<boolean>(
+    defaultValues.devOptionsVisible
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -135,9 +148,16 @@ export function ViewOptionsContextProvider({ children }: Props) {
 
     if (localStorage.getItem(StorageKeys.THEME_KEY) !== null) {
       handleSetThemeKey(
+        (localStorage.getItem(StorageKeys.THEME_KEY) ||
+          defaultValues.themeKey) as 'light' | 'dark'
+      );
+    }
+
+    if (localStorage.getItem(StorageKeys.DISABLE_BACKFACE_CULLING) !== null) {
+      handleSetDisableBackfaceCulling(
         JSON.parse(
-          localStorage.getItem(StorageKeys.THEME_KEY) || 'undefined'
-        ) as 'light' | 'dark'
+          localStorage.getItem(StorageKeys.DISABLE_BACKFACE_CULLING) || 'true'
+        ) as boolean
       );
     }
 
