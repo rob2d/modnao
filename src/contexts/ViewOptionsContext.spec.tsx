@@ -21,7 +21,8 @@ const booleanSetterKeys = [
   'setDevOptionsVisible',
   'setUvRegionsHighlighted',
   'setDisableBackfaceCulling',
-  'setEnableVertexColors'
+  'setEnableVertexColors',
+  'setRenderAllModels'
 ] as const;
 
 const booleanStorageKeys: Set<string> = new Set([
@@ -102,7 +103,8 @@ describe('ViewOptionsContext', () => {
       'disableBackfaceCulling: true',
       'uvRegionsHighlighted: false',
       'devOptionsVisible: true',
-      'enableVertexColors: false'
+      'enableVertexColors: false',
+      'renderAllModels: false'
     ];
 
     displayedValues.forEach((d) =>
@@ -131,7 +133,8 @@ describe('ViewOptionsContext', () => {
       'disableBackfaceCulling: true',
       'uvRegionsHighlighted: true',
       'devOptionsVisible: true',
-      'enableVertexColors: true'
+      'enableVertexColors: true',
+      'renderAllModels: true'
     ];
 
     for (const v of displayedValues) {
@@ -154,7 +157,8 @@ describe('ViewOptionsContext', () => {
       'disableBackfaceCulling: false',
       'uvRegionsHighlighted: false',
       'devOptionsVisible: false',
-      'enableVertexColors: false'
+      'enableVertexColors: false',
+      'renderAllModels: false'
     ];
 
     for (const v of displayedValues) {
@@ -172,7 +176,8 @@ describe('ViewOptionsContext', () => {
       'disableBackfaceCulling: true',
       'uvRegionsHighlighted: true',
       'devOptionsVisible: true',
-      'enableVertexColors: true'
+      'enableVertexColors: true',
+      'renderAllModels: true'
     ];
 
     for (const id of trueSetterTestIds) {

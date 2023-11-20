@@ -1,7 +1,8 @@
-import { useSceneContext } from '@/contexts/SceneContext';
-import { useAppSelector } from '@/store';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
+import { useSceneContext } from '@/contexts/SceneContext';
+import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import { selectModelIndex, useAppSelector } from '@/store';
 
 async function rotateDataUri(dataURI: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -39,12 +40,19 @@ type GLTFImage = {
   uri: string;
 };
 
-export default function useSceneGLTFFileDownloader() {
+export default function useSceneGLTFFileDownloader(allModels: boolean) {
+  const { renderAllModels, setRenderAllModels } =
+    useContext(ViewOptionsContext);
   const { scene } = useSceneContext();
+  const modelIndex = useAppSelector(selectModelIndex);
   const polygonFileName =
     useAppSelector((s) => s.modelData.polygonFileName) || '';
 
   const onDownloadSceneFile = useCallback(async () => {
+    if (allModels) {
+      setRenderAllModels(true);
+      await new Promise((r) => setTimeout(r, 100));
+    }
     if (!scene) {
       throw new Error('no scene instantiated to get GLTF file');
     }
@@ -66,10 +74,17 @@ export default function useSceneGLTFFileDownloader() {
     });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(file);
-    const name = polygonFileName.substring(0, polygonFileName.lastIndexOf('.'));
+    const name = `${polygonFileName.substring(
+      0,
+      polygonFileName.lastIndexOf('.')
+    )}${allModels ? '' : `-${modelIndex}`}`;
+
     link.download = `${name}.mn.gltf`;
     link.click();
-  }, [scene]);
+
+    await new Promise((r) => setTimeout(r, 100));
+    setRenderAllModels(false);
+  }, [scene, allModels, renderAllModels, setRenderAllModels]);
 
   return onDownloadSceneFile;
 }

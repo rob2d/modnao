@@ -11,6 +11,7 @@ import {
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import {
+  selectAllDisplayedMeshes,
   selectDisplayedMeshes,
   selectMeshSelectionType,
   selectModel,
@@ -191,25 +192,48 @@ export default function SceneView() {
     return () => resizeObserver.unobserve(containerElement);
   }, []);
 
-  const meshes = useAppSelector(selectDisplayedMeshes);
+  const selectedMeshes = useAppSelector(selectDisplayedMeshes);
+  const meshes = useAppSelector(selectAllDisplayedMeshes);
 
-  const renderedMeshes = useMemo(
+  const renderedModels = useMemo(
     () =>
-      meshes.map((m, i) => {
-        const texture = textureMap?.get(m.textureHash) || null;
+      (viewOptions.renderAllModels ? meshes : [selectedMeshes]).map(
+        (ms, msi) => (
+          <mesh
+            key={`meshGroup_${msi}_${viewOptions.renderAllModels ? 1 : 0}`}
+            position={
+              !viewOptions.renderAllModels
+                ? [0, 0, 0]
+                : [msi * 500, msi * 50, 0]
+            }
+          >
+            {ms.map((m, i) => {
+              const texture = textureMap?.get(m.textureHash) || null;
 
-        return m.polygons.map((p, pIndex) => (
-          <RenderedPolygon
-            {...p}
-            key={`${m.address}_${p.address}`}
-            objectKey={meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`}
-            selectedObjectKey={objectKey}
-            onSelectObjectKey={onSelectObjectKey}
-            texture={texture}
-          />
-        ));
-      }),
-    [model, textureMap, objectKey, meshSelectionType, onSelectObjectKey]
+              return m.polygons.map((p, pIndex) => (
+                <RenderedPolygon
+                  {...p}
+                  key={`${m.address}_${p.address}`}
+                  objectKey={
+                    meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
+                  }
+                  selectedObjectKey={objectKey}
+                  onSelectObjectKey={onSelectObjectKey}
+                  texture={texture}
+                />
+              ));
+            })}
+          </mesh>
+        )
+      ),
+    [
+      model,
+      !viewOptions.renderAllModels ? selectedMeshes : meshes,
+      textureMap,
+      objectKey,
+      meshSelectionType,
+      onSelectObjectKey
+    ]
   );
 
   return (
@@ -221,7 +245,9 @@ export default function SceneView() {
     >
       <Selection
         enabled={
-          viewOptions.meshDisplayMode === 'textured' && Boolean(objectKey)
+          viewOptions.meshDisplayMode === 'textured' &&
+          Boolean(objectKey) &&
+          !viewOptions.renderAllModels
         }
       >
         <EffectComposer autoClear={false} key={objectKey}>
@@ -234,9 +260,9 @@ export default function SceneView() {
           />
         </EffectComposer>
         <SceneContextSetup />
-        <group dispose={null}>
+        <group>
           {!viewOptions.axesHelperVisible ? undefined : axesHelper}
-          {renderedMeshes}
+          {renderedModels}
           <OrbitControls />
         </group>
       </Selection>

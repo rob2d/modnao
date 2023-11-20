@@ -51,7 +51,9 @@ export default function GuiPanelModels() {
 
   const objectKey = useAppSelector(selectObjectKey);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
-  const onExportGLTFFile = useSceneGLTFFileDownloader();
+  const onExportToGLTF = useSceneGLTFFileDownloader(false);
+  const onExportAllToGLTF = useSceneGLTFFileDownloader(true);
+
   const onExportSelectionJson = useModelSelectionExport();
   const onSetMeshSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
@@ -193,18 +195,26 @@ export default function GuiPanelModels() {
           </Grid>
         </Grid>
         {importFiles}
-        {
-          <GuiPanelButton
-            tooltip={
-              'Export a .gltf file representing the currently viewed in-scene model ' +
-              'meshes and textures to import into Maya or Blender.'
-            }
-            onClick={onExportGLTFFile}
-            color='secondary'
-          >
-            Export Scene .GLTF
-          </GuiPanelButton>
-        }
+        <GuiPanelButton
+          tooltip={
+            'Export a .gltf file representing the currently viewed in-scene model ' +
+            'meshes and textures to import into Maya or Blender.'
+          }
+          onClick={onExportToGLTF}
+          color='secondary'
+        >
+          Export Scene .GLTF
+        </GuiPanelButton>
+        <GuiPanelButton
+          tooltip={
+            'Export a .gltf file representing *all* viewable model' +
+            'meshes and textures to import into Maya or Blender.'
+          }
+          onClick={onExportAllToGLTF}
+          color='secondary'
+        >
+          Export Models .GLTF
+        </GuiPanelButton>
         {exportSelectionButton}
       </div>
     </GuiPanelSection>
