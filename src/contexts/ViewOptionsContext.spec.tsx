@@ -6,10 +6,32 @@ import ViewOptionsContext, {
 } from './ViewOptionsContext';
 import { useContext } from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
 
 const viewOptionsKeys = Object.keys(defaultValues) as (keyof ViewOptions)[];
 const getOptionRenderKeys = (viewOptions: ViewOptions) =>
   viewOptionsKeys.filter((k) => typeof viewOptions[k] !== 'function');
+
+const booleanSetterKeys = [
+  'setSceneCursorVisible',
+  'setAxesHelperVisible',
+  'setObjectAddressesVisible',
+  'setGuiPanelVisible',
+  'setDevOptionsVisible',
+  'setUvRegionsHighlighted',
+  'setDisableBackfaceCulling',
+  'setEnableVertexColors'
+] as const;
+
+const booleanStorageKeys: Set<string> = new Set([
+  StorageKeys.AXES_HELPER_VISIBLE,
+  StorageKeys.OBJECT_ADDRESSES_VISIBLE,
+  StorageKeys.DEV_OPTIONS_VISIBLE,
+  StorageKeys.UV_REGIONS_HIGHLIGHTED,
+  StorageKeys.DISABLE_BACKFACE_CULLING,
+  StorageKeys.ENABLE_VERTEX_COLORS
+]);
 
 function TestOptionsContext() {
   const viewOptions: ViewOptions = useContext(ViewOptionsContext);
@@ -18,6 +40,20 @@ function TestOptionsContext() {
     <>
       {getOptionRenderKeys(viewOptions).map((k) => (
         <p key={k}>{`${k}: ${viewOptions[k]}`}</p>
+      ))}
+      {booleanSetterKeys.map((k) => (
+        <React.Fragment key={k}>
+          <button
+            data-testid={`${k}-true`}
+            key={`${k}-true`}
+            onClick={() => viewOptions[k](true)}
+          >{`setter(${k}, true)`}</button>
+          <button
+            data-testid={`${k}-false`}
+            key={`${k}-false`}
+            onClick={() => viewOptions[k](false)}
+          >{`setter(${k}, false)`}</button>
+        </React.Fragment>
       ))}
     </>
   );
@@ -72,5 +108,85 @@ describe('ViewOptionsContext', () => {
     displayedValues.forEach((d) =>
       expect(screen.getByText(d)).toBeInTheDocument()
     );
+  });
+
+  it('updates boolean values in localStorage & context value when setters are called', async () => {
+    const trueSetterTestIds = booleanSetterKeys.map((k) => `${k}-true`);
+    const falseSetterTestIds = booleanSetterKeys.map((k) => `${k}-false`);
+
+    render(
+      <ViewOptionsContextProvider>
+        <TestOptionsContext />
+      </ViewOptionsContextProvider>
+    );
+
+    for (const id of trueSetterTestIds) {
+      const trueSetter = screen.getByTestId(id);
+      userEvent.click(trueSetter);
+    }
+
+    let displayedValues = [
+      'axesHelperVisible: true',
+      'objectAddressesVisible: true',
+      'disableBackfaceCulling: true',
+      'uvRegionsHighlighted: true',
+      'devOptionsVisible: true',
+      'enableVertexColors: true'
+    ];
+
+    for (const v of displayedValues) {
+      expect(await screen.findByText(v)).toBeInTheDocument();
+
+      const key = v.split(':')[0];
+      if (booleanStorageKeys.has(key)) {
+        expect(window.localStorage.getItem(key)).toBe('true');
+      }
+    }
+
+    for (const id of falseSetterTestIds) {
+      const falseSetter = screen.getByTestId(id);
+      userEvent.click(falseSetter);
+    }
+
+    displayedValues = [
+      'axesHelperVisible: false',
+      'objectAddressesVisible: false',
+      'disableBackfaceCulling: false',
+      'uvRegionsHighlighted: false',
+      'devOptionsVisible: false',
+      'enableVertexColors: false'
+    ];
+
+    for (const v of displayedValues) {
+      expect(await screen.findByText(v)).toBeInTheDocument();
+
+      const key = v.split(':')[0];
+      if (booleanStorageKeys.has(key)) {
+        expect(window.localStorage.getItem(key)).toBe('false');
+      }
+    }
+
+    displayedValues = [
+      'axesHelperVisible: true',
+      'objectAddressesVisible: true',
+      'disableBackfaceCulling: true',
+      'uvRegionsHighlighted: true',
+      'devOptionsVisible: true',
+      'enableVertexColors: true'
+    ];
+
+    for (const id of trueSetterTestIds) {
+      const trueSetter = screen.getByTestId(id);
+      userEvent.click(trueSetter);
+    }
+
+    for (const v of displayedValues) {
+      expect(await screen.findByText(v)).toBeInTheDocument();
+
+      const key = v.split(':')[0];
+      if (booleanStorageKeys.has(key)) {
+        expect(window.localStorage.getItem(key)).toBe('true');
+      }
+    }
   });
 });
