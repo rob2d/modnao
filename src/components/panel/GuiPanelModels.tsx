@@ -32,6 +32,7 @@ import {
 } from '@/hooks';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import { showError } from '@/store/errorMessagesSlice';
 
 const Styled = styled('div')(
   ({ theme }) => `& {
@@ -45,10 +46,16 @@ const Styled = styled('div')(
 export default function GuiPanelModels() {
   const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
-  // @TODO use a more standard error dialog vs using window.alert here
-  const openFileSelector = useSupportedFilePicker(globalThis.alert);
+  const onHandleError = useCallback((message: string | JSX.Element) => {
+    dispatch(
+      showError({
+        title: 'Invalid file selection',
+        message
+      })
+    );
+  }, []);
+  const openFileSelector = useSupportedFilePicker(onHandleError);
   const uiNav = useObjectUINav();
-
   const objectKey = useAppSelector(selectObjectKey);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const onExportToGLTF = useSceneGLTFFileDownloader(false);

@@ -81,7 +81,7 @@ export const handleFileInput = async (
 
   if (!selectedPolygonFile && !selectedTextureFile) {
     handleError(
-      'Invalid file selected. See "What Files Can I Use" for more info.'
+      'Invalid file selected. See "What Files Are Supported" for more info.'
     );
     return;
   }
@@ -138,7 +138,7 @@ export const handleFileInput = async (
  * @returns open-filepicker callback
  */
 export default function useSupportedFilePicker(
-  onError: (error: string) => void
+  onError: (error: string | JSX.Element) => void
 ) {
   const polygonFilename = useAppSelector((s) => s.modelData.polygonFileName);
   const dispatch = useAppDispatch();

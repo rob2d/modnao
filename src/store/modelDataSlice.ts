@@ -16,6 +16,7 @@ import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { ClientThread } from '@/utils/threads';
 import { createAppAsyncThunk } from './typedFunctions';
 import textureShapesMap from '@/utils/textures/files/textureShapesMap';
+import { showError } from './errorMessagesSlice';
 
 export type LoadPolygonsResult = {
   type: 'loadPolygonFile';
@@ -335,6 +336,7 @@ export const loadTextureFile = createAppAsyncThunk(
       };
 
       const fileName = file.name;
+
       thread.postMessage({
         type: 'loadTextureFile',
         payload: { fileName, textureDefs, buffer }
@@ -380,7 +382,7 @@ export const adjustTextureHsl = createAppAsyncThunk(
 
 export const downloadTextureFile = createAppAsyncThunk(
   `${sliceName}/downloadTextureFile`,
-  async (_, { getState }) => {
+  async (_, { getState, dispatch }) => {
     const state = getState();
     const { textureFileName, textureBufferUrl } = state.modelData;
     const textureDefs = selectUpdatedTextureDefs(state);
@@ -388,7 +390,12 @@ export const downloadTextureFile = createAppAsyncThunk(
     const isCompressedTexture = selectHasCompressedTextures(state);
 
     if (!textureFileType) {
-      window.alert('no valid texture filetype was loaded');
+      dispatch(
+        showError({
+          title: 'Invalid file selected',
+          message: 'No valid texture filetype was loaded.'
+        })
+      );
       return;
     }
 
@@ -400,9 +407,14 @@ export const downloadTextureFile = createAppAsyncThunk(
         textureFileType,
         isCompressedTexture
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
-      window.alert(error);
+      dispatch(
+        showError({
+          title: 'Error exporting texture',
+          message: ((error as Error)?.message || error) as string
+        })
+      );
     }
   }
 );
