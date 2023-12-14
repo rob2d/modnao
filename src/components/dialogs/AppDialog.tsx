@@ -17,10 +17,30 @@ const StyledDialog = styled(Dialog)(
 }`
 );
 
+const ErrorDialog = () => {
+  const error = useAppSelector(
+    (s) =>
+      s.errorMessages.messages[s.errorMessages.messages.length - 1] ?? undefined
+  );
+
+  if (!error) {
+    return <></>;
+  }
+
+  const { title, message } = error;
+  return (
+    <div>
+      <div>{title}</div>
+      <div>{message}</div>
+    </div>
+  );
+};
+
 const Dialogs: Record<DialogType, FC> = {
   'app-info': AppInfo,
   'replace-texture': ReplaceTexture,
-  'file-support-info': FileSupportInfo
+  'file-support-info': FileSupportInfo,
+  'error-message': ErrorDialog
 };
 
 export default function AppDialog() {

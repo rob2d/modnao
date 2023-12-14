@@ -24,10 +24,6 @@ export const handleFileInput = async (
   dispatch: ReturnType<typeof useAppDispatch>,
   polygonFilename: string | undefined
 ) => {
-  const handleError = (error: string) => {
-    onError(error);
-    throw new Error(error);
-  };
   if (!files[0]) {
     return;
   }
@@ -38,18 +34,18 @@ export const handleFileInput = async (
   let selectedTextureFile: File | undefined = undefined;
 
   const DEDICATED_TEXTURE_FILE_ERROR =
-    'Cannot select files along with dedicated texture files at this time';
+    'Dedicated texture files can only be edited individually at this moment, they cannot be selected with others';
 
   files.forEach((f, i) => {
     if (textureFileType && textureFileType !== 'polygon-mapped') {
-      handleError(DEDICATED_TEXTURE_FILE_ERROR);
+      onError(DEDICATED_TEXTURE_FILE_ERROR);
       return;
     }
 
     for (const [type, regex] of dedicatedTextureKVs) {
       if (f.name.match(regex)) {
         if (i > 0) {
-          handleError(DEDICATED_TEXTURE_FILE_ERROR);
+          onError(DEDICATED_TEXTURE_FILE_ERROR);
           return;
         }
 
@@ -63,7 +59,7 @@ export const handleFileInput = async (
       if (!selectedPolygonFile) {
         selectedPolygonFile = f;
       } else {
-        handleError('Cannot select more than one polygon file at a time');
+        onError('Cannot select more than one polygon file at a time');
         return;
       }
     }
@@ -73,14 +69,14 @@ export const handleFileInput = async (
         selectedTextureFile = f;
         textureFileType = 'polygon-mapped';
       } else {
-        handleError('Cannot select more than one texture file');
+        onError('Cannot select more than one texture file');
         return;
       }
     }
   });
 
   if (!selectedPolygonFile && !selectedTextureFile) {
-    handleError(
+    onError(
       'Invalid file selected. See "What Files Are Supported" for more info.'
     );
     return;
@@ -94,7 +90,7 @@ export const handleFileInput = async (
     if (polygonFilename || selectedPolygonFile) {
       dispatch(loadTextureFile({ file: selectedTextureFile, textureFileType }));
     } else {
-      handleError(
+      onError(
         'For this type of texture file, you must load a polygon file along with it. ' +
           'You can hold control in most file selectors to select most files'
       );
