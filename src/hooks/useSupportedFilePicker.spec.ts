@@ -15,9 +15,7 @@ describe('handleFileInput', () => {
 
   it('should do nothing when no files are selected', async () => {
     const files: File[] = [];
-    try {
-      await handleFileInput(files, onError, dispatch, polygonFilename);
-    } catch (error) {}
+    await handleFileInput(files, onError, dispatch, polygonFilename);
 
     expect(dispatch).not.toHaveBeenCalled();
     expect(onError).not.toHaveBeenCalled();
@@ -28,9 +26,7 @@ describe('handleFileInput', () => {
       new File(['data'], 'invalid.txt', { type: 'text/plain' })
     ];
 
-    try {
-      await handleFileInput(files, onError, dispatch, polygonFilename);
-    } catch (error) {}
+    await handleFileInput(files, onError, dispatch, polygonFilename);
 
     expect(onError).toHaveBeenCalledTimes(1);
     expect(dispatch).not.toHaveBeenCalled();
@@ -73,79 +69,67 @@ describe('handleFileInput', () => {
   });
 
   it('should error when two polygon files are selected', async () => {
-    try {
-      await handleFileInput(
-        getMockFilesWithNames(['STG01POL.BIN', 'STG02POL.BIN']),
-        onError,
-        dispatch,
-        polygonFilename
-      );
-    } catch (error) {}
+    await handleFileInput(
+      getMockFilesWithNames(['STG01POL.BIN', 'STG02POL.BIN']),
+      onError,
+      dispatch,
+      polygonFilename
+    );
 
     expect(onError).toHaveBeenCalledTimes(1);
   });
 
   it('should error when two polygon-mapped texture files are selected', async () => {
-    try {
-      await handleFileInput(
-        getMockFilesWithNames(['STG01TEX.BIN', 'STG02TEX.BIN']),
-        onError,
-        dispatch,
-        polygonFilename
-      );
-    } catch (error) {}
+    await handleFileInput(
+      getMockFilesWithNames(['STG01TEX.BIN', 'STG02TEX.BIN']),
+      onError,
+      dispatch,
+      polygonFilename
+    );
 
     expect(onError).toHaveBeenCalledTimes(1);
   });
 
   it('should error when two valid files and one extra are selected', async () => {
-    try {
-      await handleFileInput(
-        getMockFilesWithNames(['STG01POL.BIN', 'STG01TEX.BIN', 'STG02POL.BIN']),
-        onError,
-        dispatch,
-        polygonFilename
-      );
-    } catch (error) {}
+    await handleFileInput(
+      getMockFilesWithNames(['STG01POL.BIN', 'STG01TEX.BIN', 'STG02POL.BIN']),
+      onError,
+      dispatch,
+      polygonFilename
+    );
 
     expect(onError).toHaveBeenCalledTimes(1);
   });
 
   it('should error when two dedicated texture files are selected', async () => {
-    try {
-      await handleFileInput(
-        getMockFilesWithNames(['PL01_FAC.BIN', 'PL02_FAC.BIN']),
-        onError,
-        dispatch,
-        polygonFilename
-      );
-    } catch (error) {}
+    await handleFileInput(
+      getMockFilesWithNames(['PL01_FAC.BIN', 'PL02_FAC.BIN']),
+      onError,
+      dispatch,
+      polygonFilename
+    );
 
     expect(onError).toHaveBeenCalledTimes(1);
   });
 
   it('should error when a texture file that requires a polygon file does not have a polygon file loaded', async () => {
-    try {
-      await handleFileInput(
-        getMockFilesWithNames(['STG01TEX.BIN']),
-        onError,
-        dispatch,
-        undefined
-      );
-    } catch (error) {}
+    await handleFileInput(
+      getMockFilesWithNames(['STG01TEX.BIN']),
+      onError,
+      dispatch,
+      undefined
+    );
 
     expect(onError).toHaveBeenCalledTimes(1);
   });
 
   it('should not error or dispatch if no files were selected', async () => {
-    try {
-      await handleFileInput(
-        getMockFilesWithNames([]),
-        onError,
-        dispatch,
-        polygonFilename
-      );
-    } catch (error) {}
+    await handleFileInput(
+      getMockFilesWithNames([]),
+      onError,
+      dispatch,
+      polygonFilename
+    );
 
     expect(onError).not.toHaveBeenCalled();
     expect(dispatch).not.toHaveBeenCalled();

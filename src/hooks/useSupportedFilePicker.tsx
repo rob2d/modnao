@@ -10,6 +10,7 @@ import {
 import textureFileTypeMap, {
   TextureFileType
 } from '@/utils/textures/files/textureFileTypeMap';
+import FilesSupportedButton from '@/components/FilesSupportedButton';
 
 /** polygon files which may be associated to textures */
 export const POLYGON_FILE = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL.BIN$/i;
@@ -20,14 +21,10 @@ const dedicatedTextureKVs = Object.entries(textureFileTypeMap).filter(
 
 export const handleFileInput = async (
   files: File[],
-  onError: (error: string) => void,
+  onError: (error: string | JSX.Element) => void,
   dispatch: ReturnType<typeof useAppDispatch>,
   polygonFilename: string | undefined
 ) => {
-  const handleError = (error: string) => {
-    onError(error);
-    throw new Error(error);
-  };
   if (!files[0]) {
     return;
   }
@@ -37,10 +34,23 @@ export const handleFileInput = async (
   let selectedPolygonFile: File | undefined = undefined;
   let selectedTextureFile: File | undefined = undefined;
 
+  let hasError = false;
+  const handleError = (error: string | JSX.Element) => {
+    selectedPolygonFile = undefined;
+    selectedTextureFile = undefined;
+    hasError = true;
+    onError(error);
+    return;
+  };
+
   const DEDICATED_TEXTURE_FILE_ERROR =
-    'Cannot select files along with dedicated texture files at this time';
+    'Dedicated texture files can only be edited individually at this moment, they cannot be selected with others';
 
   files.forEach((f, i) => {
+    if (hasError) {
+      return;
+    }
+
     if (textureFileType && textureFileType !== 'polygon-mapped') {
       handleError(DEDICATED_TEXTURE_FILE_ERROR);
       return;
@@ -79,9 +89,17 @@ export const handleFileInput = async (
     }
   });
 
+  if (hasError) {
+    return;
+  }
+
   if (!selectedPolygonFile && !selectedTextureFile) {
     handleError(
-      'Invalid file selected. See "What Files Can I Use" for more info.'
+      <>
+        See
+        <FilesSupportedButton />
+        for more info.
+      </>
     );
     return;
   }
@@ -95,8 +113,13 @@ export const handleFileInput = async (
       dispatch(loadTextureFile({ file: selectedTextureFile, textureFileType }));
     } else {
       handleError(
-        'For this type of texture file, you must load a polygon file along with it. ' +
-          'You can hold control in most file selectors to select most files'
+        <>
+          For this type of texture file, you must load a polygon file along with
+          it. <br />
+          You can hold control in most file selectors to select most files.
+          <br />
+          <FilesSupportedButton />
+        </>
       );
       return;
     }
@@ -138,7 +161,7 @@ export const handleFileInput = async (
  * @returns open-filepicker callback
  */
 export default function useSupportedFilePicker(
-  onError: (error: string) => void
+  onError: (error: string | JSX.Element) => void
 ) {
   const polygonFilename = useAppSelector((s) => s.modelData.polygonFileName);
   const dispatch = useAppDispatch();
@@ -150,7 +173,9 @@ export default function useSupportedFilePicker(
   });
 
   useEffect(() => {
-    handleFileInput(plainFiles, onError, dispatch, polygonFilename);
+    if (plainFiles.length) {
+      handleFileInput(plainFiles, onError, dispatch, polygonFilename);
+    }
   }, [plainFiles]);
 
   return openFileSelector;
