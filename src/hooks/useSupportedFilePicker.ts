@@ -33,10 +33,12 @@ export const handleFileInput = async (
   let selectedPolygonFile: File | undefined = undefined;
   let selectedTextureFile: File | undefined = undefined;
 
+  let hasError = false;
   const handleError = (error: string | JSX.Element) => {
-    onError(error);
     selectedPolygonFile = undefined;
     selectedTextureFile = undefined;
+    hasError = true;
+    onError(error);
     return;
   };
 
@@ -44,6 +46,10 @@ export const handleFileInput = async (
     'Dedicated texture files can only be edited individually at this moment, they cannot be selected with others';
 
   files.forEach((f, i) => {
+    if (hasError) {
+      return;
+    }
+
     if (textureFileType && textureFileType !== 'polygon-mapped') {
       handleError(DEDICATED_TEXTURE_FILE_ERROR);
       return;
@@ -82,6 +88,10 @@ export const handleFileInput = async (
     }
   });
 
+  if (hasError) {
+    return;
+  }
+
   if (!selectedPolygonFile && !selectedTextureFile) {
     handleError(
       'Invalid file selected. See "What Files Are Supported" for more info.'
@@ -97,7 +107,7 @@ export const handleFileInput = async (
     if (polygonFilename || selectedPolygonFile) {
       dispatch(loadTextureFile({ file: selectedTextureFile, textureFileType }));
     } else {
-      onError(
+      handleError(
         'For this type of texture file, you must load a polygon file along with it. ' +
           'You can hold control in most file selectors to select most files'
       );
@@ -153,7 +163,9 @@ export default function useSupportedFilePicker(
   });
 
   useEffect(() => {
-    handleFileInput(plainFiles, onError, dispatch, polygonFilename);
+    if (plainFiles.length) {
+      handleFileInput(plainFiles, onError, dispatch, polygonFilename);
+    }
   }, [plainFiles]);
 
   return openFileSelector;

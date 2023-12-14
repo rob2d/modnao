@@ -14,7 +14,7 @@ import {
   useAppSelector
 } from '@/store';
 import TextureView from './TextureView';
-import { ErrorMessage } from './ErrorMessage';
+import ErrorMessage from './ErrorMessage';
 
 const Styled = styled('main')(
   ({ theme }) => `

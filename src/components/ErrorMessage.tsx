@@ -8,12 +8,22 @@ import {
   Button,
   Slide,
   SlideProps,
-  Snackbar
+  Snackbar,
+  styled
 } from '@mui/material';
 import { usePrevious } from '@uidotdev/usehooks';
 import { useCallback } from 'react';
 
-export const ErrorMessage = () => {
+const StyledSnackbar = styled(Snackbar)(
+  () => `
+& .MuiAlert-icon {
+    font-size: 28px;
+    align-items: center;
+}
+`
+);
+
+export default function ErrorMessage() {
   const dispatch = useAppDispatch();
   const error = useAppSelector(
     (s) =>
@@ -34,13 +44,8 @@ export const ErrorMessage = () => {
   );
 
   return (
-    <Snackbar
+    <StyledSnackbar
       open={Boolean(error)}
-      action={
-        <Button color='inherit' onClick={onDismissError}>
-          <Icon size={1.25} path={mdiClose} />
-        </Button>
-      }
       onClose={onDismissError}
       TransitionComponent={ErrorTransition}
     >
@@ -48,6 +53,6 @@ export const ErrorMessage = () => {
         <AlertTitle>{errorShown?.title ?? ''}</AlertTitle>
         {errorShown?.message || ''}
       </Alert>
-    </Snackbar>
+    </StyledSnackbar>
   );
-};
+}

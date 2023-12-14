@@ -2,6 +2,7 @@ import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
 export const sliceName = 'errorMessages';
+
 export interface ErrorMessage {
   title: string;
   message: JSX.Element | string;
