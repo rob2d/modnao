@@ -14,12 +14,13 @@ import {
   useAppSelector
 } from '@/store';
 import TextureView from './TextureView';
+import { ErrorMessage } from './ErrorMessage';
+
 const Styled = styled('main')(
   ({ theme }) => `
     & {
       position: relative;
       display: flex;
-      justify-content: space-between;
       align-items: center;
       height: 100vh;
       flex-basis: 100%;
@@ -118,31 +119,34 @@ export default function MainView() {
   }
 
   return (
-    <Styled>
-      <div>
-        {mainScene}
-        {contentViewMode === 'welcome' ? undefined : (
-          <Tooltip
-            title='View app info and usage tips'
-            disableInteractive={!guiPanelVisible}
-            placement='left'
-          >
-            <Button
-              onClick={onShowAppInfoDialog}
-              className={clsx(
-                'scene-button',
-                'info-button',
-                !guiPanelVisible && 'hidden'
-              )}
-              color='info'
+    <>
+      <ErrorMessage />
+      <Styled>
+        <div>
+          {mainScene}
+          {contentViewMode === 'welcome' ? undefined : (
+            <Tooltip
+              title='View app info and usage tips'
+              disableInteractive={!guiPanelVisible}
+              placement='left'
             >
-              <Icon path={mdiInformationOutline} size={1.5} />
-            </Button>
-          </Tooltip>
-        )}
-      </div>
-      <GuiPanel />
-      <AppDialog />
-    </Styled>
+              <Button
+                onClick={onShowAppInfoDialog}
+                className={clsx(
+                  'scene-button',
+                  'info-button',
+                  !guiPanelVisible && 'hidden'
+                )}
+                color='info'
+              >
+                <Icon path={mdiInformationOutline} size={1.5} />
+              </Button>
+            </Tooltip>
+          )}
+        </div>
+        <GuiPanel />
+        <AppDialog />
+      </Styled>
+    </>
   );
 }

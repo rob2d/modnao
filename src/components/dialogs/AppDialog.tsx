@@ -4,11 +4,25 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { Dialog, DialogContent, styled } from '@mui/material';
-import { FC, useCallback } from 'react';
+import {
+  Alert,
+  AlertTitle,
+  Button,
+  Dialog,
+  DialogContent,
+  Slide,
+  SlideProps,
+  Snackbar,
+  styled
+} from '@mui/material';
+import { FC, useCallback, useMemo } from 'react';
 import AppInfo from './app-info/AppInfo';
 import ReplaceTexture from './replace-texture/ReplaceTexture';
 import FileSupportInfo from './file-support-info/FileSupportInfo';
+import { dismissError } from '@/store/errorMessagesSlice';
+import Icon from '@mdi/react';
+import { mdiClose } from '@mdi/js';
+import { usePrevious } from '@uidotdev/usehooks';
 
 const StyledDialog = styled(Dialog)(
   () => `
@@ -17,30 +31,10 @@ const StyledDialog = styled(Dialog)(
 }`
 );
 
-const ErrorDialog = () => {
-  const error = useAppSelector(
-    (s) =>
-      s.errorMessages.messages[s.errorMessages.messages.length - 1] ?? undefined
-  );
-
-  if (!error) {
-    return <></>;
-  }
-
-  const { title, message } = error;
-  return (
-    <div>
-      <div>{title}</div>
-      <div>{message}</div>
-    </div>
-  );
-};
-
 const Dialogs: Record<DialogType, FC> = {
   'app-info': AppInfo,
   'replace-texture': ReplaceTexture,
-  'file-support-info': FileSupportInfo,
-  'error-message': ErrorDialog
+  'file-support-info': FileSupportInfo
 };
 
 export default function AppDialog() {

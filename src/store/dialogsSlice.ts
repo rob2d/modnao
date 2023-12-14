@@ -1,12 +1,7 @@
 import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { dismissError, showError } from './errorMessagesSlice';
 
-export type DialogType =
-  | 'app-info'
-  | 'replace-texture'
-  | 'file-support-info'
-  | 'error-message';
+export type DialogType = 'app-info' | 'replace-texture' | 'file-support-info';
 
 export interface DialogsState {
   dialogShown?: DialogType;
@@ -32,13 +27,6 @@ const dialogsSlice = createSlice({
     builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
       Object.assign(state, payload)
     );
-    builder.addCase(showError.type, (state) => {
-      state.dialogShown = 'error-message';
-    });
-
-    builder.addCase(dismissError.type, (state) => {
-      state.dialogShown = undefined;
-    });
   }
 });
 

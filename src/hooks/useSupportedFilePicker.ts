@@ -20,7 +20,7 @@ const dedicatedTextureKVs = Object.entries(textureFileTypeMap).filter(
 
 export const handleFileInput = async (
   files: File[],
-  onError: (error: string) => void,
+  onError: (error: string | JSX.Element) => void,
   dispatch: ReturnType<typeof useAppDispatch>,
   polygonFilename: string | undefined
 ) => {
@@ -33,19 +33,26 @@ export const handleFileInput = async (
   let selectedPolygonFile: File | undefined = undefined;
   let selectedTextureFile: File | undefined = undefined;
 
+  const handleError = (error: string | JSX.Element) => {
+    onError(error);
+    selectedPolygonFile = undefined;
+    selectedTextureFile = undefined;
+    return;
+  };
+
   const DEDICATED_TEXTURE_FILE_ERROR =
     'Dedicated texture files can only be edited individually at this moment, they cannot be selected with others';
 
   files.forEach((f, i) => {
     if (textureFileType && textureFileType !== 'polygon-mapped') {
-      onError(DEDICATED_TEXTURE_FILE_ERROR);
+      handleError(DEDICATED_TEXTURE_FILE_ERROR);
       return;
     }
 
     for (const [type, regex] of dedicatedTextureKVs) {
       if (f.name.match(regex)) {
         if (i > 0) {
-          onError(DEDICATED_TEXTURE_FILE_ERROR);
+          handleError(DEDICATED_TEXTURE_FILE_ERROR);
           return;
         }
 
@@ -59,7 +66,7 @@ export const handleFileInput = async (
       if (!selectedPolygonFile) {
         selectedPolygonFile = f;
       } else {
-        onError('Cannot select more than one polygon file at a time');
+        handleError('Cannot select more than one polygon file at a time');
         return;
       }
     }
@@ -69,14 +76,14 @@ export const handleFileInput = async (
         selectedTextureFile = f;
         textureFileType = 'polygon-mapped';
       } else {
-        onError('Cannot select more than one texture file');
+        handleError('Cannot select more than one texture file');
         return;
       }
     }
   });
 
   if (!selectedPolygonFile && !selectedTextureFile) {
-    onError(
+    handleError(
       'Invalid file selected. See "What Files Are Supported" for more info.'
     );
     return;
