@@ -4,25 +4,11 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import {
-  Alert,
-  AlertTitle,
-  Button,
-  Dialog,
-  DialogContent,
-  Slide,
-  SlideProps,
-  Snackbar,
-  styled
-} from '@mui/material';
-import { FC, useCallback, useMemo } from 'react';
+import { Dialog, DialogContent, styled } from '@mui/material';
+import { FC, useCallback } from 'react';
 import AppInfo from './app-info/AppInfo';
 import ReplaceTexture from './replace-texture/ReplaceTexture';
 import FileSupportInfo from './file-support-info/FileSupportInfo';
-import { dismissError } from '@/store/errorMessagesSlice';
-import Icon from '@mdi/react';
-import { mdiClose } from '@mdi/js';
-import { usePrevious } from '@uidotdev/usehooks';
 
 const StyledDialog = styled(Dialog)(
   () => `

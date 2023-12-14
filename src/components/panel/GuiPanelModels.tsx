@@ -20,7 +20,6 @@ import {
   selectObjectKey,
   selectPolygonFileName,
   setObjectType,
-  showDialog,
   useAppDispatch,
   useAppSelector
 } from '@/store';

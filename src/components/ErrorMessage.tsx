@@ -1,11 +1,8 @@
 import { useAppDispatch, useAppSelector } from '@/store';
 import { dismissError } from '@/store/errorMessagesSlice';
-import { mdiClose } from '@mdi/js';
-import { Icon } from '@mdi/react';
 import {
   Alert,
   AlertTitle,
-  Button,
   Slide,
   SlideProps,
   Snackbar,

@@ -10,7 +10,6 @@ import {
 import textureFileTypeMap, {
   TextureFileType
 } from '@/utils/textures/files/textureFileTypeMap';
-import { Button } from '@mui/material';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
 
 /** polygon files which may be associated to textures */
