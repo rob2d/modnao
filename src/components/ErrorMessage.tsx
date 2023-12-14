@@ -23,6 +23,10 @@ const StyledSnackbar = styled(Snackbar)(
 `
 );
 
+const ErrorTransition = (props: SlideProps) => (
+  <Slide {...props} direction='right' />
+);
+
 export default function ErrorMessage() {
   const dispatch = useAppDispatch();
   const error = useAppSelector(
@@ -38,10 +42,6 @@ export default function ErrorMessage() {
   const onDismissError = useCallback(() => {
     dispatch(dismissError());
   }, [dispatch]);
-
-  const ErrorTransition = (props: SlideProps) => (
-    <Slide {...props} direction='right' />
-  );
 
   return (
     <StyledSnackbar

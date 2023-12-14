@@ -33,6 +33,7 @@ import {
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { showError } from '@/store/errorMessagesSlice';
+import FilesSupportedButton from '../FilesSupportedButton';
 
 const Styled = styled('div')(
   ({ theme }) => `& {
@@ -125,17 +126,7 @@ export default function GuiPanelModels() {
       >
         Import Model/Texture
       </GuiPanelButton>
-      <Button
-        onClick={() => {
-          dispatch(showDialog('file-support-info'));
-        }}
-        color='secondary'
-        size='small'
-        variant='text'
-        className='supported-files'
-      >
-        What Files Are Supported?
-      </Button>
+      <FilesSupportedButton className={'supported-files'} />
     </Styled>
   );
 

@@ -10,6 +10,8 @@ import {
 import textureFileTypeMap, {
   TextureFileType
 } from '@/utils/textures/files/textureFileTypeMap';
+import { Button } from '@mui/material';
+import FilesSupportedButton from '@/components/FilesSupportedButton';
 
 /** polygon files which may be associated to textures */
 export const POLYGON_FILE = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL.BIN$/i;
@@ -94,7 +96,11 @@ export const handleFileInput = async (
 
   if (!selectedPolygonFile && !selectedTextureFile) {
     handleError(
-      'Invalid file selected. See "What Files Are Supported" for more info.'
+      <>
+        See
+        <FilesSupportedButton />
+        for more info.
+      </>
     );
     return;
   }
@@ -108,8 +114,13 @@ export const handleFileInput = async (
       dispatch(loadTextureFile({ file: selectedTextureFile, textureFileType }));
     } else {
       handleError(
-        'For this type of texture file, you must load a polygon file along with it. ' +
-          'You can hold control in most file selectors to select most files'
+        <>
+          For this type of texture file, you must load a polygon file along with
+          it. <br />
+          You can hold control in most file selectors to select most files.
+          <br />
+          <FilesSupportedButton />
+        </>
       );
       return;
     }
