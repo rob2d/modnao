@@ -3,7 +3,6 @@ import {
   AnyAction,
   combineReducers,
   configureStore,
-  PreloadedState,
   ThunkAction,
   ThunkDispatch
 } from '@reduxjs/toolkit';
@@ -22,7 +21,7 @@ export const rootReducer = combineReducers({
   [errorMessagesSlice.name]: errorMessagesSlice.reducer
 });
 
-export const setupStore = (preloadedState?: PreloadedState<AppState>) =>
+export const setupStore = (preloadedState?: AppState) =>
   configureStore({
     preloadedState,
     reducer: rootReducer,

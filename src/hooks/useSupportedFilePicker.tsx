@@ -165,11 +165,10 @@ export default function useSupportedFilePicker(
 ) {
   const polygonFilename = useAppSelector((s) => s.modelData.polygonFileName);
   const dispatch = useAppDispatch();
-  const [openFileSelector, { plainFiles }] = useFilePicker({
+  const { plainFiles, openFilePicker } = useFilePicker({
     multiple: true,
     readAs: 'ArrayBuffer',
-    accept: ['.BIN'],
-    readFilesContent: false
+    accept: ['.BIN']
   });
 
   useEffect(() => {
@@ -178,5 +177,5 @@ export default function useSupportedFilePicker(
     }
   }, [plainFiles]);
 
-  return openFileSelector;
+  return openFilePicker;
 }

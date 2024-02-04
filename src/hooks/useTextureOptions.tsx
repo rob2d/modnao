@@ -21,12 +21,10 @@ import { useFilePicker } from 'use-file-picker';
 const { Jimp } = globalThis as any;
 
 function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
-  const [
-    openFileSelector,
-    {
-      plainFiles: [file]
-    }
-  ] = useFilePicker({
+  const {
+    plainFiles: [file],
+    openFilePicker
+  } = useFilePicker({
     multiple: false,
     readAs: 'ArrayBuffer',
     accept: ['image/*']
@@ -40,7 +38,7 @@ function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
     onReplaceImageFile(file);
   }, [file]);
 
-  return openFileSelector;
+  return openFilePicker;
 }
 
 export default function useTextureOptions(
