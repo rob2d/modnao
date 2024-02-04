@@ -401,12 +401,10 @@ export default function ReplaceTexture() {
   const { getDragProps, isDragActive, onSelectNewImageFile } =
     useTextureReplaceDropzone(textureIndex);
 
-  const [
-    openImageFileSelector,
-    {
-      plainFiles: [selectedImageFile]
-    }
-  ] = useFilePicker({
+  const {
+    plainFiles: [selectedImageFile],
+    openFilePicker
+  } = useFilePicker({
     multiple: false,
     readAs: 'ArrayBuffer',
     accept: ['image/*']
@@ -542,7 +540,7 @@ export default function ReplaceTexture() {
               </div>
               <div>
                 <Tooltip title='Select new image file. You can also drag and drop a file into the overall dialog'>
-                  <Button color='primary' onClick={openImageFileSelector}>
+                  <Button color='primary' onClick={openFilePicker}>
                     <Icon path={mdiFileImage} size={1} />
                   </Button>
                 </Tooltip>
