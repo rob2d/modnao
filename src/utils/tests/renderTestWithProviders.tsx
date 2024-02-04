@@ -2,7 +2,6 @@ import React, { PropsWithChildren, useContext } from 'react';
 import { Provider } from 'react-redux';
 import { render } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
-import type { PreloadedState } from '@reduxjs/toolkit';
 import { ThemeProvider } from '@mui/material/styles';
 
 import useUserTheme from '@/theming/useUserTheme';
@@ -10,7 +9,7 @@ import { type AppState, type AppStore, setupStore } from '@/store';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  preloadedState?: PreloadedState<AppState>;
+  preloadedState?: AppState;
   store?: AppStore;
 }
 
