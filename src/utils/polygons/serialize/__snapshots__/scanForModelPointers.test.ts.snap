@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`scanForModelPointers returns the correct list of model pointer addresses in a stage file: scan-model-for-pointer-addresses 1`] = `
-Array [
-  Array [
+[
+  [
     528,
     1856,
     2784,
