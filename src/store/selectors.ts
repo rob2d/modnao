@@ -171,6 +171,7 @@ export const selectCanExportTextures = createSelector(
 
 export const selectTextureFileType = (s: AppState) =>
   s.modelData.textureFileType;
+
 export const selectHasCompressedTextures = (s: AppState) =>
   s.modelData.hasCompressedTextures;
 

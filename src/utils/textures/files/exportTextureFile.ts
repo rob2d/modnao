@@ -30,7 +30,7 @@ type ExportTextureOptions = {
   textureFileName?: string;
   textureFileType: TextureFileType;
   textureBufferUrl: string;
-  isCompressedTexture: boolean;
+  hasCompressedTextures: boolean;
 };
 
 function padBufferForAlignment(
@@ -65,7 +65,7 @@ export default async function exportTextureFile({
   textureFileName = '',
   textureFileType,
   textureBufferUrl,
-  isCompressedTexture
+  hasCompressedTextures
 }: ExportTextureOptions): Promise<void> {
   const textureBuffer = Buffer.from(await objectUrlToBuffer(textureBufferUrl));
   if (!textureBuffer) {
@@ -235,19 +235,15 @@ export default async function exportTextureFile({
         trailingSection
       ]);
 
-      output = new Blob([outputBuffer], {
-        type: 'application/octet-stream'
-      });
+      output = new Blob([outputBuffer], { type: 'application/octet-stream' });
       break;
     }
     default: {
-      const outputBuffer = !isCompressedTexture
+      const outputBuffer = !hasCompressedTextures
         ? textureBuffer
         : compressLzssBuffer(textureBuffer);
 
-      output = new Blob([outputBuffer], {
-        type: 'application/octet-stream'
-      });
+      output = new Blob([outputBuffer], { type: 'application/octet-stream' });
       break;
     }
   }

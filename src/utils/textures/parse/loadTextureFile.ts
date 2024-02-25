@@ -100,12 +100,14 @@ export default async function loadTextureFile({
   buffer,
   textureDefs,
   fileName,
-  textureFileType
+  textureFileType,
+  hasCompressedTextures
 }: {
   textureDefs: NLTextureDef[];
   fileName: string;
   buffer: Buffer;
   textureFileType: TextureFileType;
+  hasCompressedTextures: boolean;
 }) {
   let result: Result;
   // @TODO: DRY regexp from useSupportedFilePicker
@@ -113,6 +115,10 @@ export default async function loadTextureFile({
     fileName.toLowerCase().match('^dm') || fileName.toLowerCase().match('^pl');
 
   try {
+    if (hasCompressedTextures) {
+      new Error('Decompressed File');
+    }
+
     const textureBufferData = await loadTextureBuffer(
       buffer,
       textureDefs,
@@ -122,7 +128,7 @@ export default async function loadTextureFile({
 
     result = {
       textureBufferUrl: textureBufferUrl,
-      hasCompressedTextures: false,
+      hasCompressedTextures,
       fileName,
       textureFileType,
       ...textureBufferData
@@ -132,10 +138,11 @@ export default async function loadTextureFile({
     // file loaded is compressed; this is common for certain
     // game texture formats like Capcom vs SNK 2
 
+    console.log('error ->', error);
+
     if (!(error instanceof RangeError)) {
       throw error;
     }
-
     const decompressedBuffer = decompressLzssBuffer(buffer);
 
     const textureBufferData = await loadTextureBuffer(
