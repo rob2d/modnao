@@ -9,7 +9,7 @@ export type TextureFileType =
 export const CHARACTER_PORTRAITS = /^PL[0-9A-Z]{2}_FAC(.mn)?.BIN$/i;
 export const MVC2_CHARACTER_WIN = /^PL[0-9A-Z]{2}_WIN(.mn)?.BIN$/i;
 export const POLYGON_MAPPED_TEXTURE =
-  /^(((((STG(E)?|DM)[0-9A-Z]{2})|EFKY))|(DC[0-9A-Z]{2}(E)?))TEX(.mn)?.BIN$/;
+  /^(((((ST(G)?(E)?|DM)[0-9A-Z]{2})|EFKY))|(DC[0-9A-Z]{2}(E)?))TEX(.mn)?.BIN$/;
 export const MVC2_STAGE_PREVIEWS = /^SELSTG(.mn)?.BIN$/i;
 export const MVC2_SELECTION_TEXTURES = /^SELTEX(.mn)?.BIN$/i;
 export const MVC2_END_ART = /^END(DC|NM)TEX(.mn)?.BIN$/i;

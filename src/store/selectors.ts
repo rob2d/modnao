@@ -173,7 +173,7 @@ export const selectTextureFileType = (s: AppState) =>
   s.modelData.textureFileType;
 
 export const selectHasCompressedTextures = (s: AppState) =>
-  s.modelData.hasCompressedTextures;
+  s.modelData.isLzssCompressed;
 
 export const selectContentViewMode = createSelector(
   selectHasLoadedTextureFile,
