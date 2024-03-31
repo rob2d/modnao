@@ -78,9 +78,16 @@ const useVlogApi = () => {
   const [vlogs, setVlogs] = useState<Vlog[] | undefined>(undefined);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await (await fetch(`${origin}/api/vlogs`)).json();
-      setVlogs(response);
-      hasFetched = true;
+      const request = await fetch(`${origin}/api/vlogs`)
+      if (request.status == 200) {
+        const response = await request.json();
+        setVlogs(response);
+        hasFetched = true;
+      }
+      else {
+        setVlogs([])
+        hasFetched = false
+      }
     };
 
     if (!hasFetched) {
@@ -95,59 +102,73 @@ const useVlogApi = () => {
   return vlogs;
 };
 
+const standardCard = (i: any) => {
+  return (
+    <Card key={i} elevation={2}>
+      <CardContent>
+        <Typography component='div' variant='subtitle1'>
+          <Skeleton height={60} />
+        </Typography>
+        <Typography
+          variant='subtitle1'
+          color='text.secondary'
+          component='div'
+        >
+          <Skeleton />
+        </Typography>
+      </CardContent>
+      <Skeleton variant='rectangular' width={100} height={120} />
+    </Card>
+  )
+}
+
+const vlogCard = (v: Vlog) => {
+  return (
+    <Card key={v.id} elevation={2}>
+      <ButtonBase
+        onClick={() =>
+          window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
+        }
+      >
+        <CardContent>
+          <Typography component='div' variant='subtitle1'>
+            {v.title}
+          </Typography>
+          <Typography
+            variant='subtitle1'
+            color='text.secondary'
+            component='div'
+          >
+            {dayjs(v.publishedAt).format('MMM Do, YYYY')}
+          </Typography>
+        </CardContent>
+        <CardMedia
+          component='img'
+          image={`${v.thumbnailUrl}`}
+          alt={`Watch ${v.vlogNumber} now`}
+          className={'vlog-entry-image'}
+        />
+      </ButtonBase>
+    </Card>
+  )
+}
+
 export default function DevUpdates() {
   const vlogs = useVlogApi();
-
+  console.log('vlogs', vlogs)
   return (
     <StyledContent className='app-info-section scroll-body'>
       <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
       <DialogSectionContentCards>
-        {!vlogs
-          ? [1, 2, 3].map((_, i) => (
-              <Card key={i} elevation={2}>
-                <CardContent>
-                  <Typography component='div' variant='subtitle1'>
-                    <Skeleton height={60} />
-                  </Typography>
-                  <Typography
-                    variant='subtitle1'
-                    color='text.secondary'
-                    component='div'
-                  >
-                    <Skeleton />
-                  </Typography>
-                </CardContent>
-                <Skeleton variant='rectangular' width={100} height={120} />
-              </Card>
-            ))
-          : vlogs.map((v: Vlog) => (
-              <Card key={v.id} elevation={2}>
-                <ButtonBase
-                  onClick={() =>
-                    window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
-                  }
-                >
-                  <CardContent>
-                    <Typography component='div' variant='subtitle1'>
-                      {v.title}
-                    </Typography>
-                    <Typography
-                      variant='subtitle1'
-                      color='text.secondary'
-                      component='div'
-                    >
-                      {dayjs(v.publishedAt).format('MMM Do, YYYY')}
-                    </Typography>
-                  </CardContent>
-                  <CardMedia
-                    component='img'
-                    image={`${v.thumbnailUrl}`}
-                    alt={`Watch ${v.vlogNumber} now`}
-                    className={'vlog-entry-image'}
-                  />
-                </ButtonBase>
-              </Card>
-            ))}
+        {vlogs
+          ?
+          vlogs.map((v: Vlog) => (
+            vlogCard(v)
+          )) :
+          [1, 2, 3].map((_, i) => (
+            standardCard(i)
+          ))
+        }
       </DialogSectionContentCards>
     </StyledContent>
   );
