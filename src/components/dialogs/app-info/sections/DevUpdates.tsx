@@ -155,7 +155,6 @@ const vlogCard = (v: Vlog) => {
 
 export default function DevUpdates() {
   const vlogs = useVlogApi();
-  console.log('vlogs', vlogs)
   return (
     <StyledContent className='app-info-section scroll-body'>
       <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
