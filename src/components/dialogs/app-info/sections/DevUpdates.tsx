@@ -78,15 +78,14 @@ const useVlogApi = () => {
   const [vlogs, setVlogs] = useState<Vlog[] | undefined>(undefined);
   useEffect(() => {
     const fetchData = async () => {
-      const request = await fetch(`${origin}/api/vlogs`)
+      const request = await fetch(`${origin}/api/vlogs`);
       if (request.status == 200) {
         const response = await request.json();
         setVlogs(response);
         hasFetched = true;
-      }
-      else {
-        setVlogs([])
-        hasFetched = false
+      } else {
+        setVlogs([]);
+        hasFetched = false;
       }
     };
 
@@ -102,25 +101,21 @@ const useVlogApi = () => {
   return vlogs;
 };
 
-const standardCard = (i: any) => {
+const standardCard = (i: number) => {
   return (
     <Card key={i} elevation={2}>
       <CardContent>
         <Typography component='div' variant='subtitle1'>
           <Skeleton height={60} />
         </Typography>
-        <Typography
-          variant='subtitle1'
-          color='text.secondary'
-          component='div'
-        >
+        <Typography variant='subtitle1' color='text.secondary' component='div'>
           <Skeleton />
         </Typography>
       </CardContent>
       <Skeleton variant='rectangular' width={100} height={120} />
     </Card>
-  )
-}
+  );
+};
 
 const vlogCard = (v: Vlog) => {
   return (
@@ -150,8 +145,8 @@ const vlogCard = (v: Vlog) => {
         />
       </ButtonBase>
     </Card>
-  )
-}
+  );
+};
 
 export default function DevUpdates() {
   const vlogs = useVlogApi();
@@ -160,14 +155,8 @@ export default function DevUpdates() {
       <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
       <DialogSectionContentCards>
         {vlogs
-          ?
-          vlogs.map((v: Vlog) => (
-            vlogCard(v)
-          )) :
-          [1, 2, 3].map((_, i) => (
-            standardCard(i)
-          ))
-        }
+          ? vlogs.map((v: Vlog) => vlogCard(v))
+          : [1, 2, 3].map((_, i) => standardCard(i))}
       </DialogSectionContentCards>
     </StyledContent>
   );

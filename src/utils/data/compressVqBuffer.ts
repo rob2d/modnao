@@ -62,12 +62,7 @@ export default function compressVqBuffer(buffer: Buffer) {
 
   while (codebook.length < 256) {
     // eslint-disable-next-line prettier/prettier
-    codebook.push([
-      127, 127, 127, 
-      127, 127, 127,
-      127, 127, 127,
-      127, 127, 127,
-    ]);
+    codebook.push([127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127]);
   }
 
   const outputBytes: number[] = [];
