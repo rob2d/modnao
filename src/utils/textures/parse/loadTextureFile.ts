@@ -9,6 +9,7 @@ import {
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { bufferToObjectUrl, decompressLzssBuffer } from '@/utils/data';
 import { TextureFileType } from '../files/textureFileTypeMap';
+import { LoadTexturesBasePayload } from '@/store';
 
 const COLOR_SIZE = 2;
 
@@ -44,7 +45,7 @@ async function loadTextureBuffer(
           const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
           const readOffset =
             t.baseLocation - t.ramOffset + offsetDrawn * COLOR_SIZE;
-          // textures may point out of bounds (this would be to RAM elswhere in-game)
+          // textures may point out of bounds (this would be to RAM elsewhere in-game)
           if (readOffset >= buffer.length && !failOutOfBounds) {
             break;
           }
@@ -88,7 +89,7 @@ async function loadTextureBuffer(
   };
 }
 
-type Result = {
+type LoadTextureFileResult = {
   textureDefs: NLTextureDef[];
   textureFileType: TextureFileType;
   fileName: string;
@@ -102,17 +103,12 @@ export default async function loadTextureFile({
   fileName,
   textureFileType,
   isLzssCompressed
-}: {
-  textureDefs: NLTextureDef[];
-  fileName: string;
-  buffer: Buffer;
-  textureFileType: TextureFileType;
-  isLzssCompressed: boolean;
-}) {
-  let result: Result;
+}: LoadTexturesBasePayload & { buffer: Buffer }) {
+  let result: LoadTextureFileResult;
   // @TODO: DRY regexp from useSupportedFilePicker
-  const expectOOBReferences =
-    fileName.toLowerCase().match('^dm') || fileName.toLowerCase().match('^pl');
+  const expectOOBReferences = Boolean(
+    fileName.toLowerCase().match('^dm') || fileName.toLowerCase().match('^pl')
+  );
 
   try {
     if (isLzssCompressed) {

@@ -46,12 +46,15 @@ export type EditedTexture = {
   hsl: HslValues;
 };
 
-export type LoadTexturesPayload = {
-  textureDefs: NLTextureDef[];
-  fileName: string;
-  textureBufferUrl: string;
+export interface LoadTexturesBasePayload {
   isLzssCompressed: boolean;
   textureFileType: TextureFileType;
+  textureDefs: NLTextureDef[];
+  fileName: string;
+}
+
+export type LoadTexturesPayload = LoadTexturesBasePayload & {
+  textureBufferUrl: string;
 };
 
 export type LoadPolygonsPayload =
@@ -384,7 +387,7 @@ export const downloadTextureFile = createAppAsyncThunk(
   `${sliceName}/downloadTextureFile`,
   async (_, { getState, dispatch }) => {
     const state = getState();
-    const { textureFileName, textureBufferUrl } = state.modelData;
+    const { textureFileName, textureBufferUrl = '' } = state.modelData;
     const textureDefs = selectUpdatedTextureDefs(state);
     const textureFileType = selectTextureFileType(state);
     const isLzssCompressed = selectHasCompressedTextures(state);
@@ -403,18 +406,28 @@ export const downloadTextureFile = createAppAsyncThunk(
       await exportTextureFile({
         textureDefs,
         textureFileName,
-        textureBufferUrl: textureBufferUrl as string,
+        textureBufferUrl,
         textureFileType,
         isLzssCompressed
       });
     } catch (error: unknown) {
       console.error(error);
-      dispatch(
-        showError({
-          title: 'Error exporting texture',
-          message: ((error as Error)?.message || error) as string
-        })
-      );
+      let message = '';
+
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else {
+        error = 'Unknown error occurred';
+      }
+
+      const errorAction = showError({
+        title: 'Error exporting texture',
+        message
+      });
+
+      dispatch(errorAction);
     }
   }
 );
