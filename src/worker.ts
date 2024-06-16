@@ -23,7 +23,7 @@ export type WorkerEvent =
         textureDefs: NLTextureDef[];
         fileName: string;
         sourceTextureData: SourceTextureData;
-        hasCompressedTextures: boolean;
+        isLzssCompressed: boolean;
       };
     }
   | {

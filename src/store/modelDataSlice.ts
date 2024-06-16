@@ -50,7 +50,7 @@ export type LoadTexturesPayload = {
   textureDefs: NLTextureDef[];
   fileName: string;
   textureBufferUrl: string;
-  hasCompressedTextures: boolean;
+  isLzssCompressed: boolean;
   textureFileType: TextureFileType;
 };
 
@@ -96,7 +96,7 @@ export interface ModelDataState {
   textureFileName?: string;
   textureFileType?: TextureFileType;
   hasEditedTextures: boolean;
-  hasCompressedTextures: boolean;
+  isLzssCompressed: boolean;
   textureBufferUrl?: string;
   polygonBufferUrl?: string;
 }
@@ -112,7 +112,7 @@ export const initialModelDataState: ModelDataState = {
   textureFileName: undefined,
   textureFileType: undefined,
   hasEditedTextures: false,
-  hasCompressedTextures: false
+  isLzssCompressed: false
 };
 
 export const loadCharacterPortraitsFile = createAppAsyncThunk(
@@ -283,11 +283,11 @@ export const loadTextureFile = createAppAsyncThunk(
       textureFileType,
       providedBuffer,
       providedTextureDefs,
-      hasCompressedTextures
+      isLzssCompressed
     }: {
       file: File;
       textureFileType: TextureFileType;
-      hasCompressedTextures?: boolean;
+      isLzssCompressed?: boolean;
       providedBuffer?: Buffer;
       providedTextureDefs?: NLTextureDef[];
     },
@@ -315,7 +315,7 @@ export const loadTextureFile = createAppAsyncThunk(
 
     let buffer = providedBuffer || new Uint8Array(await file.arrayBuffer());
 
-    if (hasCompressedTextures) {
+    if (isLzssCompressed) {
       const arrayBuffer = await file.arrayBuffer();
       buffer = decompressLzssBuffer(Buffer.from(arrayBuffer));
     }
@@ -339,7 +339,7 @@ export const loadTextureFile = createAppAsyncThunk(
 
       thread.postMessage({
         type: 'loadTextureFile',
-        payload: { fileName, textureDefs, buffer, hasCompressedTextures }
+        payload: { fileName, textureDefs, buffer, isLzssCompressed }
       } as WorkerEvent);
     });
 
@@ -387,7 +387,7 @@ export const downloadTextureFile = createAppAsyncThunk(
     const { textureFileName, textureBufferUrl } = state.modelData;
     const textureDefs = selectUpdatedTextureDefs(state);
     const textureFileType = selectTextureFileType(state);
-    const hasCompressedTextures = selectHasCompressedTextures(state);
+    const isLzssCompressed = selectHasCompressedTextures(state);
 
     if (!textureFileType) {
       dispatch(
@@ -405,7 +405,7 @@ export const downloadTextureFile = createAppAsyncThunk(
         textureFileName,
         textureBufferUrl: textureBufferUrl as string,
         textureFileType,
-        hasCompressedTextures
+        isLzssCompressed
       });
     } catch (error: unknown) {
       console.error(error);
@@ -515,7 +515,7 @@ const modelDataSlice = createSlice({
         const {
           textureDefs,
           fileName,
-          hasCompressedTextures,
+          isLzssCompressed,
           textureBufferUrl,
           textureFileType
         } = payload;
@@ -527,7 +527,7 @@ const modelDataSlice = createSlice({
         state.textureFileType = textureFileType;
 
         state.textureFileName = fileName;
-        state.hasCompressedTextures = hasCompressedTextures;
+        state.isLzssCompressed = isLzssCompressed;
         state.textureBufferUrl = textureBufferUrl;
       }
     );

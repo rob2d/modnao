@@ -142,7 +142,7 @@ export const handleFileInput = async (
         loadTextureFile({
           file: selectedTextureFile,
           textureFileType,
-          hasCompressedTextures: true
+          isLzssCompressed: true
         })
       );
       break;

@@ -92,7 +92,7 @@ type Result = {
   textureDefs: NLTextureDef[];
   textureFileType: TextureFileType;
   fileName: string;
-  hasCompressedTextures: boolean;
+  isLzssCompressed: boolean;
   textureBufferUrl: string;
 };
 
@@ -101,13 +101,13 @@ export default async function loadTextureFile({
   textureDefs,
   fileName,
   textureFileType,
-  hasCompressedTextures
+  isLzssCompressed
 }: {
   textureDefs: NLTextureDef[];
   fileName: string;
   buffer: Buffer;
   textureFileType: TextureFileType;
-  hasCompressedTextures: boolean;
+  isLzssCompressed: boolean;
 }) {
   let result: Result;
   // @TODO: DRY regexp from useSupportedFilePicker
@@ -115,7 +115,7 @@ export default async function loadTextureFile({
     fileName.toLowerCase().match('^dm') || fileName.toLowerCase().match('^pl');
 
   try {
-    if (hasCompressedTextures) {
+    if (isLzssCompressed) {
       new Error('Decompressed File');
     }
 
@@ -128,7 +128,7 @@ export default async function loadTextureFile({
 
     result = {
       textureBufferUrl: textureBufferUrl,
-      hasCompressedTextures,
+      isLzssCompressed,
       fileName,
       textureFileType,
       ...textureBufferData
@@ -154,7 +154,7 @@ export default async function loadTextureFile({
     result = {
       textureBufferUrl: await bufferToObjectUrl(decompressedBuffer),
       fileName,
-      hasCompressedTextures: true,
+      isLzssCompressed: true,
       textureFileType,
       ...textureBufferData
     };

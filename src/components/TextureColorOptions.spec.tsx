@@ -12,7 +12,7 @@ const mockTextureState = {
     editedTextures: {},
     textureHistory: {},
     hasEditedTextures: false,
-    hasCompressedTextures: false,
+    isLzssCompressed: false,
     textureFileName: 'hello-world.tex.bin',
     polygonFileName: 'hello-world.pol.bin',
     polygonBufferUrl: 'data://anywhere',

@@ -24,10 +24,10 @@ export default function decompressLzssBuffer(bufferPassed: Buffer) {
       continue;
     }
 
-    const hasCompressedTextures = bitmask & (COMPRESSION_FLAG >> chunk);
+    const isLzssCompressed = bitmask & (COMPRESSION_FLAG >> chunk);
     let extraWordCount = 0;
 
-    if (!hasCompressedTextures) {
+    if (!isLzssCompressed) {
       output.push(word);
     } else if (word === 0) {
       break;
