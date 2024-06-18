@@ -75,7 +75,10 @@ const textureShapesMap: Record<TextureFileType, NLTextureDef[]> = {
     })
   ],
   // will be populated with headers in polygon file
-  'polygon-mapped': []
+  'cvs2-console-menu': [],
+  'mvc2-special-effects': [],
+  'vs2-stage-file': [],
+  'vs2-demo-model': []
 };
 
 export default textureShapesMap;

@@ -8,7 +8,9 @@ import {
 } from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { bufferToObjectUrl, decompressLzssBuffer } from '@/utils/data';
-import { TextureFileType } from '../files/textureFileTypeMap';
+import textureFileTypeMap, {
+  TextureFileType
+} from '../files/textureFileTypeMap';
 import { LoadTexturesBasePayload } from '@/store';
 
 const COLOR_SIZE = 2;
@@ -105,10 +107,8 @@ export default async function loadTextureFile({
   isLzssCompressed
 }: LoadTexturesBasePayload & { buffer: Buffer }) {
   let result: LoadTextureFileResult;
-  // @TODO: DRY regexp from useSupportedFilePicker
-  const expectOOBReferences = Boolean(
-    fileName.toLowerCase().match('^dm') || fileName.toLowerCase().match('^pl')
-  );
+  const expectOobReferences =
+    textureFileTypeMap[textureFileType].oobReferencable;
 
   try {
     if (isLzssCompressed) {
@@ -118,7 +118,7 @@ export default async function loadTextureFile({
     const textureBufferData = await loadTextureBuffer(
       buffer,
       textureDefs,
-      !expectOOBReferences
+      expectOobReferences
     );
     const textureBufferUrl = await bufferToObjectUrl(buffer);
 
@@ -132,7 +132,11 @@ export default async function loadTextureFile({
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
     // file loaded is compressed; this is common for certain
-    // game texture formats like Capcom vs SNK 2
+    // game texture formats like Capcom vs SNK 2;
+
+    // @TODO use attrib hashes to determine if something should
+    // be compressed vs "clever" solution of dealing with things
+    // here this way -- is somewhat of a crutch for now
 
     console.log('error ->', error);
 
@@ -144,7 +148,7 @@ export default async function loadTextureFile({
     const textureBufferData = await loadTextureBuffer(
       decompressedBuffer,
       textureDefs,
-      true
+      expectOobReferences
     );
 
     result = {

@@ -10,7 +10,9 @@ import {
   selectUpdatedTextureDefs
 } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
+import textureFileTypeMap, {
+  TextureFileType
+} from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { ClientThread } from '@/utils/threads';
@@ -300,7 +302,7 @@ export const loadTextureFile = createAppAsyncThunk(
 
     let textureDefs: NLTextureDef[];
 
-    if (textureFileType !== 'polygon-mapped') {
+    if (!textureFileTypeMap[textureFileType].polygonMapped) {
       textureDefs = providedTextureDefs || textureShapesMap[textureFileType];
       // clear polygons if texture headers aren't from poly file
       dispatch({
