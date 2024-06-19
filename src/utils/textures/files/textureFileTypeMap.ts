@@ -67,7 +67,7 @@ const textureFileTypeMap: Record<TextureFileType, TextureFileTypeMeta> = {
   'cvs2-console-menu': {
     polygonMapped: true,
     regexp: /^((DC[0-9A-Z]{2}(E)?))TEX(.mn)?.BIN$/i,
-    oobReferencable: true
+    oobReferencable: false
   }
 };
 
