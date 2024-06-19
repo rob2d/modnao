@@ -8,16 +8,22 @@ import {
   useAppSelector
 } from '@/store';
 import textureFileTypeMap, {
-  TextureFileType
+  TextureFileType,
+  TextureFileTypeMeta
 } from '@/utils/textures/files/textureFileTypeMap';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
 
 /** polygon files which may be associated to textures */
 export const POLYGON_FILE = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL.BIN$/i;
 
-const dedicatedTextureKVs = Object.entries(textureFileTypeMap).filter(
-  ([k]) => k !== 'polygon-mapped'
-) as [TextureFileType, RegExp][];
+export const textureFileEntries = Object.entries(textureFileTypeMap) as [
+  TextureFileType,
+  TextureFileTypeMeta
+][];
+
+const dedicatedTextureKVs = textureFileEntries.filter(
+  ([, entry]) => !entry.polygonMapped
+);
 
 export const handleFileInput = async (
   files: File[],
@@ -51,13 +57,16 @@ export const handleFileInput = async (
       return;
     }
 
-    if (textureFileType && textureFileType !== 'polygon-mapped') {
+    if (
+      textureFileType &&
+      !textureFileTypeMap[textureFileType]?.polygonMapped
+    ) {
       handleError(DEDICATED_TEXTURE_FILE_ERROR);
       return;
     }
 
-    for (const [type, regex] of dedicatedTextureKVs) {
-      if (f.name.match(regex)) {
+    for (const [type, entry] of dedicatedTextureKVs) {
+      if (f.name.match(entry.regexp)) {
         if (i > 0) {
           handleError(DEDICATED_TEXTURE_FILE_ERROR);
           return;
@@ -78,13 +87,15 @@ export const handleFileInput = async (
       }
     }
 
-    if (f.name.match(textureFileTypeMap['polygon-mapped'])) {
-      if (!selectedTextureFile) {
-        selectedTextureFile = f;
-        textureFileType = 'polygon-mapped';
-      } else {
-        handleError('Cannot select more than one texture file');
-        return;
+    for (const [fileTypeChecked, entry] of textureFileEntries) {
+      if (f.name.match(entry.regexp)) {
+        if (!selectedTextureFile) {
+          selectedTextureFile = f;
+          textureFileType = fileTypeChecked;
+        } else {
+          handleError('Cannot select more than one texture file');
+          return;
+        }
       }
     }
   });
@@ -108,7 +119,11 @@ export const handleFileInput = async (
     await dispatch(loadPolygonFile(selectedPolygonFile));
   }
 
-  if (selectedTextureFile && textureFileType === 'polygon-mapped') {
+  if (
+    selectedTextureFile &&
+    textureFileType &&
+    textureFileTypeMap?.[textureFileType].polygonMapped
+  ) {
     if (polygonFilename || selectedPolygonFile) {
       dispatch(loadTextureFile({ file: selectedTextureFile, textureFileType }));
     } else {

@@ -90,6 +90,7 @@ export default async function exportTextureFile({
         };
         break;
       }
+      case 'cvs2-console-menu':
       case 'mvc2-selection-textures': {
         quantizeOptions = {
           dithering: false,
@@ -97,14 +98,10 @@ export default async function exportTextureFile({
         };
         break;
       }
-      case 'polygon-mapped': {
-        // CVS2 DC/DCE files (@TODO: use more DRY checks)
-        if (textureFileName.indexOf('DC') === 0) {
-          quantizeOptions = {
-            dithering: false,
-            colors: 512
-          };
-        }
+      case 'mvc2-special-effects':
+      case 'mvc2-end-file':
+      case 'vs2-stage-file':
+      case 'vs2-demo-model': {
         break;
       }
       default:

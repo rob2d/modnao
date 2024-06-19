@@ -10,7 +10,9 @@ import {
   selectUpdatedTextureDefs
 } from './selectors';
 import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
+import textureFileTypeMap, {
+  TextureFileType
+} from '@/utils/textures/files/textureFileTypeMap';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { ClientThread } from '@/utils/threads';
@@ -46,12 +48,15 @@ export type EditedTexture = {
   hsl: HslValues;
 };
 
-export type LoadTexturesPayload = {
-  textureDefs: NLTextureDef[];
-  fileName: string;
-  textureBufferUrl: string;
+export interface LoadTexturesBasePayload {
   isLzssCompressed: boolean;
   textureFileType: TextureFileType;
+  textureDefs: NLTextureDef[];
+  fileName: string;
+}
+
+export type LoadTexturesPayload = LoadTexturesBasePayload & {
+  textureBufferUrl: string;
 };
 
 export type LoadPolygonsPayload =
@@ -297,7 +302,7 @@ export const loadTextureFile = createAppAsyncThunk(
 
     let textureDefs: NLTextureDef[];
 
-    if (textureFileType !== 'polygon-mapped') {
+    if (!textureFileTypeMap[textureFileType].polygonMapped) {
       textureDefs = providedTextureDefs || textureShapesMap[textureFileType];
       // clear polygons if texture headers aren't from poly file
       dispatch({
@@ -339,7 +344,13 @@ export const loadTextureFile = createAppAsyncThunk(
 
       thread.postMessage({
         type: 'loadTextureFile',
-        payload: { fileName, textureDefs, buffer, isLzssCompressed }
+        payload: {
+          fileName,
+          textureDefs,
+          buffer,
+          isLzssCompressed,
+          textureFileType
+        }
       } as WorkerEvent);
     });
 
@@ -384,7 +395,7 @@ export const downloadTextureFile = createAppAsyncThunk(
   `${sliceName}/downloadTextureFile`,
   async (_, { getState, dispatch }) => {
     const state = getState();
-    const { textureFileName, textureBufferUrl } = state.modelData;
+    const { textureFileName, textureBufferUrl = '' } = state.modelData;
     const textureDefs = selectUpdatedTextureDefs(state);
     const textureFileType = selectTextureFileType(state);
     const isLzssCompressed = selectHasCompressedTextures(state);
@@ -403,18 +414,28 @@ export const downloadTextureFile = createAppAsyncThunk(
       await exportTextureFile({
         textureDefs,
         textureFileName,
-        textureBufferUrl: textureBufferUrl as string,
+        textureBufferUrl,
         textureFileType,
         isLzssCompressed
       });
     } catch (error: unknown) {
       console.error(error);
-      dispatch(
-        showError({
-          title: 'Error exporting texture',
-          message: ((error as Error)?.message || error) as string
-        })
-      );
+      let message = '';
+
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else {
+        error = 'Unknown error occurred';
+      }
+
+      const errorAction = showError({
+        title: 'Error exporting texture',
+        message
+      });
+
+      dispatch(errorAction);
     }
   }
 );
