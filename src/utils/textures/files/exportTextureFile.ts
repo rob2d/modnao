@@ -86,7 +86,7 @@ export default async function exportTextureFile({
         quantizeOptions = {
           dithering: false,
           // restrict colors further on smaller lifegauge imgs
-          colors: width === 64 ? 64 : 256
+          colors: width === 64 ? 48 : 120
         };
         break;
       }
