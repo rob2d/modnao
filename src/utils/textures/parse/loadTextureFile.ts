@@ -118,7 +118,7 @@ export default async function loadTextureFile({
     const textureBufferData = await loadTextureBuffer(
       buffer,
       textureDefs,
-      expectOobReferences
+      !expectOobReferences
     );
     const textureBufferUrl = await bufferToObjectUrl(buffer);
 
@@ -148,7 +148,7 @@ export default async function loadTextureFile({
     const textureBufferData = await loadTextureBuffer(
       decompressedBuffer,
       textureDefs,
-      expectOobReferences
+      !expectOobReferences
     );
 
     result = {

@@ -344,7 +344,13 @@ export const loadTextureFile = createAppAsyncThunk(
 
       thread.postMessage({
         type: 'loadTextureFile',
-        payload: { fileName, textureDefs, buffer, isLzssCompressed }
+        payload: {
+          fileName,
+          textureDefs,
+          buffer,
+          isLzssCompressed,
+          textureFileType
+        }
       } as WorkerEvent);
     });
 

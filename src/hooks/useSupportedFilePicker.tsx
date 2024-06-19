@@ -122,7 +122,7 @@ export const handleFileInput = async (
   if (
     selectedTextureFile &&
     textureFileType &&
-    textureFileTypeMap[textureFileType].polygonMapped
+    textureFileTypeMap?.[textureFileType].polygonMapped
   ) {
     if (polygonFilename || selectedPolygonFile) {
       dispatch(loadTextureFile({ file: selectedTextureFile, textureFileType }));
