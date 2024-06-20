@@ -1,5 +1,5 @@
-import GuiPanelSection from './GuiPanelSection';
 import { useCallback, useEffect, useMemo } from 'react';
+import JSZip from 'jszip';
 import {
   downloadTextureFile,
   selectCanExportTextures,
@@ -18,6 +18,9 @@ import {
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 import { Chip, Divider, styled } from '@mui/material';
+import GuiPanelSection from './GuiPanelSection';
+import createImgFromTextureDef from '@/utils/textures/files/createB64ImgFromTextureDefs';
+import { saveAs } from 'file-saver';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -59,6 +62,31 @@ export default function GuiPanelViewOptions() {
   const onExportTextureFile = useCallback(() => {
     dispatch(downloadTextureFile());
   }, [dispatch]);
+
+  const onDownloadAllTextureImgs = useCallback(() => {
+    const zip = new JSZip();
+
+    const imgPromises = textureDefs.map((textureDef) => {
+      const base64 = createImgFromTextureDef({
+        textureDef,
+        asTranslucent: false
+      }).then((str) => str.replace(/^data:image\/(png|jpeg);base64,/, ''));
+
+      return base64;
+    });
+
+    Promise.all(imgPromises)
+      .then((base64Imgs) => {
+        base64Imgs.forEach((img, i) => {
+          zip.file(`modnao-texture-${i}.png`, img, { base64: true });
+        });
+
+        return zip.generateAsync({ type: 'blob' });
+      })
+      .then((zipContent) => {
+        saveAs(zipContent, 'images.zip');
+      });
+  }, [dispatch, textureDefs]);
 
   const [textures, offsceneTextures] = useMemo(() => {
     const pTextures: JSX.Element[] = [];
@@ -148,6 +176,15 @@ export default function GuiPanelViewOptions() {
           >
             Export Textures
           </GuiPanelButton>
+          {
+            <GuiPanelButton
+              tooltip='Download all available textures as images in a zip file'
+              onClick={onDownloadAllTextureImgs}
+              color='secondary'
+            >
+              Download All Images
+            </GuiPanelButton>
+          }
         </div>
       )}
     </GuiPanelSection>
