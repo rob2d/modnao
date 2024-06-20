@@ -5,7 +5,6 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { objectUrlToBuffer } from '@/utils/data';
 import { SourceTextureData } from '@/utils/textures';
 import {
   mdiCropFree,
@@ -16,9 +15,7 @@ import {
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const { Jimp } = globalThis as any;
+import createImgFromTextureDef from '@/utils/textures/files/createB64ImgFromTextureDefs';
 
 function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const {
@@ -122,31 +119,18 @@ export default function useTextureOptions(
           dlAsTranslucent ? 'translucent' : 'opaque'
         }]. Press 'T' key to toggle translucency.`,
         onClick: async () => {
-          const bufferUrl =
-            (!dlAsTranslucent
-              ? pixelsObjectUrls.opaque || pixelsObjectUrls.translucent
-              : pixelsObjectUrls.translucent) || '';
-          const a = document.createElement('a');
+          const textureDef = textureDefs[textureIndex];
 
-          const pixels = new Uint8ClampedArray(
-            await objectUrlToBuffer(bufferUrl)
-          );
-          new Jimp.read(
-            {
-              data: pixels,
-              width: textureDefs[textureIndex].width,
-              height: textureDefs[textureIndex].height
-            },
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (_: Error, image: typeof Jimp) => {
-              image.getBase64Async(Jimp.MIME_PNG).then((base64: string) => {
-                a.download = `modnao-texture-${textureIndex}.png`;
-                a.href = base64;
-                a.click();
-                onSelectOption?.();
-              });
-            }
-          );
+          const base64 = await createImgFromTextureDef({
+            textureDef,
+            asTranslucent: dlAsTranslucent
+          });
+
+          const a = document.createElement('a');
+          a.download = `modnao-texture-${textureIndex}.png`;
+          a.href = base64;
+          a.click();
+          onSelectOption?.();
         }
       }
     ],

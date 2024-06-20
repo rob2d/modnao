@@ -55,10 +55,11 @@ addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
     case 'adjustTextureHsl': {
       const { sourceTextureData, textureIndex, hsl, width, height } = payload;
 
-      const [translucent, opaque] = await Promise.all([
-        adjustTextureHsl(sourceTextureData.translucent, width, height, hsl),
-        adjustTextureHsl(sourceTextureData.opaque, width, height, hsl)
-      ]);
+      const promises = [sourceTextureData.translucent, sourceTextureData.opaque]
+        .filter((sourceUrl): sourceUrl is string => Boolean(sourceUrl))
+        .map((sourceUrl) => adjustTextureHsl(sourceUrl, width, height, hsl));
+
+      const [translucent, opaque] = await Promise.all(promises);
 
       postMessage({
         type: 'adjustTextureHsl',
