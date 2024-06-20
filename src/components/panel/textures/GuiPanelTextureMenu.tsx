@@ -52,6 +52,9 @@ export default function GuiPanelTextureMenu({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
+  // @TODO: extract translucency for use in global context
+  // so this can be used with "Download All Textures" functionality
+
   // when menu is open, toggle translucent download
   // when hotkey is pressed
   const translucentHotkeyPressed = useKeyPress({ targetKey: 't' });

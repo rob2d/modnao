@@ -1,4 +1,5 @@
 import { useCallback, useContext } from 'react';
+import saveAs from 'file-saver';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { useSceneContext } from '@/contexts/SceneContext';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
@@ -72,15 +73,13 @@ export default function useSceneGLTFFileDownloader(allModels: boolean) {
     const file = new Blob([JSON.stringify(output, null, 2)], {
       type: 'application/object'
     });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(file);
+
     const name = `${polygonFileName.substring(
       0,
       polygonFileName.lastIndexOf('.')
     )}${allModels ? '' : `-${modelIndex}`}`;
 
-    link.download = `${name}.mn.gltf`;
-    link.click();
+    saveAs(file, `${name}.mn.gltf`);
 
     await new Promise((r) => setTimeout(r, 100));
     setRenderAllModels(false);
