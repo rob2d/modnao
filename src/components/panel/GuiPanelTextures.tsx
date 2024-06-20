@@ -21,6 +21,7 @@ import { Chip, Divider, styled } from '@mui/material';
 import GuiPanelSection from './GuiPanelSection';
 import createImgFromTextureDef from '@/utils/textures/files/createB64ImgFromTextureDefs';
 import { saveAs } from 'file-saver';
+import dayjs from 'dayjs';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -78,13 +79,13 @@ export default function GuiPanelViewOptions() {
     Promise.all(imgPromises)
       .then((base64Imgs) => {
         base64Imgs.forEach((img, i) => {
-          zip.file(`modnao-texture-${i}.png`, img, { base64: true });
+          zip.file(`mn-texture-${i}.png`, img, { base64: true });
         });
 
         return zip.generateAsync({ type: 'blob' });
       })
       .then((zipContent) => {
-        saveAs(zipContent, 'images.zip');
+        saveAs(zipContent, `mn-textures-${dayjs().format('YYMMDDHHmmss')}.zip`);
       });
   }, [dispatch, textureDefs]);
 
