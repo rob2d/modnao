@@ -42,9 +42,13 @@ export const selectUneditedTextureUrls = createSelector(
     });
 
     Object.keys(history).forEach((k) => {
-      history[Number(k)].forEach((set) => {
-        urlSet.add(set.bufferUrls.opaque);
-        urlSet.add(set.bufferUrls.translucent);
+      history[Number(k)].forEach(({ bufferUrls: { opaque, translucent } }) => {
+        if (opaque) {
+          urlSet.add(opaque);
+        }
+        if (translucent) {
+          urlSet.add(translucent);
+        }
       });
     });
 
