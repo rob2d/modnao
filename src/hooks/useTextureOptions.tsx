@@ -16,6 +16,7 @@ import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import createImgFromTextureDef from '@/utils/textures/files/createB64ImgFromTextureDefs';
+import saveAs from 'file-saver';
 
 function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const {
@@ -120,16 +121,12 @@ export default function useTextureOptions(
         }]. Press 'T' key to toggle translucency.`,
         onClick: async () => {
           const textureDef = textureDefs[textureIndex];
-
-          const base64 = await createImgFromTextureDef({
+          const dataUrlImg = await createImgFromTextureDef({
             textureDef,
             asTranslucent: dlAsTranslucent
           });
 
-          const a = document.createElement('a');
-          a.download = `modnao-texture-${textureIndex}.png`;
-          a.href = base64;
-          a.click();
+          saveAs(dataUrlImg, `modnao-texture-${textureIndex}.png`);
           onSelectOption?.();
         }
       }

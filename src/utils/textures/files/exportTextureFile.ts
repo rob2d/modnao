@@ -13,6 +13,7 @@ import {
 import { compressLzssBuffer, objectUrlToBuffer } from '@/utils/data';
 import { TextureFileType } from './textureFileTypeMap';
 import compressVqBuffer from '@/utils/data/compressVqBuffer';
+import { saveAs } from 'file-saver';
 
 const COLOR_SIZE = 2;
 
@@ -245,14 +246,9 @@ export default async function exportTextureFile({
     }
   }
 
-  const link = document.createElement('a');
-  link.href = window.URL.createObjectURL(output);
-
   const name = textureFileName.substring(0, textureFileName.lastIndexOf('.'));
-
   const extension = textureFileName.substring(
     textureFileName.lastIndexOf('.') + 1
   );
-  link.download = `${name}.mn.${extension}`;
-  link.click();
+  saveAs(output, `${name}.mn.${extension}`);
 }
