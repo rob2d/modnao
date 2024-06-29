@@ -16,7 +16,7 @@ import textureFileTypeMap, {
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { ClientThread } from '@/utils/threads';
-import { createAppAsyncThunk } from './typedFunctions';
+import { createAppAsyncThunk } from './storeTypings';
 import textureShapesMap from '@/utils/textures/files/textureShapesMap';
 import { showError } from './errorMessagesSlice';
 

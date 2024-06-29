@@ -7,7 +7,7 @@ import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { replaceTextureImage } from './modelDataSlice';
 import { batch } from 'react-redux';
-import { createAppAsyncThunk } from './typedFunctions';
+import { createAppAsyncThunk } from './storeTypings';
 
 export type ReplacementImage = {
   bufferObjectUrl: string;

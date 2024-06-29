@@ -1,6 +1,6 @@
 export * from './store';
 export * from './selectors';
-export * from './typedFunctions';
+export * from './storeTypings';
 export { default as objectViewerSlice } from './objectViewerSlice';
 export * from './objectViewerSlice';
 export * from './replaceTextureSlice';
