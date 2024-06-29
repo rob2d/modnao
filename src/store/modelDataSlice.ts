@@ -1,6 +1,6 @@
 import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import { WorkerEvent } from '@/worker';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import HslValues from '@/utils/textures/HslValues';
@@ -51,7 +51,7 @@ export type EditedTexture = {
 export interface LoadTexturesBasePayload {
   isLzssCompressed: boolean;
   textureFileType: TextureFileType;
-  textureDefs: NLTextureDef[];
+  textureDefs: NLUITextureDef[];
   fileName: string;
 }
 
@@ -62,13 +62,13 @@ export type LoadTexturesPayload = LoadTexturesBasePayload & {
 export type LoadPolygonsPayload =
   | {
       models: NLModel[];
-      textureDefs: NLTextureDef[];
+      textureDefs: NLUITextureDef[];
       fileName: string;
       polygonBufferUrl: string;
     }
   | {
       models: [];
-      textureDefs: NLTextureDef[];
+      textureDefs: NLUITextureDef[];
       fileName: undefined;
       polygonBufferUrl: undefined;
     };
@@ -82,7 +82,7 @@ export type AdjustTextureHslPayload = {
 
 export interface ModelDataState {
   models: NLModel[];
-  textureDefs: NLTextureDef[];
+  textureDefs: NLUITextureDef[];
   /**
    * dictionary of texture index to previous buffer url stacks
    * note: should consider having only this stack and not deriving from
@@ -294,13 +294,13 @@ export const loadTextureFile = createAppAsyncThunk(
       textureFileType: TextureFileType;
       isLzssCompressed?: boolean;
       providedBuffer?: Buffer;
-      providedTextureDefs?: NLTextureDef[];
+      providedTextureDefs?: NLUITextureDef[];
     },
     { getState, dispatch }
   ) => {
     const state = getState();
 
-    let textureDefs: NLTextureDef[];
+    let textureDefs: NLUITextureDef[];
 
     if (!textureFileTypeMap[textureFileType].polygonMapped) {
       textureDefs = providedTextureDefs || textureShapesMap[textureFileType];

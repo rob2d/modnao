@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import GuiPanel from './GuiPanel';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 
 const mockState = {
   modelData: {
@@ -17,7 +17,7 @@ const mockState = {
           transparent: ''
         }
       }
-    ] as unknown as NLTextureDef[],
+    ] as unknown as NLUITextureDef[],
     editedTextures: {},
     textureHistory: {},
     hasEditedTextures: false,

@@ -1,4 +1,4 @@
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import O from '@/constants/StructOffsets';
 import S from '@/constants/StructSizes';
 import {
@@ -337,7 +337,7 @@ export const nlColoredVertexConversions: NLPropConversion<NLVertex>[] = [
   }
 ];
 
-export const nlTextureDefConversions: NLPropConversion<NLTextureDef>[] = [
+export const nlTextureDefConversions: NLPropConversion<NLUITextureDef>[] = [
   {
     targetOffset: O.TextureDef.WIDTH,
     readOps: [readUInt16LE],

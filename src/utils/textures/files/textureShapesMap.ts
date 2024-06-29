@@ -1,8 +1,8 @@
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import createTextureDef from '../createTextureDef';
 import { TextureFileType } from './textureFileTypeMap';
 
-const mvc2PlFacStructure: Partial<NLTextureDef>[] = [
+const mvc2PlFacStructure: Partial<NLUITextureDef>[] = [
   { width: 64, height: 64 },
   { width: 256, height: 256 },
   { width: 128, height: 128 },
@@ -10,14 +10,14 @@ const mvc2PlFacStructure: Partial<NLTextureDef>[] = [
   { width: 64, height: 64 }
 ];
 
-const fontTextureArgs: Partial<NLTextureDef> = {
+const fontTextureArgs: Partial<NLUITextureDef> = {
   width: 128,
   height: 128,
   colorFormat: 'ARGB4444',
   colorFormatValue: 2
 };
 
-const textureShapesMap: Record<TextureFileType, NLTextureDef[]> = {
+const textureShapesMap: Record<TextureFileType, NLUITextureDef[]> = {
   'mvc2-character-portraits': mvc2PlFacStructure.map((t) =>
     createTextureDef({
       ...t,

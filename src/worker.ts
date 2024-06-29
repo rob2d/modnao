@@ -1,4 +1,4 @@
-import { NLTextureDef } from './types/NLAbstractions';
+import { NLUITextureDef } from './types/NLAbstractions';
 import HslValues from './utils/textures/HslValues';
 import adjustTextureHsl from './utils/textures/adjustTextureHsl';
 import { SourceTextureData } from './utils/textures/SourceTextureData';
@@ -20,7 +20,7 @@ export type WorkerEvent =
       payload: {
         buffer: Buffer;
         textureFileType: TextureFileType;
-        textureDefs: NLTextureDef[];
+        textureDefs: NLUITextureDef[];
         fileName: string;
         sourceTextureData: SourceTextureData;
         isLzssCompressed: boolean;

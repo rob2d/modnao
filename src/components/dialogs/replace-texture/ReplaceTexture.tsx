@@ -37,7 +37,7 @@ import {
 import { objectUrlToBuffer } from '@/utils/data';
 import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import { useFilePicker } from 'use-file-picker';
 import themeMixins from '@/theming/themeMixins';
 
@@ -268,7 +268,7 @@ export default function ReplaceTexture() {
     dispatch(applyReplacedTextureImage(processedRgba));
   }, [processedRgba, dispatch]);
 
-  const textureDefs: NLTextureDef[] = useAppSelector(selectUpdatedTextureDefs);
+  const textureDefs: NLUITextureDef[] = useAppSelector(selectUpdatedTextureDefs);
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
   const replacementImage = useAppSelector(selectReplacementImage);
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;

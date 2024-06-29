@@ -1,6 +1,6 @@
 import { Image } from 'image-js';
 import { encodeZMortonPosition } from '@/utils/textures/parse';
-import { NLTextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import {
   argb1555ToRgba8888,
   argb4444ToRgba8888,
@@ -27,11 +27,11 @@ const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
 
 async function loadTextureBuffer(
   bufferPassed: Buffer,
-  textureDefs: NLTextureDef[],
+  textureDefs: NLUITextureDef[],
   failOutOfBounds: boolean
-): Promise<{ textureDefs: NLTextureDef[] }> {
+): Promise<{ textureDefs: NLUITextureDef[] }> {
   const buffer = Buffer.from(bufferPassed);
-  const nextTextureDefs: NLTextureDef[] = [];
+  const nextTextureDefs: NLUITextureDef[] = [];
 
   for await (const t of textureDefs) {
     const urlTypes = Object.keys(t.bufferUrls) as TextureDataUrlType[];
@@ -92,7 +92,7 @@ async function loadTextureBuffer(
 }
 
 type LoadTextureFileResult = {
-  textureDefs: NLTextureDef[];
+  textureDefs: NLUITextureDef[];
   textureFileType: TextureFileType;
   fileName: string;
   isLzssCompressed: boolean;

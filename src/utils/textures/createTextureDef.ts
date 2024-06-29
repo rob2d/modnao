@@ -1,8 +1,8 @@
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 
 export default function createTextureDef(
-  def: Partial<NLTextureDef>
-): NLTextureDef {
+  def: Partial<NLUITextureDef>
+): NLUITextureDef {
   return {
     width: 256,
     height: 256,

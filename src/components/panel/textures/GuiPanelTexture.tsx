@@ -8,7 +8,7 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import {
   selectMesh,
@@ -112,7 +112,7 @@ const StyledPanelTexture = styled('div')(
 
 export type GuiPanelTextureProps = {
   selected: boolean;
-  textureDef: NLTextureDef;
+  textureDef: NLUITextureDef;
   textureIndex: number;
   polygonIndex: number;
   contentViewMode: ContentViewMode;

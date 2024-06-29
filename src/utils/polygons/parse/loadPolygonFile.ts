@@ -1,7 +1,7 @@
 import scanForModelPointers from '@/utils/polygons/serialize/scanForModelPointers';
 import scanModel from '@/utils/polygons/serialize/scanModel';
 import scanTextureHeaderData from '@/utils/polygons/serialize/scanTextureHeaderData';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import TransferrableBuffer from '@/types/TransferrableBuffer';
 import { bufferToObjectUrl } from '@/utils/data';
 
@@ -14,7 +14,7 @@ export default async function loadPolygonFile({
 }): Promise<{
   modelRamOffset: number;
   models: NLModel[];
-  textureDefs: NLTextureDef[];
+  textureDefs: NLUITextureDef[];
   polygonBufferUrl: string;
   fileName: string;
 }> {

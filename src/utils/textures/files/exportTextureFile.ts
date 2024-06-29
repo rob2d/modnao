@@ -1,5 +1,5 @@
 import quanti from 'quanti';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import {
   rgbaToArgb1555,
   rgbaToArgb4444,
@@ -27,7 +27,7 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
   };
 
 type ExportTextureOptions = {
-  textureDefs: NLTextureDef[];
+  textureDefs: NLUITextureDef[];
   textureFileName?: string;
   textureFileType: TextureFileType;
   textureBufferUrl: string;

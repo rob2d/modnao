@@ -1,14 +1,14 @@
 import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import TextureColorOptions from './TextureColorOptions';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import { EditedTexture } from '@/store';
 import { SourceTextureData } from '@/utils/textures';
 
 const mockTextureState = {
   modelData: {
     models: [],
-    textureDefs: [{} as NLTextureDef],
+    textureDefs: [{} as NLUITextureDef],
     editedTextures: {},
     textureHistory: {},
     hasEditedTextures: false,

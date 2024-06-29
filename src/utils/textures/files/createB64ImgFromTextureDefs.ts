@@ -1,4 +1,4 @@
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import { objectUrlToBuffer } from '@/utils/data';
 import { SourceTextureData } from '../SourceTextureData';
 
@@ -9,7 +9,7 @@ export default async function createImgFromTextureDef({
   textureDef,
   asTranslucent
 }: {
-  textureDef: NLTextureDef;
+  textureDef: NLUITextureDef;
   asTranslucent: boolean;
 }) {
   const pixelsObjectUrls = textureDef.bufferUrls as SourceTextureData;

@@ -92,7 +92,7 @@ declare global {
 
 export type TextureDataUrlType = 'opaque' | 'translucent';
 
-export type NLTextureDef = {
+type NLTextureDef = {
   width: number;
   height: number;
   colorFormat: TextureColorFormat;
@@ -100,6 +100,9 @@ export type NLTextureDef = {
   type: number;
   baseLocation: number;
   ramOffset: number;
+};
+
+export type NLUITextureDef = NLTextureDef & {
   disableEdits?: boolean;
   bufferUrls: SourceTextureData;
   dataUrls: {
