@@ -43,7 +43,8 @@ export default function useTextureOptions(
   textureIndex: number,
   pixelsObjectUrls: SourceTextureData,
   onReplaceImageFile: (file: File) => void,
-  disableFunctionality?: boolean,
+  handleClose: () => void,
+  disableFunctionality = false,
   onSelectOption?: () => void
 ) {
   const dispatch = useAppDispatch();
@@ -99,6 +100,7 @@ export default function useTextureOptions(
           const file = new File([arrayBuffer], 'workingfile.png');
 
           onReplaceImageFile(file);
+          handleClose();
         }
       },
       {
@@ -111,6 +113,7 @@ export default function useTextureOptions(
         onClick() {
           openFileSelector();
           onSelectOption?.();
+          handleClose();
         }
       },
       {
@@ -128,6 +131,7 @@ export default function useTextureOptions(
 
           saveAs(dataUrlImg, `modnao-texture-${textureIndex}.png`);
           onSelectOption?.();
+          handleClose();
         }
       }
     ],
