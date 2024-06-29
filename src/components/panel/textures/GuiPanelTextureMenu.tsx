@@ -13,16 +13,15 @@ import { useTextureOptions } from '@/hooks';
 
 const StyledMenuButtonContainer = styled('div')(
   ({ theme }) => `& {
-        position: absolute;
-        top: ${theme.spacing(1)};
-        right: ${theme.spacing(0)};
-    }
+    position: absolute;
+    top: ${theme.spacing(1)};
+    right: ${theme.spacing(0)};
+  }
 
-    & .MuiIconButton-root svg {
-        color: ${theme.palette.primary.contrastText};
-        filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.8));
-    }
-    `
+  & .MuiIconButton-root svg {
+    color: ${theme.palette.primary.contrastText};
+    filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.8));
+  }`
 );
 
 const StyledMenu = styled(Menu)(
@@ -84,6 +83,7 @@ export default function GuiPanelTextureMenu({
     textureIndex,
     pixelsObjectUrls,
     onReplaceImageFile,
+    handleClose,
     !open
   );
 

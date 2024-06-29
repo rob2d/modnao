@@ -149,7 +149,9 @@ export default function TextureView() {
   const options = useTextureOptions(
     textureIndex,
     bufferUrls,
-    onSelectNewImageFile as (file: File) => void
+    onSelectNewImageFile as (file: File) => void,
+    () => {},
+    false
   );
 
   return (
