@@ -2,7 +2,7 @@
 
 # ModNao
 
-Naomi & SEGA Dreamcast ROM Model Viewer/Editor for games using the standard Sega Naomi Library 3D model format; Interactively explore and edit textures in a user friendly and accessible fashion on a ROM directly in your web browser.
+SEGA Dreamcast ROM Model Viewer/Editor for Marvel vs Capcom 2 and Capcom vs SNK 2 (with other games as a WIP); Interactively explore, edit and export textures directly to a ROM file (or just images to download quickly) in a user friendly and accessible fashion on a ROM directly in your web browser.
 
 Visit https://modnao.vercel.app to check it out... nao.
 
