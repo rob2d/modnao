@@ -1,6 +1,6 @@
 import { ResourceAttribs } from '@/types/ResourceAttribs';
 
-const resourceAttribMap: Record<string, ResourceAttribs> = {
+const resourceAttribMappings: Record<string, ResourceAttribs> = {
   b74ed77a9074a54512e46346c723e3be8cef07a0: {
     game: 'CVS2',
     name: 'Player & Ratio Select',
@@ -21,4 +21,4 @@ const resourceAttribMap: Record<string, ResourceAttribs> = {
   }
 } as const;
 
-export default resourceAttribMap;
+export default resourceAttribMappings;

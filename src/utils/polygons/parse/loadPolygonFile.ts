@@ -6,7 +6,7 @@ import TransferrableBuffer from '@/types/TransferrableBuffer';
 import { bufferToObjectUrl } from '@/utils/data';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
 import getTextureDefsHash from '@/utils/resource-attribs/getTextureDefsHash';
-import resourceAttribMap from '@/constants/resourceAttribMappings';
+import getResourceAttribs from '@/utils/resource-attribs/getResourceAttribs';
 
 export default async function loadPolygonFile({
   buffer,
@@ -25,15 +25,7 @@ export default async function loadPolygonFile({
   const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
   const textureDefs = scanTextureHeaderData(buffer, modelRamOffset);
   const textureDefsHash = getTextureDefsHash(textureDefs);
-  const possibleResourceAttribs = resourceAttribMap[textureDefsHash];
-  let resourceAttribs: ResourceAttribs | undefined = undefined;
-
-  if (
-    possibleResourceAttribs &&
-    new RegExp(possibleResourceAttribs.filenamePattern, 'i').test(fileName)
-  ) {
-    resourceAttribs = possibleResourceAttribs;
-  }
+  const resourceAttribs = getResourceAttribs(textureDefsHash, fileName);
 
   const models = modelPointers.map(
     (address: number, index: number) =>
