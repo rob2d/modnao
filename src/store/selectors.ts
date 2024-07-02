@@ -1,12 +1,15 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from './store';
 import ContentViewMode from '../types/ContentViewMode';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 export const selectTextureIndex = (s: AppState) => s.objectViewer.textureIndex;
 export const selectObjectKey = (s: AppState) => s.objectViewer.objectKey;
 export const selectModels = (s: AppState) => s.modelData.models;
+export const selectResourceAttribs = (s: AppState) =>
+  s.modelData.resourceAttribs;
+
 export const selectHasLoadedPolygonFile = (s: AppState) =>
   Boolean(s.modelData.polygonFileName);
 export const selectHasLoadedTextureFile = (s: AppState) =>
@@ -101,7 +104,7 @@ export const selectModel = createSelector(
 
 export type DisplayedMesh = NLMesh & { textureHash: string };
 
-const getDisplayedMeshes = (model: NLModel, textureDefs: NLTextureDef[]) =>
+const getDisplayedMeshes = (model: NLModel, textureDefs: NLUITextureDef[]) =>
   (model?.meshes || []).reduce<DisplayedMesh[]>((meshes, m) => {
     const tDef = textureDefs[m.textureIndex];
     if (!tDef) {
@@ -120,7 +123,7 @@ const getDisplayedMeshes = (model: NLModel, textureDefs: NLTextureDef[]) =>
 export const selectDisplayedMeshes = createSelector(
   selectModel,
   selectUpdatedTextureDefs,
-  (model: NLModel, textureDefs: NLTextureDef[]) =>
+  (model: NLModel, textureDefs: NLUITextureDef[]) =>
     getDisplayedMeshes(model, textureDefs)
 );
 

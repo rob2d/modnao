@@ -1,5 +1,5 @@
 import quanti from 'quanti';
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import {
   rgbaToArgb1555,
   rgbaToArgb4444,
@@ -25,14 +25,6 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
     RGB555: () => 0,
     ARGB8888: () => 0
   };
-
-type ExportTextureOptions = {
-  textureDefs: NLTextureDef[];
-  textureFileName?: string;
-  textureFileType: TextureFileType;
-  textureBufferUrl: string;
-  isLzssCompressed: boolean;
-};
 
 function padBufferForAlignment(
   alignment: number,
@@ -61,13 +53,21 @@ type QuantizeOptions = {
   dithering: boolean;
 };
 
+type ExportTextureParams = {
+  textureDefs: NLUITextureDef[];
+  textureFileName?: string;
+  textureFileType: TextureFileType;
+  textureBufferUrl: string;
+  isLzssCompressed: boolean;
+};
+
 export default async function exportTextureFile({
   textureDefs,
   textureFileName = '',
   textureFileType,
   textureBufferUrl,
   isLzssCompressed
-}: ExportTextureOptions): Promise<void> {
+}: ExportTextureParams): Promise<void> {
   const textureBuffer = Buffer.from(await objectUrlToBuffer(textureBufferUrl));
   if (!textureBuffer) {
     return;

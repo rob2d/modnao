@@ -24,10 +24,10 @@ export default function decompressLzssBuffer(bufferPassed: Buffer) {
       continue;
     }
 
-    const isLzssCompressed = bitmask & (COMPRESSION_FLAG >> chunk);
+    const isChunkCompressed = bitmask & (COMPRESSION_FLAG >> chunk);
     let extraWordCount = 0;
 
-    if (!isLzssCompressed) {
+    if (!isChunkCompressed) {
       output.push(word);
     } else if (word === 0) {
       break;

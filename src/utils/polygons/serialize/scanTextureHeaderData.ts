@@ -1,4 +1,4 @@
-import { NLTextureDef } from '@/types/NLAbstractions';
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import { nlTextureDefConversions } from './NLPropConversionDefs';
 import { processNLConversions } from './processNLConversions';
 import TransferrableBuffer from '@/types/TransferrableBuffer';
@@ -12,7 +12,7 @@ export default function scanTextureHeaderData(
   const pvrEndAddress = wBuffer.readUInt32LE(0x10) - modelRamOffset;
 
   let ramOffset;
-  const textures: NLTextureDef[] = [];
+  const textures: NLUITextureDef[] = [];
   for (let address = pvrStartAddress; address < pvrEndAddress; address += 16) {
     const texture = processNLConversions(
       nlTextureDefConversions,
