@@ -268,7 +268,9 @@ export default function ReplaceTexture() {
     dispatch(applyReplacedTextureImage(processedRgba));
   }, [processedRgba, dispatch]);
 
-  const textureDefs: NLUITextureDef[] = useAppSelector(selectUpdatedTextureDefs);
+  const textureDefs: NLUITextureDef[] = useAppSelector(
+    selectUpdatedTextureDefs
+  );
   const textureIndex = useAppSelector(selectReplacementTextureIndex);
   const replacementImage = useAppSelector(selectReplacementImage);
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;
