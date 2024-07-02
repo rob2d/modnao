@@ -5,92 +5,123 @@ const cvs2MenuAssets = Object.fromEntries(
     {
       identifier: '00',
       name: 'Player & Groove Select',
-      textureDefsHash: 'c0ab42c3d395afd396e74c5c1a224d171faa8785',
-      hasLzssTextureFile: true
+      textureDefsHash: 'c0ab42c3d395afd396e74c5c1a224d171faa8785'
     },
     {
       identifier: '01',
       name: 'Player & Groove Select',
-      textureDefsHash: 'b74ed77a9074a54512e46346c723e3be8cef07a0',
-      hasLzssTextureFile: true
+      textureDefsHash: 'b74ed77a9074a54512e46346c723e3be8cef07a0'
     },
     {
       identifier: '02',
       name: 'Player & Ratio Select',
-      textureDefsHash: '234a25a4fae5a53756fcfd180750b926c3d816ea',
-      hasLzssTextureFile: true
+      textureDefsHash: '234a25a4fae5a53756fcfd180750b926c3d816ea'
     },
     {
       identifier: '03',
       name: 'Stage & Player Order',
-      textureDefsHash: 'e96373e252988b7b01dd1542f7aac5be14740e7c',
-      hasLzssTextureFile: true
+      textureDefsHash: 'e96373e252988b7b01dd1542f7aac5be14740e7c'
     },
     {
       identifier: '04',
       name: 'HUD & New Challenger',
-      textureDefsHash: '4073546357847642db623741429d0379e65b18db',
-      hasLzssTextureFile: true
+      textureDefsHash: '4073546357847642db623741429d0379e65b18db'
     },
     {
       identifier: '05',
       name: '???',
-      filenamePattern: '^DM05(.mn)?POL.BIN$',
-      textureDefsHash: 'cfa93b9d48d530fdd55b83aae884899682a469bb',
-      hasLzssTextureFile: true
+      textureDefsHash: 'cfa93b9d48d530fdd55b83aae884899682a469bb'
     },
     {
       identifier: '06',
       name: '???',
-      filenamePattern: '^DM06(.mn)?POL.BIN$',
-      textureDefsHash: 'cd8a97c922b4c3b70a2cdef77ac875308c2634c7',
-      hasLzssTextureFile: true
+      textureDefsHash: 'cd8a97c922b4c3b70a2cdef77ac875308c2634c7'
     },
     {
       identifier: '07',
       name: '???',
-      filenamePattern: '^DM07(.mn)?POL.BIN$',
       textureDefsHash: 'f2ad774a770d9af0e2f12563ca32f2696e487e9d',
       hasLzssTextureFile: false
     },
     {
       identifier: '08',
       name: '???',
-      filenamePattern: '^DM08(.mn)?POL.BIN$',
-      textureDefsHash: 'f2ad774a770d9af0e2f12563ca32f2696e487e9d',
-      hasLzssTextureFile: true
+      textureDefsHash: 'f2ad774a770d9af0e2f12563ca32f2696e487e9d'
     },
     {
       identifier: '09',
       name: '???',
-      filenamePattern: '^DM09(.mn)?POL.BIN$',
-      textureDefsHash: 'b74caa7d3f89fcce022a3b500f7b9fe4d5fcdc70',
-      hasLzssTextureFile: true
+      textureDefsHash: 'b74caa7d3f89fcce022a3b500f7b9fe4d5fcdc70'
     },
     {
       identifier: '10',
       name: '???',
-      filenamePattern: '^DM10(.mn)?POL.BIN$',
-      textureDefsHash: '06a61b584c40ef35e4b8812db09f370a280d17ec',
-      hasLzssTextureFile: true
+      textureDefsHash: '06a61b584c40ef35e4b8812db09f370a280d17ec'
     },
     {
       name: '???',
       identifier: '11',
-      filenamePattern: '^DM11(.mn)?POL.BIN$',
-      textureDefsHash: '8abaeac1aa3cf80db93b9eebc46939693233a97f',
-      hasLzssTextureFile: true
+      textureDefsHash: '8abaeac1aa3cf80db93b9eebc46939693233a97f'
     },
     {
-      name: '???',
-      identifier: '0x12',
-      filenamePattern: '^DM12(.mn)?POL.BIN$',
-      textureDefsHash: '5d35f8ff19efd92bc84f626df0bac9d47f80cf33',
-      hasLzssTextureFile: true
+      name: 'Intro Sequence',
+      identifier: '12',
+      textureDefsHash: '5d35f8ff19efd92bc84f626df0bac9d47f80cf33'
+    },
+    {
+      name: 'Intro Sequence',
+      identifier: '13',
+      textureDefsHash: '500a0c7b934e3707a5029dc818b34aac5efe313a'
+    },
+    {
+      name: 'Intro Sequence',
+      identifier: '14',
+      textureDefsHash: '832a477d37bb77bae31359aa1cf6dee5e4fc2fce'
+    },
+    {
+      name: 'Intro Sequence',
+      identifier: '15',
+      textureDefsHash: '3c1b85b42be7bf0515a8282b4ccb2de421425025'
+    },
+    {
+      name: 'Gui (???)',
+      identifier: '16',
+      textureDefsHash: '0bb72a73ff39c76b75903d4ee5f175685670e854'
+    },
+    {
+      name: 'Akuma & Rugal Portraits',
+      identifier: '17',
+      textureDefsHash: '47c635daa15681704ef5b3c1dbd5dc26f4d4f72f'
+    },
+    {
+      name: 'Here Comes a New Challenger!',
+      identifier: '18',
+      textureDefsHash: 'b708247c674deb20455bf5633358a3b7251c8631'
+    },
+    {
+      name: 'Continue & Name Entry',
+      identifier: '19',
+      textureDefsHash: '9405666212f20c807702ed8c880ff0f4a0d0122b'
+    },
+    {
+      name: 'Ending: Victory/Grand Champ',
+      identifier: '20',
+      textureDefsHash: 'e4302303640f441792243898416583f5da18e926'
+    },
+    {
+      name: 'Rugal/Akuma Rooftop Scene',
+      identifier: '21',
+      textureDefsHash: '07d8478d22fe47d83b026845650608db89578159'
+    },
+    {
+      name: 'Rugal/Akuma Rooftop Scene 2',
+      identifier: '22',
+      textureDefsHash: '92ddacea6cb51180eb267bd7e9114a3add405a2c'
     }
   ].map((v) => [
     v.textureDefsHash,
     {
+      hasLzssTextureFile: true,
       ...v,
       game: 'CVS2',
       resourceType: 'cvs2-menu',
