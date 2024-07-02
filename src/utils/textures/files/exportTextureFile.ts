@@ -26,14 +26,6 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
     ARGB8888: () => 0
   };
 
-type ExportTextureOptions = {
-  textureDefs: NLUITextureDef[];
-  textureFileName?: string;
-  textureFileType: TextureFileType;
-  textureBufferUrl: string;
-  isLzssCompressed: boolean;
-};
-
 function padBufferForAlignment(
   alignment: number,
   buffer: Buffer,
@@ -61,13 +53,21 @@ type QuantizeOptions = {
   dithering: boolean;
 };
 
+type ExportTextureParams = {
+  textureDefs: NLUITextureDef[];
+  textureFileName?: string;
+  textureFileType: TextureFileType;
+  textureBufferUrl: string;
+  isLzssCompressed: boolean;
+};
+
 export default async function exportTextureFile({
   textureDefs,
   textureFileName = '',
   textureFileType,
   textureBufferUrl,
   isLzssCompressed
-}: ExportTextureOptions): Promise<void> {
+}: ExportTextureParams): Promise<void> {
   const textureBuffer = Buffer.from(await objectUrlToBuffer(textureBufferUrl));
   if (!textureBuffer) {
     return;

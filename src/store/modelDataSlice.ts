@@ -19,6 +19,7 @@ import { ClientThread } from '@/utils/threads';
 import { createAppAsyncThunk } from './storeTypings';
 import textureShapesMap from '@/utils/textures/files/textureShapesMap';
 import { showError } from './errorMessagesSlice';
+import { ResourceAttribs } from '@/types/ResourceAttribs';
 
 export type LoadPolygonsResult = {
   type: 'loadPolygonFile';
@@ -65,12 +66,14 @@ export type LoadPolygonsPayload =
       textureDefs: NLUITextureDef[];
       fileName: string;
       polygonBufferUrl: string;
+      resourceAttribs?: ResourceAttribs;
     }
   | {
       models: [];
       textureDefs: NLUITextureDef[];
       fileName: undefined;
       polygonBufferUrl: undefined;
+      resourceAttribs?: ResourceAttribs;
     };
 
 export type AdjustTextureHslPayload = {
@@ -83,6 +86,7 @@ export type AdjustTextureHslPayload = {
 export interface ModelDataState {
   models: NLModel[];
   textureDefs: NLUITextureDef[];
+  resourceAttribs: ResourceAttribs | undefined;
   /**
    * dictionary of texture index to previous buffer url stacks
    * note: should consider having only this stack and not deriving from
@@ -116,6 +120,7 @@ export const initialModelDataState: ModelDataState = {
   polygonFileName: undefined,
   textureFileName: undefined,
   textureFileType: undefined,
+  resourceAttribs: undefined,
   hasEditedTextures: false,
   isLzssCompressed: false
 };
@@ -515,10 +520,19 @@ const modelDataSlice = createSlice({
       loadPolygonFile.fulfilled,
       (
         state: ModelDataState,
-        { payload: { models, textureDefs, fileName, polygonBufferUrl } }
+        {
+          payload: {
+            models,
+            textureDefs,
+            fileName,
+            polygonBufferUrl,
+            resourceAttribs
+          }
+        }
       ) => {
         state.models = models;
         state.textureDefs = textureDefs;
+        state.resourceAttribs = resourceAttribs;
         state.editedTextures = {};
         state.textureHistory = {};
         state.textureFileType = undefined;
