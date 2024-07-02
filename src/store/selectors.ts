@@ -173,7 +173,9 @@ export const selectIsFileSupportDialogShown = (s: AppState) =>
 
 export const selectCanExportTextures = createSelector(
   selectTextureFileName,
-  (textureFileName) => Boolean(textureFileName)
+  selectResourceAttribs,
+  (textureFileName, resourceAttribs) =>
+    Boolean(textureFileName) && resourceAttribs?.resourceType !== 'cvs2-menu'
 );
 
 export const selectTextureFileType = (s: AppState) =>

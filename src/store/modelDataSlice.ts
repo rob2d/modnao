@@ -54,6 +54,7 @@ export interface LoadTexturesBasePayload {
   textureFileType: TextureFileType;
   textureDefs: NLUITextureDef[];
   fileName: string;
+  resourceAttribs?: ResourceAttribs;
 }
 
 export type LoadTexturesPayload = LoadTexturesBasePayload & {
@@ -325,7 +326,10 @@ export const loadTextureFile = createAppAsyncThunk(
 
     let buffer = providedBuffer || new Uint8Array(await file.arrayBuffer());
 
-    if (isLzssCompressed) {
+    if (
+      isLzssCompressed ||
+      state.modelData.resourceAttribs?.hasLzssTextureFile
+    ) {
       const arrayBuffer = await file.arrayBuffer();
       buffer = decompressLzssBuffer(Buffer.from(arrayBuffer));
     }

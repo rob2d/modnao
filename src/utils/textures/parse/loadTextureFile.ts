@@ -12,6 +12,7 @@ import textureFileTypeMap, {
   TextureFileType
 } from '../files/textureFileTypeMap';
 import { LoadTexturesBasePayload } from '@/store';
+import { ResourceAttribs } from '@/types/ResourceAttribs';
 
 const COLOR_SIZE = 2;
 
@@ -97,6 +98,7 @@ type LoadTextureFileResult = {
   fileName: string;
   isLzssCompressed: boolean;
   textureBufferUrl: string;
+  resourceAttribs?: ResourceAttribs;
 };
 
 export default async function loadTextureFile({
@@ -104,14 +106,18 @@ export default async function loadTextureFile({
   textureDefs,
   fileName,
   textureFileType,
-  isLzssCompressed
+  isLzssCompressed,
+  /** @TODO streamline architecture so initial
+   * call contains these attributes within the first call
+   */
+  resourceAttribs
 }: LoadTexturesBasePayload & { buffer: Buffer }) {
   let result: LoadTextureFileResult;
   const expectOobReferences =
     textureFileTypeMap[textureFileType].oobReferencable;
 
   try {
-    if (isLzssCompressed) {
+    if (isLzssCompressed || resourceAttribs?.hasLzssTextureFile) {
       new Error('Decompressed File');
     }
 
@@ -120,6 +126,7 @@ export default async function loadTextureFile({
       textureDefs,
       !expectOobReferences
     );
+
     const textureBufferUrl = await bufferToObjectUrl(buffer);
 
     result = {
@@ -134,11 +141,10 @@ export default async function loadTextureFile({
     // file loaded is compressed; this is common for certain
     // game texture formats like Capcom vs SNK 2;
 
-    // @TODO use attrib hashes to determine if something should
-    // be compressed vs "clever" solution of dealing with things
-    // here this way -- is somewhat of a crutch for now
-
-    console.log('error ->', error);
+    // @TODO use attrib hashes or resourceAtribs type ONLY -- doing
+    // that partially hence fallback needed here to determine if
+    // something should be compressed vs "clever" solution of dealing with
+    // things here this way -- is somewhat of a crutch for now
 
     if (!(error instanceof RangeError)) {
       throw error;
