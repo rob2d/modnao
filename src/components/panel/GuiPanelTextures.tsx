@@ -79,7 +79,8 @@ export default function GuiPanelViewOptions() {
     Promise.all(imgPromises)
       .then((base64Imgs) => {
         base64Imgs.forEach((img, i) => {
-          zip.file(`mn-texture-${i}.png`, img, { base64: true });
+          const filename = `${textureFileName?.replace(/.([a-zA-Z0-9]+)$/, '')}.mn.${i}png`;
+          zip.file(filename, img, { base64: true });
         });
 
         return zip.generateAsync({ type: 'blob' });
@@ -87,7 +88,7 @@ export default function GuiPanelViewOptions() {
       .then((zipContent) => {
         saveAs(zipContent, `mn-textures-${dayjs().format('YYMMDDHHmmss')}.zip`);
       });
-  }, [dispatch, textureDefs]);
+  }, [dispatch, textureDefs, textureFileName]);
 
   const [textures, offsceneTextures] = useMemo(() => {
     const pTextures: JSX.Element[] = [];

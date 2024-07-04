@@ -133,7 +133,7 @@ export default function useTextureOptions(
 
           saveAs(
             dataUrlImg,
-            `${textureFileName?.replace(/.([a-zA-Z0-9]+)$/, '')}${textureIndex}.mn.png`
+            `${textureFileName?.replace(/.([a-zA-Z0-9]+)$/, '')}.mn.${textureIndex}png`
           );
           onSelectOption?.();
           handleClose();
