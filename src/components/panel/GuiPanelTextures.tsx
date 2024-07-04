@@ -79,7 +79,7 @@ export default function GuiPanelViewOptions() {
     Promise.all(imgPromises)
       .then((base64Imgs) => {
         base64Imgs.forEach((img, i) => {
-          const filename = `${textureFileName?.replace(/.([a-zA-Z0-9]+)$/, '')}.mn.${i}png`;
+          const filename = `${textureFileName?.replace(/.([a-zA-Z0-9]+)$/, '')}.mn.${i}.png`;
           zip.file(filename, img, { base64: true });
         });
 
