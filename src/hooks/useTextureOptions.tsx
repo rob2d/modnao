@@ -1,6 +1,7 @@
 import 'jimp';
 import {
   revertTextureImage,
+  selectTextureFileName,
   selectUpdatedTextureDefs,
   useAppDispatch,
   useAppSelector
@@ -49,6 +50,7 @@ export default function useTextureOptions(
 ) {
   const dispatch = useAppDispatch();
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
+  const textureFileName = useAppSelector(selectTextureFileName);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
 
   // when menu is open, toggle translucent download
@@ -129,7 +131,10 @@ export default function useTextureOptions(
             asTranslucent: dlAsTranslucent
           });
 
-          saveAs(dataUrlImg, `modnao-texture-${textureIndex}.png`);
+          saveAs(
+            dataUrlImg,
+            `${textureFileName?.replace(/.([a-zA-Z0-9]+)$/, '')}${textureIndex}.mn.png`
+          );
           onSelectOption?.();
           handleClose();
         }
