@@ -178,17 +178,15 @@ export default function GuiPanelViewOptions() {
           >
             Export Textures
           </GuiPanelButton>
-          {
-            <GuiPanelButton
-              tooltip='Download all available textures as images in a zip file'
-              onClick={onDownloadAllTextureImgs}
-              color='secondary'
-            >
-              Download All Images
-            </GuiPanelButton>
-          }
         </div>
       )}
+      <GuiPanelButton
+        tooltip='Download all available textures as images in a zip file'
+        onClick={onDownloadAllTextureImgs}
+        color='secondary'
+      >
+        Download All Images
+      </GuiPanelButton>
     </GuiPanelSection>
   );
 }
