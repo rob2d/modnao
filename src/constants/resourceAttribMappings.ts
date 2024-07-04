@@ -117,6 +117,46 @@ const cvs2MenuAssets = Object.fromEntries(
       name: 'Rugal/Akuma Rooftop Scene 2',
       identifier: '22',
       textureDefsHash: '92ddacea6cb51180eb267bd7e9114a3add405a2c'
+    },
+    {
+      name: 'Rugal/Akuma Rooftop Scene 3',
+      identifier: '23',
+      textureDefsHash: 'ea86b36b43e1c62aae4641cf1cf496d9806157d4'
+    },
+    {
+      name: 'Akuma defeats Rugal',
+      identifier: '24',
+      textureDefsHash: '14d7e45e4e201af28191914b6396a2e565fcd31e'
+    },
+    {
+      name: 'Rugal defeats Akuma',
+      identifier: '25',
+      textureDefsHash: '166965a4ecbc29f6dbb52de09c5b988f36a9d643'
+    },
+    {
+      name: 'Rugal fuses with Akuma',
+      identifier: '26',
+      textureDefsHash: '0c4f75bab538a7b940bfa7466cf56f541cfbedb5'
+    },
+    {
+      name: 'Akuma lays down and vortex',
+      identifier: '27',
+      textureDefsHash: '217246f35d10dc0f6776e1e4c6c147d399c09899'
+    },
+    {
+      name: 'Ending FF Children News Report',
+      identifier: '28',
+      textureDefsHash: '50da02b5bb92c029cc0e474ed02bcd3b3d9caec0'
+    },
+    {
+      name: 'Ryu, Kyo, Capcom, Name Entry',
+      identifier: '29',
+      textureDefsHash: '3e953ae495b877557f2f434fd12f08940b9c9820'
+    },
+    {
+      name: 'Final Stage Scene',
+      identifier: '30',
+      textureDefsHash: 'c7198b21be4ce7efc5f4ef32f07914df7f432ea1'
     }
   ].map((v) => [
     v.textureDefsHash,
