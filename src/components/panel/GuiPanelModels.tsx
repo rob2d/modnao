@@ -129,10 +129,41 @@ export default function GuiPanelModels() {
     </Styled>
   );
 
+  const navButtonLeft = (
+    <Tooltip title={<>View previous model (⌨&nbsp;Left)</>}>
+      <IconButton
+        className='model-nav-button'
+        color='primary'
+        {...uiNav.prevButtonProps}
+        disabled={!model || uiNav.prevButtonProps.disabled}
+      >
+        <Icon path={mdiMenuLeftOutline} size={1} />
+      </IconButton>
+    </Tooltip>
+  );
+
+  const navButtonRight = (
+    <Tooltip title={<>View next model(⌨&nbsp;Right)</>}>
+      <IconButton
+        className='model-nav-button'
+        color='primary'
+        {...uiNav.nextButtonProps}
+        disabled={!model || uiNav.nextButtonProps.disabled}
+      >
+        <Icon path={mdiMenuRightOutline} size={1} />
+      </IconButton>
+    </Tooltip>
+  );
+
   return !polygonFileName ? (
     <div className='selection'>{importFiles}</div>
   ) : (
-    <GuiPanelSection title='Models' subtitle={polygonFileName}>
+    <GuiPanelSection
+      title='Models'
+      subtitle={polygonFileName}
+      collapsedContent={importFiles}
+      collapsedContentFABs={[navButtonLeft, navButtonRight]}
+    >
       <div className='selection'>
         <Grid container className='property-table'>
           <Grid xs={4} className='grid-control-label'>
@@ -141,25 +172,11 @@ export default function GuiPanelModels() {
             </Typography>
           </Grid>
           <Grid xs={8}>
-            <IconButton
-              className='model-nav-button'
-              color='primary'
-              {...uiNav.prevButtonProps}
-              disabled={!model || uiNav.prevButtonProps.disabled}
-            >
-              <Icon path={mdiMenuLeftOutline} size={1} />
-            </IconButton>
+            {navButtonLeft}
             <Typography variant='button' textAlign='right'>
               {modelNoAndCount}
             </Typography>
-            <IconButton
-              className='model-nav-button'
-              color='primary'
-              {...uiNav.nextButtonProps}
-              disabled={!model || uiNav.nextButtonProps.disabled}
-            >
-              <Icon path={mdiMenuRightOutline} size={1} />
-            </IconButton>
+            {navButtonRight}
           </Grid>
           <Grid xs={8} className='grid-control-label'>
             <Typography variant='body1' textAlign='right'>
