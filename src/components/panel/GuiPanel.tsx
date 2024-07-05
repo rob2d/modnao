@@ -118,7 +118,8 @@ const StyledPaper = styled(Paper)(
     }
 
     & .MuiButton-root.MuiButton-outlined:not(:last-child),
-    & .export-texture-button-container:not(:last-child) {
+    & .export-texture-button-container:not(:last-child),
+    & .export-texture-images:not(:last-child) {
       margin-bottom: ${theme.spacing(1)};
     }
 
@@ -128,7 +129,7 @@ const StyledPaper = styled(Paper)(
 
     ${
       !process.env.JEST_WORKER_ID
-        ? `& .MuiDivider-root:not(:first-child):not(.export-texture-button-container + .MuiDivider-root) {
+        ? `& .MuiDivider-root:not(:first-child):not(.export-texture-button-container + .MuiDivider-root):not(.export-texture-images + .MuiDivider-root) {
           padding-top: ${theme.spacing(1)};
         }`
         : ''
