@@ -28,7 +28,7 @@ export default function Contributors() {
         <Typography variant={'subtitle1'}>Design/Development</Typography>
         <Typography variant={'body2'}>rob2d</Typography>
         <Typography variant={'subtitle1'}>
-          Various Binary Format / R.E. Details
+          Various Binary Format Details
         </Typography>
         <Typography variant={'body2'}>
           VincentNL, egregiousguy, zocker-160, bankbank, TVIndustries,
@@ -36,7 +36,7 @@ export default function Contributors() {
         </Typography>
         <Typography variant={'subtitle1'}>User Testing & Feedback</Typography>
         <Typography variant={'body2'}>
-          Magnetro2K, Paxtez, DJ Clayface, Toan, Blindfire604
+          Magnetro2K, Paxtez, DJ Clayface, Toan, Blindfire604, derek (ateam)
         </Typography>
       </StyledContent>
     </div>
