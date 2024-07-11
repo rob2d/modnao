@@ -46,7 +46,7 @@ const cvs2MenuAssets = Object.fromEntries(
     {
       identifier: '08',
       name: '???',
-      textureDefsHash: 'f2ad774a770d9af0e2f12563ca32f2696e487e9d'
+      textureDefsHash: '5aa7a27512e74fda6bf3aed2e62df6d2ebdab363'
     },
     {
       identifier: '09',
