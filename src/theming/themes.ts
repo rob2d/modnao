@@ -52,7 +52,8 @@ const themes = Object.fromEntries(
         MuiListSubheader: {
           styleOverrides: {
             root: {
-              backgroundColor: 'inherit'
+              backgroundColor: 'inherit',
+              lineHeight: 'unset'
             }
           }
         }
