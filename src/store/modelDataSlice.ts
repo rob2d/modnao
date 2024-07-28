@@ -1,4 +1,4 @@
-import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { WorkerEvent } from '@/worker';
@@ -609,7 +609,7 @@ const modelDataSlice = createSlice({
       }
     );
 
-    builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
+    builder.addCase(HYDRATE, (state, { payload }: UnknownAction) =>
       Object.assign(state, payload)
     );
   }

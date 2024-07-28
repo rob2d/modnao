@@ -47,13 +47,9 @@ export default function GuiPanelModels() {
   const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
   const onHandleError = useCallback((message: string | JSX.Element) => {
-    dispatch(
-      showError({
-        title: 'Invalid file selection',
-        message
-      })
-    );
+    dispatch(showError({ title: 'Invalid file selection', message }));
   }, []);
+
   const openFileSelector = useSupportedFilePicker(onHandleError);
   const uiNav = useObjectUINav();
   const objectKey = useAppSelector(selectObjectKey);
@@ -75,33 +71,31 @@ export default function GuiPanelModels() {
   const model = useAppSelector(selectModel);
 
   const exportSelectionButton = useMemo(() => {
-    {
-      if (!viewOptions.devOptionsVisible) {
-        return undefined;
-      }
-
-      let title = 'Export Model JSON';
-
-      if (objectKey) {
-        title = `Export ${
-          meshSelectionType === 'mesh' ? 'Mesh' : 'Polygon'
-        } JSON`;
-      }
-
-      return !model ? undefined : (
-        <Tooltip title='Export ModNao .json data. Will narrow data down to the current selection'>
-          <Button
-            fullWidth
-            onClick={onExportSelectionJson}
-            color='secondary'
-            size='small'
-            variant='outlined'
-          >
-            {title}
-          </Button>
-        </Tooltip>
-      );
+    if (!viewOptions.devOptionsVisible) {
+      return undefined;
     }
+
+    let title = 'Export Model JSON';
+
+    if (objectKey) {
+      title = `Export ${
+        meshSelectionType === 'mesh' ? 'Mesh' : 'Polygon'
+      } JSON`;
+    }
+
+    return !model ? undefined : (
+      <Tooltip title='Export ModNao .json data. Will narrow data down to the current selection'>
+        <Button
+          fullWidth
+          onClick={onExportSelectionJson}
+          color='secondary'
+          size='small'
+          variant='outlined'
+        >
+          {title}
+        </Button>
+      </Tooltip>
+    );
   }, [
     model,
     meshSelectionType,

@@ -86,7 +86,11 @@ export default function GuiPanelViewOptions() {
         return zip.generateAsync({ type: 'blob' });
       })
       .then((zipContent) => {
-        saveAs(zipContent, `mn-textures-${dayjs().format('YYMMDDHHmmss')}.zip`);
+        const filename = `${textureFileName?.replace(/.([a-zA-Z0-9]+)$/, '')}.`;
+        saveAs(
+          zipContent,
+          `${filename}mn.${dayjs().format('YYMMDDHHmmss')}.zip`
+        );
       });
   }, [dispatch, textureDefs, textureFileName]);
 
