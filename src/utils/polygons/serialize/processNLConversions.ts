@@ -44,5 +44,6 @@ export function processNLConversions<T extends ModNaoMemoryObject>(
 
     updates(object as T, values);
   }
+
   return object as T;
 }
