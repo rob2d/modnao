@@ -25,6 +25,7 @@
     "@babel/preset-env": "^7.24.7",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@lunapaint/tga-codec": "^0.1.0",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
     "@mui/icons-material": "^5.15.21",

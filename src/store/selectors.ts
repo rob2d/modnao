@@ -175,7 +175,9 @@ export const selectCanExportTextures = createSelector(
   selectTextureFileName,
   selectResourceAttribs,
   (textureFileName, resourceAttribs) =>
-    Boolean(textureFileName) && resourceAttribs?.resourceType !== 'cvs2-menu'
+    Boolean(textureFileName) &&
+    resourceAttribs?.resourceType !== 'cvs2-menu' &&
+    resourceAttribs?.resourceType !== 'cvs1-stg'
 );
 
 export const selectTextureFileType = (s: AppState) =>

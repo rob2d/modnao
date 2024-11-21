@@ -5,17 +5,14 @@ import { selectReplacementTexture, useAppDispatch } from '@/store';
 export default function useTextureReplaceDropzone(textureIndex: number) {
   const dispatch = useAppDispatch();
   const onSelectNewImageFile = useCallback(
-    async (imageFile: File) => {
-      dispatch(selectReplacementTexture({ imageFile, textureIndex }));
-    },
+    async (imageFile: File) =>
+      dispatch(selectReplacementTexture({ imageFile, textureIndex })),
     [textureIndex]
   );
 
   const onDrop = useCallback(
-    async ([file]: File[]) => {
-      onSelectNewImageFile(file);
-    },
-    [onSelectNewImageFile]
+    async ([imageFile]: File[]) => onSelectNewImageFile(imageFile),
+    [onSelectNewImageFile, textureIndex]
   );
 
   const { getRootProps: getDragProps, isDragActive } = useDropzone({
@@ -28,9 +25,15 @@ export default function useTextureReplaceDropzone(textureIndex: number) {
       'image/jpeg': ['.jpg', '.jpeg'],
       'image/gif': ['.gif'],
       'image/tiff': ['.tif', '.tiff'],
-      'image/webp': ['.webp']
+      'image/webp': ['.webp'],
+      'image/tga': ['.tga']
     }
   });
 
-  return { getDragProps, isDragActive, onDrop, onSelectNewImageFile };
+  return {
+    getDragProps,
+    isDragActive,
+    onDrop,
+    onSelectNewImageFile
+  };
 }

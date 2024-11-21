@@ -7,5 +7,6 @@ export * from './replaceTextureSlice';
 export * from './dialogsSlice';
 export { default as modelDataSlice } from './modelDataSlice';
 export { default as dialogsSlice } from './dialogsSlice';
+export { default as loadCharacterPortraitsFile } from './modelDataActions/loadCharacterPortraitsFile';
 export * from './modelDataSlice';
 export * from '../utils/threads/WorkerThreadPool';

@@ -171,8 +171,29 @@ const cvs2MenuAssets = Object.fromEntries(
   ])
 );
 
+const cvs1StgAssets = Object.fromEntries(
+  [
+    {
+      name: 'Stg 00 ???',
+      identifier: '00',
+      textureDefsHash: '6971c7f91ff9f0f83b771609451e49d7814b5388'
+    }
+  ].map((v) => [
+    v.textureDefsHash,
+    {
+      ...v,
+      game: 'CVS1Pro',
+      resourceType: 'cvs1-stg',
+      filenamePattern: `^STG${v.identifier}(.mn)?POL.BIN$`,
+      identifier: `0x${v.identifier}`,
+      hazLzssCompression: false
+    }
+  ])
+);
+
 const resourceAttribMappings: Record<string, ResourceAttribs> = {
   ...cvs2MenuAssets,
+  ...cvs1StgAssets,
   ['f6267bcb211d053d6b21b2e224acafd150854f6c']: {
     game: 'MVC2',
     name: 'Carnival (Night)',

@@ -21,6 +21,9 @@ export const textureFileEntries = Object.entries(textureFileTypeMap) as [
   TextureFileTypeMeta
 ][];
 
+const DEDICATED_TEXTURE_FILE_ERROR =
+  'Dedicated texture files can only be edited individually at this moment, they cannot be selected with others';
+
 const dedicatedTextureKVs = textureFileEntries.filter(
   ([, entry]) => !entry.polygonMapped
 );
@@ -46,11 +49,7 @@ export const handleFileInput = async (
     selectedTextureFile = undefined;
     hasError = true;
     onError(error);
-    return;
   };
-
-  const DEDICATED_TEXTURE_FILE_ERROR =
-    'Dedicated texture files can only be edited individually at this moment, they cannot be selected with others';
 
   files.forEach((f, i) => {
     if (hasError) {

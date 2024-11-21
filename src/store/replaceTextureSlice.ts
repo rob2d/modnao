@@ -1,3 +1,4 @@
+import { decodeTga } from '@lunapaint/tga-codec';
 import { Image } from 'image-js';
 import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
@@ -33,17 +34,41 @@ export const selectReplacementTexture = createAppAsyncThunk(
     { imageFile, textureIndex }: { imageFile: File; textureIndex: number },
     { dispatch }
   ) => {
-    const [buffer, , width, height] = await loadRGBABuffersFromFile(imageFile);
-    const bufferObjectUrl = await bufferToObjectUrl(buffer);
+    let replacementImage: ReplacementImage;
+
+    switch (imageFile.type) {
+      case '':
+      case 'image/tga': {
+        const data = await imageFile.arrayBuffer();
+        const decodedTga = await decodeTga(Buffer.from(data));
+        if (!decodedTga) {
+          throw Error('Unknown error occurred');
+        }
+
+        replacementImage = {
+          width: decodedTga.image.width,
+          height: decodedTga.image.height,
+          bufferObjectUrl: await bufferToObjectUrl(decodedTga.image.data)
+        };
+        break;
+      }
+      default: {
+        const [buffer, , width, height] =
+          await loadRGBABuffersFromFile(imageFile);
+        const bufferObjectUrl = await bufferToObjectUrl(buffer);
+        replacementImage = {
+          width,
+          height,
+          bufferObjectUrl
+        };
+        break;
+      }
+    }
 
     const { actions } = dialogsSlice;
     dispatch(actions.showDialog('replace-texture'));
     return {
-      replacementImage: {
-        bufferObjectUrl,
-        width,
-        height
-      },
+      replacementImage,
       textureIndex
     };
   }
