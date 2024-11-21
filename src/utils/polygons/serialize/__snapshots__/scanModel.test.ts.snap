@@ -1013,6 +1013,7 @@ exports[`scanModel extracts a test stage file predictably: scan-model-model-data
     -1039.7955322265625,
   ],
   "radius": 2994.93701171875,
+  "ramAddress": undefined,
   "totalVertexCount": 28,
 }
 `;
