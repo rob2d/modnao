@@ -157,6 +157,11 @@ const cvs2MenuAssets = Object.fromEntries(
       name: 'Final Stage Scene',
       identifier: '30',
       textureDefsHash: 'c7198b21be4ce7efc5f4ef32f07914df7f432ea1'
+    },
+    {
+      identifier: '40',
+      name: 'HUD & New Challenger (VGA)',
+      textureDefsHash: '4073546357847642db623741429d0379e65b18db'
     }
   ].map((v) => [
     v.textureDefsHash,
