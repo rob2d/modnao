@@ -8,6 +8,12 @@ import { ResourceAttribs } from '@/types/ResourceAttribs';
 import getTextureDefsHash from '@/utils/resource-attribs/getTextureDefsHash';
 import getResourceAttribs from '@/utils/resource-attribs/getResourceAttribs';
 
+/**
+ * entry point to scan a polygon file's headers,
+ * determine if it's texture headers have resource
+ * attributes mapped to it and return those models
+ * in constructed NLModel[] objs
+ */
 export default async function loadPolygonFile({
   buffer,
   fileName
@@ -23,13 +29,14 @@ export default async function loadPolygonFile({
   resourceAttribs?: ResourceAttribs;
 }> {
   const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
+
   const textureDefs = scanTextureHeaderData(buffer, modelRamOffset);
   const textureDefsHash = getTextureDefsHash(textureDefs);
   const resourceAttribs = getResourceAttribs(textureDefsHash, fileName);
 
   const models = modelPointers.map(
-    (address: number, index: number) =>
-      scanModel({ buffer, address, index }) as NLModel
+    ({ address, ramAddress }, index) =>
+      scanModel({ buffer, address, ramAddress, index }) as NLModel
   );
 
   return Promise.resolve({
