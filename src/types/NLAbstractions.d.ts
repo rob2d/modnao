@@ -83,6 +83,7 @@ declare global {
   } & ModNaoMemoryObject;
 
   export type NLModel = {
+    ramAddress: number;
     position: NLPoint3D;
     radius: number;
     meshes: NLMesh[];

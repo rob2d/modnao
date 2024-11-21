@@ -3,89 +3,338 @@
 exports[`scanForModelPointers returns the correct list of model pointer addresses in a stage file: scan-model-for-pointer-addresses 1`] = `
 [
   [
-    528,
-    1856,
-    2784,
-    3712,
-    9240,
-    14248,
-    19256,
-    19288,
-    19320,
-    19696,
-    24704,
-    29712,
-    34992,
-    35712,
-    35960,
-    40280,
-    45288,
-    50296,
-    50544,
-    55552,
-    56016,
-    60096,
-    60344,
-    65352,
-    70360,
-    74680,
-    75400,
-    76080,
-    76976,
-    78088,
-    78336,
-    79664,
-    79912,
-    80160,
-    80408,
-    80656,
-    80904,
-    81152,
-    81400,
-    81784,
-    82096,
-    82480,
-    82864,
-    83248,
-    83560,
-    83808,
-    84056,
-    84440,
-    85120,
-    85368,
-    85616,
-    92808,
-    93488,
-    94384,
-    95496,
-    96824,
-    98368,
-    100128,
-    102104,
-    104296,
-    104544,
-    104792,
-    104824,
-    104856,
-    104888,
-    105136,
-    105168,
-    105200,
-    105448,
-    105696,
-    105944,
-    105976,
-    108320,
-    108352,
-    108384,
-    108416,
-    108448,
-    108696,
-    108944,
-    109256,
-    109288,
-    109320,
-    109352,
+    {
+      "address": 528,
+      "ramAddress": 216662544,
+    },
+    {
+      "address": 1856,
+      "ramAddress": 216663872,
+    },
+    {
+      "address": 2784,
+      "ramAddress": 216664800,
+    },
+    {
+      "address": 3712,
+      "ramAddress": 216665728,
+    },
+    {
+      "address": 9240,
+      "ramAddress": 216671256,
+    },
+    {
+      "address": 14248,
+      "ramAddress": 216676264,
+    },
+    {
+      "address": 19256,
+      "ramAddress": 216681272,
+    },
+    {
+      "address": 19288,
+      "ramAddress": 216681304,
+    },
+    {
+      "address": 19320,
+      "ramAddress": 216681336,
+    },
+    {
+      "address": 19696,
+      "ramAddress": 216681712,
+    },
+    {
+      "address": 24704,
+      "ramAddress": 216686720,
+    },
+    {
+      "address": 29712,
+      "ramAddress": 216691728,
+    },
+    {
+      "address": 34992,
+      "ramAddress": 216697008,
+    },
+    {
+      "address": 35712,
+      "ramAddress": 216697728,
+    },
+    {
+      "address": 35960,
+      "ramAddress": 216697976,
+    },
+    {
+      "address": 40280,
+      "ramAddress": 216702296,
+    },
+    {
+      "address": 45288,
+      "ramAddress": 216707304,
+    },
+    {
+      "address": 50296,
+      "ramAddress": 216712312,
+    },
+    {
+      "address": 50544,
+      "ramAddress": 216712560,
+    },
+    {
+      "address": 55552,
+      "ramAddress": 216717568,
+    },
+    {
+      "address": 56016,
+      "ramAddress": 216718032,
+    },
+    {
+      "address": 60096,
+      "ramAddress": 216722112,
+    },
+    {
+      "address": 60344,
+      "ramAddress": 216722360,
+    },
+    {
+      "address": 65352,
+      "ramAddress": 216727368,
+    },
+    {
+      "address": 70360,
+      "ramAddress": 216732376,
+    },
+    {
+      "address": 74680,
+      "ramAddress": 216736696,
+    },
+    {
+      "address": 75400,
+      "ramAddress": 216737416,
+    },
+    {
+      "address": 76080,
+      "ramAddress": 216738096,
+    },
+    {
+      "address": 76976,
+      "ramAddress": 216738992,
+    },
+    {
+      "address": 78088,
+      "ramAddress": 216740104,
+    },
+    {
+      "address": 78336,
+      "ramAddress": 216740352,
+    },
+    {
+      "address": 79664,
+      "ramAddress": 216741680,
+    },
+    {
+      "address": 79912,
+      "ramAddress": 216741928,
+    },
+    {
+      "address": 80160,
+      "ramAddress": 216742176,
+    },
+    {
+      "address": 80408,
+      "ramAddress": 216742424,
+    },
+    {
+      "address": 80656,
+      "ramAddress": 216742672,
+    },
+    {
+      "address": 80904,
+      "ramAddress": 216742920,
+    },
+    {
+      "address": 81152,
+      "ramAddress": 216743168,
+    },
+    {
+      "address": 81400,
+      "ramAddress": 216743416,
+    },
+    {
+      "address": 81784,
+      "ramAddress": 216743800,
+    },
+    {
+      "address": 82096,
+      "ramAddress": 216744112,
+    },
+    {
+      "address": 82480,
+      "ramAddress": 216744496,
+    },
+    {
+      "address": 82864,
+      "ramAddress": 216744880,
+    },
+    {
+      "address": 83248,
+      "ramAddress": 216745264,
+    },
+    {
+      "address": 83560,
+      "ramAddress": 216745576,
+    },
+    {
+      "address": 83808,
+      "ramAddress": 216745824,
+    },
+    {
+      "address": 84056,
+      "ramAddress": 216746072,
+    },
+    {
+      "address": 84440,
+      "ramAddress": 216746456,
+    },
+    {
+      "address": 85120,
+      "ramAddress": 216747136,
+    },
+    {
+      "address": 85368,
+      "ramAddress": 216747384,
+    },
+    {
+      "address": 85616,
+      "ramAddress": 216747632,
+    },
+    {
+      "address": 92808,
+      "ramAddress": 216754824,
+    },
+    {
+      "address": 93488,
+      "ramAddress": 216755504,
+    },
+    {
+      "address": 94384,
+      "ramAddress": 216756400,
+    },
+    {
+      "address": 95496,
+      "ramAddress": 216757512,
+    },
+    {
+      "address": 96824,
+      "ramAddress": 216758840,
+    },
+    {
+      "address": 98368,
+      "ramAddress": 216760384,
+    },
+    {
+      "address": 100128,
+      "ramAddress": 216762144,
+    },
+    {
+      "address": 102104,
+      "ramAddress": 216764120,
+    },
+    {
+      "address": 104296,
+      "ramAddress": 216766312,
+    },
+    {
+      "address": 104544,
+      "ramAddress": 216766560,
+    },
+    {
+      "address": 104792,
+      "ramAddress": 216766808,
+    },
+    {
+      "address": 104824,
+      "ramAddress": 216766840,
+    },
+    {
+      "address": 104856,
+      "ramAddress": 216766872,
+    },
+    {
+      "address": 104888,
+      "ramAddress": 216766904,
+    },
+    {
+      "address": 105136,
+      "ramAddress": 216767152,
+    },
+    {
+      "address": 105168,
+      "ramAddress": 216767184,
+    },
+    {
+      "address": 105200,
+      "ramAddress": 216767216,
+    },
+    {
+      "address": 105448,
+      "ramAddress": 216767464,
+    },
+    {
+      "address": 105696,
+      "ramAddress": 216767712,
+    },
+    {
+      "address": 105944,
+      "ramAddress": 216767960,
+    },
+    {
+      "address": 105976,
+      "ramAddress": 216767992,
+    },
+    {
+      "address": 108320,
+      "ramAddress": 216770336,
+    },
+    {
+      "address": 108352,
+      "ramAddress": 216770368,
+    },
+    {
+      "address": 108384,
+      "ramAddress": 216770400,
+    },
+    {
+      "address": 108416,
+      "ramAddress": 216770432,
+    },
+    {
+      "address": 108448,
+      "ramAddress": 216770464,
+    },
+    {
+      "address": 108696,
+      "ramAddress": 216770712,
+    },
+    {
+      "address": 108944,
+      "ramAddress": 216770960,
+    },
+    {
+      "address": 109256,
+      "ramAddress": 216771272,
+    },
+    {
+      "address": 109288,
+      "ramAddress": 216771304,
+    },
+    {
+      "address": 109320,
+      "ramAddress": 216771336,
+    },
+    {
+      "address": 109352,
+      "ramAddress": 216771368,
+    },
   ],
   216662016,
 ]

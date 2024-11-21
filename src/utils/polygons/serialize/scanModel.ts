@@ -6,15 +6,17 @@ import {
   nlPolygonConversions,
   nlVertexConversions
 } from './NLPropConversionDefs';
-import { processNLConversions as processNLConversions } from './processNLConversions';
+import { processNLConversions } from './processNLConversions';
 import TransferrableBuffer from '@/types/TransferrableBuffer';
 
 export default function scanModel({
   address,
+  ramAddress,
   buffer,
   index
 }: {
   address: number;
+  ramAddress: number;
   buffer: TransferrableBuffer;
   index: number;
 }) {
@@ -27,6 +29,7 @@ export default function scanModel({
   );
 
   model.address = address;
+  model.ramAddress = ramAddress;
   model.meshes = [];
 
   // total vert count is populated
