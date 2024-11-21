@@ -6,7 +6,7 @@ import {
   nlPolygonConversions,
   nlVertexConversions
 } from './NLPropConversionDefs';
-import { processNLConversions as processNLConversions } from './processNLConversions';
+import { processNLConversions } from './processNLConversions';
 import TransferrableBuffer from '@/types/TransferrableBuffer';
 
 export default function scanModel({
