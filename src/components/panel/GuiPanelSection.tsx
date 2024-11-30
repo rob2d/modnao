@@ -13,6 +13,8 @@ const StyledSubheader = styled(ListSubheader)(
   ({ theme }) => `
 
   & {
+    padding-left: 0;
+    padding-right: 0;
   }
   .section-header {
     display: flex;

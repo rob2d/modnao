@@ -29,10 +29,9 @@ const Styled = styled('div')(
   margin: ${theme.spacing(2)} 0;
 }
 
-&.textures {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+& {
+  display: block;
+  text-align: left;
 }
 `
 );

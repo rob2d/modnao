@@ -1,8 +1,9 @@
 import Img from 'next/image';
+import Icon from '@mdi/react';
 import { Divider, Paper, styled } from '@mui/material';
-import { useContext } from 'react';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import { RefObject, useContext, useEffect, useRef } from 'react';
 import clsx from 'clsx';
+import ViewOptionsContext, { ViewOptions } from '@/contexts/ViewOptionsContext';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
 import GuiPanelTextures from './GuiPanelTextures';
 import GuiPanelModels from './GuiPanelModels';
@@ -12,8 +13,11 @@ import {
   selectHasLoadedTextureFile,
   useAppSelector
 } from '@/store';
+import { mdiArrowExpandLeft, mdiArrowExpandRight } from '@mdi/js';
+import { useDragMouseOnEl } from '@/hooks';
 
-const PANEL_WIDTH = 222;
+const PANEL_WIDTHS = [222, 398, 222 + 174 * 2 + 32];
+
 const TRANSITION_TIME = `0.32s`;
 
 const StyledPaper = styled(Paper)(
@@ -32,8 +36,16 @@ const StyledPaper = styled(Paper)(
     }
 
     &.MuiPaper-root.visible {
-      width: ${PANEL_WIDTH}px;
+      width: ${PANEL_WIDTHS[0]}px;
       flex-shrink: 0;
+    }
+
+    &.MuiPaper-root.visible.expanded-1 {
+      width: ${PANEL_WIDTHS[1]}px;
+    }
+
+    &.MuiPaper-root.visible.expanded-2 {
+      width: ${PANEL_WIDTHS[2]}px;
     }
 
     &.MuiPaper-root:not(.visible) {
@@ -43,10 +55,12 @@ const StyledPaper = styled(Paper)(
     }
 
     & > .content {
+      container-name: panel;
+      container-type: normal;
       position: absolute;
       top: 0;
       left: 0;
-      width: ${PANEL_WIDTH}px;
+      width: 100%;
       height: 100vh;
       flex-shrink: 0;
       
@@ -54,8 +68,14 @@ const StyledPaper = styled(Paper)(
       flex-direction: column; 
       align-items: flex-end;
       box-sizing: border-box;
+      padding-left: ${theme.spacing(2)};
+      padding-right: ${theme.spacing(2)};
       padding-top: ${theme.spacing(1)};
       padding-bottom: ${theme.spacing(1)};
+    }
+
+    & > .content {
+      width: 100%;
     }
 
     & .content .MuiToggleButtonGroup-root:not(:first-item) {
@@ -71,17 +91,12 @@ const StyledPaper = styled(Paper)(
       justify-content: center;
     }
 
-    & .content > .MuiTypography-subtitle2, & .content > :not(.MuiDivider-root) {
+    & .content > .MuiTypography-subtitle2, & .content > :not(.MuiDivider-root):not(.textures) {
       width: 100%;
-      padding-left: ${theme.spacing(2)};
-      padding-right: ${theme.spacing(2)};
     }
 
-    & .content > .selection {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      width: 100%;    
+    &.expanded .content #select-pol-or-tex-button {
+      margin-bottom: 0px;
     }
 
     & .property-table *:nth-of-type(even) {
@@ -96,10 +111,13 @@ const StyledPaper = styled(Paper)(
     }
 
     & .textures {
-      width: 222px;
+      width: calc(100% + (${theme.spacing(2)} * 2));
+      margin-left: -${theme.spacing(2)};
+      margin-right: -${theme.spacing(2)};
+      padding-left: ${theme.spacing(2)};
+      margin-bottom: 0;
       flex-grow: 2;
       overflow-y: auto;
-      margin-bottom: 0;
     }
 
     & .content > .MuiDivider-root {
@@ -145,20 +163,92 @@ const StyledPaper = styled(Paper)(
       justify-content: flex-start;
       align-items: center;
     }
+
+    & .resize-handle {
+      user-select: none;
+      cursor: col-resize;
+      position: absolute;
+      top: 0;
+      left: 0px;
+      width: 16px;
+      height: 100%;
+      z-index: 1;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background-color: transparent;
+      transition: background ${TRANSITION_TIME} ease;
+
+      &:hover {
+        background-color: ${theme.palette.action.hover};
+      }
+
+      &.active {
+        background-color: ${theme.palette.action.selected};
+      }
+
+      & svg {
+        color: ${theme.palette.text.hoverHint};
+        opacity: 0;
+      }
+
+      &:hover svg, &.active svg {
+        opacity: 1;
+        transition: opacity ${TRANSITION_TIME} ease;
+      }
+    }
   `
 );
+
+const usePanelDragState = (
+  viewOptions: ViewOptions
+): [number, boolean, RefObject<HTMLElement>] => {
+  const resizeHandle = useRef<HTMLElement>(null);
+  const [dragMouseXY, isMouseDown] = useDragMouseOnEl(resizeHandle);
+
+  useEffect(() => {
+    if (isMouseDown) {
+      if (!viewOptions.guiPanelExpansionLevel && dragMouseXY.x < -32) {
+        viewOptions.setGuiPanelExpansionLevel(1);
+      }
+
+      if (viewOptions.guiPanelExpansionLevel && dragMouseXY.x > 32) {
+        viewOptions.setGuiPanelExpansionLevel(0);
+      }
+    }
+  }, [isMouseDown && dragMouseXY]);
+
+  return [viewOptions.guiPanelExpansionLevel, isMouseDown, resizeHandle];
+};
 
 export default function GuiPanel() {
   const viewOptions = useContext(ViewOptionsContext);
   const contentViewMode = useAppSelector(selectContentViewMode);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
+  const [expansionLevel, resizeMouseDown, resizeHandle] =
+    usePanelDragState(viewOptions);
 
   return (
     <StyledPaper
       square
-      className={clsx(viewOptions.guiPanelVisible && 'visible')}
+      className={clsx(
+        viewOptions.guiPanelVisible && 'visible',
+        expansionLevel && 'expanded',
+        expansionLevel && 'expanded-1'
+      )}
     >
+      <div
+        className={clsx('resize-handle', resizeMouseDown && 'active')}
+        ref={resizeHandle}
+      >
+        <Icon
+          path={expansionLevel === 1 ? mdiArrowExpandRight : mdiArrowExpandLeft}
+          size={0.5}
+        />
+      </div>
       <div className='content'>
         {contentViewMode !== 'welcome' ? undefined : (
           <Img alt='logo' src='/logo.svg' width={222} height={172} />

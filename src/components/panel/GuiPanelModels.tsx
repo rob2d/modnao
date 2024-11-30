@@ -1,7 +1,6 @@
 import {
   Button,
   IconButton,
-  styled,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -26,31 +25,16 @@ import {
 import {
   useModelSelectionExport,
   useObjectUINav,
-  useSceneGLTFFileDownloader,
-  useSupportedFilePicker
+  useSceneGLTFFileDownloader
 } from '@/hooks';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import { showError } from '@/store/errorMessagesSlice';
-import FilesSupportedButton from '../FilesSupportedButton';
-
-const Styled = styled('div')(
-  ({ theme }) => `& {
-  .supported-files {
-    width: 100%;
-    font-size: 8pt;
-    margin-top: -${theme.spacing(2)};
-  }`
-);
+import ModelFileImportButton from './ModelFileImportButton';
 
 export default function GuiPanelModels() {
   const viewOptions = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
-  const onHandleError = useCallback((message: string | JSX.Element) => {
-    dispatch(showError({ title: 'Invalid file selection', message }));
-  }, []);
 
-  const openFileSelector = useSupportedFilePicker(onHandleError);
   const uiNav = useObjectUINav();
   const objectKey = useAppSelector(selectObjectKey);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
@@ -111,18 +95,6 @@ export default function GuiPanelModels() {
     modelNoAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
   }
 
-  const importFiles = (
-    <Styled className='import-files'>
-      <GuiPanelButton
-        tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
-        onClick={openFileSelector}
-      >
-        Import Model/Texture
-      </GuiPanelButton>
-      <FilesSupportedButton className={'supported-files'} />
-    </Styled>
-  );
-
   const navButtonLeft = (
     <Tooltip title={<>View previous model (⌨&nbsp;Left)</>}>
       <IconButton
@@ -150,81 +122,83 @@ export default function GuiPanelModels() {
   );
 
   return !polygonFileName ? (
-    <div className='selection'>{importFiles}</div>
+    <ModelFileImportButton />
   ) : (
     <GuiPanelSection
       title='Models'
       subtitle={polygonFileName}
-      collapsedContent={importFiles}
+      collapsedContent={<ModelFileImportButton />}
       collapsedContentFABs={[navButtonLeft, navButtonRight]}
     >
-      <div className='selection'>
-        <Grid container className='property-table'>
-          <Grid xs={4} className='grid-control-label'>
-            <Typography variant='body1' textAlign='right'>
-              Models
-            </Typography>
-          </Grid>
-          <Grid xs={8}>
-            {navButtonLeft}
-            <Typography variant='button' textAlign='right'>
-              {modelNoAndCount}
-            </Typography>
-            {navButtonRight}
-          </Grid>
-          <Grid xs={8} className='grid-control-label'>
-            <Typography variant='body1' textAlign='right'>
-              Object Key
-            </Typography>
-          </Grid>
-          <Grid xs={4}>
-            <Typography variant='button' textAlign='right'>
-              {!objectKey ? '--' : objectKey}
-            </Typography>
-          </Grid>
-          <Grid xs={8} className='grid-control-label'>
-            <Typography variant='body1' textAlign='right'>
-              Object Type
-            </Typography>
-          </Grid>
-          <Grid xs={4}>
-            <ToggleButtonGroup
-              orientation='vertical'
-              color='secondary'
-              value={meshSelectionType}
-              size='small'
-              exclusive
-              onChange={onSetMeshSelectionType}
-              aria-label='text alignment'
-            >
-              <ToggleButton value='mesh'>mesh</ToggleButton>
-              <ToggleButton value='polygon'>polygon</ToggleButton>
-            </ToggleButtonGroup>
-          </Grid>
+      <Grid container className='property-table'>
+        <Grid xs={4} className='grid-control-label'>
+          <Typography variant='body1' textAlign='right'>
+            Models
+          </Typography>
         </Grid>
-        {importFiles}
-        <GuiPanelButton
-          tooltip={
-            'Export a .gltf file representing the currently viewed in-scene model ' +
-            'meshes and textures to import into Maya or Blender.'
-          }
-          onClick={onExportToGLTF}
-          color='secondary'
-        >
-          Export Scene .GLTF
-        </GuiPanelButton>
-        <GuiPanelButton
-          tooltip={
-            'Export a .gltf file representing *all* viewable model' +
-            'meshes and textures to import into Maya or Blender.'
-          }
-          onClick={onExportAllToGLTF}
-          color='secondary'
-        >
-          Export Models .GLTF
-        </GuiPanelButton>
-        {exportSelectionButton}
-      </div>
+        <Grid xs={8}>
+          {navButtonLeft}
+          <Typography variant='button' textAlign='right'>
+            {modelNoAndCount}
+          </Typography>
+          {navButtonRight}
+        </Grid>
+        <Grid xs={7} className='grid-control-label'>
+          <Typography variant='body1' textAlign='right'>
+            Selected Object Key
+          </Typography>
+        </Grid>
+        <Grid xs={5}>
+          <Typography variant='button' textAlign='right'>
+            {!objectKey ? '--' : objectKey}
+          </Typography>
+        </Grid>
+        <Grid xs={7} className='grid-control-label'>
+          <Typography variant='body1' textAlign='right'>
+            Selection Type
+          </Typography>
+        </Grid>
+        <Grid xs={5}>
+          <ToggleButtonGroup
+            orientation={
+              viewOptions.guiPanelExpansionLevel === 0
+                ? 'vertical'
+                : 'horizontal'
+            }
+            color='secondary'
+            value={meshSelectionType}
+            size='small'
+            exclusive
+            onChange={onSetMeshSelectionType}
+            aria-label='text alignment'
+          >
+            <ToggleButton value='mesh'>mesh</ToggleButton>
+            <ToggleButton value='polygon'>polygon</ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
+      </Grid>
+      <ModelFileImportButton />
+      <GuiPanelButton
+        tooltip={
+          'Export a .gltf file representing the currently viewed in-scene model ' +
+          'meshes and textures to import into Maya or Blender.'
+        }
+        onClick={onExportToGLTF}
+        color='secondary'
+      >
+        Export Scene .GLTF
+      </GuiPanelButton>
+      <GuiPanelButton
+        tooltip={
+          'Export a .gltf file representing *all* viewable model' +
+          'meshes and textures to import into Maya or Blender.'
+        }
+        onClick={onExportAllToGLTF}
+        color='secondary'
+      >
+        Export Models .GLTF
+      </GuiPanelButton>
+      {exportSelectionButton}
     </GuiPanelSection>
   );
 }
