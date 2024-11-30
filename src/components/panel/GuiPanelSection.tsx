@@ -57,7 +57,7 @@ export default function GuiPanelSection({
 
   return (
     <>
-      <StyledSubheader id='nested-list-subheader'>
+      <StyledSubheader>
         <div className='section-header'>
           <div className='header-text'>
             <Typography variant='subtitle2'>{title}</Typography>
