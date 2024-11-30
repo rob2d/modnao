@@ -15,8 +15,6 @@ const StyledSubheader = styled(ListSubheader)(
   & {
     padding-left: 0;
     padding-right: 0;
-  }
-  .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,7 +26,7 @@ const StyledSubheader = styled(ListSubheader)(
     flex-direction: column;
   }
     
-  & .collapsed-content {
+  & + .collapsed-content {
     margin-top: ${theme.spacing(1)};
   }
   `
@@ -58,31 +56,27 @@ export default function GuiPanelSection({
   return (
     <>
       <StyledSubheader>
-        <div className='section-header'>
-          <div className='header-text'>
-            <Typography variant='subtitle2'>{title}</Typography>
-            {!subtitle ? undefined : (
-              <Typography variant='caption'>{subtitle}</Typography>
-            )}
-          </div>
-          {isExpanded ? undefined : collapsedContentFABs}
-          <Tooltip title={`${isExpanded ? 'Collapse' : 'Expand'} section`}>
-            <IconButton onClick={toggleContentExpanded}>
-              <Icon
-                path={
-                  !isExpanded
-                    ? mdiUnfoldLessHorizontal
-                    : mdiUnfoldMoreHorizontal
-                }
-                size={1}
-              />
-            </IconButton>
-          </Tooltip>
+        <div className='header-text'>
+          <Typography variant='subtitle2'>{title}</Typography>
+          {!subtitle ? undefined : (
+            <Typography variant='caption'>{subtitle}</Typography>
+          )}
         </div>
-        {!isExpanded ? (
-          <div className='collapsed-content'>{collapsedContent}</div>
-        ) : undefined}
+        {isExpanded ? undefined : collapsedContentFABs}
+        <Tooltip title={`${isExpanded ? 'Collapse' : 'Expand'} section`}>
+          <IconButton onClick={toggleContentExpanded}>
+            <Icon
+              path={
+                !isExpanded ? mdiUnfoldLessHorizontal : mdiUnfoldMoreHorizontal
+              }
+              size={1}
+            />
+          </IconButton>
+        </Tooltip>
       </StyledSubheader>
+      {!isExpanded ? (
+        <div className='collapsed-content'>{collapsedContent}</div>
+      ) : undefined}
       {!isExpanded ? undefined : children}
     </>
   );
