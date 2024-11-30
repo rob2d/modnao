@@ -16,6 +16,7 @@ export type ViewOptions = {
   axesHelperVisible: boolean;
   sceneCursorVisible: boolean;
   guiPanelVisible: boolean;
+  guiPanelExpansionLevel: 0 | 1 | 2;
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
   disableBackfaceCulling: boolean;
@@ -29,6 +30,7 @@ export type ViewOptions = {
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
+  setGuiPanelExpansionLevel: (expansionLevel: 0 | 1 | 2) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setUvRegionsHighlighted: (uvRegionsHighlighted: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
@@ -46,6 +48,7 @@ export const defaultValues: ViewOptions = {
   axesHelperVisible: true,
   sceneCursorVisible: true,
   guiPanelVisible: true,
+  guiPanelExpansionLevel: 0,
   objectAddressesVisible: false,
   meshDisplayMode: 'wireframe',
   disableBackfaceCulling: false,
@@ -71,6 +74,7 @@ export const defaultValues: ViewOptions = {
   setDevOptionsVisible: (_: boolean) => null,
   setRenderAllModels: (_: boolean) => null
 } as const;
+
 export const ViewOptionsContext =
   React.createContext<ViewOptions>(defaultValues);
 
@@ -88,6 +92,10 @@ export function ViewOptionsContextProvider({ children }: Props) {
   );
   const [guiPanelVisible, handleSetGuiPanelVisible] = useState(
     defaultValues.guiPanelVisible
+  );
+
+  const [guiPanelExpansionLevel, handleSetGuiPanelExpansionLevel] = useState(
+    defaultValues.guiPanelExpansionLevel
   );
   const [meshDisplayMode, handleSetMeshDisplayMode] =
     useState<MeshDisplayMode>('wireframe');
@@ -221,6 +229,15 @@ export function ViewOptionsContextProvider({ children }: Props) {
       }
     },
     [guiPanelVisible]
+  );
+
+  const setGuiPanelExpansionLevel = useCallback(
+    (value: 0 | 1 | 2) => {
+      if (guiPanelExpansionLevel !== value) {
+        handleSetGuiPanelExpansionLevel(value);
+      }
+    },
+    [guiPanelExpansionLevel]
   );
 
   const setAxesHelperVisible = useCallback(
@@ -358,7 +375,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
       uvRegionsHighlighted,
       setUvRegionsHighlighted,
       guiPanelVisible,
+      guiPanelExpansionLevel,
       setGuiPanelVisible,
+      setGuiPanelExpansionLevel,
       wireframeLineWidth,
       setWireframeLineWidth,
       scenePalette,
@@ -389,7 +408,9 @@ export function ViewOptionsContextProvider({ children }: Props) {
       wireframeLineWidth,
       setWireframeLineWidth,
       guiPanelVisible,
+      guiPanelExpansionLevel,
       setGuiPanelVisible,
+      setGuiPanelExpansionLevel,
       scenePalette,
       setScenePalette,
       themeKey,
