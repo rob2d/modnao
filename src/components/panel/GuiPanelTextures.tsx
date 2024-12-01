@@ -172,25 +172,27 @@ export default function GuiPanelViewOptions() {
           </>
         )}
       </Styled>
-      {!canExportTextures ? undefined : (
-        <div className='export-texture-button-container'>
+      <div className='texture-export-options'>
+        {!canExportTextures ? undefined : (
+          <div className='export-texture-button-container'>
+            <GuiPanelButton
+              tooltip='Download texture ROM binary with replaced images'
+              onClick={onExportTextureFile}
+              color='secondary'
+            >
+              Export Textures
+            </GuiPanelButton>
+          </div>
+        )}
+        <div className='export-texture-images'>
           <GuiPanelButton
-            tooltip='Download texture ROM binary with replaced images'
-            onClick={onExportTextureFile}
+            tooltip='Download all available textures as images in a zip file'
+            onClick={onDownloadAllTextureImgs}
             color='secondary'
           >
-            Export Textures
+            Download All Images
           </GuiPanelButton>
         </div>
-      )}
-      <div className='export-texture-images'>
-        <GuiPanelButton
-          tooltip='Download all available textures as images in a zip file'
-          onClick={onDownloadAllTextureImgs}
-          color='secondary'
-        >
-          Download All Images
-        </GuiPanelButton>
       </div>
     </GuiPanelSection>
   );

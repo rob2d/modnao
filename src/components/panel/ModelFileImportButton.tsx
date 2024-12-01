@@ -9,31 +9,40 @@ import FilesSupportedButton from '../FilesSupportedButton';
 const StyledImportButton = styled('div')(
   ({ theme }) => `
     .supported-files {
-      width: 100%;
       font-size: 8pt;
-      margin-top: -${theme.spacing(2)};
+      margin-top: -${theme.spacing(1)};
     }
       
-    .content & {
+    & {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      width: 100%;
+      align-items: center;
     }
 
     ${/* panel expanded variant */ ''}
 
-    .expanded .content & {
-      flex-direction: row;
-      align-items: center;
+    .panel:not(.welcome).expanded & {
       margin-bottom: ${theme.spacing(1)};
     }
+
+    .panel:not(.welcome).expanded .collapsed-content & {
+      margin-bottom: 0;
+    }
+
+    .panel:not(.welcome).expanded & #select-pol-or-tex-button {
+      height: 72px;
+    }
+
+    .panel:not(.welcome).expanded .collapsed-content & #select-pol-or-tex-button {
+      height: unset;
+    }
   
-    .expanded .content & .supported-files {
+    .expanded .content & .supported-files, .panel:not(.welcome).expanded & .supported-files {
       margin-top: 0;
     }
   
     .content & .supported-files {
+      width: 100%;
       margin-top: -${theme.spacing(1)};
     }
     `
@@ -47,7 +56,7 @@ export default function ModelFileImportButton() {
   const openFileSelector = useSupportedFilePicker(onHandleError);
 
   return (
-    <StyledImportButton className='file-selection-buttons'>
+    <StyledImportButton>
       <GuiPanelButton
         id='select-pol-or-tex-button'
         tooltip='Select an MVC2 or CVS2 STG POL.BIN and/or TEX.BIN files'
