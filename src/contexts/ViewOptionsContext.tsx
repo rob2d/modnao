@@ -48,7 +48,7 @@ export const defaultValues: ViewOptions = {
   axesHelperVisible: true,
   sceneCursorVisible: true,
   guiPanelVisible: true,
-  guiPanelExpansionLevel: 0,
+  guiPanelExpansionLevel: 1,
   objectAddressesVisible: false,
   meshDisplayMode: 'wireframe',
   disableBackfaceCulling: false,
@@ -62,6 +62,7 @@ export const defaultValues: ViewOptions = {
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
   setGuiPanelVisible: (_: boolean) => null,
+  setGuiPanelExpansionLevel: (_: 0 | 1 | 2) => null,
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
   setDisableBackfaceCulling: (_: boolean) => null,
@@ -201,6 +202,16 @@ export function ViewOptionsContextProvider({ children }: Props) {
         ) as boolean
       );
     }
+
+    if (localStorage.getItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL) !== null) {
+      handleSetGuiPanelExpansionLevel(
+        Number(
+          JSON.parse(
+            localStorage.getItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL) || '1'
+          )
+        ) as 0 | 1 | 2
+      );
+    }
   }, []);
 
   const setObjectAddressesVisible = useCallback(
@@ -234,6 +245,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
   const setGuiPanelExpansionLevel = useCallback(
     (value: 0 | 1 | 2) => {
       if (guiPanelExpansionLevel !== value) {
+        localStorage.setItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL, `${value}`);
         handleSetGuiPanelExpansionLevel(value);
       }
     },
