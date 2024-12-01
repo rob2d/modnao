@@ -12,5 +12,6 @@ export const StorageKeys = {
   DISABLE_BACKFACE_CULLING: 'disableBackfaceCulling',
   UV_REGIONS_HIGHLIGHTED: 'uvRegionsHighlighted',
   DEV_OPTIONS_VISIBLE: 'devOptionsVisible',
-  ENABLE_VERTEX_COLORS: 'enableVertexColors'
+  ENABLE_VERTEX_COLORS: 'enableVertexColors',
+  GUI_PANEL_EXPANSION_LEVEL: 'guiPanelExpansionLevel'
 } as const;
