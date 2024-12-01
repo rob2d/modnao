@@ -16,7 +16,7 @@ import {
 import { mdiArrowExpandLeft, mdiArrowExpandRight } from '@mdi/js';
 import { useDragMouseOnEl } from '@/hooks';
 
-const PANEL_WIDTHS = [222, 398, 222 + 174 * 2 + 32];
+const PANEL_WIDTHS = [222, 388, 222 + 174 * 2 + 22];
 
 const TRANSITION_TIME = `0.32s`;
 
@@ -78,7 +78,7 @@ const StyledPaper = styled(Paper)(
       width: 100%;
     }
 
-    & .content .MuiToggleButtonGroup-root:not(:first-item) {
+    & .content .MuiToggleButtonGroup-root:not(:first-item):not(.display-mode) {
       margin-top: ${theme.spacing(1)};
     }
 
@@ -136,13 +136,27 @@ const StyledPaper = styled(Paper)(
     }
 
     & .MuiButton-root.MuiButton-outlined:not(:last-child),
-    & .export-texture-button-container:not(:last-child),
-    & .export-texture-images:not(:last-child) {
+    &.panel:not(.expanded) .export-texture-button-container:not(:last-child),
+    &.panel:not(.expanded) .export-texture-images:not(:last-child) {
       margin-bottom: ${theme.spacing(1)};
     }
 
-    & .export-texture-button-container {
+    & .texture-export-options {
+      display: flex;
+      flex-direction: column;
       margin-top: ${theme.spacing(1)};
+    }
+
+    &.expanded .texture-export-options {
+      flex-direction: row;
+    }
+
+    &.expanded .texture-export-options > *:nth-child(1) {
+      margin-right: ${theme.spacing(1)};
+    }
+
+    &.expanded .texture-export-options > * {
+      flex-basis: 50%;
     }
 
     ${
@@ -235,6 +249,8 @@ export default function GuiPanel() {
     <StyledPaper
       square
       className={clsx(
+        'panel',
+        contentViewMode,
         viewOptions.guiPanelVisible && 'visible',
         expansionLevel && 'expanded',
         expansionLevel && 'expanded-1'

@@ -1,6 +1,7 @@
 import {
   Button,
   IconButton,
+  styled,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -30,6 +31,25 @@ import {
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ModelFileImportButton from './ModelFileImportButton';
+
+const StyledButtons = styled('div')(
+  () => `
+  & {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .panel.expanded & {
+    flex-direction: row;
+  }
+
+  .panel.expanded & > div:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+  }
+`
+);
 
 export default function GuiPanelModels() {
   const viewOptions = useContext(ViewOptionsContext);
@@ -95,6 +115,12 @@ export default function GuiPanelModels() {
     modelNoAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
   }
 
+  modelNoAndCount = (
+    <Typography variant='button' textAlign='right'>
+      {modelNoAndCount}
+    </Typography>
+  );
+
   const navButtonLeft = (
     <Tooltip title={<>View previous model (⌨&nbsp;Left)</>}>
       <IconButton
@@ -121,6 +147,10 @@ export default function GuiPanelModels() {
     </Tooltip>
   );
 
+  const collapsedContentFABs = viewOptions.guiPanelExpansionLevel
+    ? [navButtonLeft, modelNoAndCount, navButtonRight]
+    : [navButtonLeft, navButtonRight];
+
   return !polygonFileName ? (
     <ModelFileImportButton />
   ) : (
@@ -128,7 +158,7 @@ export default function GuiPanelModels() {
       title='Models'
       subtitle={polygonFileName}
       collapsedContent={<ModelFileImportButton />}
-      collapsedContentFABs={[navButtonLeft, navButtonRight]}
+      collapsedContentFABs={collapsedContentFABs}
     >
       <Grid container className='property-table'>
         <Grid xs={4} className='grid-control-label'>
@@ -138,14 +168,13 @@ export default function GuiPanelModels() {
         </Grid>
         <Grid xs={8}>
           {navButtonLeft}
-          <Typography variant='button' textAlign='right'>
-            {modelNoAndCount}
-          </Typography>
+          {modelNoAndCount}
           {navButtonRight}
         </Grid>
         <Grid xs={7} className='grid-control-label'>
           <Typography variant='body1' textAlign='right'>
-            Selected Object Key
+            {viewOptions.guiPanelExpansionLevel ? 'Selected ' : ''}
+            Object Key
           </Typography>
         </Grid>
         <Grid xs={5}>
@@ -177,28 +206,32 @@ export default function GuiPanelModels() {
           </ToggleButtonGroup>
         </Grid>
       </Grid>
-      <ModelFileImportButton />
-      <GuiPanelButton
-        tooltip={
-          'Export a .gltf file representing the currently viewed in-scene model ' +
-          'meshes and textures to import into Maya or Blender.'
-        }
-        onClick={onExportToGLTF}
-        color='secondary'
-      >
-        Export Scene .GLTF
-      </GuiPanelButton>
-      <GuiPanelButton
-        tooltip={
-          'Export a .gltf file representing *all* viewable model' +
-          'meshes and textures to import into Maya or Blender.'
-        }
-        onClick={onExportAllToGLTF}
-        color='secondary'
-      >
-        Export Models .GLTF
-      </GuiPanelButton>
-      {exportSelectionButton}
+      <StyledButtons>
+        <ModelFileImportButton />
+        <div>
+          <GuiPanelButton
+            tooltip={
+              'Export a .gltf file representing the currently viewed in-scene model ' +
+              'meshes and textures to import into Maya or Blender.'
+            }
+            onClick={onExportToGLTF}
+            color='secondary'
+          >
+            Export Scene .GLTF
+          </GuiPanelButton>
+          <GuiPanelButton
+            tooltip={
+              'Export a .gltf file representing *all* viewable model' +
+              'meshes and textures to import into Maya or Blender.'
+            }
+            onClick={onExportAllToGLTF}
+            color='secondary'
+          >
+            Export Models .GLTF
+          </GuiPanelButton>
+          {exportSelectionButton}
+        </div>
+      </StyledButtons>
     </GuiPanelSection>
   );
 }
