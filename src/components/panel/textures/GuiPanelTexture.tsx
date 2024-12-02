@@ -28,7 +28,7 @@ const StyledPanelTexture = styled('div')(
   ({ theme }) =>
     `& {
       position: relative;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
