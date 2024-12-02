@@ -200,9 +200,7 @@ export default function TextureColorOptions({
       dense
       className={clsx('hsv-sliders', variant)}
       subheader={
-        <ListSubheader component='div' id='nested-list-subheader'>
-          Color Adjustment
-        </ListSubheader>
+        <ListSubheader component='div'>Color Adjustment</ListSubheader>
       }
     >
       {hslSliders}

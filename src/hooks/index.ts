@@ -3,6 +3,7 @@ export { default as useModelSelectionExport } from './useModelSelectionExport';
 export { default as useObjectUINav } from './useObjectUINav';
 export { default as useHeldRepetitionTimer } from './useHeldRepetitionTimer';
 export { default as useDebouncedEffect } from './useDebouncedEffect';
+export { default as useDragMouseOnEl } from './useDragMouseOnEl';
 export { default as useSceneGLTFFileDownloader } from './useSceneGLTFFileDownloader';
 export { default as useSupportedFilePicker } from './useSupportedFilePicker';
 export { default as useTextureReplaceDropzone } from './useTextureReplaceDropzone';

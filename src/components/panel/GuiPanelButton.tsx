@@ -6,9 +6,11 @@ type Props = {
   onClick: () => void;
   tooltip: React.ReactNode | string;
   color?: 'primary' | 'inherit' | 'secondary';
+  id?: string;
 };
 
 export default function GuiPanelButton({
+  id,
   tooltip,
   color = 'primary',
   onClick,
@@ -17,6 +19,7 @@ export default function GuiPanelButton({
   return (
     <Tooltip title={tooltip}>
       <Button
+        id={id}
         onClick={onClick}
         color={color}
         fullWidth

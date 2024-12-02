@@ -22,6 +22,10 @@ declare module '@mui/material' {
     background: CSSProperties['color'];
   }
 
+  interface TypeText {
+    hoverHint: CSSProperties['color'];
+  }
+
   interface PaletteOptions {
     warningBackground: CSSProperties['color'];
     scene: ScenePalette;
@@ -68,6 +72,9 @@ const themes = Object.fromEntries(
         secondary: {
           main: '#00A5FF',
           contrastText: '#FFF'
+        },
+        text: {
+          hoverHint: 'rgba(0, 0, 0, 0.3)'
         },
         warningBackground: 'rgba(255, 0, 0, 0.1)',
         info: {

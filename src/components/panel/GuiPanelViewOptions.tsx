@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import GuiPanelSection from './GuiPanelSection';
-import { SyntheticEvent, useCallback, useContext } from 'react';
+import { SyntheticEvent, useCallback, useContext, useMemo } from 'react';
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
@@ -38,6 +38,10 @@ const Styled = styled('div')(
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+  }
+
+  .expanded & .display-mode {
+    margin-top: ${theme.spacing(1)};
   }
 
   & .settings-row .MuiTypography-root.MuiFormControlLabel-label {
@@ -124,11 +128,91 @@ export default function GuiPanelViewOptions() {
     [viewOptions.devOptionsVisible]
   );
 
+  const responsiveSettingsRows = useMemo(() => {
+    const settingsItems: (JSX.Element | undefined)[] = [
+      <ViewOptionCheckbox
+        key='axes-visibility'
+        checked={viewOptions.axesHelperVisible}
+        tooltipHint='Toggle axes helper visibility'
+        iconPath={mdiAxisArrow}
+        onChange={onSetAxesHelperVisible}
+      />,
+      <ViewOptionCheckbox
+        key='cursor-visible'
+        checked={viewOptions.sceneCursorVisible}
+        tooltipHint='Toggle scene cursor visibility'
+        iconPath={mdiCursorDefaultOutline}
+        onChange={onSetSceneCursorVisible}
+      />,
+      <ViewOptionCheckbox
+        key='disable-backface-culling'
+        checked={viewOptions.disableBackfaceCulling}
+        tooltipHint='Disable Backface Culling / Make material visible on both sides of polygons'
+        iconPath={mdiFlipToBack}
+        onChange={onSetDisableBackfaceCulling}
+      />,
+      <ViewOptionCheckbox
+        key='uv-regions-highlighted'
+        checked={viewOptions.uvRegionsHighlighted}
+        tooltipHint={
+          'View UV Clipping Regions when selecting a polygon that has an ' +
+          'associated texture loaded.'
+        }
+        iconPath={mdiTangram}
+        onChange={onSetUvRegionsHighlighted}
+      />
+    ];
+
+    settingsItems.push(
+      viewOptions.meshDisplayMode !== 'wireframe' ? (
+        <ViewOptionCheckbox
+          key='vertex-colors'
+          checked={viewOptions.enableVertexColors}
+          tooltipHint='Enable Vertex Colors; this is usually used for simulating shading and lighting effects.'
+          iconPath={mdiFormatColorFill}
+          onChange={onSetEnableVertexColors}
+        />
+      ) : undefined
+    );
+
+    settingsItems.push(
+      <ViewOptionCheckbox
+        key='dev-options-visible'
+        checked={viewOptions.devOptionsVisible}
+        tooltipHint='Enable developer/debug option visibility'
+        iconPath={mdiCodeArray}
+        onChange={onSetDevOptionsVisible}
+      />
+    );
+
+    const settingsRows: JSX.Element[] = [];
+
+    const settingsPerRow = viewOptions.guiPanelExpansionLevel === 0 ? 2 : 4;
+    for (let i = 0; i < settingsItems.length; i += settingsPerRow) {
+      const newRowItems = [];
+
+      for (let j = 0; j < settingsPerRow; j++) {
+        newRowItems.push(settingsItems[i + j]);
+      }
+
+      settingsRows.push(
+        <div className='settings-row' key={i}>
+          {newRowItems}
+        </div>
+      );
+    }
+
+    return settingsRows;
+  }, [viewOptions]);
+
   return (
     <GuiPanelSection title='View Options'>
       <Styled className='view-options'>
         <Grid container className='property-table'>
-          <Grid xs={12} className='display-mode'>
+          <Grid
+            xs={viewOptions.guiPanelExpansionLevel === 0 ? 12 : 6}
+            className='display-mode'
+          >
             <ToggleButtonGroup
               orientation='horizontal'
               size='small'
@@ -142,8 +226,10 @@ export default function GuiPanelViewOptions() {
               <ToggleButton value='textured'>textured</ToggleButton>
             </ToggleButtonGroup>
           </Grid>
+          <Grid xs={viewOptions.guiPanelExpansionLevel === 0 ? 12 : 6}>
+            <PaletteEditor />
+          </Grid>
         </Grid>
-        <PaletteEditor />
         {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
           <FormControlLabel
             control={
@@ -172,53 +258,7 @@ export default function GuiPanelViewOptions() {
             onChange={onSetObjectAddressesVisible}
           />
         )}
-        <div className='settings-row'>
-          <ViewOptionCheckbox
-            checked={viewOptions.axesHelperVisible}
-            tooltipHint='Toggle axes helper visibility'
-            iconPath={mdiAxisArrow}
-            onChange={onSetAxesHelperVisible}
-          />
-          <ViewOptionCheckbox
-            checked={viewOptions.sceneCursorVisible}
-            tooltipHint='Toggle scene cursor visibility'
-            iconPath={mdiCursorDefaultOutline}
-            onChange={onSetSceneCursorVisible}
-          />
-        </div>
-        <div className='settings-row'>
-          <ViewOptionCheckbox
-            checked={viewOptions.disableBackfaceCulling}
-            tooltipHint='Disable Backface Culling / Make material visible on both sides of polygons'
-            iconPath={mdiFlipToBack}
-            onChange={onSetDisableBackfaceCulling}
-          />
-          <ViewOptionCheckbox
-            checked={viewOptions.uvRegionsHighlighted}
-            tooltipHint={
-              'View UV Clipping Regions when selecting a polygon that has an ' +
-              'associated texture loaded.'
-            }
-            iconPath={mdiTangram}
-            onChange={onSetUvRegionsHighlighted}
-          />
-        </div>
-        <div className='settings-row'>
-          {viewOptions.meshDisplayMode === 'wireframe' ? undefined : (
-            <ViewOptionCheckbox
-              checked={viewOptions.enableVertexColors}
-              tooltipHint='Enable Vertex Colors; this is usually used for simulating shading and lighting effects.'
-              iconPath={mdiFormatColorFill}
-              onChange={onSetEnableVertexColors}
-            />
-          )}
-          <ViewOptionCheckbox
-            checked={viewOptions.devOptionsVisible}
-            tooltipHint='Enable developer/debug option visibility'
-            iconPath={mdiCodeArray}
-            onChange={onSetDevOptionsVisible}
-          />
-        </div>
+        {responsiveSettingsRows}
       </Styled>
     </GuiPanelSection>
   );
