@@ -115,7 +115,7 @@ export default function GuiPanelModels() {
     modelNoAndCount = `${modelIndex + 1}${sp}/${sp}${modelCount}`;
   }
 
-  modelNoAndCount = (
+  const modelNoAndCountEl = (
     <Typography variant='button' textAlign='right'>
       {modelNoAndCount}
     </Typography>
@@ -148,7 +148,7 @@ export default function GuiPanelModels() {
   );
 
   const collapsedContentFABs = viewOptions.guiPanelExpansionLevel
-    ? [navButtonLeft, modelNoAndCount, navButtonRight]
+    ? [navButtonLeft, modelNoAndCountEl, navButtonRight]
     : [navButtonLeft, navButtonRight];
 
   return !polygonFileName ? (
@@ -168,7 +168,7 @@ export default function GuiPanelModels() {
         </Grid>
         <Grid xs={8}>
           {navButtonLeft}
-          {modelNoAndCount}
+          {modelNoAndCountEl}
           {navButtonRight}
         </Grid>
         <Grid xs={7} className='grid-control-label'>
