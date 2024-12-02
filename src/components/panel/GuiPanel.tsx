@@ -1,7 +1,7 @@
 import Img from 'next/image';
 import Icon from '@mdi/react';
 import { Divider, Paper, styled } from '@mui/material';
-import { RefObject, useContext, useEffect, useRef } from 'react';
+import { LegacyRef, RefObject, useContext, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import ViewOptionsContext, { ViewOptions } from '@/contexts/ViewOptionsContext';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
@@ -258,7 +258,7 @@ export default function GuiPanel() {
     >
       <div
         className={clsx('resize-handle', resizeMouseDown && 'active')}
-        ref={resizeHandle}
+        ref={resizeHandle as LegacyRef<HTMLDivElement>}
       >
         <Icon
           path={expansionLevel === 1 ? mdiArrowExpandRight : mdiArrowExpandLeft}
