@@ -28,7 +28,7 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
 
 function padBufferForAlignment(
   alignment: number,
-  buffer: Buffer,
+  buffer: Buffer | Uint8Array,
   startLocation = 0
 ) {
   const b32Alignment = (startLocation + buffer.length) % 32;
@@ -42,10 +42,12 @@ function padBufferForAlignment(
     alignmentPadding = alignment - b32Alignment;
   }
 
-  return Buffer.concat([
-    buffer,
-    new Uint8Array(new Array(alignmentPadding).fill(0))
-  ]);
+  return new Uint8Array(
+    Buffer.concat([
+      new Uint8Array(buffer),
+      new Uint8Array(new Array(alignmentPadding).fill(0))
+    ])
+  );
 }
 
 type QuantizeOptions = {
@@ -152,7 +154,7 @@ export default async function exportTextureFile({
     // depending on if a character has international name variant
     case 'mvc2-character-portraits': {
       const buffer = Buffer.alloc(textureBuffer.length);
-      textureBuffer.copy(buffer);
+      textureBuffer.copy(new Uint8Array(buffer));
 
       const startPointer = buffer.readUint32LE(0);
       const pointers = [startPointer];

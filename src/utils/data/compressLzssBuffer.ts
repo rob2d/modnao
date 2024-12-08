@@ -167,5 +167,5 @@ export default function compressLzssBuffer(buffer: Buffer) {
   }
 
   console.timeEnd('compressLzssBuffer');
-  return outputBuffer;
+  return new Uint8Array(outputBuffer);
 }
