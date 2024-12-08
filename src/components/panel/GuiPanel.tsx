@@ -1,7 +1,14 @@
 import Img from 'next/image';
 import Icon from '@mdi/react';
 import { Divider, Paper, styled } from '@mui/material';
-import { LegacyRef, RefObject, useContext, useEffect, useRef } from 'react';
+import {
+  LegacyRef,
+  RefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef
+} from 'react';
 import clsx from 'clsx';
 import ViewOptionsContext, { ViewOptions } from '@/contexts/ViewOptionsContext';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
@@ -13,12 +20,21 @@ import {
   selectHasLoadedTextureFile,
   useAppSelector
 } from '@/store';
-import { mdiArrowExpandLeft, mdiArrowExpandRight } from '@mdi/js';
+import {
+  mdiArrowExpandHorizontal,
+  mdiArrowExpandLeft,
+  mdiArrowExpandRight
+} from '@mdi/js';
 import { useDragMouseOnEl } from '@/hooks';
 
-const PANEL_WIDTHS = [222, 388, 222 + 174 * 2 + 22];
-
+const PANEL_WIDTHS = [32, 222, 388, 222 + 174 * 2 + 22];
 const TRANSITION_TIME = `0.32s`;
+
+const expandLevelIcons = [
+  mdiArrowExpandLeft,
+  mdiArrowExpandHorizontal,
+  mdiArrowExpandRight
+];
 
 const StyledPaper = styled(Paper)(
   {
@@ -35,23 +51,26 @@ const StyledPaper = styled(Paper)(
       overflow: hidden;
     }
 
-    &.MuiPaper-root.visible {
+    &.collapsed:not(.welcome):not(:hover) {
+      opacity: 0;
+    }
+
+    &.MuiPaper-root {
+      width: ${PANEL_WIDTHS[1]}px;
+      flex-shrink: 0;
+    }
+
+    &.MuiPaper-root.collapsed {
       width: ${PANEL_WIDTHS[0]}px;
       flex-shrink: 0;
     }
 
-    &.MuiPaper-root.visible.expanded-1 {
-      width: ${PANEL_WIDTHS[1]}px;
-    }
-
-    &.MuiPaper-root.visible.expanded-2 {
+    &.MuiPaper-root.expanded-1 {
       width: ${PANEL_WIDTHS[2]}px;
     }
 
-    &.MuiPaper-root:not(.visible) {
-      width: 0;
-      opacity: 0;
-      pointer-events: none;
+    &.MuiPaper-root.expanded-2 {
+      width: ${PANEL_WIDTHS[3]}px;
     }
 
     & > .content {
@@ -76,6 +95,18 @@ const StyledPaper = styled(Paper)(
 
     & > .content {
       width: 100%;
+      opacity: 1;
+      transition: opacity ${TRANSITION_TIME} ease;
+    }
+
+    &.collapsed:not(.welcome) {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    &.collapsed:not(.welcome) > .content {
+      opacity: 0;
     }
 
     & .content .MuiToggleButtonGroup-root:not(:first-item):not(.display-mode) {
@@ -178,6 +209,10 @@ const StyledPaper = styled(Paper)(
       align-items: center;
     }
 
+    &.collapsed .resize-handle {
+      width: calc(100%);
+    }
+
     & .resize-handle {
       user-select: none;
       cursor: col-resize;
@@ -193,7 +228,7 @@ const StyledPaper = styled(Paper)(
       justify-content: center;
 
       background-color: transparent;
-      transition: background ${TRANSITION_TIME} ease;
+      transition: background ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease;
 
       &:hover {
         background-color: ${theme.palette.action.hover};
@@ -216,25 +251,53 @@ const StyledPaper = styled(Paper)(
   `
 );
 
-const usePanelDragState = (
-  viewOptions: ViewOptions
-): [number, boolean, RefObject<HTMLElement>] => {
+const PANEL_DRAG_THRESHOLD = 24;
+
+function clamp(num: number, min: number, max: number) {
+  return Math.min(Math.max(num, min), max);
+}
+
+type PanelDragParams = [boolean, RefObject<HTMLElement>];
+
+const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
   const resizeHandle = useRef<HTMLElement>(null);
-  const [dragMouseXY, isMouseDown] = useDragMouseOnEl(resizeHandle);
+  const [dragMouseXY, isMouseDown, resetMouseTracking] =
+    useDragMouseOnEl(resizeHandle);
+  const levelAtStart = useRef<number>(viewOptions.guiPanelExpansionLevel);
+  const hasDragged = useRef<boolean>(false);
 
   useEffect(() => {
     if (isMouseDown) {
-      if (!viewOptions.guiPanelExpansionLevel && dragMouseXY.x < -32) {
-        viewOptions.setGuiPanelExpansionLevel(1);
-      }
+      levelAtStart.current = viewOptions.guiPanelExpansionLevel;
+    } else {
+      hasDragged.current = false;
+    }
+  }, [isMouseDown]);
 
-      if (viewOptions.guiPanelExpansionLevel && dragMouseXY.x > 32) {
-        viewOptions.setGuiPanelExpansionLevel(0);
+  useEffect(() => {
+    const { guiPanelExpansionLevel, setGuiPanelExpansionLevel } = viewOptions;
+
+    if (isMouseDown && !hasDragged.current) {
+      const dragStepDelta = Math.round(dragMouseXY.x / PANEL_DRAG_THRESHOLD);
+
+      const targetLevel = clamp(
+        levelAtStart.current - dragStepDelta,
+        Math.max(levelAtStart.current - 1, 0),
+        Math.min(levelAtStart.current + 1, 2)
+      );
+
+      if (targetLevel !== guiPanelExpansionLevel) {
+        setGuiPanelExpansionLevel(targetLevel);
+        hasDragged.current = true;
+
+        setTimeout(() => {
+          resetMouseTracking();
+        }, 350);
       }
     }
   }, [isMouseDown && dragMouseXY]);
 
-  return [viewOptions.guiPanelExpansionLevel, isMouseDown, resizeHandle];
+  return [isMouseDown, resizeHandle];
 };
 
 export default function GuiPanel() {
@@ -242,8 +305,26 @@ export default function GuiPanel() {
   const contentViewMode = useAppSelector(selectContentViewMode);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
-  const [expansionLevel, resizeMouseDown, resizeHandle] =
-    usePanelDragState(viewOptions);
+  const [resizeMouseDown, resizeHandle] = usePanelDragState(viewOptions);
+  const expansionLevel = clamp(
+    viewOptions.guiPanelExpansionLevel,
+    contentViewMode === 'welcome' ? 1 : 0,
+    2
+  );
+
+  const onClickResizeHandle = useCallback(() => {
+    switch (viewOptions.guiPanelExpansionLevel) {
+      case 0:
+        viewOptions.setGuiPanelExpansionLevel(1);
+        break;
+      case 1:
+        viewOptions.setGuiPanelExpansionLevel(2);
+        break;
+      case 2:
+        viewOptions.setGuiPanelExpansionLevel(1);
+        break;
+    }
+  }, [viewOptions.guiPanelExpansionLevel]);
 
   return (
     <StyledPaper
@@ -251,19 +332,18 @@ export default function GuiPanel() {
       className={clsx(
         'panel',
         contentViewMode,
-        viewOptions.guiPanelVisible && 'visible',
-        expansionLevel && 'expanded',
-        expansionLevel && 'expanded-1'
+        'visible',
+        expansionLevel === 0 && 'collapsed',
+        expansionLevel > 1 && 'expanded',
+        expansionLevel > 1 && `expanded-${expansionLevel - 1}`
       )}
     >
       <div
         className={clsx('resize-handle', resizeMouseDown && 'active')}
         ref={resizeHandle as LegacyRef<HTMLDivElement>}
+        onClick={onClickResizeHandle}
       >
-        <Icon
-          path={expansionLevel === 1 ? mdiArrowExpandRight : mdiArrowExpandLeft}
-          size={0.5}
-        />
+        <Icon path={expandLevelIcons[expansionLevel]} size={0.75} />
       </div>
       <div className='content'>
         {contentViewMode !== 'welcome' ? undefined : (
