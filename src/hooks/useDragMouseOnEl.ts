@@ -5,10 +5,21 @@ export interface MouseMovementPos {
   y: number;
 }
 
+let mouseDownOverall = false;
+if (typeof window !== 'undefined') {
+  document.addEventListener('mousedown', () => {
+    mouseDownOverall = true;
+  });
+
+  document.addEventListener('mouseup', () => {
+    mouseDownOverall = false;
+  });
+}
+
 const useDragMouseOnEl = (
   ref: React.RefObject<HTMLElement>
 ): [MouseMovementPos, boolean, () => void] => {
-  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [isMouseDown, setMouseDown] = useState(false);
   const [movement, setMovement] = useState<MouseMovementPos>({ x: 0, y: 0 });
   const startPos = useRef<MouseMovementPos>({ x: 0, y: 0 });
   const lastMousePos = useRef<MouseMovementPos>({ x: 0, y: 0 });
@@ -18,14 +29,14 @@ const useDragMouseOnEl = (
       if (ref.current && ref.current.contains(event.target as Node)) {
         startPos.current = { x: event.clientX, y: event.clientY };
         setMovement({ x: 0, y: 0 });
-        setIsMouseDown(true);
+        setMouseDown(true);
       }
     },
     [ref]
   );
 
   const handleMouseUp = useCallback(() => {
-    setIsMouseDown(false);
+    setMouseDown(false);
   }, []);
 
   const handleMouseMove = useCallback(
@@ -41,11 +52,13 @@ const useDragMouseOnEl = (
   );
 
   const handleResetTracking = useCallback(() => {
-    setIsMouseDown(false);
+    setMouseDown(false);
     setTimeout(() => {
-      setMovement({ x: 0, y: 0 });
-      startPos.current = lastMousePos.current;
-      setIsMouseDown(true);
+      if (mouseDownOverall) {
+        setMovement({ x: 0, y: 0 });
+        startPos.current = lastMousePos.current;
+        setMouseDown(true);
+      }
     }, 0);
   }, []);
 

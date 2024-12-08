@@ -292,7 +292,7 @@ const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
 
         setTimeout(() => {
           resetMouseTracking();
-        }, 250);
+        }, 350);
       }
     }
   }, [isMouseDown && dragMouseXY]);
