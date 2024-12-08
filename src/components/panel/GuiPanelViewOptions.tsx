@@ -187,7 +187,7 @@ export default function GuiPanelViewOptions() {
 
     const settingsRows: JSX.Element[] = [];
 
-    const settingsPerRow = viewOptions.guiPanelExpansionLevel === 0 ? 2 : 4;
+    const settingsPerRow = viewOptions.guiPanelExpansionLevel <= 1 ? 2 : 4;
     for (let i = 0; i < settingsItems.length; i += settingsPerRow) {
       const newRowItems = [];
 
@@ -210,7 +210,7 @@ export default function GuiPanelViewOptions() {
       <Styled className='view-options'>
         <Grid container className='property-table'>
           <Grid
-            xs={viewOptions.guiPanelExpansionLevel === 0 ? 12 : 6}
+            xs={viewOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}
             className='display-mode'
           >
             <ToggleButtonGroup
@@ -226,7 +226,7 @@ export default function GuiPanelViewOptions() {
               <ToggleButton value='textured'>textured</ToggleButton>
             </ToggleButtonGroup>
           </Grid>
-          <Grid xs={viewOptions.guiPanelExpansionLevel === 0 ? 12 : 6}>
+          <Grid xs={viewOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}>
             <PaletteEditor />
           </Grid>
         </Grid>
