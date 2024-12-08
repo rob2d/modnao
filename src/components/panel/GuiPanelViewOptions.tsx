@@ -252,7 +252,7 @@ export default function GuiPanelViewOptions() {
         !viewOptions.devOptionsVisible ? undefined : (
           <ViewOptionCheckbox
             checked={viewOptions.objectAddressesVisible}
-            tooltipHint='Toggle selected polygon addresess visibility'
+            tooltipHint='Toggle selected polygon addresses visibility'
             tooltipPlacement='top-start'
             label={'Addresses'}
             onChange={onSetObjectAddressesVisible}
