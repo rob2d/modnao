@@ -17,7 +17,6 @@ const booleanSetterKeys = [
   'setSceneCursorVisible',
   'setAxesHelperVisible',
   'setObjectAddressesVisible',
-  'setGuiPanelVisible',
   'setDevOptionsVisible',
   'setUvRegionsHighlighted',
   'setDisableBackfaceCulling',

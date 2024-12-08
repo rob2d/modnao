@@ -87,11 +87,23 @@ const Styled = styled('main')(
       display: flex;
       padding: ${theme.spacing(2)}
     }
+
+    .main-content:not(.full-view) {
+      position: relative;
+    }
+
+    .main-content.full-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
   `
 );
 
 export default function MainView() {
-  const { guiPanelVisible } = useContext(ViewOptionsContext);
+  const { guiPanelExpansionLevel } = useContext(ViewOptionsContext);
   const dispatch = useAppDispatch();
   const onShowAppInfoDialog = useCallback(() => {
     dispatch(showDialog('app-info'));
@@ -99,6 +111,9 @@ export default function MainView() {
 
   const contentViewMode = useAppSelector(selectContentViewMode);
   let mainScene;
+
+  const guiPanelVisible =
+    contentViewMode === 'welcome' || guiPanelExpansionLevel > 0;
 
   switch (contentViewMode) {
     case 'polygons':
@@ -122,7 +137,16 @@ export default function MainView() {
     <>
       <ErrorMessage />
       <Styled>
-        <div>
+        <div
+          className={clsx(
+            'main-content',
+            // when gui panel collapsed, take entire view so that
+            // the scene is fully rendered. In this mode, gui panel
+            // is hidden but can be hovered & clicked to expand
+            !guiPanelVisible && 'full-view',
+            contentViewMode !== 'welcome' && 'full-view'
+          )}
+        >
           {mainScene}
           {contentViewMode === 'welcome' ? undefined : (
             <Tooltip
