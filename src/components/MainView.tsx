@@ -88,7 +88,7 @@ const Styled = styled('main')(
       padding: ${theme.spacing(2)}
     }
 
-    .main-content:not(.full-view) {
+    .main-content {
       position: relative;
     }
 
@@ -143,8 +143,7 @@ export default function MainView() {
             // when gui panel collapsed, take entire view so that
             // the scene is fully rendered. In this mode, gui panel
             // is hidden but can be hovered & clicked to expand
-            !guiPanelVisible && 'full-view',
-            contentViewMode !== 'welcome' && 'full-view'
+            !guiPanelVisible && 'full-view'
           )}
         >
           {mainScene}

@@ -51,7 +51,7 @@ const StyledPaper = styled(Paper)(
       overflow: hidden;
     }
 
-    &.collapsed:not(:hover) {
+    &.collapsed:not(.welcome):not(:hover) {
       opacity: 0;
     }
 
@@ -99,13 +99,13 @@ const StyledPaper = styled(Paper)(
       transition: opacity ${TRANSITION_TIME} ease;
     }
 
-    &.collapsed {
+    &.collapsed:not(.welcome) {
       position: absolute;
       top: 0;
       right: 0;
     }
 
-    &.collapsed > .content {
+    &.collapsed:not(.welcome) > .content {
       opacity: 0;
     }
 
@@ -257,7 +257,7 @@ function clamp(num: number, min: number, max: number) {
   return Math.min(Math.max(num, min), max);
 }
 
-type PanelDragParams = [number, boolean, RefObject<HTMLElement>];
+type PanelDragParams = [boolean, RefObject<HTMLElement>];
 
 const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
   const resizeHandle = useRef<HTMLElement>(null);
@@ -291,7 +291,7 @@ const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
     }
   }, [isMouseDown && dragMouseXY]);
 
-  return [viewOptions.guiPanelExpansionLevel, isMouseDown, resizeHandle];
+  return [isMouseDown, resizeHandle];
 };
 
 export default function GuiPanel() {
@@ -299,10 +299,12 @@ export default function GuiPanel() {
   const contentViewMode = useAppSelector(selectContentViewMode);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
-  const [expansionLevel, resizeMouseDown, resizeHandle] =
-    usePanelDragState(viewOptions);
-
-  // TODO: memod' value based on contentViewMode & guiPanelExpansionLevel
+  const [resizeMouseDown, resizeHandle] = usePanelDragState(viewOptions);
+  const expansionLevel = clamp(
+    viewOptions.guiPanelExpansionLevel,
+    contentViewMode === 'welcome' ? 1 : 0,
+    2
+  );
 
   const onClickResizeHandle = useCallback(() => {
     switch (viewOptions.guiPanelExpansionLevel) {
