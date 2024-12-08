@@ -107,7 +107,7 @@ export default function GettingStarted() {
                 Once textures are edited, click&nbsp;
                 <Button
                   onClick={noop}
-                  color='secondary'
+                  color='primary'
                   size='small'
                   variant='outlined'
                 >
