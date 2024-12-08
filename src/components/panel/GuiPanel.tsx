@@ -261,7 +261,8 @@ type PanelDragParams = [boolean, RefObject<HTMLElement>];
 
 const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
   const resizeHandle = useRef<HTMLElement>(null);
-  const [dragMouseXY, isMouseDown] = useDragMouseOnEl(resizeHandle);
+  const [dragMouseXY, isMouseDown, resetMouseTracking] =
+    useDragMouseOnEl(resizeHandle);
   const levelAtStart = useRef<number>(viewOptions.guiPanelExpansionLevel);
   const hasDragged = useRef<boolean>(false);
 
@@ -278,6 +279,7 @@ const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
 
     if (isMouseDown && !hasDragged.current) {
       const dragStepDelta = Math.round(dragMouseXY.x / PANEL_DRAG_THRESHOLD);
+
       const targetLevel = clamp(
         levelAtStart.current - dragStepDelta,
         Math.max(levelAtStart.current - 1, 0),
@@ -287,6 +289,10 @@ const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
       if (targetLevel !== guiPanelExpansionLevel) {
         setGuiPanelExpansionLevel(targetLevel);
         hasDragged.current = true;
+
+        setTimeout(() => {
+          resetMouseTracking();
+        }, 250);
       }
     }
   }, [isMouseDown && dragMouseXY]);
