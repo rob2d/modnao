@@ -15,8 +15,9 @@ const useDragMouseOnEl = (
   const handleMouseDown = useCallback(
     (event: MouseEvent) => {
       if (ref.current && ref.current.contains(event.target as Node)) {
-        setIsMouseDown(true);
         startPos.current = { x: event.clientX, y: event.clientY };
+        setMovement({ x: 0, y: 0 });
+        setIsMouseDown(true);
       }
     },
     [ref]

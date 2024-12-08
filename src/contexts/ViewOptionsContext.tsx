@@ -16,7 +16,7 @@ export type ViewOptions = {
   axesHelperVisible: boolean;
   sceneCursorVisible: boolean;
   guiPanelVisible: boolean;
-  guiPanelExpansionLevel: 0 | 1 | 2;
+  guiPanelExpansionLevel: number;
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
   disableBackfaceCulling: boolean;
@@ -30,7 +30,7 @@ export type ViewOptions = {
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setGuiPanelVisible: (guiPanelVisible: boolean) => void;
-  setGuiPanelExpansionLevel: (expansionLevel: 0 | 1 | 2) => void;
+  setGuiPanelExpansionLevel: (expansionLevel: number) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setUvRegionsHighlighted: (uvRegionsHighlighted: boolean) => void;
   setMeshDisplayMode: (meshDisplayMode: MeshDisplayMode) => void;
@@ -48,7 +48,7 @@ export const defaultValues: ViewOptions = {
   axesHelperVisible: true,
   sceneCursorVisible: true,
   guiPanelVisible: true,
-  guiPanelExpansionLevel: 1,
+  guiPanelExpansionLevel: 2,
   objectAddressesVisible: false,
   meshDisplayMode: 'wireframe',
   disableBackfaceCulling: false,
@@ -62,7 +62,7 @@ export const defaultValues: ViewOptions = {
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
   setGuiPanelVisible: (_: boolean) => null,
-  setGuiPanelExpansionLevel: (_: 0 | 1 | 2) => null,
+  setGuiPanelExpansionLevel: (_: number) => null,
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
   setDisableBackfaceCulling: (_: boolean) => null,
@@ -209,7 +209,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
           JSON.parse(
             localStorage.getItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL) || '1'
           )
-        ) as 0 | 1 | 2
+        ) as number
       );
     }
   }, []);
@@ -243,7 +243,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
   );
 
   const setGuiPanelExpansionLevel = useCallback(
-    (value: 0 | 1 | 2) => {
+    (value: number) => {
       if (guiPanelExpansionLevel !== value) {
         localStorage.setItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL, `${value}`);
         handleSetGuiPanelExpansionLevel(value);

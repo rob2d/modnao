@@ -173,7 +173,7 @@ export default function GuiPanelModels() {
         </Grid>
         <Grid xs={7} className='grid-control-label'>
           <Typography variant='body1' textAlign='right'>
-            {viewOptions.guiPanelExpansionLevel ? 'Selected ' : ''}
+            {viewOptions.guiPanelExpansionLevel > 1 ? 'Selected ' : ''}
             Object Key
           </Typography>
         </Grid>
@@ -190,7 +190,7 @@ export default function GuiPanelModels() {
         <Grid xs={5}>
           <ToggleButtonGroup
             orientation={
-              viewOptions.guiPanelExpansionLevel === 0
+              viewOptions.guiPanelExpansionLevel <= 1
                 ? 'vertical'
                 : 'horizontal'
             }
