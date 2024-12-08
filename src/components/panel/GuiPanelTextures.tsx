@@ -178,7 +178,7 @@ export default function GuiPanelViewOptions() {
             <GuiPanelButton
               tooltip='Download texture ROM binary with replaced images'
               onClick={onExportTextureFile}
-              color='secondary'
+              color='primary'
             >
               Export Textures
             </GuiPanelButton>
