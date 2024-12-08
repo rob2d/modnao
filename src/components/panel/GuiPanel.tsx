@@ -1,7 +1,14 @@
 import Img from 'next/image';
 import Icon from '@mdi/react';
 import { Divider, Paper, styled } from '@mui/material';
-import { LegacyRef, RefObject, useContext, useEffect, useRef } from 'react';
+import {
+  LegacyRef,
+  RefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef
+} from 'react';
 import clsx from 'clsx';
 import ViewOptionsContext, { ViewOptions } from '@/contexts/ViewOptionsContext';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
@@ -44,28 +51,26 @@ const StyledPaper = styled(Paper)(
       overflow: hidden;
     }
 
-    &.MuiPaper-root.visible {
+    &.collapsed:not(:hover) {
+      opacity: 0;
+    }
+
+    &.MuiPaper-root {
       width: ${PANEL_WIDTHS[1]}px;
       flex-shrink: 0;
     }
 
-    &.MuiPaper-root.visible.collapsed {
+    &.MuiPaper-root.collapsed {
       width: ${PANEL_WIDTHS[0]}px;
       flex-shrink: 0;
     }
 
-    &.MuiPaper-root.visible.expanded-1 {
+    &.MuiPaper-root.expanded-1 {
       width: ${PANEL_WIDTHS[2]}px;
     }
 
-    &.MuiPaper-root.visible.expanded-2 {
+    &.MuiPaper-root.expanded-2 {
       width: ${PANEL_WIDTHS[3]}px;
-    }
-
-    &.MuiPaper-root:not(.visible) {
-      width: 0;
-      opacity: 0;
-      pointer-events: none;
     }
 
     & > .content {
@@ -90,6 +95,18 @@ const StyledPaper = styled(Paper)(
 
     & > .content {
       width: 100%;
+      opacity: 1;
+      transition: opacity ${TRANSITION_TIME} ease;
+    }
+
+    &.collapsed {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    &.collapsed > .content {
+      opacity: 0;
     }
 
     & .content .MuiToggleButtonGroup-root:not(:first-item):not(.display-mode) {
@@ -192,6 +209,10 @@ const StyledPaper = styled(Paper)(
       align-items: center;
     }
 
+    &.collapsed .resize-handle {
+      width: calc(100%);
+    }
+
     & .resize-handle {
       user-select: none;
       cursor: col-resize;
@@ -207,7 +228,7 @@ const StyledPaper = styled(Paper)(
       justify-content: center;
 
       background-color: transparent;
-      transition: background ${TRANSITION_TIME} ease;
+      transition: background ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease;
 
       &:hover {
         background-color: ${theme.palette.action.hover};
@@ -243,7 +264,6 @@ const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
   const [dragMouseXY, isMouseDown] = useDragMouseOnEl(resizeHandle);
   const levelAtStart = useRef<number>(viewOptions.guiPanelExpansionLevel);
   const hasDragged = useRef<boolean>(false);
-  console.log('guiPanelExpansionLevel ->', viewOptions.guiPanelExpansionLevel);
 
   useEffect(() => {
     if (isMouseDown) {
@@ -282,13 +302,29 @@ export default function GuiPanel() {
   const [expansionLevel, resizeMouseDown, resizeHandle] =
     usePanelDragState(viewOptions);
 
+  // TODO: memod' value based on contentViewMode & guiPanelExpansionLevel
+
+  const onClickResizeHandle = useCallback(() => {
+    switch (viewOptions.guiPanelExpansionLevel) {
+      case 0:
+        viewOptions.setGuiPanelExpansionLevel(1);
+        break;
+      case 1:
+        viewOptions.setGuiPanelExpansionLevel(2);
+        break;
+      case 2:
+        viewOptions.setGuiPanelExpansionLevel(1);
+        break;
+    }
+  }, [viewOptions.guiPanelExpansionLevel]);
+
   return (
     <StyledPaper
       square
       className={clsx(
         'panel',
         contentViewMode,
-        viewOptions.guiPanelVisible && 'visible',
+        'visible',
         expansionLevel === 0 && 'collapsed',
         expansionLevel > 1 && 'expanded',
         expansionLevel > 1 && `expanded-${expansionLevel - 1}`
@@ -297,8 +333,9 @@ export default function GuiPanel() {
       <div
         className={clsx('resize-handle', resizeMouseDown && 'active')}
         ref={resizeHandle as LegacyRef<HTMLDivElement>}
+        onClick={onClickResizeHandle}
       >
-        <Icon path={expandLevelIcons[expansionLevel]} size={0.5} />
+        <Icon path={expandLevelIcons[expansionLevel]} size={0.75} />
       </div>
       <div className='content'>
         {contentViewMode !== 'welcome' ? undefined : (
