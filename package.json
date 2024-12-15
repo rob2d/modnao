@@ -22,7 +22,7 @@
     "yargs": "^17.7.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-env": "^7.26.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mdi/js": "^7.4.47",
