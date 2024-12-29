@@ -106,7 +106,6 @@ const useVlogApi = () => {
 
 export default function DevUpdates() {
   const [vlogs, vlogApiError] = useVlogApi();
-  console.log('vlogApiError ->', vlogApiError);
 
   const vlogContent = vlogApiError ? 'Failed to fetch vlogs' : 
     (!vlogs
