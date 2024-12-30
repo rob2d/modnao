@@ -20,7 +20,7 @@ export default function scanModel({
   buffer: TransferrableBuffer;
   index: number;
 }) {
-  const wBuffer = Buffer.from(buffer);
+  const wBuffer = Buffer.from(new Uint8Array(buffer));
   // (1) scan base model props
   const model = processNLConversions<NLModel>(
     nlModelConversions,
