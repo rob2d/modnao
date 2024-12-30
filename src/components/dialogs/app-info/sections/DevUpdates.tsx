@@ -79,26 +79,26 @@ const useVlogApi = () => {
   const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-      const fetchData = async () => {
-        const response = await (await fetch(`${origin}/api/vlogs`)).json();
-        if(Array.isArray(response)) {
-          setVlogs(response);
-        }
-
-        if(response.error) {
-          setError('Failed to fetch vlogs');
-        }
-  
-        hasFetched = true;
-      };
-  
-      if (!hasFetched) {
-        fetchData();
+    const fetchData = async () => {
+      const response = await (await fetch(`${origin}/api/vlogs`)).json();
+      if (Array.isArray(response)) {
+        setVlogs(response);
       }
-  
-      return () => {
-        hasFetched = false;
-      };
+
+      if (response.error) {
+        setError('Failed to fetch vlogs');
+      }
+
+      hasFetched = true;
+    };
+
+    if (!hasFetched) {
+      fetchData();
+    }
+
+    return () => {
+      hasFetched = false;
+    };
   }, []);
 
   return [vlogs, error] as [Vlog[], string | undefined];
@@ -107,8 +107,9 @@ const useVlogApi = () => {
 export default function DevUpdates() {
   const [vlogs, vlogApiError] = useVlogApi();
 
-  const vlogContent = vlogApiError ? 'Failed to fetch vlogs' : 
-    (!vlogs
+  const vlogContent = vlogApiError
+    ? 'Failed to fetch vlogs'
+    : !vlogs
       ? [1, 2, 3].map((_, i) => (
           <Card key={i} elevation={2}>
             <CardContent>
@@ -153,14 +154,12 @@ export default function DevUpdates() {
               />
             </ButtonBase>
           </Card>
-        )));
+        ));
 
   return (
     <StyledContent className='app-info-section scroll-body'>
       <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
-      <DialogSectionContentCards>
-        {vlogContent}
-      </DialogSectionContentCards>
+      <DialogSectionContentCards>{vlogContent}</DialogSectionContentCards>
     </StyledContent>
   );
 }
