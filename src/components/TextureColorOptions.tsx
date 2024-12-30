@@ -127,22 +127,31 @@ export default function TextureColorOptions({
       onClick: () => void;
       label: JSX.Element | string;
       disabled?: boolean;
-    }) => (
-      <ListItem>
-        <Tooltip title={tooltip} placement='left-start'>
-          <Button
-            onClick={onClick}
-            color='secondary'
-            size='small'
-            variant='outlined'
-            fullWidth
-            disabled={disabled}
-          >
-            {label}
-          </Button>
-        </Tooltip>
-      </ListItem>
-    ),
+    }) => {
+      const button = (
+        <Button
+          onClick={onClick}
+          color='secondary'
+          size='small'
+          variant='outlined'
+          fullWidth
+          disabled={disabled}
+        >
+          {label}
+        </Button>
+      );
+      return (
+        <ListItem>
+          {disabled ? (
+            button
+          ) : (
+            <Tooltip title={tooltip} placement='left-start'>
+              {button}
+            </Tooltip>
+          )}
+        </ListItem>
+      );
+    },
     []
   );
 
