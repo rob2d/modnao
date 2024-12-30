@@ -15,7 +15,7 @@ export default async function loadRGBABuffersFromFile(
 
   const translucentBuffer = image.getRGBAData();
 
-  const opaqueBuffer = new Uint8ClampedArray(Buffer.from(translucentBuffer));
+  const opaqueBuffer = new Uint8ClampedArray(translucentBuffer);
 
   for (let i = 0; i < translucentBuffer.length; i += 4) {
     opaqueBuffer[i] = translucentBuffer[i];

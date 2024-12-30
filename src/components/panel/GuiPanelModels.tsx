@@ -64,7 +64,7 @@ export default function GuiPanelModels() {
   const onExportSelectionJson = useModelSelectionExport();
   const onSetMeshSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
-      type && dispatch(setObjectType(type));
+      dispatch(setObjectType(type));
     },
     [meshSelectionType]
   );
@@ -121,29 +121,43 @@ export default function GuiPanelModels() {
     </Typography>
   );
 
-  const navButtonLeft = (
+  const navButtonLeftDisabled = !model || uiNav.prevButtonProps.disabled;
+  const navButtonLeftContent = (
+    <IconButton
+      className='model-nav-button'
+      color='primary'
+      {...uiNav.prevButtonProps}
+      disabled={navButtonLeftDisabled}
+    >
+      <Icon path={mdiMenuLeftOutline} size={1} />
+    </IconButton>
+  );
+
+  const navButtonLeft = navButtonLeftDisabled ? (
+    navButtonLeftContent
+  ) : (
     <Tooltip title={<>View previous model (⌨&nbsp;Left)</>}>
-      <IconButton
-        className='model-nav-button'
-        color='primary'
-        {...uiNav.prevButtonProps}
-        disabled={!model || uiNav.prevButtonProps.disabled}
-      >
-        <Icon path={mdiMenuLeftOutline} size={1} />
-      </IconButton>
+      {navButtonLeftContent}
     </Tooltip>
   );
 
-  const navButtonRight = (
+  const navButtonRightDisabled = !model || uiNav.nextButtonProps.disabled;
+  const navButtonRightContent = (
+    <IconButton
+      className='model-nav-button'
+      color='primary'
+      {...uiNav.nextButtonProps}
+      disabled={navButtonRightDisabled}
+    >
+      <Icon path={mdiMenuRightOutline} size={1} />
+    </IconButton>
+  );
+
+  const navButtonRight = navButtonRightDisabled ? (
+    navButtonRightContent
+  ) : (
     <Tooltip title={<>View next model(⌨&nbsp;Right)</>}>
-      <IconButton
-        className='model-nav-button'
-        color='primary'
-        {...uiNav.nextButtonProps}
-        disabled={!model || uiNav.nextButtonProps.disabled}
-      >
-        <Icon path={mdiMenuRightOutline} size={1} />
-      </IconButton>
+      {navButtonRightContent}
     </Tooltip>
   );
 
