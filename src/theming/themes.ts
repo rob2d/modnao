@@ -60,6 +60,14 @@ const themes = Object.fromEntries(
               lineHeight: 'unset'
             }
           }
+        },
+        MuiAlert: {
+          styleOverrides: {
+            icon: {
+              fontSize: '28px',
+              alignItems: 'center'
+            }
+          }
         }
       },
       palette: {

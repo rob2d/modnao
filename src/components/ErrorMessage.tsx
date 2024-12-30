@@ -1,24 +1,9 @@
 import { useAppDispatch, useAppSelector } from '@/store';
 import { dismissError } from '@/store/errorMessagesSlice';
-import {
-  Alert,
-  AlertTitle,
-  Slide,
-  SlideProps,
-  Snackbar,
-  styled
-} from '@mui/material';
+import { Alert, AlertTitle, Slide, SlideProps, Snackbar } from '@mui/material';
+
 import { usePrevious } from '@uidotdev/usehooks';
 import { useCallback } from 'react';
-
-const StyledSnackbar = styled(Snackbar)(
-  () => `
-& .MuiAlert-icon {
-    font-size: 28px;
-    align-items: center;
-}
-`
-);
 
 const ErrorTransition = (props: SlideProps) => (
   <Slide {...props} direction='right' />
@@ -41,7 +26,7 @@ export default function ErrorMessage() {
   }, [dispatch]);
 
   return (
-    <StyledSnackbar
+    <Snackbar
       open={Boolean(error)}
       onClose={onDismissError}
       TransitionComponent={ErrorTransition}
@@ -50,6 +35,6 @@ export default function ErrorMessage() {
         <AlertTitle>{errorShown?.title ?? ''}</AlertTitle>
         {errorShown?.message || ''}
       </Alert>
-    </StyledSnackbar>
+    </Snackbar>
   );
 }
