@@ -10,7 +10,8 @@ export default function scanForModelPointers(
   modelPointers: { address: number; ramAddress: number }[],
   modelRamOffset: number
 ] {
-  const wBuffer = Buffer.from(buffer);
+  const wBuffer = Buffer.from(new Uint8Array(buffer));
+
   // get initial offset that will dictate how we can pull
   // textures/model data from files since typically they are loaded into RAM
   // before these ops in actual game-process on SH4

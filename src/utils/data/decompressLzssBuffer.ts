@@ -72,9 +72,7 @@ export default function decompressLzssBuffer(bufferPassed: Buffer) {
     }
   }
 
-  const outputBuffer = Buffer.from(
-    Array.from(new Uint8ClampedArray(output.length * 2))
-  );
+  const outputBuffer = Buffer.alloc(output.length * 2);
 
   for (let i = 0; i < output.length; i++) {
     outputBuffer.writeUInt16LE(output[i], i * WORD_SIZE);
