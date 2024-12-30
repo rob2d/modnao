@@ -7,7 +7,7 @@ export default function scanTextureHeaderData(
   buffer: TransferrableBuffer,
   modelRamOffset: number
 ) {
-  const wBuffer = Buffer.from(buffer);
+  const wBuffer = Buffer.from(new Uint8Array(buffer));
   const pvrStartAddress = wBuffer.readUInt32LE(0x8) - modelRamOffset;
   const pvrEndAddress = wBuffer.readUInt32LE(0x10) - modelRamOffset;
 

@@ -66,7 +66,7 @@ export default function GuiPanelViewOptions() {
 
   const onSetMeshDisplayMode = useCallback(
     (_: React.MouseEvent<HTMLElement>, mode: MeshDisplayMode) => {
-      mode && viewOptions.setMeshDisplayMode(mode);
+      viewOptions.setMeshDisplayMode(mode);
     },
     [viewOptions.setMeshDisplayMode]
   );

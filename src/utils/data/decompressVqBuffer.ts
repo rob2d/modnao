@@ -37,7 +37,7 @@ export default function decompressVqBuffer(
     console.error(error);
   }
 
-  const outputBuffer = Buffer.from(new Uint8ClampedArray(output.length * 2));
+  const outputBuffer = Buffer.alloc(output.length * WORD_SIZE);
 
   for (let i = 0; i < output.length; i++) {
     outputBuffer.writeUInt16LE(output[i], i * WORD_SIZE);
