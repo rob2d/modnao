@@ -64,7 +64,7 @@ export default function GuiPanelModels() {
   const onExportSelectionJson = useModelSelectionExport();
   const onSetMeshSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
-      type && dispatch(setObjectType(type));
+      dispatch(setObjectType(type));
     },
     [meshSelectionType]
   );
