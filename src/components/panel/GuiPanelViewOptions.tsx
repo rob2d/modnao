@@ -5,7 +5,7 @@ import {
   ToggleButton,
   ToggleButtonGroup
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
+import Grid from '@mui/material/Grid2'; // Grid version 2
 import GuiPanelSection from './GuiPanelSection';
 import { SyntheticEvent, useCallback, useContext, useMemo } from 'react';
 import ViewOptionsContext, {
@@ -210,8 +210,8 @@ export default function GuiPanelViewOptions() {
       <Styled className='view-options'>
         <Grid container className='property-table'>
           <Grid
-            xs={viewOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}
             className='display-mode'
+            size={viewOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}
           >
             <ToggleButtonGroup
               orientation='horizontal'
@@ -226,7 +226,7 @@ export default function GuiPanelViewOptions() {
               <ToggleButton value='textured'>textured</ToggleButton>
             </ToggleButtonGroup>
           </Grid>
-          <Grid xs={viewOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}>
+          <Grid size={viewOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}>
             <PaletteEditor />
           </Grid>
         </Grid>

@@ -8,7 +8,7 @@ import {
   Typography
 } from '@mui/material';
 import Icon from '@mdi/react';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelSection from './GuiPanelSection';
 import { useCallback, useContext, useMemo } from 'react';
@@ -175,33 +175,33 @@ export default function GuiPanelModels() {
       collapsedContentFABs={collapsedContentFABs}
     >
       <Grid container className='property-table'>
-        <Grid xs={4} className='grid-control-label'>
+        <Grid className='grid-control-label' size={4}>
           <Typography variant='body1' textAlign='right'>
             Models
           </Typography>
         </Grid>
-        <Grid xs={8}>
+        <Grid size={8}>
           {navButtonLeft}
           {modelNoAndCountEl}
           {navButtonRight}
         </Grid>
-        <Grid xs={7} className='grid-control-label'>
+        <Grid className='grid-control-label' size={7}>
           <Typography variant='body1' textAlign='right'>
             {viewOptions.guiPanelExpansionLevel > 1 ? 'Selected ' : ''}
             Object Key
           </Typography>
         </Grid>
-        <Grid xs={5}>
+        <Grid size={5}>
           <Typography variant='button' textAlign='right'>
             {!objectKey ? '--' : objectKey}
           </Typography>
         </Grid>
-        <Grid xs={7} className='grid-control-label'>
+        <Grid className='grid-control-label' size={7}>
           <Typography variant='body1' textAlign='right'>
             Selection Type
           </Typography>
         </Grid>
-        <Grid xs={5}>
+        <Grid size={5}>
           <ToggleButtonGroup
             orientation={
               viewOptions.guiPanelExpansionLevel <= 1
