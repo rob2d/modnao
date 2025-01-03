@@ -72,6 +72,10 @@ const Styled = styled('main')(
       max-width: 100%;
     }
 
+    .welcome-panel > .MuiPaper-root {
+      height: 100%;
+    }
+
     .welcome-panel > img {
       flex-shrink: 0;
     }
@@ -85,7 +89,7 @@ const Styled = styled('main')(
 
     .welcome-panel > div > .MuiPaper-root {
       display: flex;
-      padding: ${theme.spacing(2)}
+      padding: ${theme.spacing(2)};
     }
 
     .main-content {
