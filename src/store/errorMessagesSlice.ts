@@ -1,4 +1,4 @@
-import { AnyAction, createSlice } from '@reduxjs/toolkit';
+import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 
 export const sliceName = 'errorMessages';
@@ -34,7 +34,7 @@ const errorMessagesSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
+    builder.addCase(HYDRATE, (state, { payload }: UnknownAction) =>
       Object.assign(state, payload)
     );
   }
