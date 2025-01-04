@@ -2,7 +2,6 @@ import {
   MutableRefObject,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -49,6 +48,7 @@ import RenderedPolygon from './scene/RenderedPolygon';
 ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
+const canvasResizeParams = { debounce: 300 };
 
 const TEXTURE_ROTATION = 1.5708;
 const TEXTURE_CENTER = new Vector2(0.5, 0.5);
@@ -175,23 +175,6 @@ export default function SceneView() {
     })();
   }, [textureDefs]);
 
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) => {
-      const { width, height } = entries[0].contentRect;
-
-      const canvas = canvasRef.current?.childNodes[0] as HTMLCanvasElement;
-      if (canvas) {
-        canvas.style.width = `${width}px`;
-        canvas.style.height = `${height}px`;
-      }
-    });
-
-    const containerElement = canvasRef.current;
-    resizeObserver.observe(containerElement);
-
-    return () => resizeObserver.unobserve(containerElement);
-  }, []);
-
   const selectedMeshes = useAppSelector(selectDisplayedMeshes);
   const meshes = useAppSelector(selectAllDisplayedMeshes);
 
@@ -238,6 +221,7 @@ export default function SceneView() {
 
   return (
     <Canvas
+      resize={canvasResizeParams}
       camera={cameraParams}
       frameloop='demand'
       style={canvasStyle}
