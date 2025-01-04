@@ -228,7 +228,7 @@ const StyledPaper = styled(Paper)(
       justify-content: center;
 
       background-color: transparent;
-      transition: background ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease;
+      transition: background-color ${TRANSITION_TIME} ease;
 
       &:hover {
         background-color: ${theme.palette.action.hover};
