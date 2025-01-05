@@ -54,8 +54,7 @@ const TEXTURE_ROTATION = 1.5708;
 const TEXTURE_CENTER = new Vector2(0.5, 0.5);
 
 const useClientLayoutEffect =
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  typeof window !== 'undefined' ? useLayoutEffect : () => {};
+  typeof window !== 'undefined' ? useLayoutEffect : () => undefined;
 
 async function createTextureFromObjectUrl(
   pixelObjectUrl: string,
