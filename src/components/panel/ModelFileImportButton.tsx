@@ -21,7 +21,7 @@ const StyledImportButton = styled('div')(
 
     ${/* panel expanded variant */ ''}
 
-    .panel:not(.welcome).expanded & {
+    .panel:not(.welcome).expanded-2 & {
       margin-bottom: ${theme.spacing(1)};
     }
 

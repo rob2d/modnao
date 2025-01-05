@@ -116,7 +116,12 @@ export default function GuiPanelModels() {
   }
 
   const modelNoAndCountEl = (
-    <Typography variant='button' textAlign='right'>
+    <Typography
+      variant='button'
+      textAlign='right'
+      noWrap
+      textOverflow={'ellipsis'}
+    >
       {modelNoAndCount}
     </Typography>
   );
@@ -161,9 +166,10 @@ export default function GuiPanelModels() {
     </Tooltip>
   );
 
-  const collapsedContentFABs = viewOptions.guiPanelExpansionLevel
-    ? [navButtonLeft, modelNoAndCountEl, navButtonRight]
-    : [navButtonLeft, navButtonRight];
+  const collapsedContentFABs =
+    viewOptions.guiPanelExpansionLevel > 1
+      ? [navButtonLeft, modelNoAndCountEl, navButtonRight]
+      : [navButtonLeft, navButtonRight];
 
   return !polygonFileName ? (
     <ModelFileImportButton />
