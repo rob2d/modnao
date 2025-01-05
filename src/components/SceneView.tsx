@@ -48,7 +48,7 @@ import RenderedPolygon from './scene/RenderedPolygon';
 ColorManagement.enabled = true;
 
 const cameraParams = { far: 5000000 };
-const canvasResizeParams = { debounce: 300 };
+const canvasResizeParams = { debounce: 125 };
 
 const TEXTURE_ROTATION = 1.5708;
 const TEXTURE_CENTER = new Vector2(0.5, 0.5);
