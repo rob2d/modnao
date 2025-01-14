@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import React, { ReactNode, useCallback, useMemo } from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
 import { ScenePalette, useMediaQuery } from '@mui/material';
 import themes from '@/theming/themes';
+import useViewOptionSetting from '@/hooks/useViewOptionSetting';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
 
@@ -72,247 +67,77 @@ export const defaultValues: ViewOptions = {
   setRenderAllModels: (_: boolean) => null
 } as const;
 
-export const ViewOptionsContext =
-  React.createContext<ViewOptions>(defaultValues);
+const ViewOptionsContext = React.createContext<ViewOptions>(defaultValues);
 
 type Props = { children: ReactNode };
 
 export function ViewOptionsContextProvider({ children }: Props) {
-  const [axesHelperVisible, handleSetAxesHelperVisible] = useState(
-    defaultValues.axesHelperVisible
-  );
-  const [renderAllModels, handleSetRenderAllModels] = useState(
+  const [axesHelperVisible, setAxesHelperVisible] =
+    useViewOptionSetting<boolean>(
+      defaultValues.axesHelperVisible,
+      StorageKeys.AXES_HELPER_VISIBLE
+    );
+  const [sceneCursorVisible, setSceneCursorVisible] =
+    useViewOptionSetting<boolean>(defaultValues.sceneCursorVisible);
+
+  const [guiPanelExpansionLevel, setGuiPanelExpansionLevel] =
+    useViewOptionSetting<number>(
+      defaultValues.guiPanelExpansionLevel,
+      StorageKeys.GUI_PANEL_EXPANSION_LEVEL
+    );
+
+  const [renderAllModels, setRenderAllModels] = useViewOptionSetting<boolean>(
     defaultValues.renderAllModels
   );
-  const [objectAddressesVisible, handleSetObjectAddressesVisible] = useState(
-    defaultValues.objectAddressesVisible
-  );
 
-  const [guiPanelExpansionLevel, handleSetGuiPanelExpansionLevel] = useState(
-    defaultValues.guiPanelExpansionLevel
-  );
-  const [meshDisplayMode, handleSetMeshDisplayMode] =
-    useState<MeshDisplayMode>('wireframe');
-  const [disableBackfaceCulling, handleSetDisableBackfaceCulling] = useState(
-    defaultValues.disableBackfaceCulling
-  );
+  const [objectAddressesVisible, setObjectAddressesVisible] =
+    useViewOptionSetting<boolean>(defaultValues.objectAddressesVisible);
 
-  const [enableVertexColors, handleSetEnableVertexColors] = useState(
-    defaultValues.enableVertexColors
-  );
-  const [sceneCursorVisible, handleSetSceneCursorVisible] = useState(
-    defaultValues.sceneCursorVisible
-  );
-  const [wireframeLineWidth, handleSetWireframeLineWidth] = useState(
-    defaultValues.wireframeLineWidth
-  );
-  const [themeKey, handleSetThemeKey] = useState<'light' | 'dark' | undefined>(
-    defaultValues.themeKey
-  );
+  const [meshDisplayMode, setMeshDisplayMode] =
+    useViewOptionSetting<MeshDisplayMode>(
+      defaultValues.meshDisplayMode,
+      StorageKeys.MESH_DISPLAY_MODE
+    );
 
-  const [scenePalette, handleSetScenePalette] = useState<
+  const [disableBackfaceCulling, setDisableBackfaceCulling] =
+    useViewOptionSetting<boolean>(
+      defaultValues.disableBackfaceCulling,
+      StorageKeys.DISABLE_BACKFACE_CULLING
+    );
+
+  const [enableVertexColors, setEnableVertexColors] =
+    useViewOptionSetting<boolean>(
+      defaultValues.enableVertexColors,
+      StorageKeys.ENABLE_VERTEX_COLORS
+    );
+
+  const [wireframeLineWidth, setWireframeLineWidth] =
+    useViewOptionSetting<number>(
+      defaultValues.wireframeLineWidth,
+      StorageKeys.WIREFRAME_LINE_WIDTH
+    );
+
+  const [uvRegionsHighlighted, setUvRegionsHighlighted] =
+    useViewOptionSetting<boolean>(
+      defaultValues.uvRegionsHighlighted,
+      StorageKeys.UV_REGIONS_HIGHLIGHTED
+    );
+
+  const [devOptionsVisible, setDevOptionsVisible] =
+    useViewOptionSetting<boolean>(
+      defaultValues.devOptionsVisible,
+      StorageKeys.DEV_OPTIONS_VISIBLE
+    );
+
+  const [themeKey, setThemeKey] = useViewOptionSetting<
+    'light' | 'dark' | undefined
+  >(defaultValues.themeKey, StorageKeys.THEME_KEY);
+
+  const [scenePalette, setScenePalette] = useViewOptionSetting<
     ScenePalette | undefined
-  >(defaultValues.scenePalette);
-
-  const [uvRegionsHighlighted, handleSetUvRegionsHighlighted] =
-    useState<boolean>(defaultValues.uvRegionsHighlighted);
-  const [devOptionsVisible, handleSetDevOptionsVisible] = useState<boolean>(
-    defaultValues.devOptionsVisible
-  );
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const { localStorage } = window;
-    if (localStorage.getItem(StorageKeys.MESH_DISPLAY_MODE) !== null) {
-      handleSetMeshDisplayMode(
-        (localStorage.getItem(StorageKeys.MESH_DISPLAY_MODE) ||
-          'wireframe') as MeshDisplayMode
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.AXES_HELPER_VISIBLE) !== null) {
-      handleSetAxesHelperVisible(
-        JSON.parse(
-          localStorage.getItem(StorageKeys.AXES_HELPER_VISIBLE) || 'true'
-        ) as boolean
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE) !== null) {
-      handleSetObjectAddressesVisible(
-        JSON.parse(
-          localStorage.getItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE) || 'true'
-        ) as boolean
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) !== null) {
-      handleSetWireframeLineWidth(
-        Number(
-          localStorage.getItem(StorageKeys.WIREFRAME_LINE_WIDTH) || 4
-        ) as number
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.THEME_KEY) !== null) {
-      handleSetThemeKey(
-        (localStorage.getItem(StorageKeys.THEME_KEY) ||
-          defaultValues.themeKey) as 'light' | 'dark'
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.DISABLE_BACKFACE_CULLING) !== null) {
-      handleSetDisableBackfaceCulling(
-        JSON.parse(
-          localStorage.getItem(StorageKeys.DISABLE_BACKFACE_CULLING) || 'true'
-        ) as boolean
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.SCENE_PALETTE) !== null) {
-      handleSetScenePalette(
-        JSON.parse(
-          localStorage.getItem(StorageKeys.SCENE_PALETTE) || 'undefined'
-        ) as ScenePalette | undefined
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.UV_REGIONS_HIGHLIGHTED) !== null) {
-      handleSetUvRegionsHighlighted(
-        JSON.parse(
-          localStorage.getItem(StorageKeys.UV_REGIONS_HIGHLIGHTED) || 'true'
-        ) as boolean
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.DEV_OPTIONS_VISIBLE) !== null) {
-      handleSetDevOptionsVisible(
-        JSON.parse(
-          localStorage.getItem(StorageKeys.DEV_OPTIONS_VISIBLE) || 'true'
-        ) as boolean
-      );
-    }
-
-    if (localStorage.getItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL) !== null) {
-      handleSetGuiPanelExpansionLevel(
-        Number(
-          JSON.parse(
-            localStorage.getItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL) || '1'
-          )
-        ) as number
-      );
-    }
-  }, []);
-
-  const setObjectAddressesVisible = useCallback(
-    (value: boolean) => {
-      if (objectAddressesVisible !== value) {
-        localStorage.setItem(StorageKeys.OBJECT_ADDRESSES_VISIBLE, `${value}`);
-        handleSetObjectAddressesVisible(value);
-      }
-    },
-    [objectAddressesVisible]
-  );
-
-  const setSceneCursorVisible = useCallback(
-    (value: boolean) => {
-      if (sceneCursorVisible !== value) {
-        handleSetSceneCursorVisible(value);
-      }
-    },
-    [sceneCursorVisible]
-  );
-
-  const setGuiPanelExpansionLevel = useCallback(
-    (value: number) => {
-      if (guiPanelExpansionLevel !== value) {
-        localStorage.setItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL, `${value}`);
-        handleSetGuiPanelExpansionLevel(value);
-      }
-    },
-    [guiPanelExpansionLevel]
-  );
-
-  const setAxesHelperVisible = useCallback(
-    (value: boolean) => {
-      if (axesHelperVisible !== value) {
-        localStorage.setItem(StorageKeys.AXES_HELPER_VISIBLE, `${value}`);
-        handleSetAxesHelperVisible(value);
-      }
-    },
-    [axesHelperVisible]
-  );
-
-  const setMeshDisplayMode = useCallback(
-    (value: MeshDisplayMode) => {
-      if (meshDisplayMode !== value) {
-        localStorage.setItem(StorageKeys.MESH_DISPLAY_MODE, `${value}`);
-        handleSetMeshDisplayMode(value);
-      }
-    },
-    [meshDisplayMode]
-  );
-
-  const setDisableBackfaceCulling = useCallback(
-    (value: boolean) => {
-      if (disableBackfaceCulling !== value) {
-        localStorage.setItem(StorageKeys.DISABLE_BACKFACE_CULLING, `${value}`);
-        handleSetDisableBackfaceCulling(value);
-      }
-    },
-    [disableBackfaceCulling]
-  );
-
-  const setEnableVertexColors = useCallback(
-    (value: boolean) => {
-      if (enableVertexColors !== value) {
-        localStorage.setItem(StorageKeys.ENABLE_VERTEX_COLORS, `${value}`);
-        handleSetEnableVertexColors(value);
-      }
-    },
-    [enableVertexColors]
-  );
-
-  const setUvRegionsHighlighted = useCallback(
-    (value: boolean) => {
-      if (uvRegionsHighlighted !== value) {
-        localStorage.setItem(StorageKeys.UV_REGIONS_HIGHLIGHTED, `${value}`);
-        handleSetUvRegionsHighlighted(value);
-      }
-    },
-    [uvRegionsHighlighted]
-  );
-
-  const setWireframeLineWidth = useCallback(
-    (value: number) => {
-      if (wireframeLineWidth !== value) {
-        localStorage.setItem(StorageKeys.WIREFRAME_LINE_WIDTH, `${value}`);
-        handleSetWireframeLineWidth(value);
-      }
-    },
-    [wireframeLineWidth]
-  );
+  >(defaultValues.scenePalette, StorageKeys.SCENE_PALETTE);
 
   const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const setScenePalette = useCallback(
-    (value: ScenePalette | undefined) => {
-      if (scenePalette !== value) {
-        localStorage.setItem(StorageKeys.SCENE_PALETTE, JSON.stringify(value));
-        handleSetScenePalette(value);
-      }
-    },
-    [scenePalette]
-  );
-
-  const setThemeKey = useCallback((value: 'light' | 'dark') => {
-    if (themeKey !== value) {
-      localStorage.setItem(StorageKeys.THEME_KEY, JSON.stringify(value));
-      handleSetThemeKey(value);
-    }
-  }, []);
 
   /**
    * toggles between light or dark theme, or performs a reset
@@ -333,26 +158,6 @@ export function ViewOptionsContextProvider({ children }: Props) {
       setThemeKey(isDarkMode ? 'light' : 'dark');
     }
   }, [scenePalette, isDarkMode]);
-
-  const setDevOptionsVisible = useCallback(
-    (value: boolean) => {
-      if (devOptionsVisible !== value) {
-        localStorage.setItem(
-          StorageKeys.DEV_OPTIONS_VISIBLE,
-          JSON.stringify(value)
-        );
-        handleSetDevOptionsVisible(value);
-      }
-    },
-    [devOptionsVisible]
-  );
-
-  const setRenderAllModels = useCallback(
-    (value: boolean) => {
-      handleSetRenderAllModels(value);
-    },
-    [renderAllModels]
-  );
 
   const contextValue = useMemo<ViewOptions>(
     () => ({
