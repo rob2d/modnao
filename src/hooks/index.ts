@@ -8,3 +8,4 @@ export { default as useSceneGLTFFileDownloader } from './useSceneGLTFFileDownloa
 export { default as useSupportedFilePicker } from './useSupportedFilePicker';
 export { default as useTextureReplaceDropzone } from './useTextureReplaceDropzone';
 export { default as useTextureOptions } from './useTextureOptions';
+export { default as useViewOptionSetting } from './useViewOptionSetting';
