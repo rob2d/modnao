@@ -37,7 +37,7 @@ export default function Contributors() {
         <Typography variant={'subtitle1'}>User Testing & Feedback</Typography>
         <Typography variant={'body2'}>
           Magnetro2K, Paxtez, DJ Clayface, Toan, Blindfire604, derek (ateam),
-          ONTortita
+          ONTortita, Stéphane Courvoisier
         </Typography>
       </StyledContent>
     </div>
