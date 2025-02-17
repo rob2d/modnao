@@ -154,7 +154,7 @@ export default async function exportTextureFile({
     // depending on if a character has international name variant
     case 'mvc2-character-portraits': {
       const buffer = Buffer.alloc(textureBuffer.length);
-      textureBuffer.copy(new Uint8Array(buffer));
+      textureBuffer.copy(buffer);
 
       const startPointer = buffer.readUint32LE(0);
       const pointers = [startPointer];
