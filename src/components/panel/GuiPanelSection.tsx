@@ -13,6 +13,7 @@ const StyledSubheader = styled(ListSubheader)(
   ({ theme }) => `
 
   & {
+    margin-top: ${theme.spacing(1)};
     padding-left: 0;
     padding-right: 0;
     display: flex;
