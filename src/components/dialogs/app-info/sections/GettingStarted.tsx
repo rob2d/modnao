@@ -14,6 +14,7 @@ import { mdiDotsVertical } from '@mdi/js';
 
 const Styled = styled('div')(
   ({ theme }) => `& {
+  
   .MuiButton-root {
     pointer-events: none;
   }
@@ -43,7 +44,7 @@ const noop = () => undefined;
 
 export default function GettingStarted() {
   return (
-    <div className='app-info-section'>
+    <div className='app-info-section getting-started'>
       <DialogSectionHeader>Getting Started</DialogSectionHeader>
       <Styled>
         <Stepper orientation='vertical' nonLinear>
