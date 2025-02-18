@@ -31,20 +31,17 @@ const Styled = styled('div')(
     }
 
     ${theme.breakpoints.up('lg')} {
-      // getting started
-      & *:nth-child(1) {
+      & .getting-started {
         grid-row-start: 1;
         grid-row-end: 3;
       }
 
-      // dev updates
-      & *:nth-child(2) {
+      & .dev-updates {
         grid-row-start: 1;
         grid-row-end: 2;
       }
 
-      // howto-and-contribution
-      & *:nth-child(3) {
+      & .howto-and-contributions {
         grid-row-start: 1;
         grid-row-end: 4;
       }

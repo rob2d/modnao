@@ -157,7 +157,7 @@ export default function DevUpdates() {
         ));
 
   return (
-    <StyledContent className='app-info-section scroll-body'>
+    <StyledContent className='app-info-section dev-updates scroll-body'>
       <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
       <DialogSectionContentCards>{vlogContent}</DialogSectionContentCards>
     </StyledContent>

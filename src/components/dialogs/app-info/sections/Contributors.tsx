@@ -22,7 +22,7 @@ const StyledContent = styled('div')(
 
 export default function Contributors() {
   return (
-    <div className='app-info-section'>
+    <div className='app-info-section contributors'>
       <DialogSectionHeader>Contributions</DialogSectionHeader>
       <StyledContent>
         <Typography variant={'subtitle1'}>Design/Development</Typography>
