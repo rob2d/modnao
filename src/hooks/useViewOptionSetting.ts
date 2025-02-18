@@ -18,7 +18,6 @@ export default function useViewOptionSetting<T>(
 
     if (storageKey) {
       const storedValue = localStorage.getItem(storageKey);
-      console.log(`Reading ${storageKey} from localStorage: ${storedValue}`);
       if (storedValue !== null) {
         switch (typeof defaultValue) {
           case 'string':
