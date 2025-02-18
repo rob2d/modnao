@@ -33,7 +33,7 @@ import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ModelFileImportButton from './ModelFileImportButton';
 
 const StyledButtons = styled('div')(
-  () => `
+  ({ theme }) => `
   & {
     display: flex;
     flex-direction: column;
@@ -47,6 +47,10 @@ const StyledButtons = styled('div')(
   .panel.expanded & > div:nth-child(2) {
     display: flex;
     flex-direction: column;
+  }
+
+  .poly-export-buttons {
+    margin-bottom: ${theme.spacing(1)}
   }
 `
 );
@@ -228,7 +232,7 @@ export default function GuiPanelModels() {
       </Grid>
       <StyledButtons>
         <ModelFileImportButton />
-        <div>
+        <div className='poly-export-buttons'>
           <GuiPanelButton
             tooltip={
               'Export a .gltf file representing the currently viewed in-scene model ' +

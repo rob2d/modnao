@@ -89,8 +89,8 @@ const StyledPaper = styled(Paper)(
       box-sizing: border-box;
       padding-left: ${theme.spacing(2)};
       padding-right: ${theme.spacing(2)};
-      padding-top: ${theme.spacing(1)};
-      padding-bottom: ${theme.spacing(1)};
+      padding-top: 0;
+      padding-bottom: 0;
     }
 
     & > .content {
@@ -151,10 +151,6 @@ const StyledPaper = styled(Paper)(
       overflow-y: auto;
     }
 
-    & .content > .MuiDivider-root {
-      margin-bottom: ${theme.spacing(1)};
-    }
-
     & .view-options {
       display: flex;
       flex-direction: column;
@@ -176,6 +172,7 @@ const StyledPaper = styled(Paper)(
       display: flex;
       flex-direction: column;
       margin-top: ${theme.spacing(1)};
+      margin-bottom: ${theme.spacing(1)};
     }
 
     &.expanded .texture-export-options {
@@ -189,15 +186,6 @@ const StyledPaper = styled(Paper)(
     &.expanded .texture-export-options > * {
       flex-basis: 50%;
     }
-
-    ${
-      !process.env.JEST_WORKER_ID
-        ? `& .MuiDivider-root:not(:first-child):not(.export-texture-button-container + .MuiDivider-root):not(.export-texture-images + .MuiDivider-root) {
-          padding-top: ${theme.spacing(1)};
-        }`
-        : ''
-    }
-    
 
     & .MuiIconButton-root.model-nav-button {
       width: 28px;
