@@ -89,15 +89,20 @@ export default async function exportTextureFile({
         quantizeOptions = {
           dithering: false,
           // restrict colors further on smaller lifegauge imgs
-          colors: width === 64 ? 48 : 120
+          colors: width === 64 ? 44 : 112
         };
         break;
       }
       case 'cvs2-console-menu':
-      case 'mvc2-selection-textures': {
         quantizeOptions = {
           dithering: false,
           colors: 512
+        };
+        break;
+      case 'mvc2-selection-textures': {
+        quantizeOptions = {
+          dithering: false,
+          colors: 504
         };
         break;
       }
