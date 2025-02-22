@@ -2,7 +2,7 @@ import {
   MutableRefObject,
   useCallback,
   useContext,
-  useLayoutEffect,
+  useEffect,
   useMemo,
   useRef,
   useState
@@ -53,42 +53,16 @@ const canvasResizeParams = { debounce: 125 };
 const TEXTURE_ROTATION = 1.5708;
 const TEXTURE_CENTER = new Vector2(0.5, 0.5);
 
-const useClientLayoutEffect =
-  typeof window !== 'undefined' ? useLayoutEffect : () => undefined;
-
-async function createTextureFromObjectUrl(
-  pixelObjectUrl: string,
-  width: number,
-  height: number
-) {
-  const pixels = new Uint8Array(await objectUrlToBuffer(pixelObjectUrl));
-  const texture = new DataTexture(
-    pixels,
-    width,
-    height,
-    RGBAFormat,
-    UnsignedByteType,
-    Texture.DEFAULT_MAPPING,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    SRGBColorSpace
-  );
-  texture.rotation = TEXTURE_ROTATION;
-  texture.center = TEXTURE_CENTER;
-  texture.repeat.y = -1;
-  texture.flipY = false;
-  texture.needsUpdate = true;
-
-  return texture;
-}
+const useClientEffect =
+  typeof window !== 'undefined' ? useEffect : () => undefined;
 
 const axesHelper = <axesHelper args={[50]} />;
 
+const textureTypes = ['opaque', 'translucent'] as const;
+
 export default function SceneView() {
   useObjectNavControls();
+
   const [textureMap, setTextureMap] = useState<Map<string, DataTexture>>();
   const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
   const viewOptions = useContext(ViewOptionsContext);
@@ -97,8 +71,8 @@ export default function SceneView() {
   const objectKey = useAppSelector(selectObjectKey);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const onSelectObjectKey = useCallback(
-    (key: string) => {
-      dispatch(setObjectKey(objectKey !== key ? key : undefined));
+    (key: string | undefined) => {
+      dispatch(setObjectKey(key ?? undefined));
     },
     [objectKey]
   );
@@ -116,57 +90,64 @@ export default function SceneView() {
       background: theme.palette.scene.background,
       cursor: viewOptions.sceneCursorVisible ? 'default' : 'none'
     }),
-    [viewOptions.sceneCursorVisible, theme]
+    [viewOptions.sceneCursorVisible, theme.palette.scene.background]
   );
 
-  useClientLayoutEffect(() => {
+  useClientEffect(() => {
     const nextMap = new Map<string, DataTexture>();
     (async () => {
-      for await (const t of textureDefs) {
-        for await (const type of ['opaque', 'translucent']) {
-          const url = t.bufferUrls[type as 'opaque' | 'translucent'];
-          if (!url) {
-            continue;
-          }
-
-          let baseTexture: DataTexture | undefined = undefined;
-
-          for await (const hRepeat of [true, false]) {
-            for await (const vRepeat of [true, false]) {
-              const key = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
-              if (!textureMap?.has(key)) {
-                if (baseTexture === undefined) {
-                  baseTexture = await createTextureFromObjectUrl(
-                    url,
-                    t.width,
-                    t.height
-                  );
-                }
-
-                const texture =
-                  !hRepeat && !vRepeat ? baseTexture : baseTexture.clone();
-
-                texture.wrapS = hRepeat ? RepeatWrapping : ClampToEdgeWrapping;
-                texture.wrapT = vRepeat ? RepeatWrapping : ClampToEdgeWrapping;
-
-                nextMap.set(key, texture);
-              } else {
-                nextMap.set(key, textureMap?.get(key) as DataTexture);
+      await Promise.all(
+        textureDefs.map(async (textureDef) => {
+          return Promise.all(
+            textureTypes.map(async (type: 'opaque' | 'translucent') => {
+              const url = textureDef.bufferUrls[type];
+              if (!url) {
+                return;
               }
-            }
-          }
-        }
-      }
+
+              await Promise.all(
+                [true, false].flatMap((hRepeat) =>
+                  [true, false].map(async (vRepeat) => {
+                    const key = `${url}-${Number(hRepeat)}-${Number(vRepeat)}`;
+
+                    if (!textureMap?.has(key)) {
+                      const pixels = await objectUrlToBuffer(url);
+                      const texture = new DataTexture(
+                        pixels,
+                        textureDef.width,
+                        textureDef.height,
+                        RGBAFormat,
+                        UnsignedByteType,
+                        Texture.DEFAULT_MAPPING,
+                        hRepeat ? RepeatWrapping : ClampToEdgeWrapping,
+                        vRepeat ? RepeatWrapping : ClampToEdgeWrapping,
+                        undefined,
+                        undefined,
+                        undefined,
+                        SRGBColorSpace
+                      );
+                      texture.rotation = TEXTURE_ROTATION;
+                      texture.center = TEXTURE_CENTER;
+                      texture.repeat.y = -1;
+                      texture.flipY = false;
+                      texture.needsUpdate = true;
+
+                      nextMap.set(key, texture);
+                    } else {
+                      nextMap.set(key, textureMap.get(key) as DataTexture);
+                    }
+                  })
+                )
+              );
+            })
+          );
+        })
+      );
 
       setTextureMap(nextMap);
 
-      // revoke unused texture urls
-      if (!textureMap) {
-        return;
-      }
-
       // free up memory for updated texture urls as needed
-      for (const key of textureMap.keys()) {
+      for (const key of textureMap?.keys() || []) {
         if (!nextMap.has(key) && !uneditedTextureUrls.has(key)) {
           URL.revokeObjectURL(key);
         }
@@ -191,7 +172,6 @@ export default function SceneView() {
           >
             {ms.map((m, i) => {
               const texture = textureMap?.get(m.textureHash) || null;
-
               return m.polygons.map((p, pIndex) => (
                 <RenderedPolygon
                   {...p}
@@ -233,6 +213,7 @@ export default function SceneView() {
           !viewOptions.renderAllModels
         }
       >
+        <SceneContextSetup />
         <EffectComposer autoClear={false} key={objectKey}>
           <Outline
             edgeStrength={30}
@@ -242,7 +223,6 @@ export default function SceneView() {
             hiddenEdgeColor={theme.palette.scene.selected as unknown as number}
           />
         </EffectComposer>
-        <SceneContextSetup />
         <group>
           {!viewOptions.axesHelperVisible ? undefined : axesHelper}
           {renderedModels}
