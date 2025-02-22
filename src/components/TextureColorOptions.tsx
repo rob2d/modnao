@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { batch } from 'react-redux';
 import {
   Button,
   List,
@@ -84,36 +83,32 @@ export default function TextureColorOptions({
     setHsl(h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL);
   }, [textureIndex]);
 
-  const getHslSetter = useCallback(
-    (key: keyof HslValues) => (v: number | number[]) =>
-      setHsl({
-        ...DEFAULT_HSL,
-        ...hsl,
-        [key]: Array.isArray(v) ? v[0] : v
-      }),
-    [hsl]
-  );
+  const onSetH = useCallback((h: number) => {
+    setHsl((prev) => ({ ...prev, h }));
+  }, []);
 
-  const onSetH = getHslSetter('h');
-  const onSetS = getHslSetter('s');
-  const onSetL = getHslSetter('l');
+  const onSetS = useCallback((s: number) => {
+    setHsl((prev) => ({ ...prev, s }));
+  }, []);
 
-  const processedHsl = useThrottle(hsl, 100);
+  const onSetL = useCallback((l: number) => {
+    setHsl((prev) => ({ ...prev, l }));
+  }, []);
+
+  const processedHsl = useThrottle(hsl, 50);
 
   useEffect(() => {
     dispatch(adjustTextureHsl({ hsl: processedHsl, textureIndex }));
   }, [processedHsl]);
 
   const onApplyToAll = useCallback(() => {
-    batch(() => {
-      for (
-        let textureIndex = 0;
-        textureIndex < textureDefs.length;
-        textureIndex++
-      ) {
-        dispatch(adjustTextureHsl({ hsl, textureIndex }));
-      }
-    });
+    for (
+      let textureIndex = 0;
+      textureIndex < textureDefs.length;
+      textureIndex++
+    ) {
+      dispatch(adjustTextureHsl({ hsl, textureIndex }));
+    }
   }, [hsl, textureIndex]);
 
   const ButtonOption = useCallback(

@@ -6,7 +6,6 @@ import { AppThunk } from './store';
 import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { replaceTextureImage } from './modelDataSlice';
-import { batch } from 'react-redux';
 import { createAppAsyncThunk } from './storeTypings';
 
 export type ReplacementImage = {
@@ -91,28 +90,26 @@ export const applyReplacedTextureImage = createAppAsyncThunk(
 
     const bufferUrls = { translucent, opaque };
 
-    batch(() => {
-      dispatch(
-        replaceTextureImage({
-          textureIndex,
-          bufferUrls,
-          dataUrls: {
-            translucent: new Image({
-              data: translucentBuffer,
-              width,
-              height
-            }).toDataURL(),
-            opaque: new Image({
-              data: opaqueBuffer,
-              width,
-              height
-            }).toDataURL()
-          }
-        })
-      );
+    dispatch(
+      replaceTextureImage({
+        textureIndex,
+        bufferUrls,
+        dataUrls: {
+          translucent: new Image({
+            data: translucentBuffer,
+            width,
+            height
+          }).toDataURL(),
+          opaque: new Image({
+            data: opaqueBuffer,
+            width,
+            height
+          }).toDataURL()
+        }
+      })
+    );
 
-      dispatch(closeDialog());
-    });
+    dispatch(closeDialog());
   }
 );
 
