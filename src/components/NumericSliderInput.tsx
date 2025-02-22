@@ -70,7 +70,7 @@ type Props = {
   value: number;
   defaultValue: number;
   labelTooltip: string;
-  onChange: (value: number | number[]) => void;
+  onChange: (value: number) => void;
 };
 
 /**
@@ -113,25 +113,22 @@ export default function NumericSliderInput({
     [onChange, value, min, max]
   );
 
-  const onChangeSlider = useCallback(
-    (_: Event, value: number | number[]) => {
-      if (Array.isArray(value)) {
-        onChange(value[0]);
-      } else {
-        onChange(value);
-      }
-    },
-    [onChange]
-  );
+  const onChangeSlider = useCallback((_: Event, value: number | number[]) => {
+    if (Array.isArray(value)) {
+      onChange(value[0]);
+    } else {
+      onChange(value);
+    }
+  }, []);
 
   const onResetValue = useCallback(() => {
     onChange(defaultValue);
   }, [defaultValue]);
 
-  const inputProps = useMemo(
-    () => ({ inputMode: 'numeric', min, max }),
+  const slotProps = useMemo(
+    () => ({ input: { type: 'number', min, max } }),
     [min, max]
-  ) as { inputMode: 'numeric'; min: number; max: number };
+  );
 
   return (
     <StyledListItem>
@@ -156,7 +153,7 @@ export default function NumericSliderInput({
           color='secondary'
           size='small'
           type='text'
-          inputProps={inputProps}
+          slotProps={slotProps}
           className='input'
           onBlur={onChangeTextField}
           inputRef={inputRef}
