@@ -78,10 +78,9 @@ export default async function exportTextureFile({
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
 
-    const pixelColors = new Uint8ClampedArray(
-      await objectUrlToBuffer(t.bufferUrls.translucent as string)
+    const pixelColors = await objectUrlToBuffer(
+      t.bufferUrls.translucent as string
     );
-
     let quantizeOptions: QuantizeOptions | undefined;
 
     switch (textureFileType) {

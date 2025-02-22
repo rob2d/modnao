@@ -9,8 +9,7 @@ const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 const W16_MAX_LOOKBACK = 0b111_1111_1111;
 
 /** @param buffer decompressed buffer to compress */
-export default function compressLzssBuffer(buffer: Buffer) {
-  console.time('compressLzssBuffer');
+export default function compressLzssBuffer(buffer: Uint8Array) {
   let i = 0;
 
   // create a structure that maps sequences of word ops
@@ -166,6 +165,5 @@ export default function compressLzssBuffer(buffer: Buffer) {
     escapeWordCount--;
   }
 
-  console.timeEnd('compressLzssBuffer');
   return new Uint8Array(outputBuffer);
 }

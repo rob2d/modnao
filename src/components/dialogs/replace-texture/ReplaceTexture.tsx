@@ -295,9 +295,8 @@ export default function ReplaceTexture() {
 
   const [preserveOriginAlpha, setPreserveOriginAlpha] = useState(() => true);
 
-  const [originTextureBuffer, setOriginTextureBuffer] = useState<Buffer | null>(
-    () => null
-  );
+  const [originTextureBuffer, setOriginTextureBuffer] =
+    useState<Uint8Array | null>(() => null);
 
   useEffect(() => {
     (async () => {
@@ -335,10 +334,7 @@ export default function ReplaceTexture() {
 
         const { width, height, bufferObjectUrl } = replacementImage;
 
-        const data = new Uint8ClampedArray(
-          await objectUrlToBuffer(bufferObjectUrl || '')
-        );
-
+        const data = await objectUrlToBuffer(bufferObjectUrl || '');
         const dataUrl = new Image({
           data,
           width,
@@ -427,9 +423,7 @@ export default function ReplaceTexture() {
       if (!originTextureBufferUrl) {
         return;
       }
-      const textureBuffer = Buffer.from(
-        await objectUrlToBuffer(originTextureBufferUrl)
-      );
+      const textureBuffer = await objectUrlToBuffer(originTextureBufferUrl);
       setOriginTextureBuffer(textureBuffer);
     })();
   }, [textureDefs?.[textureIndex]?.bufferUrls?.['translucent'] || '']);
