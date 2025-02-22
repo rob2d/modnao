@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei';
 import { DoubleSide, FrontSide, Mesh, Texture, Vector3 } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
@@ -97,32 +97,27 @@ export default function RenderedPolygon({
       return [vPositions, nArray, uvArray, iArray, cArray];
     }, [vertices, vertexGroupMode, indices]);
 
-  const displayPosition: Point3D = useMemo(() => {
+  const meshAddressText = useMemo(() => {
     if (
       !isSelected ||
       meshDisplayMode === 'textured' ||
       !objectAddressesVisible
     ) {
-      return [0, 0, 0];
+      return undefined;
     }
+
     // display position is an aggregated weight
-    let dArray: Point3D = [0, 0, 0];
+    let displayPosition: Point3D = [0, 0, 0];
 
     vertices.forEach((v) => {
-      v.position.forEach((p, i) => (dArray[i] += p));
+      v.position.forEach((p, i) => (displayPosition[i] += p));
     });
 
-    dArray = dArray.map((c) => Math.round(c / vertices.length)) as Point3D;
+    displayPosition = displayPosition.map((c) =>
+      Math.round(c / vertices.length)
+    ) as Point3D;
 
-    return dArray;
-  }, [
-    !isSelected || meshDisplayMode === 'textured' || !objectAddressesVisible
-  ]);
-
-  const meshAddressText = useMemo(() => {
-    return !isSelected ||
-      meshDisplayMode === 'textured' ||
-      !objectAddressesVisible ? undefined : (
+    return (
       <Text
         font={'/fonts/robotoLightRegular.json'}
         fontSize={16}
@@ -142,14 +137,17 @@ export default function RenderedPolygon({
       alphaTest: 0.0001,
       side: disableBackfaceCulling || !flags.culling ? DoubleSide : FrontSide
     }),
-    [texture, isSelected, disableBackfaceCulling || !flags.culling]
+    [texture, disableBackfaceCulling || !flags.culling]
   );
 
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    e.nativeEvent.stopPropagation();
-    e.stopPropagation();
-    onSelectObjectKey(objectKey);
-  };
+  const handleClick = useCallback(
+    (e: ThreeEvent<MouseEvent>) => {
+      e.nativeEvent.stopPropagation();
+      e.stopPropagation();
+      onSelectObjectKey(objectKey);
+    },
+    [onSelectObjectKey, objectKey]
+  );
 
   return (
     <>
