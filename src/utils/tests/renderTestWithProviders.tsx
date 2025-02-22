@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { Provider } from 'react-redux';
 import { render } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
@@ -6,7 +6,6 @@ import { ThemeProvider } from '@mui/material/styles';
 
 import useUserTheme from '@/theming/useUserTheme';
 import { type AppState, type AppStore, setupStore } from '@/store';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: AppState;
@@ -25,11 +24,7 @@ export default function renderTestWIthProviders(
   function ThemedContent({
     children
   }: PropsWithChildren<unknown>): JSX.Element {
-    const viewOptions = useContext(ViewOptionsContext);
-    const theme = useUserTheme(
-      viewOptions.scenePalette || {},
-      viewOptions.themeKey
-    );
+    const theme = useUserTheme();
     return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
   }
 
