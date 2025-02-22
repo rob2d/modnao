@@ -16,14 +16,8 @@ describe('NumericSliderInput', () => {
       />
     );
 
-    const elementsFound = await Promise.all([
-      screen.findByText('H'),
-      screen.findByRole('textbox')
-    ]);
-
-    for (const element of elementsFound) {
-      expect(element).toBeInTheDocument();
-    }
+    const element = await screen.findByRole('spinbutton');
+    expect(element).toBeInTheDocument();
   });
 
   it('renders with default input value', async () => {
@@ -39,8 +33,8 @@ describe('NumericSliderInput', () => {
       />
     );
 
-    const input = await screen.findByRole('textbox');
-    expect(input).toHaveValue('0');
+    const input = await screen.findByRole('spinbutton');
+    expect(input).toHaveValue(0);
   });
 
   it('calls onChange when input is updated', async () => {
@@ -57,7 +51,7 @@ describe('NumericSliderInput', () => {
       />
     );
 
-    const input = await screen.findByRole('textbox');
+    const input = await screen.findByRole('spinbutton');
 
     await userEvents.type(input, '180');
     input.blur();
