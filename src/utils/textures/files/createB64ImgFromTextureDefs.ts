@@ -18,7 +18,7 @@ export default async function createImgFromTextureDef({
       ? pixelsObjectUrls.opaque || pixelsObjectUrls.translucent
       : pixelsObjectUrls.translucent) || '';
 
-  const pixels = new Uint8ClampedArray(await objectUrlToBuffer(bufferUrl));
+  const pixels = await objectUrlToBuffer(bufferUrl);
 
   const image = await Jimp.read({
     data: pixels,
