@@ -71,9 +71,9 @@ export default function GuiPanelTextureMenu({
     }
   }, [dlAsTranslucent && !open]);
 
-  const handleClick = (event: MouseEvent<HTMLElement>) => {
+  const handleClick = useCallback((event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-  };
+  }, []);
 
   const handleClose = useCallback(() => {
     setAnchorEl(null);
