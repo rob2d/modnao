@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useContext, useLayoutEffect, useState } from 'react';
 import themes from '@/theming/themes';
 import { createTheme, ScenePalette, Theme, useMediaQuery } from '@mui/material';
 import { ThemeOptions } from '@mui/material/styles';
+import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 let hasInitialized = false;
 
 const setupThemeOptions = (
   isDarkMode: boolean,
-  scenePalette: Partial<ScenePalette>
+  scenePalette: Partial<ScenePalette> | undefined
 ) => {
   const theme = themes[isDarkMode ? 'dark' : 'light'];
   const themeOptions = {
@@ -24,21 +25,15 @@ const setupThemeOptions = (
   return createTheme(themeOptions);
 };
 
-export default function useUserTheme(
-  scenePalette: Partial<ScenePalette>,
-  lightOrDark?: 'light' | 'dark'
-) {
+export default function useUserTheme() {
+  const viewOptions = useContext(ViewOptionsContext);
+  const { scenePalette, themeKey: lightOrDark } = viewOptions;
   const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [themeApplied, setThemeApplied] = useState<Theme>(
-    createTheme(
-      setupThemeOptions(
-        lightOrDark !== undefined ? lightOrDark === 'dark' : isDarkMode,
-        scenePalette
-      )
-    )
+    createTheme(setupThemeOptions(isDarkMode, scenePalette))
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!hasInitialized) {
       hasInitialized = true;
       return;

@@ -52,7 +52,6 @@ const themes = Object.fromEntries(
         fontFamily: robotoMono.style.fontFamily
       },
       components: {
-        MuiCssBaseline: {},
         MuiListSubheader: {
           styleOverrides: {
             root: {
