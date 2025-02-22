@@ -1,7 +1,8 @@
 import { Image } from 'image-js';
-import adjustHslOfRgba from '../color-conversions/adjustHslOfRgba';
 import { bufferToObjectUrl, objectUrlToBuffer } from '../data';
 import HslValues from './HslValues';
+import { RgbaColor } from './RgbaColor';
+import { hslToRgb, rgbToHsl } from '../color-conversions';
 
 export default async function adjustTextureHsl(
   sourceUrl: string,
@@ -9,7 +10,6 @@ export default async function adjustTextureHsl(
   height: number,
   hsl: HslValues
 ) {
-  const { h, s, l } = hsl;
   const sourceData = Buffer.from(await objectUrlToBuffer(sourceUrl));
   const imageData = new Uint8ClampedArray(sourceData.length);
 
@@ -19,30 +19,24 @@ export default async function adjustTextureHsl(
    * value to prevent re-calculation of hsl.
    *
    **/
-  const conversions = new Map<string, { r: number; g: number; b: number }>();
+  const conversions = new Map<number, { r: number; g: number; b: number }>();
 
   for (let i = 0; i < sourceData.length; i += 4) {
-    const rgbHash = `${sourceData[i]},${sourceData[i + 1]},${
-      sourceData[i + 2]
-    }`;
+    const rgbHash =
+      (sourceData[i] << 16) | (sourceData[i + 1] << 8) | sourceData[i + 2];
     if (!conversions.has(rgbHash)) {
-      conversions.set(
-        rgbHash,
-        adjustHslOfRgba(
-          sourceData[i],
-          sourceData[i + 1],
-          sourceData[i + 2],
-          h,
-          s,
-          l
-        )
+      const { h, s, l } = rgbToHsl(
+        sourceData[i],
+        sourceData[i + 1],
+        sourceData[i + 2]
       );
+      const newH = (h + hsl.h) % 360;
+      const newS = Math.max(Math.min(s + hsl.s, 100), 0);
+      const newL = Math.max(Math.min(l + hsl.l, 100), 0);
+      const { r: newR, g: newG, b: newB } = hslToRgb(newH, newS, newL);
+      conversions.set(rgbHash, { r: newR, g: newG, b: newB });
     }
-    const newRgba = conversions.get(rgbHash) as {
-      r: number;
-      g: number;
-      b: number;
-    };
+    const newRgba = conversions.get(rgbHash) as RgbaColor;
 
     imageData[i] = newRgba.r;
     imageData[i + 1] = newRgba.g;
