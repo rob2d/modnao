@@ -237,18 +237,18 @@ export default function ReplaceTexture() {
   );
 
   const onFlipHorizontal = useCallback(() => {
-    setFlip({
-      ...flip,
-      horizontal: !flip.horizontal
-    });
-  }, [flip]);
+    setFlip((prevFlip) => ({
+      ...prevFlip,
+      horizontal: !prevFlip.horizontal
+    }));
+  }, []);
 
   const onFlipVertical = useCallback(() => {
-    setFlip({
-      ...flip,
-      vertical: !flip.vertical
-    });
-  }, [flip]);
+    setFlip((prevFlip) => ({
+      ...prevFlip,
+      vertical: !prevFlip.vertical
+    }));
+  }, []);
 
   const onResetZoom = useCallback(() => setZoom(1), []);
   const onResetRotation = useCallback(() => setRotation(0), []);
