@@ -49,9 +49,10 @@ export default function GuiPanelSection({
   collapsedContentFABs
 }: Props) {
   const [isExpanded, setExpanded] = useState(true);
+
   const toggleContentExpanded = useCallback(
-    () => setExpanded(!isExpanded),
-    [isExpanded]
+    () => setExpanded((prevExpanded) => !prevExpanded),
+    []
   );
 
   return (
