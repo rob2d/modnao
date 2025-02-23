@@ -72,7 +72,7 @@ export default function SceneView() {
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const onSelectObjectKey = useCallback(
     (key: string | undefined) => {
-      dispatch(setObjectKey(key ?? undefined));
+      dispatch(setObjectKey(objectKey !== key ? key : undefined));
     },
     [objectKey]
   );
