@@ -8,6 +8,11 @@ import { ResourceAttribs } from '@/types/ResourceAttribs';
 import getTextureDefsHash from '@/utils/resource-attribs/getTextureDefsHash';
 import getResourceAttribs from '@/utils/resource-attribs/getResourceAttribs';
 
+export type LoadPolygonFileWorkerPayload = {
+  fileName: string;
+  buffer: TransferrableBuffer;
+};
+
 /**
  * entry point to scan a polygon file's headers,
  * determine if it's texture headers have resource
@@ -17,10 +22,7 @@ import getResourceAttribs from '@/utils/resource-attribs/getResourceAttribs';
 export default async function loadPolygonFile({
   buffer,
   fileName
-}: {
-  buffer: TransferrableBuffer;
-  fileName: string;
-}): Promise<{
+}: LoadPolygonFileWorkerPayload): Promise<{
   modelRamOffset: number;
   models: NLModel[];
   textureDefs: NLUITextureDef[];

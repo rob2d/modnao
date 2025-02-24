@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { NLUITextureDef } from '@/types/NLAbstractions';
-import { WorkerEvent } from '@/worker';
+import { WorkerEvent } from '@/workers/worker';
 import exportTextureFile from '../utils/textures/files/exportTextureFile';
 import HslValues from '@/utils/textures/HslValues';
 import {

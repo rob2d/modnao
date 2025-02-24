@@ -15,9 +15,12 @@ export default class WorkerThreadPool {
     }
 
     if (!this.unusedThreads.length) {
-      const worker = new Worker(new URL('../../worker.ts', import.meta.url), {
-        type: 'module'
-      });
+      const worker = new Worker(
+        new URL('../../workers/worker.ts', import.meta.url),
+        {
+          type: 'module'
+        }
+      );
       this.activeThreads.add(worker);
       return worker;
     } else {

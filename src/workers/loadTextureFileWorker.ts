@@ -8,11 +8,11 @@ import {
 } from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { bufferToObjectUrl, decompressLzssBuffer } from '@/utils/data';
-import textureFileTypeMap, {
-  TextureFileType
-} from '../files/textureFileTypeMap';
 import { LoadTexturesBasePayload } from '@/store';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
+import textureFileTypeMap, {
+  TextureFileType
+} from '@/utils/textures/files/textureFileTypeMap';
 
 const COLOR_SIZE = 2;
 
@@ -34,7 +34,7 @@ async function loadTextureBuffer(
   const buffer = Buffer.from(bufferPassed);
   const nextTextureDefs: NLUITextureDef[] = [];
 
-  for await (const t of textureDefs) {
+  const texturePromises = textureDefs.map(async (t) => {
     const urlTypes = Object.keys(t.bufferUrls) as TextureDataUrlType[];
     const updatedTexture = { ...t };
 
@@ -85,14 +85,16 @@ async function loadTextureBuffer(
     }
 
     nextTextureDefs.push(updatedTexture);
-  }
+  });
+
+  await Promise.all(texturePromises);
 
   return {
     textureDefs: nextTextureDefs
   };
 }
 
-type LoadTextureFileResult = {
+export type LoadTextureFileResult = {
   textureDefs: NLUITextureDef[];
   textureFileType: TextureFileType;
   fileName: string;
@@ -101,6 +103,9 @@ type LoadTextureFileResult = {
   resourceAttribs?: ResourceAttribs;
 };
 
+export type LoadTextureFileWorkerPayload = LoadTexturesBasePayload & {
+  buffer: Buffer;
+};
 export default async function loadTextureFile({
   buffer,
   textureDefs,
@@ -111,7 +116,7 @@ export default async function loadTextureFile({
    * call contains these attributes within the first call
    */
   resourceAttribs
-}: LoadTexturesBasePayload & { buffer: Buffer }) {
+}: LoadTextureFileWorkerPayload) {
   let result: LoadTextureFileResult;
   const expectOobReferences =
     textureFileTypeMap[textureFileType].oobReferencable;
@@ -149,6 +154,7 @@ export default async function loadTextureFile({
     if (!(error instanceof RangeError)) {
       throw error;
     }
+
     const decompressedBuffer = decompressLzssBuffer(buffer);
 
     const textureBufferData = await loadTextureBuffer(
