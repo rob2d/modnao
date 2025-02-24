@@ -10,7 +10,7 @@ export default async function adjustTextureHsl(
   height: number,
   hsl: HslValues
 ) {
-  const sourceData = Buffer.from(await objectUrlToBuffer(sourceUrl));
+  const sourceData = await objectUrlToBuffer(sourceUrl);
   const imageData = new Uint8ClampedArray(sourceData.length);
 
   /**
