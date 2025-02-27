@@ -9,7 +9,7 @@ import {
   loadTextureFile
 } from './modelDataThunks';
 
-const sliceName = 'modelData';
+export const sliceName = 'modelData';
 
 export const initialModelDataState: ModelDataState = {
   models: [],
