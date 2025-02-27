@@ -8,11 +8,11 @@ import {
 } from '@/utils/color-conversions';
 import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { bufferToObjectUrl, decompressLzssBuffer } from '@/utils/data';
-import { LoadTexturesBasePayload } from '@/store';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
 import textureFileTypeMap, {
   TextureFileType
 } from '@/utils/textures/files/textureFileTypeMap';
+import { LoadTexturesBasePayload } from '@/store/modelData';
 
 const COLOR_SIZE = 2;
 

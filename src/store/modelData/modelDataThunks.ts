@@ -1,130 +1,29 @@
-import { createSlice, PayloadAction, UnknownAction } from '@reduxjs/toolkit';
-import { HYDRATE } from 'next-redux-wrapper';
+import exportTextureFile from '@/utils/textures/files/exportTextureFile';
+import { showError, sliceName } from '../errorMessagesSlice';
+import { createAppAsyncThunk } from '../storeTypings';
+import {
+  AdjustTextureHslPayload,
+  AdjustTextureHslResult,
+  LoadPolygonsPayload,
+  LoadPolygonsResult,
+  LoadTexturesPayload,
+  LoadTexturesResult
+} from './modelDataTypes';
 import { NLUITextureDef } from '@/types/NLAbstractions';
-import { WorkerEvent } from '@/workers/worker';
-import exportTextureFile from '../utils/textures/files/exportTextureFile';
+import { decompressLzssBuffer } from '@/utils/data';
+import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
+import textureFileTypeMap, {
+  TextureFileType
+} from '@/utils/textures/files/textureFileTypeMap';
+import textureShapesMap from '@/utils/textures/files/textureShapesMap';
 import HslValues from '@/utils/textures/HslValues';
+import { ClientThread } from '@/utils/threads';
+import { WorkerEvent } from '@/workers/worker';
 import {
   selectHasCompressedTextures,
   selectTextureFileType,
   selectUpdatedTextureDefs
-} from './selectors';
-import { SourceTextureData } from '@/utils/textures/SourceTextureData';
-import textureFileTypeMap, {
-  TextureFileType
-} from '@/utils/textures/files/textureFileTypeMap';
-import { decompressLzssBuffer } from '@/utils/data';
-import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import { ClientThread } from '@/utils/threads';
-import { createAppAsyncThunk } from './storeTypings';
-import textureShapesMap from '@/utils/textures/files/textureShapesMap';
-import { showError } from './errorMessagesSlice';
-import { ResourceAttribs } from '@/types/ResourceAttribs';
-
-export type LoadPolygonsResult = {
-  type: 'loadPolygonFile';
-  result: LoadPolygonsPayload;
-};
-
-export type LoadTexturesResult = {
-  type: 'loadTextureFile';
-  result: LoadTexturesPayload;
-};
-
-export type AdjustTextureHslResult = {
-  type: 'adjustTextureHsl';
-  result: AdjustTextureHslPayload;
-};
-
-export type WorkerResponses =
-  | LoadPolygonsResult
-  | LoadTexturesResult
-  | AdjustTextureHslResult;
-
-export type EditedTexture = {
-  width: number;
-  height: number;
-  bufferUrls: SourceTextureData;
-  dataUrls: SourceTextureData;
-  hsl: HslValues;
-};
-
-export interface LoadTexturesBasePayload {
-  isLzssCompressed: boolean;
-  textureFileType: TextureFileType;
-  textureDefs: NLUITextureDef[];
-  fileName: string;
-  resourceAttribs?: ResourceAttribs;
-}
-
-export type LoadTexturesPayload = LoadTexturesBasePayload & {
-  textureBufferUrl: string;
-};
-
-export type LoadPolygonsPayload =
-  | {
-      models: NLModel[];
-      textureDefs: NLUITextureDef[];
-      fileName: string;
-      polygonBufferUrl: string;
-      resourceAttribs?: ResourceAttribs;
-    }
-  | {
-      models: [];
-      textureDefs: NLUITextureDef[];
-      fileName: undefined;
-      polygonBufferUrl: undefined;
-      resourceAttribs?: ResourceAttribs;
-    };
-
-export type AdjustTextureHslPayload = {
-  textureIndex: number;
-  bufferUrls: SourceTextureData;
-  dataUrls: SourceTextureData;
-  hsl: HslValues;
-};
-
-export interface ModelDataState {
-  models: NLModel[];
-  textureDefs: NLUITextureDef[];
-  resourceAttribs: ResourceAttribs | undefined;
-  /**
-   * dictionary of texture index to previous buffer url stacks
-   * note: should consider having only this stack and not deriving from
-   * textureDefs to simplify state
-   */
-  textureHistory: {
-    [key: number]: {
-      dataUrls: SourceTextureData;
-      bufferUrls: SourceTextureData;
-    }[];
-  };
-  editedTextures: {
-    [key: number]: EditedTexture;
-  };
-  polygonFileName?: string;
-  textureFileName?: string;
-  textureFileType?: TextureFileType;
-  hasEditedTextures: boolean;
-  isLzssCompressed: boolean;
-  textureBufferUrl?: string;
-  polygonBufferUrl?: string;
-}
-
-const sliceName = 'modelData';
-
-export const initialModelDataState: ModelDataState = {
-  models: [],
-  textureDefs: [],
-  editedTextures: {},
-  textureHistory: {},
-  polygonFileName: undefined,
-  textureFileName: undefined,
-  textureFileType: undefined,
-  resourceAttribs: undefined,
-  hasEditedTextures: false,
-  isLzssCompressed: false
-};
+} from '../selectors';
 
 export const loadCharacterPortraitsFile = createAppAsyncThunk(
   `${sliceName}/loadCharacterPortraitWsFile`,
@@ -448,174 +347,3 @@ export const downloadTextureFile = createAppAsyncThunk(
     }
   }
 );
-
-const modelDataSlice = createSlice({
-  name: sliceName,
-  initialState: initialModelDataState,
-  reducers: {
-    replaceTextureImage(
-      state,
-      {
-        payload: { textureIndex, bufferUrls, dataUrls }
-      }: PayloadAction<{
-        textureIndex: number;
-        bufferUrls: SourceTextureData;
-        dataUrls: SourceTextureData;
-      }>
-    ) {
-      // @TODO: for better UX, re-apply existing HSL on new image automagically
-      // in thunk that led to this fulfilled action
-      // clear previous edited texture when replacing a texture image
-      if (state.editedTextures[textureIndex]) {
-        state.editedTextures = Object.fromEntries(
-          Object.entries(state.editedTextures).filter(
-            ([k]) => Number(k) !== textureIndex
-          )
-        );
-      }
-
-      state.textureHistory[textureIndex] =
-        state.textureHistory[textureIndex] || [];
-      state.textureHistory[textureIndex].push({
-        bufferUrls: state.textureDefs[textureIndex]
-          .bufferUrls as SourceTextureData,
-        dataUrls: state.textureDefs[textureIndex].dataUrls as SourceTextureData
-      });
-
-      state.textureDefs[textureIndex].bufferUrls = bufferUrls;
-      state.textureDefs[textureIndex].dataUrls = dataUrls;
-      state.hasEditedTextures = true;
-    },
-    revertTextureImage(
-      state,
-      { payload: { textureIndex } }: PayloadAction<{ textureIndex: number }>
-    ) {
-      // only valid if there's an actual texture to revert to
-      if (state.textureHistory[textureIndex].length === 0) {
-        return state;
-      }
-
-      // remove editedTexture state in case of hsl changes
-      state.editedTextures = Object.fromEntries(
-        Object.entries(state.editedTextures).filter(
-          ([k]) => k !== textureIndex.toString()
-        )
-      );
-
-      const textureHistory = state.textureHistory[textureIndex].pop();
-
-      if (textureHistory) {
-        state.textureDefs[textureIndex].bufferUrls.translucent =
-          textureHistory.bufferUrls.translucent;
-        state.textureDefs[textureIndex].bufferUrls.opaque =
-          textureHistory.bufferUrls.opaque;
-
-        state.textureDefs[textureIndex].dataUrls.translucent =
-          textureHistory.dataUrls.translucent;
-        state.textureDefs[textureIndex].dataUrls.opaque =
-          textureHistory.dataUrls.opaque;
-      }
-
-      return state;
-    }
-  },
-  extraReducers: (builder) => {
-    builder.addCase(
-      loadPolygonFile.fulfilled,
-      (
-        state: ModelDataState,
-        {
-          payload: {
-            models,
-            textureDefs,
-            fileName,
-            polygonBufferUrl,
-            resourceAttribs
-          }
-        }
-      ) => {
-        state.models = models;
-        state.textureDefs = textureDefs;
-        state.resourceAttribs = resourceAttribs;
-        state.editedTextures = {};
-        state.textureHistory = {};
-        state.textureFileType = undefined;
-
-        state.polygonFileName = fileName;
-        state.textureFileName = undefined;
-        state.polygonBufferUrl = polygonBufferUrl;
-        state.hasEditedTextures = false;
-      }
-    );
-
-    builder.addCase(
-      loadTextureFile.fulfilled,
-      (state: ModelDataState, { payload }) => {
-        const {
-          textureDefs,
-          fileName,
-          isLzssCompressed,
-          textureBufferUrl,
-          textureFileType
-        } = payload;
-
-        state.textureDefs = textureDefs;
-        state.editedTextures = {};
-        state.hasEditedTextures = false;
-        state.textureHistory = {};
-        state.textureFileType = textureFileType;
-
-        state.textureFileName = fileName;
-        state.isLzssCompressed = isLzssCompressed;
-        state.textureBufferUrl = textureBufferUrl;
-      }
-    );
-
-    builder.addCase(
-      loadCharacterPortraitsFile.pending,
-      (state: ModelDataState) => {
-        state.polygonBufferUrl = undefined;
-        state.textureBufferUrl = undefined;
-        state.textureDefs = [];
-        state.textureHistory = {};
-      }
-    );
-
-    builder.addCase(
-      adjustTextureHsl.fulfilled,
-      (
-        state: ModelDataState,
-        { payload: { textureIndex, bufferUrls, dataUrls, hsl } }
-      ) => {
-        const { width, height } = state.textureDefs[textureIndex];
-        if (hsl.h != 0 || hsl.s != 0 || hsl.l != 0) {
-          state.editedTextures[textureIndex] = {
-            width,
-            height,
-            bufferUrls,
-            dataUrls,
-            hsl
-          };
-        } else {
-          const entries = Object.entries(state.editedTextures).filter(
-            ([k]) => Number(k) !== textureIndex
-          );
-
-          state.editedTextures = Object.fromEntries(entries);
-        }
-        state.hasEditedTextures =
-          state.hasEditedTextures ||
-          Object.keys(state.editedTextures).length > 0;
-      }
-    );
-
-    builder.addCase(HYDRATE, (state, { payload }: UnknownAction) =>
-      Object.assign(state, payload)
-    );
-  }
-});
-
-export const { revertTextureImage, replaceTextureImage } =
-  modelDataSlice.actions;
-
-export default modelDataSlice;
