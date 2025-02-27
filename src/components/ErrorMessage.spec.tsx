@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import ErrorMessage from './ErrorMessage';
+import { AppState } from '@/store';
 
 describe('ErrorMessage', () => {
   it('renders a title with an error message when an error exists', async () => {
@@ -14,7 +15,7 @@ describe('ErrorMessage', () => {
             }
           ]
         }
-      }
+      } as AppState
     });
 
     const title = await screen.findByText('a very specific error title');

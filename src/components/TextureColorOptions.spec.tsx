@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import TextureColorOptions from './TextureColorOptions';
 import { NLUITextureDef } from '@/types/NLAbstractions';
-import { EditedTexture } from '@/store';
+import { AppState, EditedTexture } from '@/store';
 import { SourceTextureData } from '@/utils/textures';
 
 const mockTextureState = {
@@ -40,7 +40,7 @@ describe('TextureColorOptions', () => {
           } as EditedTexture
         }
       }
-    };
+    } as unknown as AppState;
     renderTestWithProviders(
       <TextureColorOptions textureIndex={0} variant='menu' />,
       { preloadedState: mockEditedTextureState }
