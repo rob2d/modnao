@@ -1,5 +1,5 @@
 import exportTextureFile from '@/utils/textures/files/exportTextureFile';
-import { showError, sliceName } from '../errorMessagesSlice';
+import { showError } from '../errorMessagesSlice';
 import { createAppAsyncThunk } from '../storeTypings';
 import {
   AdjustTextureHslPayload,
@@ -24,6 +24,7 @@ import {
   selectTextureFileType,
   selectUpdatedTextureDefs
 } from '../selectors';
+import { sliceName } from './modelDataSlice';
 
 export const loadCharacterPortraitsFile = createAppAsyncThunk(
   `${sliceName}/loadCharacterPortraitWsFile`,
