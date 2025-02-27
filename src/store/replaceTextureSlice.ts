@@ -1,11 +1,11 @@
 import { Image } from 'image-js';
-import { AnyAction, createSlice } from '@reduxjs/toolkit';
+import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from './dialogsSlice';
 import { AppThunk } from './store';
 import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
-import { replaceTextureImage } from './modelDataSlice';
+import { replaceTextureImage } from './modelData/modelDataSlice';
 import { createAppAsyncThunk } from './storeTypings';
 
 export type ReplacementImage = {
@@ -118,7 +118,7 @@ const replaceTextureSlice = createSlice({
   initialState: initialReplaceTextureState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(HYDRATE, (state, { payload }: AnyAction) =>
+    builder.addCase(HYDRATE, (state, { payload }: UnknownAction) =>
       Object.assign(state, payload)
     );
 
