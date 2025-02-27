@@ -11,10 +11,7 @@ describe('scanModel', () => {
       path.join(process.cwd(), 'src/__mocks__/STGXXPOL.BIN')
     );
     const modelData = scanModel({
-      buffer:
-        buffer.buffer instanceof ArrayBuffer
-          ? buffer.buffer
-          : new ArrayBuffer(0),
+      buffer: new Uint8ClampedArray(buffer),
       address: 528,
       index: 0,
       ramAddress: 0
