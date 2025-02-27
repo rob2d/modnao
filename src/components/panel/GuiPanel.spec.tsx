@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import GuiPanel from './GuiPanel';
 import { NLUITextureDef } from '@/types/NLAbstractions';
+import { AppState, ModelDataState } from '@/store';
 
 const mockState = {
   modelData: {
@@ -26,8 +27,8 @@ const mockState = {
     polygonFileName: 'hello-world.pol.bin',
     polygonBufferUrl: 'data://anywhere',
     textureBufferUrl: 'data://anywhere'
-  }
-};
+  } as unknown as ModelDataState
+} as AppState;
 
 describe('GuiPanel', () => {
   it('renders', async () => {

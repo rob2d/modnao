@@ -10,7 +10,15 @@ describe('scanModel', () => {
     const buffer = await fs.readFile(
       path.join(process.cwd(), 'src/__mocks__/STGXXPOL.BIN')
     );
-    const modelData = scanModel({ buffer, address: 528, index: 0 });
+    const modelData = scanModel({
+      buffer:
+        buffer.buffer instanceof ArrayBuffer
+          ? buffer.buffer
+          : new ArrayBuffer(0),
+      address: 528,
+      index: 0,
+      ramAddress: 0
+    });
 
     expect(modelData).toMatchSnapshot('scan-model-model-data');
   });
