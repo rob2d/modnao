@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "npm run test:ci && next build",
+    "build:local": "next build",
     "start": "next start",
     "lint": "next lint",
+    "ts": "tsc --noEmit --incremental --preserveWatchOutput --pretty",
+    "ts:w": "npm run ts -- --watch --project tsconfig.watch.json",
     "test": "jest",
     "test:w": "jest --watch",
     "test:changes": "jest --onlyChanged",
