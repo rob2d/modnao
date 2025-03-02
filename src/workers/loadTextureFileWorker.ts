@@ -1,37 +1,35 @@
 import { Image } from 'image-js';
 import { encodeZMortonPosition } from '@/utils/textures/parse';
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
-import {
-  argb1555ToRgba8888,
-  argb4444ToRgba8888,
-  rgb565ToRgba8888
-} from '@/utils/color-conversions';
-import { RgbaColor, TextureColorFormat } from '@/utils/textures';
 import { bufferToObjectUrl, decompressLzssBuffer } from '@/utils/data';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
 import textureFileTypeMap, {
   TextureFileType
 } from '@/utils/textures/files/textureFileTypeMap';
 import { LoadTexturesBasePayload } from '@/store/modelData';
+import { rgba8888TargetOps } from '@/utils/color-conversions';
+
+export type LoadTextureFileWorkerResult = {
+  textureDefs: NLUITextureDef[];
+  textureFileType: TextureFileType;
+  fileName: string;
+  isLzssCompressed: boolean;
+  textureBufferUrl: string;
+  resourceAttribs?: ResourceAttribs;
+};
+
+export type LoadTextureFileWorkerPayload = LoadTexturesBasePayload & {
+  buffer: SharedArrayBuffer;
+};
 
 const COLOR_SIZE = 2;
 
-const unsupportedConversion = () => ({ r: 0, g: 0, b: 0, a: 0 });
-const conversionDict: Record<TextureColorFormat, (color: number) => RgbaColor> =
-  {
-    RGB565: rgb565ToRgba8888,
-    ARGB1555: argb1555ToRgba8888,
-    ARGB4444: argb4444ToRgba8888,
-    RGB555: unsupportedConversion,
-    ARGB8888: unsupportedConversion
-  };
-
 async function loadTextureBuffer(
-  bufferPassed: Buffer,
+  bufferPassed: SharedArrayBuffer,
   textureDefs: NLUITextureDef[],
   failOutOfBounds: boolean
 ): Promise<{ textureDefs: NLUITextureDef[] }> {
-  const buffer = Buffer.from(bufferPassed);
+  const buffer = Buffer.from(new Uint8Array(bufferPassed) as Uint8Array);
   const nextTextureDefs: NLUITextureDef[] = [];
 
   const texturePromises = textureDefs.map(async (t) => {
@@ -39,7 +37,8 @@ async function loadTextureBuffer(
     const updatedTexture = { ...t };
 
     for await (const type of urlTypes) {
-      const pixels = new Uint8ClampedArray(t.width * t.height * 4);
+      const sharedPixels = new SharedArrayBuffer(t.width * t.height * 4);
+      const pixels = new Uint8ClampedArray(sharedPixels);
 
       for (let y = 0; y < t.height; y++) {
         const yOffset = t.width * y;
@@ -54,7 +53,7 @@ async function loadTextureBuffer(
           }
 
           const colorValue = buffer.readUInt16LE(readOffset);
-          const conversionOp = conversionDict[t.colorFormat];
+          const conversionOp = rgba8888TargetOps[t.colorFormat];
           const color = conversionOp(colorValue);
 
           const canvasOffset = offset * 4;
@@ -65,7 +64,7 @@ async function loadTextureBuffer(
         }
       }
 
-      const objectUrl = await bufferToObjectUrl(pixels);
+      const objectUrl = await bufferToObjectUrl(sharedPixels);
 
       updatedTexture.bufferUrls = {
         ...updatedTexture.bufferUrls,
@@ -94,18 +93,6 @@ async function loadTextureBuffer(
   };
 }
 
-export type LoadTextureFileResult = {
-  textureDefs: NLUITextureDef[];
-  textureFileType: TextureFileType;
-  fileName: string;
-  isLzssCompressed: boolean;
-  textureBufferUrl: string;
-  resourceAttribs?: ResourceAttribs;
-};
-
-export type LoadTextureFileWorkerPayload = LoadTexturesBasePayload & {
-  buffer: Buffer;
-};
 export default async function loadTextureFile({
   buffer,
   textureDefs,
@@ -117,7 +104,7 @@ export default async function loadTextureFile({
    */
   resourceAttribs
 }: LoadTextureFileWorkerPayload) {
-  let result: LoadTextureFileResult;
+  let result: LoadTextureFileWorkerResult;
   const expectOobReferences =
     textureFileTypeMap[textureFileType].oobReferencable;
 
