@@ -16,7 +16,7 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { SourceTextureData, uvToCssPathPoint } from '@/utils/textures';
+import { uvToCssPathPoint } from '@/utils/textures';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ContentViewMode from '@/types/ContentViewMode';
 import themeMixins from '@/theming/themeMixins';
@@ -110,21 +110,30 @@ const StyledPanelTexture = styled('div')(
   `
 );
 
-export type GuiPanelTextureProps = {
-  selected: boolean;
-  textureDef: NLUITextureDef;
-  textureIndex: number;
-  polygonIndex: number;
-  contentViewMode: ContentViewMode;
-};
+export type GuiPanelTextureProps =
+  | {
+      selected: boolean;
+      textureDef: NLUITextureDef;
+      textureIndex: number;
+      polygonIndex: number;
+      contentViewMode: ContentViewMode;
+    }
+  | {
+      selected: undefined;
+      textureDef: undefined;
+      textureIndex: undefined;
+      polygonIndex: undefined;
+      contentViewMode: undefined;
+    };
 
-export default function GuiPanelTexture({
-  selected,
-  textureIndex,
-  textureDef,
-  polygonIndex,
-  contentViewMode
-}: GuiPanelTextureProps) {
+export default function GuiPanelTexture(props: GuiPanelTextureProps) {
+  const {
+    selected,
+    textureDef,
+    textureIndex = -1,
+    polygonIndex = -1,
+    contentViewMode = 'textures'
+  } = props;
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
   const viewOptions = useContext(ViewOptionsContext);
@@ -166,14 +175,15 @@ export default function GuiPanelTexture({
   const { getDragProps, isDragActive, onSelectNewImageFile } =
     useTextureReplaceDropzone(textureIndex);
 
-  const { width, height } = textureDef;
+  const { width = 0, height = 0 } = textureDef || {};
 
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
   const imageDataUrl =
     (selected && mesh?.isOpaque
-      ? textureDef.dataUrls.opaque || textureDef.dataUrls.translucent
-      : textureDef.dataUrls.translucent || textureDef.dataUrls.opaque) || '';
+      ? textureDef?.dataUrls?.opaque || textureDef?.dataUrls?.translucent
+      : textureDef?.dataUrls?.translucent || textureDef?.dataUrls?.opaque) ||
+    '';
 
   const uvOverlays = useMemo(
     () =>
@@ -247,7 +257,7 @@ export default function GuiPanelTexture({
         textAlign='right'
         className='size-notation'
       >
-        {textureDef.width}x{textureDef.height} [{textureIndex}]
+        {textureDef?.width ?? '0'}x{textureDef?.height ?? '0'} [{textureIndex}]
       </Typography>
     </>
   );
@@ -267,11 +277,13 @@ export default function GuiPanelTexture({
           <ButtonBase {...mainContentProps}>{content}</ButtonBase>
         </Tooltip>
       )}
-      <GuiPanelTextureMenu
-        textureIndex={textureIndex}
-        pixelsObjectUrls={textureDef.bufferUrls as SourceTextureData}
-        onReplaceImageFile={onSelectNewImageFile}
-      />
+      {textureDef ? (
+        <GuiPanelTextureMenu
+          textureIndex={textureIndex}
+          pixelsObjectUrls={textureDef.bufferUrls}
+          onReplaceImageFile={onSelectNewImageFile}
+        />
+      ) : undefined}
     </StyledPanelTexture>
   );
 }

@@ -1,3 +1,4 @@
+import { AsyncState } from '@/types/AsyncState';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
 import { SourceTextureData } from '@/utils/textures';
@@ -87,4 +88,5 @@ export interface ModelDataState {
   isLzssCompressed: boolean;
   textureBufferUrl?: string;
   polygonBufferUrl?: string;
+  loadTexturesState: AsyncState;
 }
