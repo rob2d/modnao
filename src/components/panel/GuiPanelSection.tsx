@@ -3,11 +3,13 @@ import { mdiUnfoldLessHorizontal, mdiUnfoldMoreHorizontal } from '@mdi/js';
 import {
   IconButton,
   ListSubheader,
+  Skeleton,
   styled,
   Tooltip,
   Typography
 } from '@mui/material';
 import Icon from '@mdi/react';
+import { AsyncState } from '@/types/AsyncState';
 
 const StyledSubheader = styled(ListSubheader)(
   ({ theme }) => `
@@ -37,6 +39,7 @@ type Props = {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
+  subtitleLoadingState?: AsyncState;
   collapsedContent?: React.ReactNode;
   collapsedContentFABs?: React.ReactNode[];
 };
@@ -45,6 +48,7 @@ export default function GuiPanelSection({
   children,
   title,
   subtitle,
+  subtitleLoadingState,
   collapsedContent,
   collapsedContentFABs
 }: Props) {
@@ -55,14 +59,21 @@ export default function GuiPanelSection({
     []
   );
 
+  let subtitleDisplayed =
+    subtitleLoadingState === 'pending' ? (
+      <Skeleton variant='text' width='100%' />
+    ) : undefined;
+
+  if (!subtitleDisplayed && subtitle) {
+    subtitleDisplayed = <Typography variant='caption'>{subtitle}</Typography>;
+  }
+
   return (
     <>
       <StyledSubheader>
         <div className='header-text'>
           <Typography variant='subtitle2'>{title}</Typography>
-          {!subtitle ? undefined : (
-            <Typography variant='caption'>{subtitle}</Typography>
-          )}
+          {subtitleDisplayed}
         </div>
         {isExpanded ? undefined : collapsedContentFABs}
         <Tooltip title={`${isExpanded ? 'Collapse' : 'Expand'} section`}>
