@@ -12,6 +12,7 @@ import {
 export const initialModelDataState: ModelDataState = {
   models: [],
   textureDefs: [],
+  loadTexturesState: 'idle',
   editedTextures: {},
   textureHistory: {},
   polygonFileName: undefined,
@@ -93,6 +94,12 @@ const modelDataSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
+    builder.addCase(loadPolygonFile.pending, (state: ModelDataState) => {
+      state.loadTexturesState = 'idle';
+    });
+    builder.addCase(loadTextureFile.pending, (state: ModelDataState) => {
+      state.loadTexturesState = 'pending';
+    });
     builder.addCase(
       loadPolygonFile.fulfilled,
       (
@@ -132,6 +139,7 @@ const modelDataSlice = createSlice({
           textureFileType
         } = payload;
 
+        state.loadTexturesState = 'fulfilled';
         state.textureDefs = textureDefs;
         state.editedTextures = {};
         state.hasEditedTextures = false;
@@ -143,6 +151,10 @@ const modelDataSlice = createSlice({
         state.textureBufferUrl = textureBufferUrl;
       }
     );
+
+    builder.addCase(loadTextureFile.rejected, (state: ModelDataState) => {
+      state.loadTexturesState = 'rejected';
+    });
 
     builder.addCase(
       loadCharacterPortraitsFile.pending,

@@ -5,6 +5,7 @@ import {
   selectCanExportTextures,
   selectContentViewMode,
   selectHasLoadedTextureFile,
+  selectLoadTexturesState,
   selectModel,
   selectModels,
   selectObjectMeshIndex,
@@ -45,6 +46,7 @@ export default function GuiPanelViewOptions() {
   const textureFileName = useAppSelector(selectTextureFileName);
   const selectedTexture = useAppSelector(selectSelectedTexture);
   const contentViewMode = useAppSelector(selectContentViewMode);
+  const loadTexturesState = useAppSelector(selectLoadTexturesState);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const models = useAppSelector(selectModels);
 
@@ -94,6 +96,23 @@ export default function GuiPanelViewOptions() {
   }, [dispatch, textureDefs, textureFileName]);
 
   const [textures, offsceneTextures] = useMemo(() => {
+    if (loadTexturesState === 'pending') {
+      return [
+        Array(10)
+          .fill(0)
+          .map((_, i) => (
+            <GuiPanelTexture
+              key={i}
+              textureDef={undefined}
+              textureIndex={undefined}
+              polygonIndex={undefined}
+              selected={undefined}
+              contentViewMode={undefined}
+            />
+          )),
+        []
+      ];
+    }
     const pTextures: JSX.Element[] = [];
     const opTextures: JSX.Element[] = [];
     const textureSet = new Set<number>();
@@ -149,7 +168,8 @@ export default function GuiPanelViewOptions() {
     textureDefs,
     selectedTexture,
     polygonIndex,
-    contentViewMode
+    contentViewMode,
+    loadTexturesState
   ]);
 
   return (
@@ -158,6 +178,7 @@ export default function GuiPanelViewOptions() {
         hasLoadedTextureFile ? ` (${textureDefs.length})` : ''
       }`}
       subtitle={textureFileName}
+      subtitleLoadingState={loadTexturesState}
     >
       <Styled className='textures'>
         {textures}
