@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from '@/store';
-import { dismissError } from '@/store/errorMessagesSlice';
+import { dismissError } from '@/store/errorMessages/errorMessagesSlice';
 import { Alert, AlertTitle, Slide, SlideProps, Snackbar } from '@mui/material';
 
 import { usePrevious } from '@uidotdev/usehooks';

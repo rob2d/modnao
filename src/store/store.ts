@@ -7,14 +7,14 @@ import {
   UnknownAction
 } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
-import dialogs from './dialogsSlice';
-import objectViewerSlice from './objectViewerSlice';
+import { dialogsSlice } from './dialogs';
+import { objectViewerSlice } from './objectViewer';
 import modelDataSlice from './modelData/modelDataSlice';
-import replaceTextureSlice from './replaceTextureSlice';
-import errorMessagesSlice from './errorMessagesSlice';
+import { replaceTextureSlice } from './replaceTexture';
+import { errorMessagesSlice } from './errorMessages';
 
 export const rootReducer = combineReducers({
-  [dialogs.name]: dialogs.reducer,
+  [dialogsSlice.name]: dialogsSlice.reducer,
   [objectViewerSlice.name]: objectViewerSlice.reducer,
   [modelDataSlice.name]: modelDataSlice.reducer,
   [replaceTextureSlice.name]: replaceTextureSlice.reducer,
