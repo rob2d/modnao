@@ -1,3 +1,4 @@
+export { default as useClientEffect } from './useClientEffect';
 export { default as useObjectNavControls } from './useObjectNavControls';
 export { default as useModelSelectionExport } from './useModelSelectionExport';
 export { default as useObjectUINav } from './useObjectUINav';
