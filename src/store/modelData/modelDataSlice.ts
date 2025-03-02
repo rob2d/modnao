@@ -9,8 +9,6 @@ import {
   loadTextureFile
 } from './modelDataThunks';
 
-export const sliceName = 'modelData';
-
 export const initialModelDataState: ModelDataState = {
   models: [],
   textureDefs: [],
@@ -25,7 +23,7 @@ export const initialModelDataState: ModelDataState = {
 };
 
 const modelDataSlice = createSlice({
-  name: sliceName,
+  name: 'modelData',
   initialState: initialModelDataState,
   reducers: {
     replaceTextureImage(
