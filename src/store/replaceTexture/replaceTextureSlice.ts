@@ -1,23 +1,13 @@
 import { Image } from 'image-js';
 import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import dialogsSlice, { closeDialog } from './dialogsSlice';
-import { AppThunk } from './store';
+import dialogsSlice, { closeDialog } from '../dialogs/dialogsSlice';
+import { AppThunk } from '../store';
 import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
-import { replaceTextureImage } from './modelData/modelDataSlice';
-import { createAppAsyncThunk } from './storeTypings';
-
-export type ReplacementImage = {
-  bufferObjectUrl: string;
-  width: number;
-  height: number;
-};
-
-export interface ReplaceTextureState {
-  textureIndex: number;
-  replacementImage?: ReplacementImage;
-}
+import { replaceTextureImage } from '../modelData';
+import { createAppAsyncThunk } from '../storeTypings';
+import { ReplaceTextureState } from './replaceTextureTypes';
 
 export const initialReplaceTextureState: ReplaceTextureState = {
   textureIndex: -1,
