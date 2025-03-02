@@ -17,7 +17,7 @@ import GuiPanelModels from './GuiPanelModels';
 import {
   selectContentViewMode,
   selectHasLoadedPolygonFile,
-  selectHasLoadedTextureFile,
+  selectLoadTexturesState,
   useAppSelector
 } from '@/store';
 import {
@@ -291,7 +291,7 @@ const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
 export default function GuiPanel() {
   const viewOptions = useContext(ViewOptionsContext);
   const contentViewMode = useAppSelector(selectContentViewMode);
-  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
+  const loadTexturesState = useAppSelector(selectLoadTexturesState);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
   const [resizeMouseDown, resizeHandle] = usePanelDragState(viewOptions);
   const expansionLevel = clamp(
@@ -340,7 +340,7 @@ export default function GuiPanel() {
         {contentViewMode !== 'textures' ? (
           <>
             <GuiPanelModels />
-            {!hasLoadedTextureFile ? undefined : (
+            {loadTexturesState === 'idle' ? undefined : (
               <>
                 <Divider flexItem />
                 <GuiPanelTextures />

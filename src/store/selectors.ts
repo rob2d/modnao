@@ -14,6 +14,9 @@ export const selectHasLoadedPolygonFile = (s: AppState) =>
   Boolean(s.modelData.polygonFileName);
 export const selectHasLoadedTextureFile = (s: AppState) =>
   Boolean(s.modelData.textureFileName);
+export const selectLoadTexturesState = (s: AppState) =>
+  s.modelData.loadTexturesState;
+
 export const selectHasEditedTextures = (s: AppState) =>
   s.modelData.hasEditedTextures;
 export const selectModelCount = createSelector(
