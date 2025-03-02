@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
 import DialogSectionContentCards from '../../DialogSectionContentCards';
+import { useClientEffect } from '@/hooks';
 dayjs.extend(advancedFormat);
 
 type Vlog = {
@@ -73,12 +74,11 @@ const origin =
     ? window.location.origin
     : '';
 
-let hasFetched = false;
 const useVlogApi = () => {
   const [vlogs, setVlogs] = useState<Vlog[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
+  useClientEffect(() => {
     const fetchData = async () => {
       const response = await (await fetch(`${origin}/api/vlogs`)).json();
       if (Array.isArray(response)) {
@@ -88,17 +88,9 @@ const useVlogApi = () => {
       if (response.error) {
         setError('Failed to fetch vlogs');
       }
-
-      hasFetched = true;
     };
 
-    if (!hasFetched) {
-      fetchData();
-    }
-
-    return () => {
-      hasFetched = false;
-    };
+    fetchData();
   }, []);
 
   return [vlogs, error] as [Vlog[], string | undefined];
@@ -109,24 +101,26 @@ export default function DevUpdates() {
 
   const vlogContent = vlogApiError
     ? 'Failed to fetch vlogs'
-    : !vlogs
-      ? [1, 2, 3].map((_, i) => (
-          <Card key={i} elevation={2}>
-            <CardContent>
-              <Typography component='div' variant='subtitle1'>
-                <Skeleton height={60} />
-              </Typography>
-              <Typography
-                variant='subtitle1'
-                color='text.secondary'
-                component='div'
-              >
-                <Skeleton />
-              </Typography>
-            </CardContent>
-            <Skeleton variant='rectangular' width={100} height={120} />
-          </Card>
-        ))
+    : !vlogs?.length
+      ? Array(10)
+          .fill(0)
+          .map((_, i) => (
+            <Card key={i} elevation={2}>
+              <CardContent>
+                <Typography component='div' variant='subtitle1'>
+                  <Skeleton height={60} />
+                </Typography>
+                <Typography
+                  variant='subtitle1'
+                  color='text.secondary'
+                  component='div'
+                >
+                  <Skeleton />
+                </Typography>
+              </CardContent>
+              <Skeleton variant='rectangular' width={100} height={120} />
+            </Card>
+          ))
       : (vlogs || []).map((v: Vlog) => (
           <Card key={v.id} elevation={2}>
             <ButtonBase
