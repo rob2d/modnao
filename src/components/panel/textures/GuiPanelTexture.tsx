@@ -26,7 +26,8 @@ const IMG_SIZE = '174px';
 
 const StyledPanelTexture = styled('div')(
   ({ theme }) =>
-    `& {
+    `
+  & {
       position: relative;
       display: inline-flex;
       align-items: center;
@@ -238,19 +239,33 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     ]
   );
 
-  const content = (
-    <>
-      {!imageDataUrl ? (
-        <Skeleton variant='rectangular' height={170} width='100%' />
-      ) : (
-        <Img
-          src={imageDataUrl}
-          width={width}
-          height={height}
-          alt={`Texture # ${textureIndex}`}
+  if (!imageDataUrl) {
+    return (
+      <StyledPanelTexture
+        className={clsx(
+          `mode-${contentViewMode}`,
+          isSelectable && 'selectable'
+        )}
+      >
+        <Skeleton
+          variant='rectangular'
+          height={170}
+          width='100%'
           className='img'
         />
-      )}
+      </StyledPanelTexture>
+    );
+  }
+
+  const content = (
+    <>
+      <Img
+        src={imageDataUrl}
+        width={width}
+        height={height}
+        alt={`Texture # ${textureIndex}`}
+        className='img'
+      />
       {uvOverlays}
       <Typography
         variant='subtitle2'
