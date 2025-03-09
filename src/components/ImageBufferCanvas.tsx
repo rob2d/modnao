@@ -4,11 +4,11 @@ type Props = {
   rgbaBuffer: Uint8Array;
   width: number;
   height: number;
-  className: string;
+  className?: string;
   alt: string;
 };
 
-export default function CanvasImage({
+export default function ImageBufferCanvas({
   rgbaBuffer,
   width,
   height,
@@ -22,6 +22,10 @@ export default function CanvasImage({
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
       if (context) {
+        if (!rgbaBuffer?.length || width <= 0 || height <= 0) {
+          context.clearRect(0, 0, width, height);
+          return;
+        }
         const imageData = new ImageData(
           new Uint8ClampedArray(rgbaBuffer),
           width,

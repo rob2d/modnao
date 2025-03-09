@@ -1,5 +1,5 @@
 export type ReplacementImage = {
-  bufferObjectUrl: string;
+  bufferKey: string;
   width: number;
   height: number;
 };

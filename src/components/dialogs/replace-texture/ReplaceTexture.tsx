@@ -332,9 +332,9 @@ export default function ReplaceTexture() {
           return;
         }
 
-        const { width, height, bufferObjectUrl } = replacementImage;
+        const { width, height, bufferKey } = replacementImage;
 
-        const data = globalBuffers.get(bufferObjectUrl || '');
+        const data = globalBuffers.get(bufferKey || '');
         const dataUrl = new Image({
           data,
           width,

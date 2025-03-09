@@ -22,13 +22,13 @@ export const selectReplacementTexture = createAppAsyncThunk(
     { dispatch }
   ) => {
     const [buffer, , width, height] = await loadRGBABuffersFromFile(imageFile);
-    const bufferObjectUrl = globalBuffers.add(buffer);
+    const bufferKey = globalBuffers.add(buffer);
 
     const { actions } = dialogsSlice;
     dispatch(actions.showDialog('replace-texture'));
     return {
       replacementImage: {
-        bufferObjectUrl,
+        bufferKey,
         width,
         height
       },
@@ -96,11 +96,8 @@ const replaceTextureSlice = createSlice({
     );
 
     builder.addCase(closeDialog, (state, { payload }) => {
-      if (
-        payload === 'replace-texture' &&
-        state.replacementImage?.bufferObjectUrl
-      ) {
-        // URL.revokeObjectURL(state.replacementImage?.bufferObjectUrl);
+      if (payload === 'replace-texture' && state.replacementImage?.bufferKey) {
+        globalBuffers.delete(state.replacementImage.bufferKey);
         state.textureIndex = -1;
         state.replacementImage = undefined;
       }
@@ -109,8 +106,8 @@ const replaceTextureSlice = createSlice({
     builder.addCase(
       selectReplacementTexture.fulfilled,
       (state, { payload }) => {
-        if (state.replacementImage?.bufferObjectUrl) {
-          // URL.revokeObjectURL(state.replacementImage?.bufferObjectUrl);
+        if (state.replacementImage?.bufferKey) {
+          globalBuffers.delete(state.replacementImage.bufferKey);
         }
         Object.assign(state, payload);
       }
