@@ -1,10 +1,9 @@
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { nlTextureDefConversions } from './NLPropConversionDefs';
 import { processNLConversions } from './processNLConversions';
-import TransferrableBuffer from '@/types/TransferrableBuffer';
 
 export default function scanTextureHeaderData(
-  buffer: TransferrableBuffer,
+  buffer: SharedArrayBuffer,
   modelRamOffset: number
 ) {
   const wBuffer = Buffer.from(new Uint8Array(buffer));
@@ -32,7 +31,7 @@ export default function scanTextureHeaderData(
     // we can discard when scanning
     if (texture.width > 0) {
       // will be re-assigned when populating tex file
-      texture.bufferUrls = { opaque: '', translucent: '' };
+      texture.bufferKeys = { opaque: '', translucent: '' };
       textures.push(texture);
     }
   }

@@ -10,10 +10,11 @@ import {
   RgbaColor,
   TextureColorFormat
 } from '@/utils/textures';
-import { compressLzssBuffer, objectUrlToBuffer } from '@/utils/data';
+import { compressLzssBuffer } from '@/utils/data';
 import { TextureFileType } from './textureFileTypeMap';
 import compressVqBuffer from '@/utils/data/compressVqBuffer';
 import { saveAs } from 'file-saver';
+import globalBuffers from '@/utils/data/globalBuffers';
 
 const COLOR_SIZE = 2;
 
@@ -70,7 +71,7 @@ export default async function exportTextureFile({
   textureBufferUrl,
   isLzssCompressed
 }: ExportTextureParams): Promise<void> {
-  const textureBuffer = Buffer.from(await objectUrlToBuffer(textureBufferUrl));
+  const textureBuffer = Buffer.from(globalBuffers.get(textureBufferUrl));
   if (!textureBuffer) {
     return;
   }
@@ -78,9 +79,7 @@ export default async function exportTextureFile({
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;
 
-    const pixelColors = await objectUrlToBuffer(
-      t.bufferUrls.translucent as string
-    );
+    const pixelColors = globalBuffers.get(t.bufferKeys.translucent as string);
     let quantizeOptions: QuantizeOptions | undefined;
 
     switch (textureFileType) {

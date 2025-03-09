@@ -42,8 +42,8 @@ import {
   UnsignedByteType,
   Vector2
 } from 'three';
-import { objectUrlToBuffer } from '@/utils/data';
 import RenderedPolygon from './scene/RenderedPolygon';
+import globalBuffers from '@/utils/data/globalBuffers';
 
 ColorManagement.enabled = true;
 
@@ -100,18 +100,18 @@ export default function SceneView() {
         textureDefs.map(async (textureDef) => {
           return Promise.all(
             textureTypes.map(async (type: 'opaque' | 'translucent') => {
-              const url = textureDef.bufferUrls[type];
-              if (!url) {
+              const bufferKey = textureDef.bufferKeys[type];
+              if (!bufferKey) {
                 return;
               }
 
               await Promise.all(
                 [true, false].flatMap((hRepeat) =>
                   [true, false].map(async (vRepeat) => {
-                    const key = `${url}-${Number(hRepeat)}-${Number(vRepeat)}`;
+                    const mapKey = `${bufferKey}-${Number(hRepeat)}-${Number(vRepeat)}`;
 
-                    if (!textureMap?.has(key)) {
-                      const pixels = await objectUrlToBuffer(url);
+                    if (!textureMap?.has(mapKey)) {
+                      const pixels = globalBuffers.get(bufferKey);
                       const texture = new DataTexture(
                         pixels,
                         textureDef.width,
@@ -131,10 +131,12 @@ export default function SceneView() {
                       texture.repeat.y = -1;
                       texture.flipY = false;
                       texture.needsUpdate = true;
-
-                      nextMap.set(key, texture);
+                      nextMap.set(mapKey, texture);
                     } else {
-                      nextMap.set(key, textureMap.get(key) as DataTexture);
+                      nextMap.set(
+                        mapKey,
+                        textureMap.get(mapKey) as DataTexture
+                      );
                     }
                   })
                 )
@@ -149,7 +151,7 @@ export default function SceneView() {
       // free up memory for updated texture urls as needed
       for (const key of textureMap?.keys() || []) {
         if (!nextMap.has(key) && !uneditedTextureUrls.has(key)) {
-          URL.revokeObjectURL(key);
+          // URL.revokeObjectURL(key);
         }
       }
     })();

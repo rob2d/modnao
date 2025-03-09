@@ -1,11 +1,9 @@
-import TransferrableBuffer from '@/types/TransferrableBuffer';
-
 /**
  * @returns an array of pointers for each available
  * model discovered
  */
 export default function scanForModelPointers(
-  buffer: TransferrableBuffer
+  buffer: SharedArrayBuffer
 ): [
   modelPointers: { address: number; ramAddress: number }[],
   modelRamOffset: number

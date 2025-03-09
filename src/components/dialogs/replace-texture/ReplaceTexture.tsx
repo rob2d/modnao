@@ -34,12 +34,12 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { objectUrlToBuffer } from '@/utils/data';
 import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { useFilePicker } from 'use-file-picker';
 import themeMixins from '@/theming/themeMixins';
+import globalBuffers from '@/utils/data/globalBuffers';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -265,7 +265,7 @@ export default function ReplaceTexture() {
     if (!processedRgba) {
       return;
     }
-    dispatch(applyReplacedTextureImage(processedRgba));
+    dispatch(applyReplacedTextureImage(new Uint8Array(processedRgba)));
   }, [processedRgba, dispatch]);
 
   const textureDefs: NLUITextureDef[] = useAppSelector(
@@ -334,7 +334,7 @@ export default function ReplaceTexture() {
 
         const { width, height, bufferObjectUrl } = replacementImage;
 
-        const data = await objectUrlToBuffer(bufferObjectUrl || '');
+        const data = globalBuffers.get(bufferObjectUrl || '');
         const dataUrl = new Image({
           data,
           width,
@@ -379,7 +379,11 @@ export default function ReplaceTexture() {
 
         // restore zero-alpha origin pixels when necessary
         if (preserveOriginAlpha && originTextureBuffer) {
-          const rgbaBuffer = resizedImage.getRGBAData();
+          const sharedBuffer = new SharedArrayBuffer(
+            resizedImage.width * resizedImage.height * 4
+          );
+          const rgbaBuffer = new Uint8Array(sharedBuffer);
+          rgbaBuffer.set(resizedImage.getRGBAData());
 
           for (let i = 0; i < rgbaBuffer.length; i += 4) {
             if (originTextureBuffer[i + 3] === 0) {
@@ -419,19 +423,23 @@ export default function ReplaceTexture() {
   useEffect(() => {
     (async () => {
       const originTextureBufferUrl =
-        textureDefs?.[textureIndex]?.bufferUrls?.['translucent'] || '';
+        textureDefs?.[textureIndex]?.bufferKeys?.['translucent'] || '';
       if (!originTextureBufferUrl) {
         return;
       }
-      const textureBuffer = await objectUrlToBuffer(originTextureBufferUrl);
+      const textureBuffer = globalBuffers.get(originTextureBufferUrl);
       setOriginTextureBuffer(textureBuffer);
     })();
-  }, [textureDefs?.[textureIndex]?.bufferUrls?.['translucent'] || '']);
+  }, [textureDefs?.[textureIndex]?.bufferKeys?.['translucent'] || '']);
 
-  const originTextureDataUrl =
-    textureDefs?.[textureIndex]?.dataUrls?.[
+  /**
+   * @TODO: convert to using bufferUrl,
+   * then set up the canvas using ImageData
+   */
+  /*const originTextureBufferUrl =
+    textureDefs?.[textureIndex]?.bufferKeys?.[
       viewTranslucentOrigin ? 'translucent' : 'opaque'
-    ] || '';
+    ] || '';*/
 
   return (
     <>
@@ -547,15 +555,7 @@ export default function ReplaceTexture() {
           <div className='original-texture section'>
             <Typography variant='h6'>Texture Origin</Typography>
             <div className='original-texture'>
-              <div className='texture-img-container'>
-                <Img
-                  alt='original texture to replace'
-                  src={originTextureDataUrl}
-                  style={referenceTextureStyle}
-                  width={originalWidth}
-                  height={originalHeight}
-                />
-              </div>
+              <div className='texture-img-container'></div>
               <div className='origin-metadata'>
                 <Typography variant='subtitle1'>Dimensions</Typography>
                 <Typography variant='body2'>

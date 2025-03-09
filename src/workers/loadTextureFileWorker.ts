@@ -1,58 +1,62 @@
-import { Image } from 'image-js';
 import { encodeZMortonPosition } from '@/utils/textures/parse';
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
-import { bufferToObjectUrl, decompressLzssBuffer } from '@/utils/data';
-import { ResourceAttribs } from '@/types/ResourceAttribs';
-import textureFileTypeMap, {
-  TextureFileType
-} from '@/utils/textures/files/textureFileTypeMap';
+import { decompressLzssBuffer } from '@/utils/data';
+import textureFileTypeMap from '@/utils/textures/files/textureFileTypeMap';
 import { LoadTexturesBasePayload } from '@/store/modelData';
 import { rgba8888TargetOps } from '@/utils/color-conversions';
 
 export type LoadTextureFileWorkerResult = {
+  texturePixelBuffers: SharedArrayBuffer[];
+  decompressedTextureBuffer: SharedArrayBuffer;
   textureDefs: NLUITextureDef[];
-  textureFileType: TextureFileType;
-  fileName: string;
-  isLzssCompressed: boolean;
-  textureBufferUrl: string;
-  resourceAttribs?: ResourceAttribs;
 };
 
 export type LoadTextureFileWorkerPayload = LoadTexturesBasePayload & {
-  buffer: SharedArrayBuffer;
+  fileName: string;
+  textureFileBuffer: SharedArrayBuffer;
+  textureDefs: NLUITextureDef[];
 };
 
 const COLOR_SIZE = 2;
+const urlTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
-async function loadTextureBuffer(
-  bufferPassed: SharedArrayBuffer,
+function createTexturePixelBuffers(
+  textureFileBuffer: SharedArrayBuffer,
   textureDefs: NLUITextureDef[],
   failOutOfBounds: boolean
-): Promise<{ textureDefs: NLUITextureDef[] }> {
-  const buffer = Buffer.from(new Uint8Array(bufferPassed) as Uint8Array);
-  const nextTextureDefs: NLUITextureDef[] = [];
+): SharedArrayBuffer[] {
+  const fileBuffer = Buffer.from(new Uint8Array(textureFileBuffer));
 
-  const texturePromises = textureDefs.map(async (t) => {
-    const urlTypes = Object.keys(t.bufferUrls) as TextureDataUrlType[];
-    const updatedTexture = { ...t };
+  const texturePixelBuffers: SharedArrayBuffer[] = [];
 
-    for await (const type of urlTypes) {
-      const sharedPixels = new SharedArrayBuffer(t.width * t.height * 4);
-      const pixels = new Uint8ClampedArray(sharedPixels);
+  textureDefs.forEach((t) => {
+    const realLocation = t.baseLocation - t.ramOffset;
+    for (const type of urlTypes) {
+      const sharedPixelBuffer = new SharedArrayBuffer(t.width * t.height * 4);
+      const pixels = new Uint8ClampedArray(sharedPixelBuffer);
+
+      let hasPushed = false;
 
       for (let y = 0; y < t.height; y++) {
+        if (hasPushed) {
+          continue;
+        }
         const yOffset = t.width * y;
 
         for (let offset = yOffset; offset < yOffset + t.width; offset += 1) {
+          if (hasPushed) {
+            continue;
+          }
           const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
-          const readOffset =
-            t.baseLocation - t.ramOffset + offsetDrawn * COLOR_SIZE;
+          const readOffset = realLocation + offsetDrawn * COLOR_SIZE;
           // textures may point out of bounds (this would be to RAM elsewhere in-game)
-          if (readOffset >= buffer.length && !failOutOfBounds) {
-            break;
+          if (readOffset >= fileBuffer.length && !failOutOfBounds) {
+            texturePixelBuffers.push(new SharedArrayBuffer(0));
+            hasPushed = true;
+            continue;
           }
 
-          const colorValue = buffer.readUInt16LE(readOffset);
+          const colorValue = fileBuffer.readUInt16LE(readOffset);
           const conversionOp = rgba8888TargetOps[t.colorFormat];
           const color = conversionOp(colorValue);
 
@@ -63,40 +67,16 @@ async function loadTextureBuffer(
           pixels[canvasOffset + 3] = type === 'translucent' ? color.a : 255;
         }
       }
-
-      const objectUrl = await bufferToObjectUrl(sharedPixels);
-
-      updatedTexture.bufferUrls = {
-        ...updatedTexture.bufferUrls,
-        [type]: objectUrl
-      };
-
-      const dataUrl = new Image({
-        data: pixels,
-        width: t.width,
-        height: t.height
-      }).toDataURL();
-
-      updatedTexture.dataUrls = {
-        ...updatedTexture.dataUrls,
-        [type]: dataUrl
-      };
+      texturePixelBuffers.push(sharedPixelBuffer);
     }
-
-    nextTextureDefs.push(updatedTexture);
   });
 
-  await Promise.all(texturePromises);
-
-  return {
-    textureDefs: nextTextureDefs
-  };
+  return texturePixelBuffers;
 }
 
-export default async function loadTextureFile({
-  buffer,
+export default function loadTextureFileWorker({
+  textureFileBuffer,
   textureDefs,
-  fileName,
   textureFileType,
   isLzssCompressed,
   /** @TODO streamline architecture so initial
@@ -113,20 +93,16 @@ export default async function loadTextureFile({
       new Error('Decompressed File');
     }
 
-    const textureBufferData = await loadTextureBuffer(
-      buffer,
+    const texturePixelBuffers = createTexturePixelBuffers(
+      textureFileBuffer,
       textureDefs,
       !expectOobReferences
     );
 
-    const textureBufferUrl = await bufferToObjectUrl(buffer);
-
     result = {
-      textureBufferUrl: textureBufferUrl,
-      isLzssCompressed,
-      fileName,
-      textureFileType,
-      ...textureBufferData
+      texturePixelBuffers,
+      decompressedTextureBuffer: textureFileBuffer,
+      textureDefs
     };
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
@@ -142,20 +118,19 @@ export default async function loadTextureFile({
       throw error;
     }
 
-    const decompressedBuffer = decompressLzssBuffer(buffer);
+    const decompressedBuffer = decompressLzssBuffer(textureFileBuffer);
 
-    const textureBufferData = await loadTextureBuffer(
+    const texturePixelBuffers = createTexturePixelBuffers(
       decompressedBuffer,
       textureDefs,
       !expectOobReferences
     );
 
-    result = {
-      textureBufferUrl: await bufferToObjectUrl(decompressedBuffer),
-      fileName,
-      isLzssCompressed: true,
-      textureFileType,
-      ...textureBufferData
+    return {
+      texturePixelBuffers,
+      decompressedBuffer,
+      textureDefs,
+      isLzssCompressed: true
     };
   }
 

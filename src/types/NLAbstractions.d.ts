@@ -93,7 +93,7 @@ declare global {
 
 export type TextureDataUrlType = 'opaque' | 'translucent';
 
-type NLTextureDef = {
+export type NLTextureDef = {
   width: number;
   height: number;
   colorFormat: TextureColorFormat;
@@ -101,13 +101,9 @@ type NLTextureDef = {
   type: number;
   baseLocation: number;
   ramOffset: number;
-};
+} & ModNaoMemoryObject;
 
 export type NLUITextureDef = NLTextureDef & {
   disableEdits?: boolean;
-  bufferUrls: SourceTextureData;
-  dataUrls: {
-    translucent?: string;
-    opaque?: string;
-  };
-} & ModNaoMemoryObject;
+  bufferKeys: TextureImageBufferKeys;
+};

@@ -1,4 +1,4 @@
-import HslValues from '../textures/HslValues';
+import { HslValues } from '../textures/HslValues';
 
 /**
  * converts RGB255 to HSL,

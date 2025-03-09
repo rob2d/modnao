@@ -1,8 +1,12 @@
 export * from './RgbaColor';
 export * from './TextureSize';
 export * from './TextureColorFormat';
-export * from './SourceTextureData';
+export * from './TextureImageBufferKeys';
+export * from './TextureImageBuffers';
+export * from './HslValues';
 export * from './serialize';
 export * from './parse';
+export * from './serialize';
 export { default as uvToCssPathPoint } from './uvToCssPathPoint';
 export { default as createTextureDef } from './createTextureDef';
+export { default as adjustTextureHsl } from './adjustTextureHsl';

@@ -1,6 +1,6 @@
 import { NLUITextureDef } from '@/types/NLAbstractions';
-import { objectUrlToBuffer } from '@/utils/data';
-import { SourceTextureData } from '../SourceTextureData';
+import { TextureImageBufferKeys } from '../TextureImageBufferKeys';
+import globalBuffers from '@/utils/data/globalBuffers';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const { Jimp } = globalThis as any;
@@ -12,13 +12,13 @@ export default async function createImgFromTextureDef({
   textureDef: NLUITextureDef;
   asTranslucent: boolean;
 }) {
-  const pixelsObjectUrls = textureDef.bufferUrls as SourceTextureData;
+  const pixelBufferKeys = textureDef.bufferKeys as TextureImageBufferKeys;
   const bufferUrl =
     (!asTranslucent
-      ? pixelsObjectUrls.opaque || pixelsObjectUrls.translucent
-      : pixelsObjectUrls.translucent) || '';
+      ? pixelBufferKeys.opaque || pixelBufferKeys.translucent
+      : pixelBufferKeys.translucent) || '';
 
-  const pixels = await objectUrlToBuffer(bufferUrl);
+  const pixels = globalBuffers.get(bufferUrl);
 
   const image = await Jimp.read({
     data: pixels,

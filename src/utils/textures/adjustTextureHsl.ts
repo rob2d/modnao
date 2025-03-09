@@ -1,17 +1,13 @@
-import { Image } from 'image-js';
-import { bufferToObjectUrl, objectUrlToBuffer } from '../data';
-import HslValues from './HslValues';
+import { HslValues } from './HslValues';
 import { RgbaColor } from './RgbaColor';
 import { hslToRgb, rgbToHsl } from '../color-conversions';
 
 export default async function adjustTextureHsl(
-  sourceUrl: string,
-  width: number,
-  height: number,
+  buffer: SharedArrayBuffer,
   hsl: HslValues
 ) {
-  const sourceData = await objectUrlToBuffer(sourceUrl);
-  const imageData = new Uint8ClampedArray(sourceData.length);
+  const sourceData = new Uint8Array(buffer);
+  const imageData = new Uint8Array(buffer.byteLength);
 
   /**
    * colors tend to be within ranges, so create a
@@ -44,15 +40,5 @@ export default async function adjustTextureHsl(
     imageData[i + 3] = sourceData[i + 3];
   }
 
-  const objectUrl = await bufferToObjectUrl(imageData);
-  const dataUrl = new Image({
-    data: imageData,
-    width,
-    height
-  }).toDataURL();
-
-  return {
-    objectUrl,
-    dataUrl
-  };
+  return imageData;
 }

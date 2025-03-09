@@ -1,13 +1,12 @@
-import { Image } from 'image-js';
 import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from '../dialogs/dialogsSlice';
 import { AppThunk } from '../store';
-import { bufferToObjectUrl } from '@/utils/data';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { replaceTextureImage } from '../modelData';
 import { createAppAsyncThunk } from '../storeTypings';
 import { ReplaceTextureState } from './replaceTextureTypes';
+import globalBuffers from '@/utils/data/globalBuffers';
 
 export const initialReplaceTextureState: ReplaceTextureState = {
   textureIndex: -1,
@@ -23,7 +22,7 @@ export const selectReplacementTexture = createAppAsyncThunk(
     { dispatch }
   ) => {
     const [buffer, , width, height] = await loadRGBABuffersFromFile(imageFile);
-    const bufferObjectUrl = await bufferToObjectUrl(buffer);
+    const bufferObjectUrl = globalBuffers.add(buffer);
 
     const { actions } = dialogsSlice;
     dispatch(actions.showDialog('replace-texture'));
@@ -55,15 +54,11 @@ export const updateReplacementTexture =
 
 export const applyReplacedTextureImage = createAppAsyncThunk(
   `${sliceName}/applyReplacedTextureImage`,
-  async (
-    rgbaBuffer: Uint8Array | Uint8ClampedArray,
-    { getState, dispatch }
-  ) => {
+  async (rgbaBuffer: Uint8Array, { getState, dispatch }) => {
     const state = getState();
     const { textureIndex } = state.replaceTexture;
-    const { width, height } = state.modelData.textureDefs[textureIndex];
     const translucentBuffer = rgbaBuffer;
-    const opaqueBuffer = new Uint8ClampedArray(translucentBuffer.length);
+    const opaqueBuffer = new Uint8Array(translucentBuffer.length);
 
     for (let i = 0; i < opaqueBuffer.length; i += 4) {
       // for opaque buffer, set all pixels to 255 alpha
@@ -74,28 +69,16 @@ export const applyReplacedTextureImage = createAppAsyncThunk(
     }
 
     const [translucent, opaque] = await Promise.all([
-      bufferToObjectUrl(translucentBuffer),
-      bufferToObjectUrl(opaqueBuffer)
+      globalBuffers.add(translucentBuffer),
+      globalBuffers.add(opaqueBuffer)
     ]);
 
-    const bufferUrls = { translucent, opaque };
+    const bufferKeys = { translucent, opaque };
 
     dispatch(
       replaceTextureImage({
         textureIndex,
-        bufferUrls,
-        dataUrls: {
-          translucent: new Image({
-            data: translucentBuffer,
-            width,
-            height
-          }).toDataURL(),
-          opaque: new Image({
-            data: opaqueBuffer,
-            width,
-            height
-          }).toDataURL()
-        }
+        bufferKeys
       })
     );
 
@@ -117,7 +100,7 @@ const replaceTextureSlice = createSlice({
         payload === 'replace-texture' &&
         state.replacementImage?.bufferObjectUrl
       ) {
-        URL.revokeObjectURL(state.replacementImage?.bufferObjectUrl);
+        // URL.revokeObjectURL(state.replacementImage?.bufferObjectUrl);
         state.textureIndex = -1;
         state.replacementImage = undefined;
       }
@@ -127,7 +110,7 @@ const replaceTextureSlice = createSlice({
       selectReplacementTexture.fulfilled,
       (state, { payload }) => {
         if (state.replacementImage?.bufferObjectUrl) {
-          URL.revokeObjectURL(state.replacementImage?.bufferObjectUrl);
+          // URL.revokeObjectURL(state.replacementImage?.bufferObjectUrl);
         }
         Object.assign(state, payload);
       }

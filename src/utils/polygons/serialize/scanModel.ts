@@ -7,19 +7,20 @@ import {
   nlVertexConversions
 } from './NLPropConversionDefs';
 import { processNLConversions } from './processNLConversions';
-import TransferrableBuffer from '@/types/TransferrableBuffer';
+
+export type ScanModelParams = {
+  address: number;
+  ramAddress: number;
+  buffer: SharedArrayBuffer;
+  index: number;
+};
 
 export default function scanModel({
   address,
   ramAddress,
   buffer,
   index
-}: {
-  address: number;
-  ramAddress: number;
-  buffer: TransferrableBuffer;
-  index: number;
-}) {
+}: ScanModelParams) {
   const wBuffer = Buffer.from(new Uint8Array(buffer));
   // (1) scan base model props
   const model = processNLConversions<NLModel>(

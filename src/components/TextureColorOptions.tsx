@@ -9,7 +9,7 @@ import {
   Tooltip
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
-import HslValues from '@/utils/textures/HslValues';
+import { HslValues } from '@/utils/textures';
 import {
   adjustTextureHsl,
   selectEditedTextures,
