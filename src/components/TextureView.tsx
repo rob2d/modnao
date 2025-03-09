@@ -23,8 +23,9 @@ import {
 import themeMixins from '@/theming/themeMixins';
 import TextureColorOptions from './TextureColorOptions';
 import { TextureImageBufferKeys } from '@/utils/textures';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import globalBuffers from '@/utils/data/globalBuffers';
+import ImageBufferCanvas from './ImageBufferCanvas';
 
 const Styled = styled('div')(
   ({ theme }) =>
@@ -102,6 +103,11 @@ const Styled = styled('div')(
       transform: rotate(-90deg);
     }
 
+    & .texture-preview-canvas {
+      width: var(--size);
+      height: var(--size);
+    }
+
     & .texture-preview > * {
       position: relative;
     }
@@ -154,29 +160,11 @@ export default function TextureView() {
     false
   );
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const textureUrl = textureDefs?.[textureIndex]?.bufferKeys?.opaque;
+  const textureBufferKey = textureDefs?.[textureIndex]?.bufferKeys?.opaque;
   const textureBuffer = useMemo(
-    async () => globalBuffers.get(textureUrl),
-    [textureUrl]
+    () => globalBuffers.get(textureBufferKey),
+    [textureBufferKey]
   );
-
-  useEffect(() => {
-    if (textureBuffer && canvasRef.current) {
-      textureBuffer.then((buffer) => {
-        const canvas = canvasRef.current;
-        const context = canvas?.getContext('2d');
-        if (context) {
-          const imageData = new ImageData(
-            new Uint8ClampedArray(buffer),
-            size,
-            size
-          );
-          context.putImageData(imageData, 0, 0);
-        }
-      });
-    }
-  }, [textureBuffer, size]);
 
   return (
     <Styled>
@@ -188,15 +176,19 @@ export default function TextureView() {
         </div>
         <div className='center-section'>
           <div className='texture-preview' {...getDragProps()}>
-            {!textureUrl ? (
+            {!textureBufferKey ? (
               <Skeleton variant='rectangular' width={size} height={size} />
             ) : (
-              <div className={clsx(isDragActive && 'file-drag-active')}>
-                <canvas
-                  title='texture preview'
-                  width={size}
-                  height={size}
-                  ref={canvasRef}
+              <div
+                className={clsx(isDragActive && 'file-drag-active')}
+                style={{ '--size': `${size}px` } as React.CSSProperties}
+              >
+                <ImageBufferCanvas
+                  alt='texture preview'
+                  width={textureDefs[textureIndex].width}
+                  height={textureDefs[textureIndex].height}
+                  rgbaBuffer={textureBuffer}
+                  className='texture-preview-canvas'
                 />
               </div>
             )}
