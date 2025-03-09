@@ -6,7 +6,7 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { SourceTextureData } from '@/utils/textures';
+import { TextureImageBufferKeys } from '@/utils/textures';
 import {
   mdiCropFree,
   mdiFileDownload,
@@ -42,7 +42,7 @@ function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
 
 export default function useTextureOptions(
   textureIndex: number,
-  pixelsObjectUrls: SourceTextureData,
+  pixelBufferKeys: TextureImageBufferKeys,
   onReplaceImageFile: (file: File) => void,
   handleClose: () => void,
   disableFunctionality = false,
@@ -95,8 +95,10 @@ export default function useTextureOptions(
         tooltip:
           'Open image replace dialog with existing image to crop/rotate in-place',
         async onClick() {
+          // TODO: create an image from a buffer url, then
+          // download that
           const dataUrl =
-            textureDefs?.[textureIndex].dataUrls?.translucent || '';
+            textureDefs?.[textureIndex].bufferKeys?.translucent || '';
           const fetchResult = await fetch(dataUrl);
           const arrayBuffer = await fetchResult.arrayBuffer();
           const file = new File([arrayBuffer], 'workingfile.png');
@@ -141,7 +143,7 @@ export default function useTextureOptions(
       }
     ],
     [
-      pixelsObjectUrls,
+      pixelBufferKeys,
       dlAsTranslucent,
       textureIndex,
       textureHistory,

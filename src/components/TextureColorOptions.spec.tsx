@@ -3,7 +3,7 @@ import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import TextureColorOptions from './TextureColorOptions';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { AppState, EditedTexture } from '@/store';
-import { SourceTextureData } from '@/utils/textures';
+import { TextureImageBufferKeys } from '@/utils/textures';
 
 const mockTextureState = {
   modelData: {
@@ -30,8 +30,7 @@ describe('TextureColorOptions', () => {
           [0]: {
             width: 0,
             height: 0,
-            bufferUrls: {} as SourceTextureData,
-            dataUrls: {} as SourceTextureData,
+            bufferKeys: {} as TextureImageBufferKeys,
             hsl: {
               h: 0,
               s: 0,

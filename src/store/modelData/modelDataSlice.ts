@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { SourceTextureData } from '@/utils/textures/SourceTextureData';
+import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
 import { ModelDataState } from './modelDataTypes';
 import {
   adjustTextureHsl,
@@ -30,11 +30,10 @@ const modelDataSlice = createSlice({
     replaceTextureImage(
       state,
       {
-        payload: { textureIndex, bufferUrls, dataUrls }
+        payload: { textureIndex, bufferKeys }
       }: PayloadAction<{
         textureIndex: number;
-        bufferUrls: SourceTextureData;
-        dataUrls: SourceTextureData;
+        bufferKeys: TextureImageBufferKeys;
       }>
     ) {
       // @TODO: for better UX, re-apply existing HSL on new image automagically
@@ -51,13 +50,11 @@ const modelDataSlice = createSlice({
       state.textureHistory[textureIndex] =
         state.textureHistory[textureIndex] || [];
       state.textureHistory[textureIndex].push({
-        bufferUrls: state.textureDefs[textureIndex]
-          .bufferUrls as SourceTextureData,
-        dataUrls: state.textureDefs[textureIndex].dataUrls as SourceTextureData
+        bufferKeys: state.textureDefs[textureIndex]
+          .bufferKeys as TextureImageBufferKeys
       });
 
-      state.textureDefs[textureIndex].bufferUrls = bufferUrls;
-      state.textureDefs[textureIndex].dataUrls = dataUrls;
+      state.textureDefs[textureIndex].bufferKeys = bufferKeys;
       state.hasEditedTextures = true;
     },
     revertTextureImage(
@@ -79,15 +76,10 @@ const modelDataSlice = createSlice({
       const textureHistory = state.textureHistory[textureIndex].pop();
 
       if (textureHistory) {
-        state.textureDefs[textureIndex].bufferUrls.translucent =
-          textureHistory.bufferUrls.translucent;
-        state.textureDefs[textureIndex].bufferUrls.opaque =
-          textureHistory.bufferUrls.opaque;
-
-        state.textureDefs[textureIndex].dataUrls.translucent =
-          textureHistory.dataUrls.translucent;
-        state.textureDefs[textureIndex].dataUrls.opaque =
-          textureHistory.dataUrls.opaque;
+        state.textureDefs[textureIndex].bufferKeys.translucent =
+          textureHistory.bufferKeys.translucent;
+        state.textureDefs[textureIndex].bufferKeys.opaque =
+          textureHistory.bufferKeys.opaque;
       }
 
       return state;
@@ -147,7 +139,8 @@ const modelDataSlice = createSlice({
         state.textureFileType = textureFileType;
 
         state.textureFileName = fileName;
-        state.isLzssCompressed = isLzssCompressed;
+        state.isLzssCompressed = Boolean(isLzssCompressed);
+        state.textureBufferUrl = textureBufferUrl;
         state.textureBufferUrl = textureBufferUrl;
       }
     );
@@ -170,15 +163,14 @@ const modelDataSlice = createSlice({
       adjustTextureHsl.fulfilled,
       (
         state: ModelDataState,
-        { payload: { textureIndex, bufferUrls, dataUrls, hsl } }
+        { payload: { textureIndex, bufferKeys, hsl } }
       ) => {
         const { width, height } = state.textureDefs[textureIndex];
         if (hsl.h != 0 || hsl.s != 0 || hsl.l != 0) {
           state.editedTextures[textureIndex] = {
             width,
             height,
-            bufferUrls,
-            dataUrls,
+            bufferKeys,
             hsl
           };
         } else {

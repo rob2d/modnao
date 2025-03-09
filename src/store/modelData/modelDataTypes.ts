@@ -1,9 +1,8 @@
 import { AsyncState } from '@/types/AsyncState';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
-import { SourceTextureData } from '@/utils/textures';
+import { HslValues, TextureImageBufferKeys } from '@/utils/textures';
 import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
-import HslValues from '@/utils/textures/HslValues';
 
 export type LoadPolygonsResult = {
   type: 'loadPolygonFile';
@@ -17,27 +16,40 @@ export type LoadTexturesResult = {
 
 export type AdjustTextureHslResult = {
   type: 'adjustTextureHsl';
-  result: AdjustTextureHslPayload;
+  result: [SharedArrayBuffer, SharedArrayBuffer];
 };
 
 export type EditedTexture = {
   width: number;
   height: number;
-  bufferUrls: SourceTextureData;
-  dataUrls: SourceTextureData;
+  bufferKeys: TextureImageBufferKeys;
   hsl: HslValues;
 };
 
 export interface LoadTexturesBasePayload {
-  isLzssCompressed: boolean;
   textureFileType: TextureFileType;
-  textureDefs: NLUITextureDef[];
-  fileName: string;
   resourceAttribs?: ResourceAttribs;
+  isLzssCompressed?: boolean;
 }
 
 export type LoadTexturesPayload = LoadTexturesBasePayload & {
+  file: File;
+  textureBuffer?: SharedArrayBuffer;
+  textureDefs?: NLUITextureDef[];
+};
+
+export type LoadTexturesResultPayload = LoadTexturesBasePayload & {
+  fileName: string;
   textureBufferUrl: string;
+  textureDefs: NLUITextureDef[];
+};
+
+export type LoadPolygonsResultPayload = {
+  models: NLModel[];
+  textureDefs: NLUITextureDef[];
+  fileName: string;
+  polygonBufferUrl: string;
+  resourceAttribs?: ResourceAttribs;
 };
 
 export type LoadPolygonsPayload =
@@ -58,8 +70,7 @@ export type LoadPolygonsPayload =
 
 export type AdjustTextureHslPayload = {
   textureIndex: number;
-  bufferUrls: SourceTextureData;
-  dataUrls: SourceTextureData;
+  bufferKeys: TextureImageBufferKeys;
   hsl: HslValues;
 };
 
@@ -74,8 +85,7 @@ export interface ModelDataState {
    */
   textureHistory: {
     [key: number]: {
-      dataUrls: SourceTextureData;
-      bufferUrls: SourceTextureData;
+      bufferKeys: TextureImageBufferKeys;
     }[];
   };
   editedTextures: {

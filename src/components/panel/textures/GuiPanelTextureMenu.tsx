@@ -8,7 +8,7 @@ import { mdiDotsVertical } from '@mdi/js';
 import { Divider, styled, Tooltip } from '@mui/material';
 import TextureColorOptions from '../../TextureColorOptions';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
-import { SourceTextureData } from '@/utils/textures/SourceTextureData';
+import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
 import { useTextureOptions } from '@/hooks';
 
 const StyledMenuButtonContainer = styled('div')(
@@ -41,11 +41,11 @@ const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 
 export default function GuiPanelTextureMenu({
   textureIndex,
-  pixelsObjectUrls,
+  pixelBufferKeys,
   onReplaceImageFile
 }: {
   textureIndex: number;
-  pixelsObjectUrls: SourceTextureData;
+  pixelBufferKeys: TextureImageBufferKeys;
   onReplaceImageFile: (file: File) => void;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -81,7 +81,7 @@ export default function GuiPanelTextureMenu({
 
   const optionsSources = useTextureOptions(
     textureIndex,
-    pixelsObjectUrls,
+    pixelBufferKeys,
     onReplaceImageFile,
     handleClose,
     !open

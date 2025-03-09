@@ -38,17 +38,17 @@ export const selectUneditedTextureUrls = createSelector(
   (defs, history) => {
     const urlSet = new Set<string>();
     defs.forEach((d) => {
-      if (d.bufferUrls.translucent) {
-        urlSet.add(d.bufferUrls.translucent);
+      if (d.bufferKeys.translucent) {
+        urlSet.add(d.bufferKeys.translucent);
       }
 
-      if (d.bufferUrls.opaque) {
-        urlSet.add(d.bufferUrls.opaque);
+      if (d.bufferKeys.opaque) {
+        urlSet.add(d.bufferKeys.opaque);
       }
     });
 
     Object.keys(history).forEach((k) => {
-      history[Number(k)].forEach(({ bufferUrls: { opaque, translucent } }) => {
+      history[Number(k)].forEach(({ bufferKeys: { opaque, translucent } }) => {
         if (opaque) {
           urlSet.add(opaque);
         }
@@ -73,22 +73,16 @@ export const selectUpdatedTextureDefs = createSelector(
   selectEditedTextures,
   (textureDefs, bufferUrlEntries): typeof textureDefs => {
     const returnTextures = [...textureDefs];
-    Object.entries(bufferUrlEntries).forEach(
-      ([index, { bufferUrls, dataUrls }]) => {
-        const i = Number.parseInt(index);
-        const entry = { ...returnTextures[i] };
-        entry.bufferUrls = {
-          ...entry.bufferUrls,
-          ...bufferUrls
-        };
+    Object.entries(bufferUrlEntries).forEach(([index, { bufferKeys }]) => {
+      const i = Number.parseInt(index);
+      const entry = { ...returnTextures[i] };
+      entry.bufferKeys = {
+        ...entry.bufferKeys,
+        ...bufferKeys
+      };
 
-        entry.dataUrls = {
-          ...entry.dataUrls,
-          ...dataUrls
-        };
-        returnTextures[i] = entry;
-      }
-    );
+      returnTextures[i] = entry;
+    });
 
     return returnTextures;
   }
@@ -115,7 +109,7 @@ const getDisplayedMeshes = (model: NLModel, textureDefs: NLUITextureDef[]) =>
       return meshes;
     }
 
-    const url = tDef.bufferUrls[m.isOpaque ? 'opaque' : 'translucent'];
+    const url = tDef.bufferKeys[m.isOpaque ? 'opaque' : 'translucent'];
     const { hRepeat, vRepeat } = m.textureWrappingFlags;
     const textureHash = `${url}-${hRepeat ? 1 : 0}-${vRepeat ? 1 : 0}`;
 
