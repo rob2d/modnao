@@ -5,7 +5,7 @@ import { selectReplacementTexture, useAppDispatch } from '@/store';
 export default function useTextureReplaceDropzone(textureIndex: number) {
   const dispatch = useAppDispatch();
   const onSelectNewImageFile = useCallback(
-    async (imageFile: File) => {
+    async (imageFile: File | SharedArrayBuffer) => {
       dispatch(selectReplacementTexture({ imageFile, textureIndex }));
     },
     [textureIndex]

@@ -18,10 +18,30 @@ const sliceName = 'replaceTexture';
 export const selectReplacementTexture = createAppAsyncThunk(
   `${sliceName}/selectReplacementTexture`,
   async (
-    { imageFile, textureIndex }: { imageFile: File; textureIndex: number },
-    { dispatch }
+    {
+      imageFile,
+      textureIndex
+    }: {
+      imageFile: File | SharedArrayBuffer;
+      textureIndex: number;
+    },
+    { dispatch, getState }
   ) => {
-    const [buffer, , width, height] = await loadRGBABuffersFromFile(imageFile);
+    let buffer: Uint8Array;
+    let width: number;
+    let height: number;
+    if (imageFile instanceof SharedArrayBuffer) {
+      buffer = new Uint8Array(imageFile);
+      const state = getState();
+      width = state.modelData.textureDefs[textureIndex].width;
+      height = state.modelData.textureDefs[textureIndex].height;
+    } else {
+      const [_b, , _w, _h] = await loadRGBABuffersFromFile(imageFile);
+
+      buffer = _b;
+      width = _w;
+      height = _h;
+    }
     const bufferKey = globalBuffers.add(buffer);
 
     const { actions } = dialogsSlice;

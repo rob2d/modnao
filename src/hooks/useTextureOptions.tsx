@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import createImgFromTextureDef from '@/utils/textures/files/createB64ImgFromTextureDefs';
 import saveAs from 'file-saver';
+import globalBuffers from '@/utils/data/globalBuffers';
 
 function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const {
@@ -43,7 +44,7 @@ function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
 export default function useTextureOptions(
   textureIndex: number,
   pixelBufferKeys: TextureImageBufferKeys,
-  onReplaceImageFile: (file: File) => void,
+  onReplaceImageFile: (file: File | SharedArrayBuffer) => void,
   handleClose: () => void,
   disableFunctionality = false,
   onSelectOption?: () => void
@@ -95,15 +96,11 @@ export default function useTextureOptions(
         tooltip:
           'Open image replace dialog with existing image to crop/rotate in-place',
         async onClick() {
-          // TODO: create an image from a buffer url, then
-          // download that
-          const dataUrl =
+          const bufferKey =
             textureDefs?.[textureIndex].bufferKeys?.translucent || '';
-          const fetchResult = await fetch(dataUrl);
-          const arrayBuffer = await fetchResult.arrayBuffer();
-          const file = new File([arrayBuffer], 'workingfile.png');
+          const buffer = globalBuffers.getShared(bufferKey);
 
-          onReplaceImageFile(file);
+          onReplaceImageFile(buffer);
           handleClose();
         }
       },

@@ -52,6 +52,7 @@ function createTexturePixelBuffers(
           // textures may point out of bounds (this would be to RAM elsewhere in-game)
           if (readOffset >= fileBuffer.length && !failOutOfBounds) {
             texturePixelBuffers.push(new SharedArrayBuffer(0));
+            console.error('texture buffer out of range');
             hasPushed = true;
             continue;
           }
