@@ -2,15 +2,22 @@ import scanForModelPointers from '@/utils/polygons/serialize/scanForModelPointer
 import scanModel from '@/utils/polygons/serialize/scanModel';
 import scanTextureHeaderData from '@/utils/polygons/serialize/scanTextureHeaderData';
 import { NLUITextureDef } from '@/types/NLAbstractions';
-import TransferrableBuffer from '@/types/TransferrableBuffer';
-import { bufferToObjectUrl } from '@/utils/data';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
 import getTextureDefsHash from '@/utils/resource-attribs/getTextureDefsHash';
 import getResourceAttribs from '@/utils/resource-attribs/getResourceAttribs';
 
 export type LoadPolygonFileWorkerPayload = {
   fileName: string;
-  buffer: TransferrableBuffer;
+  buffer: SharedArrayBuffer;
+};
+
+export type LoadPolygonFileWorkerResult = {
+  modelRamOffset: number;
+  models: NLModel[];
+  textureDefs: NLUITextureDef[];
+  polygonBuffer: SharedArrayBuffer;
+  fileName: string;
+  resourceAttribs?: ResourceAttribs;
 };
 
 /**
@@ -22,14 +29,7 @@ export type LoadPolygonFileWorkerPayload = {
 export default async function loadPolygonFile({
   buffer,
   fileName
-}: LoadPolygonFileWorkerPayload): Promise<{
-  modelRamOffset: number;
-  models: NLModel[];
-  textureDefs: NLUITextureDef[];
-  polygonBufferUrl: string;
-  fileName: string;
-  resourceAttribs?: ResourceAttribs;
-}> {
+}: LoadPolygonFileWorkerPayload): Promise<LoadPolygonFileWorkerResult> {
   const [modelPointers, modelRamOffset] = scanForModelPointers(buffer);
 
   const textureDefs = scanTextureHeaderData(buffer, modelRamOffset);
@@ -45,7 +45,7 @@ export default async function loadPolygonFile({
     modelRamOffset,
     models,
     textureDefs,
-    polygonBufferUrl: await bufferToObjectUrl(buffer),
+    polygonBuffer: buffer,
     fileName,
     resourceAttribs
   });

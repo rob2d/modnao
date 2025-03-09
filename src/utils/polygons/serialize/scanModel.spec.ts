@@ -7,11 +7,14 @@ import scanModel from './scanModel';
 
 describe('scanModel', () => {
   it('extracts a test stage file predictably', async () => {
-    const buffer = await fs.readFile(
+    const fileBuffer = await fs.readFile(
       path.join(process.cwd(), 'src/__mocks__/STGXXPOL.BIN')
     );
+
+    const buffer = new SharedArrayBuffer(fileBuffer.byteLength);
+    new Uint8Array(buffer).set(new Uint8Array(fileBuffer));
     const modelData = scanModel({
-      buffer: new Uint8ClampedArray(buffer),
+      buffer,
       address: 528,
       index: 0,
       ramAddress: 0

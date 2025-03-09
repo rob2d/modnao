@@ -1,40 +1,23 @@
-import adjustTextureHsl from '../utils/textures/adjustTextureHsl';
-import { SourceTextureData } from '../utils/textures/SourceTextureData';
-import HslValues from '../utils/textures/HslValues';
+import {
+  adjustTextureHsl,
+  HslValues,
+  TextureImageBuffers
+} from '@/utils/textures';
 
 export type AdjustTextureHslWorkerPayload = {
-  textureIndex: number;
-  sourceTextureData: SourceTextureData;
-  width: number;
-  height: number;
+  buffers: TextureImageBuffers;
   hsl: HslValues;
 };
 
 export default async function adjustTextureHslWorker({
-  sourceTextureData,
-  textureIndex,
-  hsl,
-  width,
-  height
+  buffers,
+  hsl
 }: AdjustTextureHslWorkerPayload) {
-  const promises = [sourceTextureData.translucent, sourceTextureData.opaque]
-    .filter((sourceUrl): sourceUrl is string => Boolean(sourceUrl))
-    .map((sourceUrl) => adjustTextureHsl(sourceUrl, width, height, hsl));
+  const [opaqueRgbaBuffer, translucentRgbaBuffer] = await Promise.all(
+    [buffers.opaque, buffers.translucent].map((buffer) =>
+      adjustTextureHsl(buffer as SharedArrayBuffer, hsl)
+    )
+  );
 
-  const [translucent, opaque] = await Promise.all(promises);
-
-  return {
-    hsl,
-    textureIndex,
-    width,
-    height,
-    bufferUrls: {
-      translucent: translucent.objectUrl,
-      opaque: opaque.objectUrl
-    },
-    dataUrls: {
-      translucent: translucent.dataUrl,
-      opaque: opaque.dataUrl
-    }
-  };
+  return [opaqueRgbaBuffer, translucentRgbaBuffer];
 }

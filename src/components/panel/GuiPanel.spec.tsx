@@ -9,11 +9,7 @@ const mockState = {
     models: [],
     textureDefs: [
       {
-        dataUrls: {
-          opaque: '',
-          transparent: ''
-        },
-        bufferUrls: {
+        bufferKeys: {
           opaque: '',
           transparent: ''
         }

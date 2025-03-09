@@ -8,7 +8,6 @@ import {
 } from '@mui/material';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import Img from 'next/image';
 import useViewportSizes from 'use-viewport-sizes';
 import {
   useObjectNavControls,
@@ -23,7 +22,9 @@ import {
 } from '@/store';
 import themeMixins from '@/theming/themeMixins';
 import TextureColorOptions from './TextureColorOptions';
-import { SourceTextureData } from '@/utils/textures';
+import { TextureImageBufferKeys } from '@/utils/textures';
+import { useEffect, useMemo, useRef } from 'react';
+import globalBuffers from '@/utils/data/globalBuffers';
 
 const Styled = styled('div')(
   ({ theme }) =>
@@ -142,17 +143,40 @@ export default function TextureView() {
   const { isDragActive, getDragProps, onSelectNewImageFile } =
     useTextureReplaceDropzone(textureIndex);
 
-  const textureUrl = textureDefs?.[textureIndex]?.dataUrls?.opaque;
-  const bufferUrls = textureDefs?.[textureIndex]
-    ?.bufferUrls as SourceTextureData;
+  const bufferKeys = textureDefs?.[textureIndex]
+    ?.bufferKeys as TextureImageBufferKeys;
 
   const options = useTextureOptions(
     textureIndex,
-    bufferUrls,
+    bufferKeys,
     onSelectNewImageFile as (file: File) => void,
     () => {},
     false
   );
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const textureUrl = textureDefs?.[textureIndex]?.bufferKeys?.opaque;
+  const textureBuffer = useMemo(
+    async () => globalBuffers.get(textureUrl),
+    [textureUrl]
+  );
+
+  useEffect(() => {
+    if (textureBuffer && canvasRef.current) {
+      textureBuffer.then((buffer) => {
+        const canvas = canvasRef.current;
+        const context = canvas?.getContext('2d');
+        if (context) {
+          const imageData = new ImageData(
+            new Uint8ClampedArray(buffer),
+            size,
+            size
+          );
+          context.putImageData(imageData, 0, 0);
+        }
+      });
+    }
+  }, [textureBuffer, size]);
 
   return (
     <Styled>
@@ -168,11 +192,11 @@ export default function TextureView() {
               <Skeleton variant='rectangular' width={size} height={size} />
             ) : (
               <div className={clsx(isDragActive && 'file-drag-active')}>
-                <Img
-                  alt='texture preview'
+                <canvas
+                  title='texture preview'
                   width={size}
                   height={size}
-                  src={textureUrl}
+                  ref={canvasRef}
                 />
               </div>
             )}

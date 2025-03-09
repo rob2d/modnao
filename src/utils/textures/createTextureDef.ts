@@ -8,11 +8,7 @@ export default function createTextureDef(
     height: 256,
     colorFormat: 'RGB565',
     colorFormatValue: 2,
-    bufferUrls: {
-      translucent: undefined,
-      opaque: undefined
-    },
-    dataUrls: {
+    bufferKeys: {
       translucent: undefined,
       opaque: undefined
     },

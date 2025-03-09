@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import Img from 'next/image';
 import {
   ButtonBase,
   Skeleton,
@@ -21,6 +20,8 @@ import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ContentViewMode from '@/types/ContentViewMode';
 import themeMixins from '@/theming/themeMixins';
 import { useTextureReplaceDropzone } from '@/hooks';
+import ImageBufferCanvas from '@/components/ImageBufferCanvas';
+import globalBuffers from '@/utils/data/globalBuffers';
 
 const IMG_SIZE = '174px';
 
@@ -180,11 +181,18 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
 
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
   // otherwise fallback to actionable dataUrl
-  const imageDataUrl =
+  // @TODO: use a canvas and draw the image data
+  const imageBufferKey =
     (selected && mesh?.isOpaque
-      ? textureDef?.dataUrls?.opaque || textureDef?.dataUrls?.translucent
-      : textureDef?.dataUrls?.translucent || textureDef?.dataUrls?.opaque) ||
-    '';
+      ? textureDef?.bufferKeys?.opaque || textureDef?.bufferKeys?.translucent
+      : textureDef?.bufferKeys?.translucent ||
+        textureDef?.bufferKeys?.opaque) || '';
+
+  const rgbaBuffer = useMemo(
+    () =>
+      imageBufferKey ? globalBuffers.get(imageBufferKey) : new Uint8Array(0),
+    [imageBufferKey]
+  );
 
   const uvOverlays = useMemo(
     () =>
@@ -196,8 +204,8 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
               key={`${textureIndex}_${i}`}
               style={{ clipPath: `polygon(${path})` }}
             >
-              <Img
-                src={imageDataUrl}
+              <ImageBufferCanvas
+                rgbaBuffer={rgbaBuffer}
                 width={width}
                 height={height}
                 className='uv-highlight'
@@ -207,7 +215,13 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
           ))}
         </>
       ),
-    [uvClipPaths, imageDataUrl, width, height, viewOptions.uvRegionsHighlighted]
+    [
+      uvClipPaths,
+      imageBufferKey,
+      width,
+      height,
+      viewOptions.uvRegionsHighlighted
+    ]
   );
 
   const isSelectable = contentViewMode === 'textures' && !selected;
@@ -239,7 +253,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     ]
   );
 
-  if (!imageDataUrl) {
+  if (!imageBufferKey) {
     return (
       <StyledPanelTexture
         className={clsx(
@@ -259,8 +273,8 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
 
   const content = (
     <>
-      <Img
-        src={imageDataUrl}
+      <ImageBufferCanvas
+        rgbaBuffer={rgbaBuffer}
         width={width}
         height={height}
         alt={`Texture # ${textureIndex}`}
@@ -295,7 +309,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       {textureDef ? (
         <GuiPanelTextureMenu
           textureIndex={textureIndex}
-          pixelsObjectUrls={textureDef.bufferUrls}
+          pixelBufferKeys={textureDef.bufferKeys}
           onReplaceImageFile={onSelectNewImageFile}
         />
       ) : undefined}

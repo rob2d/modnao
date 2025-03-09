@@ -5,8 +5,12 @@ const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 
 const BITS11 = 0b111_1111_1111;
 
-export default function decompressLzssBuffer(bufferPassed: Buffer) {
-  const buffer = Buffer.from(bufferPassed);
+export default function decompressLzssBuffer(
+  bufferPassed: SharedArrayBuffer | Buffer
+) {
+  const buffer = Buffer.isBuffer(bufferPassed)
+    ? bufferPassed
+    : Buffer.from(bufferPassed);
   const output: number[] = [];
   let applyBitmask = true;
 
@@ -72,11 +76,12 @@ export default function decompressLzssBuffer(bufferPassed: Buffer) {
     }
   }
 
-  const outputBuffer = Buffer.alloc(output.length * 2);
+  const sharedOutputBuffer = new SharedArrayBuffer(output.length * 2);
+  const outputBuffer = Buffer.from(sharedOutputBuffer);
 
   for (let i = 0; i < output.length; i++) {
     outputBuffer.writeUInt16LE(output[i], i * WORD_SIZE);
   }
 
-  return outputBuffer;
+  return sharedOutputBuffer;
 }

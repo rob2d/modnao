@@ -12,7 +12,9 @@ describe('scanForModelPointers', () => {
       path.join(process.cwd(), 'src/__mocks__/STGXXPOL.BIN')
     );
 
-    const results = scanForModelPointers(new Uint8ClampedArray(polygonFile));
+    const buffer = new SharedArrayBuffer(polygonFile.byteLength);
+    new Uint8Array(buffer).set(new Uint8Array(polygonFile));
+    const results = scanForModelPointers(buffer);
     expect(results).toMatchSnapshot('scan-model-for-pointer-addresses');
   });
 });
