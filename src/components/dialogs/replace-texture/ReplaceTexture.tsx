@@ -20,6 +20,7 @@ import {
   Checkbox,
   Divider,
   FormControlLabel,
+  Skeleton,
   Slider,
   styled,
   Tooltip,
@@ -588,13 +589,21 @@ export default function ReplaceTexture() {
             <div className='result'>
               <Typography variant='h6'>Result Preview</Typography>
               <div className='texture-img-container'>
-                <Img
-                  alt='Resulting texture after modifications'
-                  src={previewDataUrl}
-                  width={originalWidth}
-                  height={originalHeight}
-                  style={referenceTextureStyle}
-                />
+                {!previewDataUrl ? (
+                  <Skeleton
+                    variant='rectangular'
+                    width={originalWidth}
+                    height={originalHeight}
+                  />
+                ) : (
+                  <Img
+                    alt='Resulting texture after modifications'
+                    src={previewDataUrl}
+                    width={originalWidth}
+                    height={originalHeight}
+                    style={referenceTextureStyle}
+                  />
+                )}
               </div>
               <Tooltip
                 title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
