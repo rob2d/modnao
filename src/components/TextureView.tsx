@@ -155,7 +155,7 @@ export default function TextureView() {
   const options = useTextureOptions(
     textureIndex,
     bufferKeys,
-    onSelectNewImageFile as (file: File) => void,
+    onSelectNewImageFile as (file: File | SharedArrayBuffer) => void,
     () => {},
     false
   );

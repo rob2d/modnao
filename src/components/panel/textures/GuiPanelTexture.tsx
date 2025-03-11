@@ -108,6 +108,7 @@ const StyledPanelTexture = styled('div')(
     color: ${theme.palette.primary.contrastText};
     text-shadow: 1px 1px 1px black;
     filter: drop-shadow(3px 3px 1px black);
+    user-select: none;
   }
   `
 );

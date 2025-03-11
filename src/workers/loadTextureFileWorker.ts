@@ -119,17 +119,18 @@ export default function loadTextureFileWorker({
       throw error;
     }
 
-    const decompressedBuffer = decompressLzssBuffer(textureFileBuffer);
+    const decompressedTextureBuffer = decompressLzssBuffer(textureFileBuffer);
+    console.log('decompressedBuffer ->', decompressedTextureBuffer);
 
     const texturePixelBuffers = createTexturePixelBuffers(
-      decompressedBuffer,
+      decompressedTextureBuffer,
       textureDefs,
       !expectOobReferences
     );
 
     return {
       texturePixelBuffers,
-      decompressedBuffer,
+      decompressedTextureBuffer,
       textureDefs,
       isLzssCompressed: true
     };

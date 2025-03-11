@@ -46,7 +46,7 @@ export default function GuiPanelTextureMenu({
 }: {
   textureIndex: number;
   pixelBufferKeys: TextureImageBufferKeys;
-  onReplaceImageFile: (file: File) => void;
+  onReplaceImageFile: (file: File | SharedArrayBuffer) => void;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
