@@ -162,7 +162,10 @@ export default function TextureView() {
 
   const textureBufferKey = textureDefs?.[textureIndex]?.bufferKeys?.opaque;
   const textureBuffer = useMemo(
-    () => globalBuffers.get(textureBufferKey),
+    () =>
+      textureBufferKey
+        ? globalBuffers.get(textureBufferKey)
+        : new Uint8Array(0),
     [textureBufferKey]
   );
 

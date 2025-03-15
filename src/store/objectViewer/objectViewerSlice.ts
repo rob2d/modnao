@@ -2,7 +2,7 @@ import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { selectContentViewMode } from '../selectors';
 import { createAppAsyncThunk } from '../storeTypings';
-import { loadPolygonFile } from '../modelData';
+import { processPolygonFile } from '../modelData';
 
 export interface ObjectViewerState {
   modelIndex: number;
@@ -85,7 +85,7 @@ const objectViewerSlice = createSlice({
     builder.addCase(HYDRATE, (state, { payload }: UnknownAction) =>
       Object.assign(state, payload)
     );
-    builder.addCase(loadPolygonFile.fulfilled, (state) => {
+    builder.addCase(processPolygonFile.fulfilled, (state) => {
       Object.assign(state, {
         modelIndex: 0,
         textureIndex: 0,

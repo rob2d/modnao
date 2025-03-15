@@ -1,6 +1,6 @@
 import exportTextureFile from '@/utils/textures/files/exportTextureFile';
 import { showError } from '../errorMessages/errorMessagesSlice';
-import { createAppAsyncThunk } from '../storeTypings';
+import { AppState, createAppAsyncThunk } from '../storeTypings';
 import {
   AdjustTextureHslPayload,
   AdjustTextureHslResult,
@@ -155,7 +155,7 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
       .slice(0, pointers.length)
       .map((d, i) => ({ ...d, baseLocation: decompressedOffsets[i] }));
 
-    dispatch(
+    await dispatch(
       loadTextureFile({
         file,
         textureFileType,
@@ -167,10 +167,46 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
   }
 );
 
+function cleanupTextureBuffers(state: AppState) {
+  const { modelData } = state;
+  const textureDefKeys: string[] = modelData.textureDefs
+    .flatMap((d) => [d.bufferKeys.opaque, d.bufferKeys.translucent])
+    .filter(Boolean);
+
+  const textureHistoryKeys: string[] = Object.values(modelData.textureHistory)
+    .flatMap((textureSet) =>
+      textureSet.flatMap((t) => [t.bufferKeys.opaque, t.bufferKeys.translucent])
+    )
+    .filter(Boolean) as string[];
+  const replacedTextureKeys = state.replaceTexture.replacementImage?.bufferKey
+    ? [state.replaceTexture.replacementImage.bufferKey]
+    : [];
+
+  const editedTextureKeys: string[] = Object.values(modelData.editedTextures)
+    .flatMap((t) => [t.bufferKeys?.opaque, t.bufferKeys?.translucent])
+    .filter(Boolean) as string[];
+
+  [
+    ...textureDefKeys,
+    ...textureHistoryKeys,
+    ...replacedTextureKeys,
+    ...editedTextureKeys
+  ].forEach((key) => {
+    globalBuffers.delete(key);
+  });
+}
+
 export const loadPolygonFile = createAppAsyncThunk(
   `${sliceName}/loadPolygonFile`,
-  async (file: File, { getState }): Promise<LoadPolygonsPayload> => {
-    const { modelData } = getState();
+  async (file: File, { dispatch }) => {
+    globalBuffers.clear();
+    await dispatch(processPolygonFile(file));
+  }
+);
+
+export const processPolygonFile = createAppAsyncThunk(
+  `${sliceName}/processPolygonFile`,
+  async (file: File): Promise<LoadPolygonsPayload> => {
     const fBuffer = await file.arrayBuffer();
     const sharedBuffer = new SharedArrayBuffer(fBuffer.byteLength);
     const buffer = new Uint8Array(sharedBuffer);
@@ -178,19 +214,15 @@ export const loadPolygonFile = createAppAsyncThunk(
     const thread = new ClientThread();
 
     const result = await new Promise<LoadPolygonsPayload>((resolve) => {
-      const prevPolygonFileBufferKey = modelData.polygonBufferUrl;
       thread.onmessage = (
         event: MessageEvent<{ result: LoadPolygonFileWorkerResult }>
       ) => {
         const { polygonBuffer, ...result } = event.data.result;
+
         resolve({
           ...result,
-          polygonBufferUrl: globalBuffers.add(polygonBuffer)
+          polygonBufferKey: globalBuffers.add(polygonBuffer)
         });
-
-        if (prevPolygonFileBufferKey) {
-          globalBuffers.delete(prevPolygonFileBufferKey);
-        }
 
         thread.unallocate();
       };
@@ -205,8 +237,38 @@ export const loadPolygonFile = createAppAsyncThunk(
   }
 );
 
+/** called from UI to clean up and then process texture file */
 export const loadTextureFile = createAppAsyncThunk(
   `${sliceName}/loadTextureFile`,
+  async (payload: LoadTexturesPayload, { getState, dispatch }) => {
+    const state = getState();
+
+    // cleanup buffer if no polygon needed
+    const prevPolygonBufferKey = state.modelData.polygonBufferKey;
+    const prevTextureBufferKey = state.modelData.textureBufferUrl;
+
+    // cleanup texture related buffer
+    setTimeout(() => {
+      dispatch(processTextureFile(payload));
+      if (prevTextureBufferKey) {
+        globalBuffers.delete(prevTextureBufferKey);
+      }
+
+      if (
+        prevPolygonBufferKey &&
+        !textureFileTypeMap[payload.textureFileType].polygonMapped
+      ) {
+        globalBuffers.delete(prevPolygonBufferKey);
+      }
+
+      cleanupTextureBuffers(state);
+    }, 0);
+  }
+);
+
+/** handled in reducer */
+export const processTextureFile = createAppAsyncThunk(
+  `${sliceName}/processTextureFile`,
   async (
     {
       file,
@@ -219,21 +281,19 @@ export const loadTextureFile = createAppAsyncThunk(
   ) => {
     const state = getState();
 
-    // @TODO: draw this out and simplify how textureDefs
-    // and payloads are passed between threads
-
     let updatedTextureDefs: NLUITextureDef[];
 
     if (!textureFileTypeMap[textureFileType].polygonMapped) {
       updatedTextureDefs =
         providedTextureDefs || textureShapesMap[textureFileType];
+
       // clear polygons if texture headers aren't from poly file
       dispatch({
-        type: loadPolygonFile.fulfilled.type,
+        type: processPolygonFile.fulfilled.type,
         payload: {
           models: [],
           fileName: undefined,
-          polygonBufferUrl: undefined,
+          polygonBufferKey: undefined,
           textureDefs: updatedTextureDefs
         }
       });
@@ -258,7 +318,6 @@ export const loadTextureFile = createAppAsyncThunk(
       buffer = Buffer.from(new Uint8Array(decompressLzssBuffer(sharedBuffer)));
     }
 
-    const prevTextureBufferKey = state.modelData.textureBufferUrl;
     const thread = new ClientThread();
 
     const result = await new Promise<LoadTexturesResultPayload>((resolve) => {
@@ -295,11 +354,6 @@ export const loadTextureFile = createAppAsyncThunk(
           textureDefs: returnedTextureDefs
         });
 
-        // deallocate existing blob
-        if (prevTextureBufferKey) {
-          globalBuffers.delete(prevTextureBufferKey);
-        }
-
         thread.unallocate();
       };
 
@@ -325,12 +379,56 @@ export const loadTextureFile = createAppAsyncThunk(
 export const adjustTextureHsl = createAppAsyncThunk(
   `${sliceName}/adjustTextureHsl`,
   async (
+    payload: { textureIndex: number; hsl: HslValues },
+    { getState, dispatch }
+  ) => {
+    const state = getState();
+
+    const prevEditedTexture =
+      state.modelData.editedTextures[payload.textureIndex];
+
+    // abort processing in reducer if no hsl change & edited
+    const { hsl } = payload;
+    if (prevEditedTexture) {
+      const prevHsl = prevEditedTexture?.hsl;
+      if (
+        prevHsl?.h === hsl.h &&
+        prevHsl?.s === hsl.s &&
+        prevHsl?.l === hsl.l
+      ) {
+        return;
+      }
+    }
+
+    // if no concrete changes and first edit, abort
+    if (!prevEditedTexture && hsl.h === 0 && hsl.l === 0 && hsl.s === 0) {
+      return;
+    }
+
+    setTimeout(() => {
+      if (prevEditedTexture?.bufferKeys.opaque) {
+        globalBuffers.delete(prevEditedTexture.bufferKeys.opaque);
+      }
+
+      if (prevEditedTexture?.bufferKeys.translucent) {
+        globalBuffers.delete(prevEditedTexture.bufferKeys.translucent);
+      }
+    }, 0);
+
+    await dispatch(processAdjustedTextureHsl(payload));
+  }
+);
+
+export const processAdjustedTextureHsl = createAppAsyncThunk(
+  `${sliceName}/processAdjustedTextureHsl`,
+  async (
     { textureIndex, hsl }: { textureIndex: number; hsl: HslValues },
     { getState }
   ) => {
     const state = getState();
     const textureDef = state.modelData.textureDefs[textureIndex];
     const { bufferKeys } = textureDef;
+
     const thread = new ClientThread();
     const buffers = {
       translucent: globalBuffers.getShared(bufferKeys.translucent),
@@ -344,21 +442,14 @@ export const adjustTextureHsl = createAppAsyncThunk(
           opaque: globalBuffers.add(opaqueRgbaBuffer),
           translucent: globalBuffers.add(translucentRgbaBuffer)
         };
-        resolve({
-          bufferKeys,
-          textureIndex,
-          hsl
-        });
+
+        resolve({ bufferKeys, textureIndex, hsl });
         thread.unallocate();
       };
 
       thread.postMessage({
         type: 'adjustTextureHsl',
-        payload: {
-          hsl,
-          textureIndex,
-          buffers
-        }
+        payload: { hsl, textureIndex, buffers }
       } as WorkerEvent);
     });
 

@@ -1,17 +1,11 @@
-import {
-  Action,
-  combineReducers,
-  configureStore,
-  ThunkAction,
-  ThunkDispatch,
-  UnknownAction
-} from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
 import { dialogsSlice } from './dialogs';
 import { objectViewerSlice } from './objectViewer';
 import modelDataSlice from './modelData/modelDataSlice';
 import { replaceTextureSlice } from './replaceTexture';
 import { errorMessagesSlice } from './errorMessages';
+import { AppState, AppStore } from './storeTypings';
 
 export const rootReducer = combineReducers({
   [dialogsSlice.name]: dialogsSlice.reducer,
@@ -29,17 +23,6 @@ export const setupStore = (preloadedState?: AppState) =>
   });
 
 export const store = setupStore();
-export type AppStore = ReturnType<typeof setupStore>;
-export type AppState = ReturnType<typeof rootReducer>;
-export type AppDispatch = AppStore['dispatch'];
-export type AppThunk<ReturnType = void> = ThunkAction<
-  ReturnType,
-  AppState,
-  unknown,
-  Action
->;
-
-export type AppThunkDispatch = ThunkDispatch<AppState, unknown, UnknownAction>;
 export const wrapper = createWrapper<AppStore>(
   setupStore as () => typeof store
 );
