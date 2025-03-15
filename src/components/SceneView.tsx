@@ -15,7 +15,6 @@ import {
   selectMeshSelectionType,
   selectModel,
   selectObjectKey,
-  selectUneditedTextureUrls,
   selectUpdatedTextureDefs,
   setObjectKey,
   useAppDispatch,
@@ -63,7 +62,8 @@ const textureTypes = ['opaque', 'translucent'] as const;
 export default function SceneView() {
   useObjectNavControls();
 
-  const [textureMap, setTextureMap] = useState<Map<string, DataTexture>>();
+  const [textureMap, setTextureMap] =
+    useState<Map<string, { texture: DataTexture; bufferKey: string }>>();
   const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
   const viewOptions = useContext(ViewOptionsContext);
 
@@ -77,7 +77,6 @@ export default function SceneView() {
     [objectKey]
   );
 
-  const uneditedTextureUrls = useAppSelector(selectUneditedTextureUrls);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
@@ -94,67 +93,59 @@ export default function SceneView() {
   );
 
   useClientEffect(() => {
-    const nextMap = new Map<string, DataTexture>();
-    (async () => {
-      await Promise.all(
-        textureDefs.map(async (textureDef) => {
-          return Promise.all(
-            textureTypes.map(async (type: 'opaque' | 'translucent') => {
-              const bufferKey = textureDef.bufferKeys[type];
-              if (!bufferKey) {
-                return;
-              }
+    const nextMap = new Map<
+      string,
+      { texture: DataTexture; bufferKey: string }
+    >();
 
-              await Promise.all(
-                [true, false].flatMap((hRepeat) =>
-                  [true, false].map(async (vRepeat) => {
-                    const mapKey = `${bufferKey}-${Number(hRepeat)}-${Number(vRepeat)}`;
-
-                    if (!textureMap?.has(mapKey)) {
-                      const pixels = globalBuffers.get(bufferKey);
-                      const texture = new DataTexture(
-                        pixels,
-                        textureDef.width,
-                        textureDef.height,
-                        RGBAFormat,
-                        UnsignedByteType,
-                        Texture.DEFAULT_MAPPING,
-                        hRepeat ? RepeatWrapping : ClampToEdgeWrapping,
-                        vRepeat ? RepeatWrapping : ClampToEdgeWrapping,
-                        undefined,
-                        undefined,
-                        undefined,
-                        SRGBColorSpace
-                      );
-                      texture.rotation = TEXTURE_ROTATION;
-                      texture.center = TEXTURE_CENTER;
-                      texture.repeat.y = -1;
-                      texture.flipY = false;
-                      texture.needsUpdate = true;
-                      nextMap.set(mapKey, texture);
-                    } else {
-                      nextMap.set(
-                        mapKey,
-                        textureMap.get(mapKey) as DataTexture
-                      );
-                    }
-                  })
-                )
-              );
-            })
-          );
-        })
-      );
-
-      setTextureMap(nextMap);
-
-      // free up memory for updated texture urls as needed
-      for (const key of textureMap?.keys() || []) {
-        if (!nextMap.has(key) && !uneditedTextureUrls.has(key)) {
-          // URL.revokeObjectURL(key);
+    for (const textureDef of textureDefs) {
+      textureTypes.forEach((type: 'opaque' | 'translucent') => {
+        const bufferKey = textureDef.bufferKeys[type];
+        if (!bufferKey) {
+          return;
         }
-      }
-    })();
+
+        [true, false].forEach((hRepeat) =>
+          [true, false].forEach((vRepeat) => {
+            const mapKey = `${bufferKey}-${Number(hRepeat)}-${Number(vRepeat)}`;
+
+            if (!textureMap?.has(mapKey)) {
+              const pixels = globalBuffers.get(bufferKey);
+              const texture = new DataTexture(
+                pixels,
+                textureDef.width,
+                textureDef.height,
+                RGBAFormat,
+                UnsignedByteType,
+                Texture.DEFAULT_MAPPING,
+                hRepeat ? RepeatWrapping : ClampToEdgeWrapping,
+                vRepeat ? RepeatWrapping : ClampToEdgeWrapping,
+                undefined,
+                undefined,
+                undefined,
+                SRGBColorSpace
+              );
+              texture.rotation = TEXTURE_ROTATION;
+              texture.center = TEXTURE_CENTER;
+              texture.repeat.y = -1;
+              texture.flipY = false;
+              texture.needsUpdate = true;
+              nextMap.set(mapKey, { texture, bufferKey });
+            } else {
+              nextMap.set(
+                mapKey,
+                textureMap.get(mapKey) as {
+                  texture: DataTexture;
+                  bufferKey: string;
+                }
+              );
+            }
+          })
+        );
+      });
+    }
+
+    setTextureMap(nextMap);
   }, [textureDefs]);
 
   const selectedMeshes = useAppSelector(selectDisplayedMeshes);
@@ -173,7 +164,7 @@ export default function SceneView() {
             }
           >
             {ms.map((m, i) => {
-              const texture = textureMap?.get(m.textureHash) || null;
+              const texture = textureMap?.get(m.textureHash)?.texture || null;
               return m.polygons.map((p, pIndex) => (
                 <RenderedPolygon
                   {...p}

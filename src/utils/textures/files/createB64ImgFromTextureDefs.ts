@@ -13,12 +13,12 @@ export default async function createImgFromTextureDef({
   asTranslucent: boolean;
 }) {
   const pixelBufferKeys = textureDef.bufferKeys as TextureImageBufferKeys;
-  const bufferUrl =
+  const bufferKey =
     (!asTranslucent
       ? pixelBufferKeys.opaque || pixelBufferKeys.translucent
       : pixelBufferKeys.translucent) || '';
 
-  const pixels = globalBuffers.get(bufferUrl);
+  const pixels = globalBuffers.get(bufferKey);
 
   const image = await Jimp.read({
     data: pixels,

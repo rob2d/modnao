@@ -50,4 +50,11 @@ export default class BufferStorage {
     }
     return buffer;
   }
+  get size(): number {
+    return (() => this.#storage.size)();
+  }
+
+  clear() {
+    this.#storage.clear();
+  }
 }

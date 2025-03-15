@@ -15,7 +15,7 @@ const mockTextureState = {
     isLzssCompressed: false,
     textureFileName: 'hello-world.tex.bin',
     polygonFileName: 'hello-world.pol.bin',
-    polygonBufferUrl: 'data://anywhere',
+    polygonBufferKey: 'data://anywhere',
     textureBufferUrl: 'data://anywhere'
   }
 };

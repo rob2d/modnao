@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { AppState } from './store';
 import ContentViewMode from '../types/ContentViewMode';
 import { NLUITextureDef } from '@/types/NLAbstractions';
+import { AppState } from './storeTypings';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 export const selectTextureIndex = (s: AppState) => s.objectViewer.textureIndex;
@@ -30,7 +30,8 @@ export const selectTextureBufferUrlHistory = (s: AppState) =>
   s.modelData.textureHistory;
 
 /**
- * get a set of base texture urls to detect presence in O(1)
+ * get a set of base texture urls (before hsl edits)
+ * to detect presence in O(1)
  */
 export const selectUneditedTextureUrls = createSelector(
   selectTextureDefs,
