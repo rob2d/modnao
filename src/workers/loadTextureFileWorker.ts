@@ -120,7 +120,6 @@ export default function loadTextureFileWorker({
     }
 
     const decompressedTextureBuffer = decompressLzssBuffer(textureFileBuffer);
-    console.log('decompressedBuffer ->', decompressedTextureBuffer);
 
     const texturePixelBuffers = createTexturePixelBuffers(
       decompressedTextureBuffer,

@@ -48,7 +48,7 @@ export type LoadPolygonsResultPayload = {
   models: NLModel[];
   textureDefs: NLUITextureDef[];
   fileName: string;
-  polygonBufferUrl: string;
+  polygonBufferKey: string;
   resourceAttribs?: ResourceAttribs;
 };
 
@@ -57,14 +57,14 @@ export type LoadPolygonsPayload =
       models: NLModel[];
       textureDefs: NLUITextureDef[];
       fileName: string;
-      polygonBufferUrl: string;
+      polygonBufferKey: string;
       resourceAttribs?: ResourceAttribs;
     }
   | {
       models: [];
       textureDefs: NLUITextureDef[];
       fileName: undefined;
-      polygonBufferUrl: undefined;
+      polygonBufferKey: undefined;
       resourceAttribs?: ResourceAttribs;
     };
 
@@ -84,12 +84,12 @@ export interface ModelDataState {
    * textureDefs to simplify state
    */
   textureHistory: {
-    [key: number]: {
+    [textureIndex: number]: {
       bufferKeys: TextureImageBufferKeys;
     }[];
   };
   editedTextures: {
-    [key: number]: EditedTexture;
+    [textureIndex: number]: EditedTexture;
   };
   polygonFileName?: string;
   textureFileName?: string;
@@ -97,6 +97,6 @@ export interface ModelDataState {
   hasEditedTextures: boolean;
   isLzssCompressed: boolean;
   textureBufferUrl?: string;
-  polygonBufferUrl?: string;
+  polygonBufferKey?: string;
   loadTexturesState: AsyncState;
 }

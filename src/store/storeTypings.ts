@@ -1,6 +1,11 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, AppState } from './store';
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import { rootReducer, setupStore } from './store';
+import {
+  createAsyncThunk,
+  ThunkAction,
+  ThunkDispatch,
+  UnknownAction
+} from '@reduxjs/toolkit';
 
 export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;
 type DispatchFunc = () => AppDispatch;
@@ -11,3 +16,19 @@ export const createAppAsyncThunk = createAsyncThunk.withTypes<{
   dispatch: AppDispatch;
   rejectValue: string;
 }>();
+
+/**
+ * more traditional thunk style method to have more
+ * fine-tune control over when action dispatches occur
+ */
+export type AppThunk<ReturnType = void> = ThunkAction<
+  ReturnType,
+  AppState,
+  unknown,
+  UnknownAction
+>;
+
+export type AppStore = ReturnType<typeof setupStore>;
+export type AppState = ReturnType<typeof rootReducer>;
+export type AppDispatch = AppStore['dispatch'];
+export type AppThunkDispatch = ThunkDispatch<AppState, unknown, UnknownAction>;

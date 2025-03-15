@@ -423,24 +423,15 @@ export default function ReplaceTexture() {
 
   useEffect(() => {
     (async () => {
-      const originTextureBufferUrl =
+      const originTextureBufferKey =
         textureDefs?.[textureIndex]?.bufferKeys?.['translucent'] || '';
-      if (!originTextureBufferUrl) {
+      if (!originTextureBufferKey) {
         return;
       }
-      const textureBuffer = globalBuffers.get(originTextureBufferUrl);
+      const textureBuffer = globalBuffers.get(originTextureBufferKey);
       setOriginTextureBuffer(textureBuffer);
     })();
   }, [textureDefs?.[textureIndex]?.bufferKeys?.['translucent'] || '']);
-
-  /**
-   * @TODO: convert to using bufferUrl,
-   * then set up the canvas using ImageData
-   */
-  /*const originTextureBufferUrl =
-    textureDefs?.[textureIndex]?.bufferKeys?.[
-      viewTranslucentOrigin ? 'translucent' : 'opaque'
-    ] || '';*/
 
   return (
     <>
