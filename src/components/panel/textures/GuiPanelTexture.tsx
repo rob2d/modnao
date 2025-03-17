@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ButtonBase, Skeleton, styled, Tooltip } from '@mui/material';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
@@ -191,78 +191,75 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     [imageBufferKey]
   );
 
-  const sourceTextureCanvas = useMemo(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const offscreenContext = canvas.getContext(
-      '2d'
-    ) as CanvasRenderingContext2D;
+  const [srcTextureBitmap, setSrcTextureBitmap] = useState<null | ImageBitmap>(
+    null
+  );
 
-    if (!rgbaBuffer?.length) {
-      return canvas;
-    }
-
-    // Draw image data onto the offscreen canvas
-    const imageData = new ImageData(
-      new Uint8ClampedArray(rgbaBuffer),
-      width,
-      height
-    );
-    offscreenContext.putImageData(imageData, 0, 0);
-
-    return canvas;
+  useEffect(() => {
+    (async () => {
+      if (!rgbaBuffer || !width || !height) {
+        return;
+      }
+      const imageData = new ImageData(
+        new Uint8ClampedArray(rgbaBuffer),
+        width,
+        height
+      );
+      const bitmap = await createImageBitmap(imageData);
+      setSrcTextureBitmap(bitmap);
+    })();
   }, [rgbaBuffer]);
 
   const imgCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = imgCanvasRef.current;
-    if (canvas && sourceTextureCanvas) {
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.clearRect(0, 0, width, height);
-        context.globalAlpha = selected ? 0.25 : 1;
-        context.filter = `saturate(${selected ? '0' : '1'})`;
-        context.drawImage(sourceTextureCanvas, 0, 0);
+    const draw = () => {
+      const canvas = imgCanvasRef.current;
+      if (canvas && srcTextureBitmap) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, width, height);
+          context.globalAlpha = selected ? 0.25 : 1;
+          context.filter = `saturate(${selected ? '0' : '1'})`;
+          context.drawImage(srcTextureBitmap, 0, 0);
 
-        if (!selected) {
-          return;
-        }
-
-        context.globalAlpha = 1;
-        context.filter = 'saturate(1)';
-
-        // Apply clipping region on the main canvas
-        context.save();
-
-        // Rotate to offset how textures are represented
-        context.translate(canvas.width / 2, canvas.height / 2);
-        context.rotate((90 * Math.PI) / 180);
-        context.translate(-canvas.width / 2, -canvas.height / 2);
-
-        context.beginPath();
-        uvClipPaths.forEach((points) => {
-          if (points.length > 0) {
-            context.moveTo(points[0].x, points[0].y);
-            for (let i = 1; i < points.length; i++) {
-              context.lineTo(points[i].x, points[i].y);
-            }
+          if (!selected) {
+            return;
           }
-        });
-        context.closePath();
-        context.clip();
 
-        // Rotate to offset how textures are represented
-        context.translate(canvas.width / 2, canvas.height / 2);
-        context.rotate((-90 * Math.PI) / 180);
-        context.translate(-canvas.width / 2, -canvas.height / 2);
+          context.globalAlpha = 1;
+          context.filter = 'saturate(1)';
 
-        context.drawImage(sourceTextureCanvas, 0, 0);
-        context.restore();
+          context.save();
+
+          context.translate(canvas.width / 2, canvas.height / 2);
+          context.rotate((90 * Math.PI) / 180);
+          context.translate(-canvas.width / 2, -canvas.height / 2);
+
+          context.beginPath();
+          uvClipPaths.forEach((points) => {
+            if (points.length > 0) {
+              context.moveTo(points[0].x, points[0].y);
+              for (let i = 1; i < points.length; i++) {
+                context.lineTo(points[i].x, points[i].y);
+              }
+            }
+          });
+          context.closePath();
+          context.clip();
+
+          context.translate(canvas.width / 2, canvas.height / 2);
+          context.rotate((-90 * Math.PI) / 180);
+          context.translate(-canvas.width / 2, -canvas.height / 2);
+
+          context.drawImage(srcTextureBitmap, 0, 0);
+          context.restore();
+        }
       }
-    }
-  }, [sourceTextureCanvas, width, height, uvClipPaths, selected]);
+    };
+
+    requestAnimationFrame(draw);
+  }, [srcTextureBitmap, uvClipPaths, selected]);
 
   const isSelectable = contentViewMode === 'textures' && !selected;
 
@@ -288,8 +285,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       viewOptions.uvRegionsHighlighted,
       selected,
       textureIndex,
-      isSelectable,
-      dispatch
+      isSelectable
     ]
   );
 

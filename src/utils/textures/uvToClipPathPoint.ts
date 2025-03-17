@@ -1,11 +1,9 @@
 export default function uvToClipPathPoint(
-  uv: NLUV,
+  [u, v]: NLUV,
   width: number,
   height: number,
   flags: TextureWrappingFlags
 ) {
-  let [u, v] = uv;
-
   // Flip Y-axis before handling repeating logic
   v = 1.0 - v;
 
