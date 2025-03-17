@@ -262,7 +262,7 @@ export const loadTextureFile = createAppAsyncThunk(
       }
 
       cleanupTextureBuffers(state);
-    }, 0);
+    }, 250);
   }
 );
 
@@ -413,7 +413,7 @@ export const adjustTextureHsl = createAppAsyncThunk(
       if (prevEditedTexture?.bufferKeys.translucent) {
         globalBuffers.delete(prevEditedTexture.bufferKeys.translucent);
       }
-    }, 0);
+    }, 250);
 
     await dispatch(processAdjustedTextureHsl(payload));
   }
