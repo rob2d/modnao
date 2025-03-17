@@ -1,12 +1,6 @@
 import clsx from 'clsx';
-import { useContext, useMemo } from 'react';
-import {
-  ButtonBase,
-  Skeleton,
-  styled,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { useContext, useEffect, useMemo, useRef } from 'react';
+import { ButtonBase, Skeleton, styled, Tooltip } from '@mui/material';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import {
@@ -15,13 +9,13 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { uvToCssPathPoint } from '@/utils/textures';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ContentViewMode from '@/types/ContentViewMode';
 import themeMixins from '@/theming/themeMixins';
 import { useTextureReplaceDropzone } from '@/hooks';
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import globalBuffers from '@/utils/data/globalBuffers';
+import { uvToClipPathPoint } from '@/utils/textures';
 
 const IMG_SIZE = '174px';
 
@@ -71,11 +65,6 @@ const StyledPanelTexture = styled('div')(
     pointer-events: none;
   }
 
-  &.uvs-enabled.mode-polygons .selected .img {
-    filter: saturate(0);
-    opacity: 0.25;
-  }
-
   &.mode-textures.selectable {
     cursor: pointer;
   }
@@ -90,7 +79,7 @@ const StyledPanelTexture = styled('div')(
     pointer-events: none;
   }
 
-  .uv-overlay img {
+  .uv-overlay canvas {
     position: absolute;
     top: 0;
     left: 0;
@@ -128,6 +117,7 @@ export type GuiPanelTextureProps =
       polygonIndex: undefined;
       contentViewMode: undefined;
     };
+type ClipPath = { x: number; y: number }[];
 
 export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   const {
@@ -141,7 +131,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   const mesh = useAppSelector(selectMesh);
   const viewOptions = useContext(ViewOptionsContext);
 
-  const uvClipPaths = useMemo<string[]>(() => {
+  const uvClipPaths = useMemo<ClipPath[]>(() => {
     if (
       !(selected && mesh?.polygons.length) ||
       contentViewMode !== 'polygons'
@@ -149,28 +139,35 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       return [];
     }
 
-    const paths: string[] = [];
+    const paths: ClipPath[] = [];
 
     const polygons =
       polygonIndex !== -1 ? [mesh.polygons[polygonIndex]] : mesh.polygons;
 
-    polygons.forEach((p) => {
+    for (let pIndex = 0; pIndex < polygons.length; pIndex++) {
+      const p = polygons[pIndex];
       for (let i = 0; i < p.triIndices.length; i += 4) {
-        let path = '';
-        [i, i + 1, i + 2, i + 3].forEach((j, jI, triPoints) => {
+        const path: ClipPath = [];
+        for (let j = i; j < i + 4; j++) {
           const { uv } = p.vertices[p.triIndices[j]];
 
-          path +=
-            uvToCssPathPoint(uv) + (jI === triPoints.length - 1 ? '' : ', ');
-        });
-
+          path.push(
+            uvToClipPathPoint(
+              uv,
+              textureDef.width,
+              textureDef.height,
+              mesh.textureWrappingFlags
+            )
+          );
+        }
         paths.push(path);
       }
-    });
+    }
 
     return paths;
   }, [
     selected && mesh?.polygons,
+    selected && mesh?.textureWrappingFlags,
     polygonIndex,
     contentViewMode !== 'polygons'
   ]);
@@ -181,8 +178,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   const { width = 0, height = 0 } = textureDef || {};
 
   // if there's a currently selected mesh and it's opaque, prioritize opaque,
-  // otherwise fallback to actionable dataUrl
-  // @TODO: use a canvas and draw the image data
+  // otherwise fallback to actionable buffer
   const imageBufferKey =
     (selected && mesh?.isOpaque
       ? textureDef?.bufferKeys?.opaque || textureDef?.bufferKeys?.translucent
@@ -195,35 +191,78 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     [imageBufferKey]
   );
 
-  const uvOverlays = useMemo(
-    () =>
-      !viewOptions.uvRegionsHighlighted || !uvClipPaths.length ? undefined : (
-        <>
-          {uvClipPaths.map((path: string, i) => (
-            <div
-              className='uv-overlay'
-              key={`${textureIndex}_${i}`}
-              style={{ clipPath: `polygon(${path})` }}
-            >
-              <ImageBufferCanvas
-                rgbaBuffer={rgbaBuffer}
-                width={width}
-                height={height}
-                className='uv-highlight'
-                alt='UV Highlight'
-              />
-            </div>
-          ))}
-        </>
-      ),
-    [
-      uvClipPaths,
-      imageBufferKey,
+  const sourceTextureCanvas = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const offscreenContext = canvas.getContext(
+      '2d'
+    ) as CanvasRenderingContext2D;
+
+    if (!rgbaBuffer?.length) {
+      return canvas;
+    }
+
+    // Draw image data onto the offscreen canvas
+    const imageData = new ImageData(
+      new Uint8ClampedArray(rgbaBuffer),
       width,
-      height,
-      viewOptions.uvRegionsHighlighted
-    ]
-  );
+      height
+    );
+    offscreenContext.putImageData(imageData, 0, 0);
+
+    return canvas;
+  }, [rgbaBuffer]);
+
+  const imgCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = imgCanvasRef.current;
+    if (canvas && sourceTextureCanvas) {
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.clearRect(0, 0, width, height);
+        context.globalAlpha = selected ? 0.25 : 1;
+        context.filter = `saturate(${selected ? '0' : '1'})`;
+        context.drawImage(sourceTextureCanvas, 0, 0);
+
+        if (!selected) {
+          return;
+        }
+
+        context.globalAlpha = 1;
+        context.filter = 'saturate(1)';
+
+        // Apply clipping region on the main canvas
+        context.save();
+
+        // Rotate to offset how textures are represented
+        context.translate(canvas.width / 2, canvas.height / 2);
+        context.rotate((90 * Math.PI) / 180);
+        context.translate(-canvas.width / 2, -canvas.height / 2);
+
+        context.beginPath();
+        uvClipPaths.forEach((points) => {
+          if (points.length > 0) {
+            context.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+              context.lineTo(points[i].x, points[i].y);
+            }
+          }
+        });
+        context.closePath();
+        context.clip();
+
+        // Rotate to offset how textures are represented
+        context.translate(canvas.width / 2, canvas.height / 2);
+        context.rotate((-90 * Math.PI) / 180);
+        context.translate(-canvas.width / 2, -canvas.height / 2);
+
+        context.drawImage(sourceTextureCanvas, 0, 0);
+        context.restore();
+      }
+    }
+  }, [sourceTextureCanvas, width, height, uvClipPaths, selected]);
 
   const isSelectable = contentViewMode === 'textures' && !selected;
 
@@ -273,23 +312,14 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   }
 
   const content = (
-    <>
-      <ImageBufferCanvas
-        rgbaBuffer={rgbaBuffer}
-        width={width}
-        height={height}
-        alt={`Texture # ${textureIndex}`}
-        className='img'
-      />
-      {uvOverlays}
-      <Typography
-        variant='subtitle2'
-        textAlign='right'
-        className='size-notation'
-      >
-        {textureDef?.width ?? '0'}x{textureDef?.height ?? '0'} [{textureIndex}]
-      </Typography>
-    </>
+    <ImageBufferCanvas
+      rgbaBuffer={!rgbaBuffer?.length ? rgbaBuffer : undefined}
+      ref={rgbaBuffer?.length && uvClipPaths ? imgCanvasRef : undefined}
+      width={width}
+      height={height}
+      alt={`Texture # ${textureIndex}`}
+      className='img'
+    />
   );
 
   return (

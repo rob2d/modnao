@@ -7,6 +7,6 @@ export * from './HslValues';
 export * from './serialize';
 export * from './parse';
 export * from './serialize';
-export { default as uvToCssPathPoint } from './uvToCssPathPoint';
+export { default as uvToClipPathPoint } from './uvToClipPathPoint';
 export { default as createTextureDef } from './createTextureDef';
 export { default as adjustTextureHsl } from './adjustTextureHsl';
