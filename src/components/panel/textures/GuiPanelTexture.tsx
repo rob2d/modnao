@@ -218,12 +218,13 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       if (canvas && srcTextureBitmap) {
         const context = canvas.getContext('2d');
         if (context) {
+          const showUvArea = contentViewMode !== 'textures' && selected;
           context.clearRect(0, 0, width, height);
-          context.globalAlpha = selected ? 0.25 : 1;
-          context.filter = `saturate(${selected ? '0' : '1'})`;
+          context.globalAlpha = showUvArea ? 0.25 : 1;
+          context.filter = `saturate(${showUvArea ? '0' : '1'})`;
           context.drawImage(srcTextureBitmap, 0, 0);
 
-          if (!selected) {
+          if (!showUvArea) {
             return;
           }
 
@@ -259,7 +260,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     };
 
     requestAnimationFrame(draw);
-  }, [srcTextureBitmap, uvClipPaths, selected]);
+  }, [srcTextureBitmap, uvClipPaths, selected, contentViewMode]);
 
   const isSelectable = contentViewMode === 'textures' && !selected;
 
