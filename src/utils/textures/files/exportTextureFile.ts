@@ -6,7 +6,7 @@ import compressVqBuffer from '@/utils/data/compressVqBuffer';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { padBufferForAlignment } from '@/utils/data/padBufferForAlignment';
 import { TextureFileType } from './textureFileTypeMap';
-import processPixelColors from './processPixelColors';
+import processExportTexturePixels from './processExportTexturePixels';
 import getQuantizeOptions from './getQuantizationOptions';
 
 type ExportTextureParams = {
@@ -27,7 +27,7 @@ export default async function exportTextureFile({
   const textureBuffer = Buffer.from(globalBuffers.get(textureBufferKey));
 
   for await (const t of textureDefs) {
-    const { baseLocation, ramOffset, width, height } = t;
+    const { baseLocation, ramOffset, width, height, colorFormat } = t;
 
     const pixelColors = globalBuffers.get(t.bufferKeys.translucent as string);
     const quantizeOptions = getQuantizeOptions(textureFileType, width);
@@ -41,15 +41,15 @@ export default async function exportTextureFile({
       }
     }
 
-    processPixelColors(
+    processExportTexturePixels({
       pixelColors,
       width,
       height,
       baseLocation,
       ramOffset,
-      t.colorFormat,
+      colorFormat,
       textureBuffer
-    );
+    });
   }
 
   let output: Blob;

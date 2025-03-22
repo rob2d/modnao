@@ -18,15 +18,23 @@ const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
 
 const COLOR_SIZE = 2;
 
-export default function processPixelColors(
-  pixelColors: Uint8Array,
-  width: number,
-  height: number,
-  baseLocation: number,
-  ramOffset: number,
-  colorFormat: TextureColorFormat,
-  textureBuffer: Buffer
-) {
+export default function processExportTexturePixels({
+  pixelColors,
+  width,
+  height,
+  baseLocation,
+  ramOffset,
+  colorFormat,
+  textureBuffer
+}: {
+  pixelColors: Uint8Array;
+  width: number;
+  height: number;
+  baseLocation: number;
+  ramOffset: number;
+  colorFormat: TextureColorFormat;
+  textureBuffer: Buffer;
+}) {
   for (let y = 0; y < height; y++) {
     const yOffset = width * y;
     for (let offset = yOffset; offset < yOffset + width; offset++) {
