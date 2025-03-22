@@ -7,11 +7,7 @@ import globalBuffers from '@/utils/data/globalBuffers';
 import { padBufferForAlignment } from '@/utils/data/padBufferForAlignment';
 import { TextureFileType } from './textureFileTypeMap';
 import processPixelColors from './processPixelColors';
-
-type QuantizeOptions = {
-  colors: number;
-  dithering: boolean;
-};
+import getQuantizeOptions from './getQuantizationOptions';
 
 type ExportTextureParams = {
   textureDefs: NLUITextureDef[];
@@ -34,39 +30,7 @@ export default async function exportTextureFile({
     const { baseLocation, ramOffset, width, height } = t;
 
     const pixelColors = globalBuffers.get(t.bufferKeys.translucent as string);
-    let quantizeOptions: QuantizeOptions | undefined;
-
-    switch (textureFileType) {
-      case 'mvc2-character-portraits': {
-        quantizeOptions = {
-          dithering: false,
-          // restrict colors further on smaller lifegauge imgs
-          colors: width === 64 ? 44 : 112
-        };
-        break;
-      }
-      case 'cvs2-console-menu':
-        quantizeOptions = {
-          dithering: false,
-          colors: 512
-        };
-        break;
-      case 'mvc2-selection-textures': {
-        quantizeOptions = {
-          dithering: false,
-          colors: 504
-        };
-        break;
-      }
-      case 'mvc2-special-effects':
-      case 'mvc2-end-file':
-      case 'vs2-stage-file':
-      case 'vs2-demo-model': {
-        break;
-      }
-      default:
-        break;
-    }
+    const quantizeOptions = getQuantizeOptions(textureFileType, width);
 
     if (quantizeOptions) {
       const palette = quanti(pixelColors, quantizeOptions.colors, 4);
