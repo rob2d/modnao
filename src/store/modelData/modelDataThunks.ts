@@ -245,7 +245,7 @@ export const loadTextureFile = createAppAsyncThunk(
 
     // cleanup buffer if no polygon needed
     const prevPolygonBufferKey = state.modelData.polygonBufferKey;
-    const prevTextureBufferKey = state.modelData.textureBufferUrl;
+    const prevTextureBufferKey = state.modelData.textureBufferKey;
 
     // cleanup texture related buffer
     setTimeout(() => {
@@ -348,7 +348,7 @@ export const processTextureFile = createAppAsyncThunk(
 
         resolve({
           fileName: file.name,
-          textureBufferUrl: bufferKey,
+          textureBufferKey: bufferKey,
           isLzssCompressed,
           textureFileType,
           textureDefs: returnedTextureDefs
@@ -461,7 +461,7 @@ export const downloadTextureFile = createAppAsyncThunk(
   `${sliceName}/downloadTextureFile`,
   async (_, { getState, dispatch }) => {
     const state = getState();
-    const { textureFileName, textureBufferUrl = '' } = state.modelData;
+    const { textureFileName, textureBufferKey = '' } = state.modelData;
     const textureDefs = selectUpdatedTextureDefs(state);
     const textureFileType = selectTextureFileType(state);
     const isLzssCompressed = selectHasCompressedTextures(state);
@@ -480,7 +480,7 @@ export const downloadTextureFile = createAppAsyncThunk(
       await exportTextureFile({
         textureDefs,
         textureFileName,
-        textureBufferUrl,
+        textureBufferKey,
         textureFileType,
         isLzssCompressed
       });
