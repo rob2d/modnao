@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import NumericSliderInput from './NumericSliderInput';
 
@@ -53,9 +53,11 @@ describe('NumericSliderInput', () => {
 
     const input = await screen.findByRole('spinbutton');
 
-    await userEvents.type(input, '180');
-    input.blur();
+    await act(async () => {
+      await userEvents.type(input, '180');
+      input.blur();
 
-    expect(onChangeHandler).toBeCalledTimes(1);
+      expect(onChangeHandler).toHaveBeenCalledTimes(1);
+    });
   });
 });
