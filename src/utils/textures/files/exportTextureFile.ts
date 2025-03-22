@@ -60,7 +60,7 @@ type ExportTextureParams = {
   textureDefs: NLUITextureDef[];
   textureFileName?: string;
   textureFileType: TextureFileType;
-  textureBufferUrl: string;
+  textureBufferKey: string;
   isLzssCompressed: boolean;
 };
 
@@ -68,13 +68,10 @@ export default async function exportTextureFile({
   textureDefs,
   textureFileName = '',
   textureFileType,
-  textureBufferUrl,
+  textureBufferKey,
   isLzssCompressed
 }: ExportTextureParams): Promise<void> {
-  const textureBuffer = Buffer.from(globalBuffers.get(textureBufferUrl));
-  if (!textureBuffer) {
-    return;
-  }
+  const textureBuffer = Buffer.from(globalBuffers.get(textureBufferKey));
 
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height } = t;

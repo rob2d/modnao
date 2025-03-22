@@ -115,7 +115,7 @@ const modelDataSlice = createSlice({
           textureDefs,
           fileName,
           isLzssCompressed,
-          textureBufferUrl,
+          textureBufferKey,
           textureFileType
         } = payload;
 
@@ -128,7 +128,7 @@ const modelDataSlice = createSlice({
 
         state.textureFileName = fileName;
         state.isLzssCompressed = Boolean(isLzssCompressed);
-        state.textureBufferUrl = textureBufferUrl;
+        state.textureBufferKey = textureBufferKey;
       }
     );
 
@@ -140,7 +140,7 @@ const modelDataSlice = createSlice({
       loadCharacterPortraitsFile.pending,
       (state: ModelDataState) => {
         state.polygonBufferKey = undefined;
-        state.textureBufferUrl = undefined;
+        state.textureBufferKey = undefined;
         state.textureDefs = [];
         state.textureHistory = {};
       }

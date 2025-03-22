@@ -26,7 +26,7 @@ export const selectModelCount = createSelector(
 export const selectMeshSelectionType = (s: AppState) =>
   s.objectViewer.meshSelectionType;
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
-export const selectTextureBufferUrlHistory = (s: AppState) =>
+export const selectTextureBufferKeyHistory = (s: AppState) =>
   s.modelData.textureHistory;
 
 /**
@@ -35,7 +35,7 @@ export const selectTextureBufferUrlHistory = (s: AppState) =>
  */
 export const selectUneditedTextureUrls = createSelector(
   selectTextureDefs,
-  selectTextureBufferUrlHistory,
+  selectTextureBufferKeyHistory,
   (defs, history) => {
     const urlSet = new Set<string>();
     defs.forEach((d) => {
@@ -72,18 +72,20 @@ export const selectEditedTextures = (s: AppState) => s.modelData.editedTextures;
 export const selectUpdatedTextureDefs = createSelector(
   selectTextureDefs,
   selectEditedTextures,
-  (textureDefs, bufferUrlEntries): typeof textureDefs => {
+  (textureDefs, bufferKeyEntriesEntries): typeof textureDefs => {
     const returnTextures = [...textureDefs];
-    Object.entries(bufferUrlEntries).forEach(([index, { bufferKeys }]) => {
-      const i = Number.parseInt(index);
-      const entry = { ...returnTextures[i] };
-      entry.bufferKeys = {
-        ...entry.bufferKeys,
-        ...bufferKeys
-      };
+    Object.entries(bufferKeyEntriesEntries).forEach(
+      ([index, { bufferKeys }]) => {
+        const i = Number.parseInt(index);
+        const entry = { ...returnTextures[i] };
+        entry.bufferKeys = {
+          ...entry.bufferKeys,
+          ...bufferKeys
+        };
 
-      returnTextures[i] = entry;
-    });
+        returnTextures[i] = entry;
+      }
+    );
 
     return returnTextures;
   }

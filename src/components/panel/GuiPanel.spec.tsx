@@ -22,7 +22,7 @@ const mockState = {
     textureFileName: 'hello-world.tex.bin',
     polygonFileName: 'hello-world.pol.bin',
     polygonBufferKey: 'data://anywhere',
-    textureBufferUrl: 'data://anywhere'
+    textureBufferKey: 'data://anywhere'
   } as unknown as ModelDataState
 } as AppState;
 

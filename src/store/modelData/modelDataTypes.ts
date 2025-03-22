@@ -40,7 +40,7 @@ export type LoadTexturesPayload = LoadTexturesBasePayload & {
 
 export type LoadTexturesResultPayload = LoadTexturesBasePayload & {
   fileName: string;
-  textureBufferUrl: string;
+  textureBufferKey: string;
   textureDefs: NLUITextureDef[];
 };
 
@@ -96,7 +96,7 @@ export interface ModelDataState {
   textureFileType?: TextureFileType;
   hasEditedTextures: boolean;
   isLzssCompressed: boolean;
-  textureBufferUrl?: string;
+  textureBufferKey?: string;
   polygonBufferKey?: string;
   loadTexturesState: AsyncState;
 }
