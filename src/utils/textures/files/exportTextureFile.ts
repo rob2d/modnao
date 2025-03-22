@@ -1,55 +1,12 @@
 import quanti from 'quanti';
 import { NLUITextureDef } from '@/types/NLAbstractions';
-import {
-  rgbaToArgb1555,
-  rgbaToArgb4444,
-  rgbaToRgb565
-} from '@/utils/color-conversions';
-import {
-  decodeZMortonPosition,
-  RgbaColor,
-  TextureColorFormat
-} from '@/utils/textures';
 import { compressLzssBuffer } from '@/utils/data';
 import { TextureFileType } from './textureFileTypeMap';
 import compressVqBuffer from '@/utils/data/compressVqBuffer';
 import { saveAs } from 'file-saver';
 import globalBuffers from '@/utils/data/globalBuffers';
-
-const COLOR_SIZE = 2;
-
-const conversionDict: Record<TextureColorFormat, (color: RgbaColor) => number> =
-  {
-    RGB565: rgbaToRgb565,
-    ARGB1555: rgbaToArgb1555,
-    ARGB4444: rgbaToArgb4444,
-    RGB555: () => 0,
-    ARGB8888: () => 0
-  };
-
-function padBufferForAlignment(
-  alignment: number,
-  buffer: Buffer | Uint8Array,
-  startLocation = 0
-) {
-  const b32Alignment = (startLocation + buffer.length) % 32;
-  let alignmentPadding: number;
-
-  if (b32Alignment === alignment) {
-    alignmentPadding = 0;
-  } else if (b32Alignment > alignment) {
-    alignmentPadding = 32 - b32Alignment + alignment;
-  } else {
-    alignmentPadding = alignment - b32Alignment;
-  }
-
-  return new Uint8Array(
-    Buffer.concat([
-      new Uint8Array(buffer),
-      new Uint8Array(new Array(alignmentPadding).fill(0))
-    ])
-  );
-}
+import processPixelColors from './processPixelColors';
+import { padBufferForAlignment } from '@/utils/data/padBufferForAlignment';
 
 type QuantizeOptions = {
   colors: number;
@@ -120,29 +77,15 @@ export default async function exportTextureFile({
       }
     }
 
-    for (let y = 0; y < height; y++) {
-      const yOffset = width * y;
-      for (let offset = yOffset; offset < yOffset + width; offset++) {
-        const [positionX, positionY] = decodeZMortonPosition(offset);
-        const positionOffset = positionY * width + positionX;
-        const colorOffset = positionOffset * 4;
-        const color = {
-          r: pixelColors[colorOffset],
-          g: pixelColors[colorOffset + 1],
-          b: pixelColors[colorOffset + 2],
-          a: pixelColors[colorOffset + 3]
-        };
-
-        const conversionOp = conversionDict[t.colorFormat];
-        const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
-
-        // note: it is possible for textures to point out of bounds
-        // of the file since it targets RAM in-game; hence the check
-        if (offsetWritten + COLOR_SIZE < textureBuffer.length) {
-          textureBuffer.writeUInt16LE(conversionOp(color), offsetWritten);
-        }
-      }
-    }
+    processPixelColors(
+      pixelColors,
+      width,
+      height,
+      baseLocation,
+      ramOffset,
+      t.colorFormat,
+      textureBuffer
+    );
   }
 
   let output: Blob;
