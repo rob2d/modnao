@@ -1,14 +1,22 @@
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import { HslValues, textureShapesMap, exportTextureFile, textureFileTypeMap } from '@/utils/textures';
+import {
+  exportTextureFile,
+  HslValues,
+  textureFileTypeMap,
+  textureShapesMap
+} from '@/utils/textures';
 import { ClientThread } from '@/utils/threads';
 import globalBuffers from '@/utils/data/globalBuffers';
 import {
   LoadTextureFileWorkerPayload,
   LoadTextureFileWorkerResult
 } from '@/workers/loadTextureFileWorker';
-import { LoadPolygonFileWorkerPayload, LoadPolygonFileWorkerResult } from '@/workers/loadPolygonFileWorker';
+import {
+  LoadPolygonFileWorkerPayload,
+  LoadPolygonFileWorkerResult
+} from '@/workers/loadPolygonFileWorker';
 import {
   AdjustTextureHslWorkerPayload,
   AdjustTextureHslWorkerResult
@@ -212,10 +220,10 @@ export const processPolygonFile = createAppAsyncThunk(
     const buffer = new SharedArrayBuffer(fBuffer.byteLength);
     const wBuffer = new Uint8Array(buffer);
     wBuffer.set(new Uint8Array(fBuffer));
-    const { polygonBuffer, ...result  } = await ClientThread.run<LoadPolygonFileWorkerPayload, LoadPolygonFileWorkerResult>(
-      'loadPolygonFile',
-      { buffer, fileName: file.name }
-    );
+    const { polygonBuffer, ...result } = await ClientThread.run<
+      LoadPolygonFileWorkerPayload,
+      LoadPolygonFileWorkerResult
+    >('loadPolygonFile', { buffer, fileName: file.name });
 
     return {
       ...result,
