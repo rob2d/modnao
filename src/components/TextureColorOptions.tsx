@@ -95,7 +95,7 @@ export default function TextureColorOptions({
     setHsl((prev) => ({ ...prev, l }));
   }, []);
 
-  const processedHsl = useThrottle(hsl, 50);
+  const processedHsl = useThrottle(hsl, 75);
 
   useEffect(() => {
     dispatch(adjustTextureHsl({ hsl: processedHsl, textureIndex }));

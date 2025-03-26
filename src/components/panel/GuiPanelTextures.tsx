@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { saveAs } from 'file-saver';
+import dayjs from 'dayjs';
 import JSZip from 'jszip';
 import {
   downloadTextureFile,
@@ -16,13 +18,11 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
+import { createB64ImgFromTextureDef } from '@/utils/textures';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 import { Chip, Divider, styled } from '@mui/material';
 import GuiPanelSection from './GuiPanelSection';
-import createImgFromTextureDef from '@/utils/textures/files/createB64ImgFromTextureDefs';
-import { saveAs } from 'file-saver';
-import dayjs from 'dayjs';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -69,7 +69,7 @@ export default function GuiPanelViewOptions() {
     const zip = new JSZip();
 
     const imgPromises = textureDefs.map((textureDef) => {
-      const base64 = createImgFromTextureDef({
+      const base64 = createB64ImgFromTextureDef({
         textureDef,
         asTranslucent: false
       }).then((str) => str.replace(/^data:image\/(png|jpeg);base64,/, ''));

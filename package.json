@@ -8,6 +8,7 @@
     "build:local": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "ts": "tsc --noEmit --incremental --preserveWatchOutput --pretty",
     "ts:w": "npm run ts -- --watch --project tsconfig.watch.json",
     "test": "jest",

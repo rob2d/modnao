@@ -1,29 +1,38 @@
-import exportTextureFile from '@/utils/textures/files/exportTextureFile';
-import { showError } from '../errorMessages/errorMessagesSlice';
-import { AppState, createAppAsyncThunk } from '../storeTypings';
-import {
-  AdjustTextureHslPayload,
-  AdjustTextureHslResult,
-  LoadPolygonsPayload,
-  LoadTexturesPayload,
-  LoadTexturesResultPayload
-} from './modelDataTypes';
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import textureShapesMap from '@/utils/textures/files/textureShapesMap';
-import { HslValues } from '@/utils/textures';
+import {
+  exportTextureFile,
+  HslValues,
+  textureFileTypeMap,
+  textureShapesMap
+} from '@/utils/textures';
 import { ClientThread } from '@/utils/threads';
-import { WorkerEvent } from '@/workers/worker';
+import globalBuffers from '@/utils/data/globalBuffers';
+import {
+  LoadTextureFileWorkerPayload,
+  LoadTextureFileWorkerResult
+} from '@/workers/loadTextureFileWorker';
+import {
+  LoadPolygonFileWorkerPayload,
+  LoadPolygonFileWorkerResult
+} from '@/workers/loadPolygonFileWorker';
+import {
+  AdjustTextureHslWorkerPayload,
+  AdjustTextureHslWorkerResult
+} from '@/workers/adjustTextureHslWorker';
 import {
   selectHasCompressedTextures,
   selectTextureFileType,
   selectUpdatedTextureDefs
 } from '../selectors';
-import textureFileTypeMap from '@/utils/textures/files/textureFileTypeMap';
-import { LoadTextureFileWorkerResult } from '@/workers/loadTextureFileWorker';
-import globalBuffers from '@/utils/data/globalBuffers';
-import { LoadPolygonFileWorkerResult } from '@/workers/loadPolygonFileWorker';
+import { showError } from '../errorMessages/errorMessagesSlice';
+import { AppState, createAppAsyncThunk } from '../storeTypings';
+import {
+  LoadPolygonsPayload,
+  LoadTexturesPayload,
+  LoadTexturesResultPayload
+} from './modelDataTypes';
 
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
@@ -208,32 +217,18 @@ export const processPolygonFile = createAppAsyncThunk(
   `${sliceName}/processPolygonFile`,
   async (file: File): Promise<LoadPolygonsPayload> => {
     const fBuffer = await file.arrayBuffer();
-    const sharedBuffer = new SharedArrayBuffer(fBuffer.byteLength);
-    const buffer = new Uint8Array(sharedBuffer);
-    buffer.set(new Uint8Array(fBuffer));
-    const thread = new ClientThread();
+    const buffer = new SharedArrayBuffer(fBuffer.byteLength);
+    const wBuffer = new Uint8Array(buffer);
+    wBuffer.set(new Uint8Array(fBuffer));
+    const { polygonBuffer, ...result } = await ClientThread.run<
+      LoadPolygonFileWorkerPayload,
+      LoadPolygonFileWorkerResult
+    >('loadPolygonFile', { buffer, fileName: file.name });
 
-    const result = await new Promise<LoadPolygonsPayload>((resolve) => {
-      thread.onmessage = (
-        event: MessageEvent<{ result: LoadPolygonFileWorkerResult }>
-      ) => {
-        const { polygonBuffer, ...result } = event.data.result;
-
-        resolve({
-          ...result,
-          polygonBufferKey: globalBuffers.add(polygonBuffer)
-        });
-
-        thread.unallocate();
-      };
-
-      thread.postMessage({
-        type: 'loadPolygonFile',
-        payload: { buffer: sharedBuffer, fileName: file.name }
-      } as WorkerEvent);
-    });
-
-    return result;
+    return {
+      ...result,
+      polygonBufferKey: globalBuffers.add(polygonBuffer)
+    };
   }
 );
 
@@ -278,14 +273,13 @@ export const processTextureFile = createAppAsyncThunk(
       textureDefs: providedTextureDefs
     }: LoadTexturesPayload,
     { getState, dispatch }
-  ) => {
+  ): Promise<LoadTexturesResultPayload> => {
     const state = getState();
 
-    let updatedTextureDefs: NLUITextureDef[];
+    let textureDefs: NLUITextureDef[];
 
     if (!textureFileTypeMap[textureFileType].polygonMapped) {
-      updatedTextureDefs =
-        providedTextureDefs || textureShapesMap[textureFileType];
+      textureDefs = providedTextureDefs || textureShapesMap[textureFileType];
 
       // clear polygons if texture headers aren't from poly file
       dispatch({
@@ -294,11 +288,11 @@ export const processTextureFile = createAppAsyncThunk(
           models: [],
           fileName: undefined,
           polygonBufferKey: undefined,
-          textureDefs: updatedTextureDefs
+          textureDefs: textureDefs
         }
       });
     } else {
-      updatedTextureDefs = state.modelData.textureDefs;
+      textureDefs = state.modelData.textureDefs;
     }
 
     let buffer: Uint8Array = new Uint8Array(
@@ -317,62 +311,49 @@ export const processTextureFile = createAppAsyncThunk(
       arrayBuffer.set(new Uint8Array(fBuffer));
       buffer = Buffer.from(new Uint8Array(decompressLzssBuffer(sharedBuffer)));
     }
+    const textureFileBuffer = new SharedArrayBuffer(buffer.byteLength);
+    const arrayBuffer = new Uint8Array(textureFileBuffer);
+    arrayBuffer.set(new Uint8Array(buffer));
 
-    const thread = new ClientThread();
-
-    const result = await new Promise<LoadTexturesResultPayload>((resolve) => {
-      thread.onmessage = (
-        event: MessageEvent<{ result: LoadTextureFileWorkerResult }>
-      ) => {
-        const {
-          texturePixelBuffers,
-          decompressedTextureBuffer,
-          textureDefs: returnedTextureDefs
-        } = event.data.result;
-
-        returnedTextureDefs.forEach((_t, i) => {
-          imgTypes.forEach((imgType) => {
-            const pixelBuffer =
-              texturePixelBuffers[imgType === 'opaque' ? i * 2 : i * 2 + 1];
-
-            // serialize buffers before returning result to state
-            const bufferKey = globalBuffers.add(pixelBuffer);
-            returnedTextureDefs[i].bufferKeys = {
-              ...(returnedTextureDefs[i]?.bufferKeys ?? {}),
-              [imgType]: bufferKey
-            };
-          });
-        });
-
-        const bufferKey = globalBuffers.add(decompressedTextureBuffer);
-
-        resolve({
-          fileName: file.name,
-          textureBufferKey: bufferKey,
-          isLzssCompressed,
-          textureFileType,
-          textureDefs: returnedTextureDefs
-        });
-
-        thread.unallocate();
-      };
-
-      const sharedBuffer = new SharedArrayBuffer(buffer.byteLength);
-      const arrayBuffer = new Uint8Array(sharedBuffer);
-      arrayBuffer.set(new Uint8Array(buffer));
-      thread.postMessage({
-        type: 'loadTextureFile',
-        payload: {
-          fileName: file.name,
-          textureDefs: updatedTextureDefs,
-          textureFileBuffer: sharedBuffer,
-          isLzssCompressed,
-          textureFileType
-        }
-      } as WorkerEvent);
+    const threadResult = await ClientThread.run<
+      LoadTextureFileWorkerPayload,
+      LoadTextureFileWorkerResult
+    >('loadTextureFile', {
+      fileName: file.name,
+      textureDefs,
+      textureFileBuffer,
+      isLzssCompressed,
+      textureFileType
     });
 
-    return { ...result, textureFileType };
+    const updatedTextureDefs = structuredClone(textureDefs);
+
+    updatedTextureDefs.forEach((_t, i) => {
+      imgTypes.forEach((imgType) => {
+        const pixelBuffer =
+          threadResult.texturePixelBuffers[
+            imgType === 'opaque' ? i * 2 : i * 2 + 1
+          ];
+
+        // serialize buffers before returning result to state
+        const bufferKey = globalBuffers.add(pixelBuffer);
+        updatedTextureDefs[i].bufferKeys = {
+          ...(updatedTextureDefs[i]?.bufferKeys ?? {}),
+          [imgType]: bufferKey
+        };
+      });
+    });
+
+    const textureBufferKey = globalBuffers.add(
+      threadResult.decompressedTextureBuffer
+    );
+
+    return {
+      textureBufferKey,
+      textureDefs: updatedTextureDefs,
+      textureFileType,
+      fileName: file.name
+    };
   }
 );
 
@@ -429,31 +410,26 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
     const textureDef = state.modelData.textureDefs[textureIndex];
     const { bufferKeys } = textureDef;
 
-    const thread = new ClientThread();
-    const buffers = {
-      translucent: globalBuffers.getShared(bufferKeys.translucent),
-      opaque: globalBuffers.getShared(bufferKeys.opaque)
+    const [opaqueRgbaBuffer, translucentRgbaBuffer] = await Promise.all(
+      [bufferKeys.opaque, bufferKeys.translucent].map((bufferKey) =>
+        ClientThread.run<
+          AdjustTextureHslWorkerPayload,
+          AdjustTextureHslWorkerResult
+        >('adjustTextureHsl', {
+          hsl,
+          buffer: globalBuffers.getShared(bufferKey)
+        })
+      )
+    );
+
+    return {
+      bufferKeys: {
+        opaque: globalBuffers.add(opaqueRgbaBuffer),
+        translucent: globalBuffers.add(translucentRgbaBuffer)
+      },
+      textureIndex,
+      hsl
     };
-
-    const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
-      thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
-        const [opaqueRgbaBuffer, translucentRgbaBuffer] = event.data.result;
-        const bufferKeys = {
-          opaque: globalBuffers.add(opaqueRgbaBuffer),
-          translucent: globalBuffers.add(translucentRgbaBuffer)
-        };
-
-        resolve({ bufferKeys, textureIndex, hsl });
-        thread.unallocate();
-      };
-
-      thread.postMessage({
-        type: 'adjustTextureHsl',
-        payload: { hsl, textureIndex, buffers }
-      } as WorkerEvent);
-    });
-
-    return result;
   }
 );
 

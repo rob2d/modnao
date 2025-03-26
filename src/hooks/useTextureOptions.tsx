@@ -6,7 +6,10 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { TextureImageBufferKeys } from '@/utils/textures';
+import {
+  createB64ImgFromTextureDef,
+  TextureImageBufferKeys
+} from '@/utils/textures';
 import {
   mdiCropFree,
   mdiFileDownload,
@@ -16,7 +19,6 @@ import {
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
-import createImgFromTextureDef from '@/utils/textures/files/createB64ImgFromTextureDefs';
 import saveAs from 'file-saver';
 import globalBuffers from '@/utils/data/globalBuffers';
 
@@ -125,7 +127,7 @@ export default function useTextureOptions(
         }]. Press 'T' key to toggle translucency.`,
         onClick: async () => {
           const textureDef = textureDefs[textureIndex];
-          const dataUrlImg = await createImgFromTextureDef({
+          const dataUrlImg = await createB64ImgFromTextureDef({
             textureDef,
             asTranslucent: dlAsTranslucent
           });
