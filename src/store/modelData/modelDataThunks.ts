@@ -1,32 +1,30 @@
-import exportTextureFile from '@/utils/textures/files/exportTextureFile';
-import { showError } from '../errorMessages/errorMessagesSlice';
-import { AppState, createAppAsyncThunk } from '../storeTypings';
-import {
-  AdjustTextureHslPayload,
-  AdjustTextureHslResult,
-  LoadPolygonsPayload,
-  LoadTexturesPayload,
-  LoadTexturesResultPayload
-} from './modelDataTypes';
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import textureShapesMap from '@/utils/textures/files/textureShapesMap';
-import { HslValues } from '@/utils/textures';
+import { HslValues, textureShapesMap, exportTextureFile, textureFileTypeMap } from '@/utils/textures';
 import { ClientThread } from '@/utils/threads';
-import { WorkerEvent } from '@/workers/worker';
+import globalBuffers from '@/utils/data/globalBuffers';
+import {
+  LoadTextureFileWorkerPayload,
+  LoadTextureFileWorkerResult
+} from '@/workers/loadTextureFileWorker';
+import { LoadPolygonFileWorkerPayload, LoadPolygonFileWorkerResult } from '@/workers/loadPolygonFileWorker';
+import {
+  AdjustTextureHslWorkerPayload,
+  AdjustTextureHslWorkerResult
+} from '@/workers/adjustTextureHslWorker';
 import {
   selectHasCompressedTextures,
   selectTextureFileType,
   selectUpdatedTextureDefs
 } from '../selectors';
-import textureFileTypeMap from '@/utils/textures/files/textureFileTypeMap';
+import { showError } from '../errorMessages/errorMessagesSlice';
+import { AppState, createAppAsyncThunk } from '../storeTypings';
 import {
-  LoadTextureFileWorkerPayload,
-  LoadTextureFileWorkerResult
-} from '@/workers/loadTextureFileWorker';
-import globalBuffers from '@/utils/data/globalBuffers';
-import { LoadPolygonFileWorkerResult } from '@/workers/loadPolygonFileWorker';
+  LoadPolygonsPayload,
+  LoadTexturesPayload,
+  LoadTexturesResultPayload
+} from './modelDataTypes';
 
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
@@ -211,32 +209,18 @@ export const processPolygonFile = createAppAsyncThunk(
   `${sliceName}/processPolygonFile`,
   async (file: File): Promise<LoadPolygonsPayload> => {
     const fBuffer = await file.arrayBuffer();
-    const sharedBuffer = new SharedArrayBuffer(fBuffer.byteLength);
-    const buffer = new Uint8Array(sharedBuffer);
-    buffer.set(new Uint8Array(fBuffer));
-    const thread = new ClientThread();
+    const buffer = new SharedArrayBuffer(fBuffer.byteLength);
+    const wBuffer = new Uint8Array(buffer);
+    wBuffer.set(new Uint8Array(fBuffer));
+    const { polygonBuffer, ...result  } = await ClientThread.run<LoadPolygonFileWorkerPayload, LoadPolygonFileWorkerResult>(
+      'loadPolygonFile',
+      { buffer, fileName: file.name }
+    );
 
-    const result = await new Promise<LoadPolygonsPayload>((resolve) => {
-      thread.onmessage = (
-        event: MessageEvent<{ result: LoadPolygonFileWorkerResult }>
-      ) => {
-        const { polygonBuffer, ...result } = event.data.result;
-
-        resolve({
-          ...result,
-          polygonBufferKey: globalBuffers.add(polygonBuffer)
-        });
-
-        thread.unallocate();
-      };
-
-      thread.postMessage({
-        type: 'loadPolygonFile',
-        payload: { buffer: sharedBuffer, fileName: file.name }
-      } as WorkerEvent);
-    });
-
-    return result;
+    return {
+      ...result,
+      polygonBufferKey: globalBuffers.add(polygonBuffer)
+    };
   }
 );
 
@@ -418,31 +402,26 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
     const textureDef = state.modelData.textureDefs[textureIndex];
     const { bufferKeys } = textureDef;
 
-    const thread = new ClientThread();
-    const buffers = {
-      translucent: globalBuffers.getShared(bufferKeys.translucent),
-      opaque: globalBuffers.getShared(bufferKeys.opaque)
+    const [opaqueRgbaBuffer, translucentRgbaBuffer] = await Promise.all(
+      [bufferKeys.opaque, bufferKeys.translucent].map((bufferKey) =>
+        ClientThread.run<
+          AdjustTextureHslWorkerPayload,
+          AdjustTextureHslWorkerResult
+        >('adjustTextureHsl', {
+          hsl,
+          buffer: globalBuffers.getShared(bufferKey)
+        })
+      )
+    );
+
+    return {
+      bufferKeys: {
+        opaque: globalBuffers.add(opaqueRgbaBuffer),
+        translucent: globalBuffers.add(translucentRgbaBuffer)
+      },
+      textureIndex,
+      hsl
     };
-
-    const result = await new Promise<AdjustTextureHslPayload>((resolve) => {
-      thread.onmessage = (event: MessageEvent<AdjustTextureHslResult>) => {
-        const [opaqueRgbaBuffer, translucentRgbaBuffer] = event.data.result;
-        const bufferKeys = {
-          opaque: globalBuffers.add(opaqueRgbaBuffer),
-          translucent: globalBuffers.add(translucentRgbaBuffer)
-        };
-
-        resolve({ bufferKeys, textureIndex, hsl });
-        thread.unallocate();
-      };
-
-      thread.postMessage({
-        type: 'adjustTextureHsl',
-        payload: { hsl, textureIndex, buffers }
-      } as WorkerEvent);
-    });
-
-    return result;
   }
 );
 
