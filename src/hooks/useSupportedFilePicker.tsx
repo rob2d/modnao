@@ -8,8 +8,8 @@ import {
   useAppSelector
 } from '@/store';
 import {
-  textureFileTypeMap, 
   TextureFileType,
+  textureFileTypeMap,
   TextureFileTypeMeta
 } from '@/utils/textures';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
