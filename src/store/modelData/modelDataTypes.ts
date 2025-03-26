@@ -1,23 +1,7 @@
 import { AsyncState } from '@/types/AsyncState';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
-import { HslValues, TextureImageBufferKeys } from '@/utils/textures';
-import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
-
-export type LoadPolygonsResult = {
-  type: 'loadPolygonFile';
-  result: LoadPolygonsPayload;
-};
-
-export type LoadTexturesResult = {
-  type: 'loadTextureFile';
-  result: LoadTexturesPayload;
-};
-
-export type AdjustTextureHslResult = {
-  type: 'adjustTextureHsl';
-  result: [SharedArrayBuffer, SharedArrayBuffer];
-};
+import { HslValues, TextureImageBufferKeys, TextureFileType } from '@/utils/textures';
 
 export type EditedTexture = {
   width: number;

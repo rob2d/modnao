@@ -7,10 +7,11 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import textureFileTypeMap, {
+import {
+  textureFileTypeMap, 
   TextureFileType,
   TextureFileTypeMeta
-} from '@/utils/textures/files/textureFileTypeMap';
+} from '@/utils/textures';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
 
 /** polygon files which may be associated to textures */
