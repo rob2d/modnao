@@ -8,7 +8,6 @@ import { rgba8888TargetOps } from '@/utils/color-conversions';
 export type LoadTextureFileWorkerResult = {
   texturePixelBuffers: SharedArrayBuffer[];
   decompressedTextureBuffer: SharedArrayBuffer;
-  textureDefs: NLUITextureDef[];
 };
 
 export type LoadTextureFileWorkerPayload = LoadTexturesBasePayload & {
@@ -102,8 +101,7 @@ export default function loadTextureFileWorker({
 
     result = {
       texturePixelBuffers,
-      decompressedTextureBuffer: textureFileBuffer,
-      textureDefs
+      decompressedTextureBuffer: textureFileBuffer
     };
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
@@ -130,7 +128,6 @@ export default function loadTextureFileWorker({
     return {
       texturePixelBuffers,
       decompressedTextureBuffer,
-      textureDefs,
       isLzssCompressed: true
     };
   }
