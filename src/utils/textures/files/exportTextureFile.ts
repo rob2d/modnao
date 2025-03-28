@@ -1,31 +1,18 @@
 import quanti from 'quanti';
-import { saveAs } from 'file-saver';
-import { NLUITextureDef } from '@/types/NLAbstractions';
 import { compressLzssBuffer } from '@/utils/data';
 import compressVqBuffer from '@/utils/data/compressVqBuffer';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { padBufferForAlignment } from '@/utils/data/padBufferForAlignment';
-import { TextureFileType } from './textureFileTypeMap';
 import processExportTexturePixels from './processExportTexturePixels';
 import getQuantizeOptions from './getQuantizationOptions';
-
-type ExportTextureParams = {
-  textureDefs: NLUITextureDef[];
-  textureFileName?: string;
-  textureFileType: TextureFileType;
-  textureBufferKey: string;
-  isLzssCompressed: boolean;
-};
+import { ExportTextureFilePayload } from '@/store';
 
 export default async function exportTextureFile({
   textureDefs,
-  textureFileName = '',
   textureFileType,
-  textureBufferKey,
+  textureBuffer,
   isLzssCompressed
-}: ExportTextureParams) {
-  const textureBuffer = Buffer.from(globalBuffers.get(textureBufferKey));
-
+}: ExportTextureFilePayload) {
   for await (const t of textureDefs) {
     const { baseLocation, ramOffset, width, height, colorFormat } = t;
 
@@ -52,8 +39,6 @@ export default async function exportTextureFile({
     });
   }
 
-  let output: Blob;
-
   const readSection = (buffer: Uint8Array, ...startAndEnd: number[]) =>
     Buffer.from(new Uint8Array(buffer).slice(...startAndEnd));
 
@@ -63,14 +48,16 @@ export default async function exportTextureFile({
     offset?: number
   ) => padBufferForAlignment(startPointer, compressLzssBuffer(section), offset);
 
+  const textureBufferView = Buffer.from(new Uint8Array(textureBuffer));
+
   switch (textureFileType) {
     // character portraits are an interesting niche case
     // where compression exists but not applied to the entire file;
     // the file is also split into 3 (or 4 separate) sections
     // depending on if a character has international name variant
     case 'mvc2-character-portraits': {
-      const buffer = Buffer.alloc(textureBuffer.length);
-      textureBuffer.copy(buffer);
+      const buffer = Buffer.alloc(textureBufferView.length);
+      textureBufferView.copy(buffer);
 
       const startPointer = buffer.readUint32LE(0);
       const pointers = [startPointer];
@@ -146,23 +133,20 @@ export default async function exportTextureFile({
         trailingSection
       ]);
 
-      output = new Blob([outputBuffer], { type: 'application/octet-stream' });
-      break;
+      const sharedBuffer = new SharedArrayBuffer(outputBuffer.length);
+      new Uint8Array(sharedBuffer).set(outputBuffer);
+
+      return sharedBuffer;
     }
     default: {
       const outputBuffer = !isLzssCompressed
-        ? textureBuffer
-        : compressLzssBuffer(textureBuffer);
+        ? new Uint8Array(textureBuffer)
+        : compressLzssBuffer(textureBufferView);
 
-      output = new Blob([outputBuffer], { type: 'application/octet-stream' });
-      break;
+      const sharedBuffer = new SharedArrayBuffer(outputBuffer.length);
+      new Uint8Array(sharedBuffer).set(outputBuffer);
+
+      return sharedBuffer;
     }
   }
-
-  const name = textureFileName.substring(0, textureFileName.lastIndexOf('.'));
-  const extension = textureFileName.substring(
-    textureFileName.lastIndexOf('.') + 1
-  );
-
-  saveAs(output, `${name}.mn.${extension}`);
 }

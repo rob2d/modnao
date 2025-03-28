@@ -11,7 +11,7 @@ it('should correctly process RGB565 pixel colors and write to the texture buffer
   const baseLocation = 0;
   const ramOffset = 0;
   const colorFormat: TextureColorFormat = 'RGB565';
-  const textureBuffer = Buffer.alloc(6);
+  const textureBuffer = new SharedArrayBuffer(6);
 
   processExportTexturePixels({
     pixelColors,
@@ -23,7 +23,6 @@ it('should correctly process RGB565 pixel colors and write to the texture buffer
     textureBuffer
   });
 
-  expect(textureBuffer).toEqual(
-    Buffer.from(new Uint8Array([6, 248, 224, 15, 0, 0]))
-  );
+  const uint8Array = new Uint8Array(textureBuffer);
+  expect(uint8Array).toEqual(new Uint8Array([6, 248, 224, 15, 0, 0]));
 });

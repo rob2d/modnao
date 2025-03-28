@@ -14,6 +14,12 @@ export type EditedTexture = {
   hsl: HslValues;
 };
 
+export interface ExportTextureFilePayload {
+  textureDefs: NLUITextureDef[];
+  textureFileType: TextureFileType;
+  textureBuffer: SharedArrayBuffer;
+  isLzssCompressed: boolean;
+}
 export interface LoadTexturesBasePayload {
   textureFileType: TextureFileType;
   resourceAttribs?: ResourceAttribs;
