@@ -7,6 +7,7 @@ import loadTextureFileWorker, {
 import loadPolygonFileWorker, {
   LoadPolygonFileWorkerPayload
 } from './loadPolygonFileWorker';
+import { ExportTextureFilePayload } from '@/store';
 
 export type WorkerEvent =
   | {
@@ -20,6 +21,10 @@ export type WorkerEvent =
   | {
       type: 'adjustTextureHsl';
       payload: AdjustTextureHslWorkerPayload;
+    }
+  | {
+      type: 'exportTextureFile';
+      payload: ExportTextureFilePayload;
     };
 
 addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {

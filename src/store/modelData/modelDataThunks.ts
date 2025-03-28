@@ -33,6 +33,7 @@ import {
   LoadTexturesPayload,
   LoadTexturesResultPayload
 } from './modelDataTypes';
+import saveAs from 'file-saver';
 
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
@@ -437,7 +438,7 @@ export const downloadTextureFile = createAppAsyncThunk(
   `${sliceName}/downloadTextureFile`,
   async (_, { getState, dispatch }) => {
     const state = getState();
-    const { textureFileName, textureBufferKey = '' } = state.modelData;
+    const { textureFileName = '', textureBufferKey = '' } = state.modelData;
     const textureDefs = selectUpdatedTextureDefs(state);
     const textureFileType = selectTextureFileType(state);
     const isLzssCompressed = selectHasCompressedTextures(state);
@@ -453,13 +454,34 @@ export const downloadTextureFile = createAppAsyncThunk(
     }
 
     try {
-      await exportTextureFile({
+      const outputBuffer = await exportTextureFile({
         textureDefs,
-        textureFileName,
-        textureBufferKey,
         textureFileType,
-        isLzssCompressed
+        isLzssCompressed,
+        textureBuffer: globalBuffers.getShared(textureBufferKey)
       });
+
+      const arrayBuffer =
+        outputBuffer instanceof SharedArrayBuffer
+          ? (() => {
+              const copy = new ArrayBuffer(outputBuffer.byteLength); // Allocate a new ArrayBuffer
+              new Uint8Array(copy).set(new Uint8Array(outputBuffer)); // Copy data
+              return copy;
+            })()
+          : outputBuffer;
+
+      const fileOutput = new Blob([new Uint8Array(arrayBuffer)], {
+        type: 'application/octet-stream'
+      });
+      const name = textureFileName.substring(
+        0,
+        textureFileName.lastIndexOf('.')
+      );
+      const extension = textureFileName.substring(
+        textureFileName.lastIndexOf('.') + 1
+      );
+
+      saveAs(fileOutput, `${name}.mn.${extension}`);
     } catch (error: unknown) {
       console.error(error);
       let message = '';
