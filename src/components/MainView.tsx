@@ -2,7 +2,15 @@ import { useCallback, useContext } from 'react';
 import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
 import SceneView from './SceneView';
-import { Backdrop, Button, CircularProgress, Paper, styled, Tooltip, circularProgressClasses, useTheme } from '@mui/material';
+import {
+  Backdrop,
+  Button,
+  CircularProgress,
+  Paper,
+  styled,
+  Tooltip,
+  useTheme
+} from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
@@ -180,13 +188,22 @@ export default function MainView() {
         <Backdrop open={processingOverlayShown}>
           <svg width={0} height={0}>
             <defs>
-              <linearGradient id="my_gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor={theme.palette.primary.main} />
-                <stop offset="100%" stopColor={theme.palette.secondary.main} />
+              <linearGradient
+                id='my_gradient'
+                x1='0%'
+                y1='0%'
+                x2='0%'
+                y2='100%'
+              >
+                <stop offset='0%' stopColor={theme.palette.primary.main} />
+                <stop offset='100%' stopColor={theme.palette.secondary.main} />
               </linearGradient>
             </defs>
           </svg>
-          <CircularProgress size={64} sx={{ 'svg circle': { stroke: 'url(#my_gradient)' } }} />
+          <CircularProgress
+            size={64}
+            sx={{ 'svg circle': { stroke: 'url(#my_gradient)' } }}
+          />
         </Backdrop>
       </Styled>
     </>
