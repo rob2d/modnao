@@ -3,6 +3,7 @@ import { HYDRATE } from 'next-redux-wrapper';
 import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
 import { LoadTexturesResultPayload, ModelDataState } from './modelDataTypes';
 import {
+  downloadTextureFile,
   loadCharacterPortraitsFile,
   processAdjustedTextureHsl,
   processPolygonFile,
@@ -13,6 +14,7 @@ export const initialModelDataState: ModelDataState = {
   models: [],
   textureDefs: [],
   loadTexturesState: 'idle',
+  exportTextureFileState: 'idle',
   editedTextures: {},
   textureHistory: {},
   polygonFileName: undefined,
@@ -71,12 +73,6 @@ const modelDataSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(processPolygonFile.pending, (state: ModelDataState) => {
-      state.loadTexturesState = 'idle';
-    });
-    builder.addCase(processTextureFile.pending, (state: ModelDataState) => {
-      state.loadTexturesState = 'pending';
-    });
     builder.addCase(
       processPolygonFile.fulfilled,
       (
@@ -105,6 +101,29 @@ const modelDataSlice = createSlice({
       }
     );
 
+    builder.addCase(downloadTextureFile.pending, (state: ModelDataState) => {
+      state.exportTextureFileState = 'pending';
+    });
+
+    builder.addCase(downloadTextureFile.fulfilled, (state: ModelDataState) => {
+      state.exportTextureFileState = 'fulfilled';
+    });
+
+    builder.addCase(downloadTextureFile.rejected, (state: ModelDataState) => {
+      state.exportTextureFileState = 'rejected';
+    });
+
+    builder.addCase(processPolygonFile.pending, (state: ModelDataState) => {
+      state.loadTexturesState = 'idle';
+    });
+    builder.addCase(processTextureFile.pending, (state: ModelDataState) => {
+      state.loadTexturesState = 'pending';
+    });
+
+    builder.addCase(processTextureFile.rejected, (state: ModelDataState) => {
+      state.loadTexturesState = 'rejected';
+    });
+
     builder.addCase(
       processTextureFile.fulfilled,
       (
@@ -132,9 +151,6 @@ const modelDataSlice = createSlice({
       }
     );
 
-    builder.addCase(processTextureFile.rejected, (state: ModelDataState) => {
-      state.loadTexturesState = 'rejected';
-    });
 
     builder.addCase(
       loadCharacterPortraitsFile.pending,
