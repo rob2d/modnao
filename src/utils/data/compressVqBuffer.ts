@@ -4,8 +4,11 @@ import { rgb565ToRgba8888, rgbaToRgb565 } from '../color-conversions';
 const WORD_SIZE = 2;
 const VECTOR_LENGTH = 4;
 
+// eslint-disable-next-line prettier/prettier
 const averageValues = [
-  127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127
+  127, 127, 127, 127,
+  127, 127, 127, 127,
+  127, 127, 127, 127
 ];
 
 /** @param buffer decompressed buffer to compress */
@@ -68,11 +71,11 @@ export default function compressVqBuffer(buffer: Buffer) {
   });
 
   while (codebook.length < 256) {
-    // eslint-disable-next-line prettier/prettier
+
     codebook.push(averageValues);
   }
 
-  const outputBytes: number[] = new Array(256 * 12 + indexWordMap.size);
+  const outputBytes: number[] = [];
 
   // write initial codebook
   const rgba = { r: 0, g: 0, b: 0, a: 255 };
@@ -84,8 +87,8 @@ export default function compressVqBuffer(buffer: Buffer) {
       rgba.b = codebookEntry[i + 2];
       const rgb565 = rgbaToRgb565(rgba);
 
-      outputBytes[byteIndex++] = rgb565 & 0xff;
-      outputBytes[byteIndex++] = (rgb565 >> 8) & 0xff;
+      outputBytes.push(rgb565 & 0xff);
+      outputBytes.push((rgb565 >> 8) & 0xff);
     }
   });
 
