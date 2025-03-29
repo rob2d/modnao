@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@emotion/server": "^11.11.0",
+    "ml-kmeans": "^6.0.0",
     "next-redux-wrapper": "^8.1.0",
     "stream-browserify": "^3.0.0",
     "yargs": "^17.7.1"
@@ -40,7 +41,6 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
-    "@thi.ng/k-means": "^1.0.14",
     "@types/file-saver": "^2.0.7",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.11",

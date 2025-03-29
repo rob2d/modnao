@@ -40,9 +40,9 @@ const Styled = styled('main')(
     }
 
     ${
-      process.env.JEST_WORKER_ID ? ''
-        : 
-        `& > :first-child {
+      process.env.JEST_WORKER_ID
+        ? ''
+        : `& > :first-child {
           position: relative;
           flex-grow: 1;
           height: 100%;
