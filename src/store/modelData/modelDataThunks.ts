@@ -2,7 +2,6 @@ import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { decompressLzssBuffer } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import {
-  exportTextureFile,
   HslValues,
   textureFileTypeMap,
   textureShapesMap
@@ -33,6 +32,12 @@ import {
   LoadTexturesPayload,
   LoadTexturesResultPayload
 } from './modelDataTypes';
+import saveAs from 'file-saver';
+import {
+  ExportTextureFileWorkerPayload,
+  ExportTextureFileWorkerResult
+} from '@/workers/exportTextureFileWorker';
+import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefRegionWorker';
 
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
@@ -437,7 +442,7 @@ export const downloadTextureFile = createAppAsyncThunk(
   `${sliceName}/downloadTextureFile`,
   async (_, { getState, dispatch }) => {
     const state = getState();
-    const { textureFileName, textureBufferKey = '' } = state.modelData;
+    const { textureFileName = '', textureBufferKey = '' } = state.modelData;
     const textureDefs = selectUpdatedTextureDefs(state);
     const textureFileType = selectTextureFileType(state);
     const isLzssCompressed = selectHasCompressedTextures(state);
@@ -453,13 +458,53 @@ export const downloadTextureFile = createAppAsyncThunk(
     }
 
     try {
-      await exportTextureFile({
-        textureDefs,
-        textureFileName,
-        textureBufferKey,
+      const textureBuffer = globalBuffers.getShared(textureBufferKey);
+      await Promise.all(
+        textureDefs.map((textureDef) =>
+          ClientThread.run<ExportTextureDefRegionWorkerPayload, void>(
+            'exportTextureDefRegion',
+            {
+              textureDef,
+              textureFileType,
+              textureBuffer,
+              pixelColors: globalBuffers.getShared(
+                textureDef.bufferKeys.translucent
+              )
+            }
+          )
+        )
+      );
+
+      const outputBuffer = await ClientThread.run<
+        ExportTextureFileWorkerPayload,
+        ExportTextureFileWorkerResult
+      >('exportTextureFile', {
         textureFileType,
-        isLzssCompressed
+        isLzssCompressed,
+        textureBuffer
       });
+
+      const arrayBuffer =
+        outputBuffer instanceof SharedArrayBuffer
+          ? (() => {
+              const copy = new ArrayBuffer(outputBuffer.byteLength); // Allocate a new ArrayBuffer
+              new Uint8Array(copy).set(new Uint8Array(outputBuffer)); // Copy data
+              return copy;
+            })()
+          : outputBuffer;
+
+      const fileOutput = new Blob([new Uint8Array(arrayBuffer)], {
+        type: 'application/octet-stream'
+      });
+      const name = textureFileName.substring(
+        0,
+        textureFileName.lastIndexOf('.')
+      );
+      const extension = textureFileName.substring(
+        textureFileName.lastIndexOf('.') + 1
+      );
+
+      saveAs(fileOutput, `${name}.mn.${extension}`);
     } catch (error: unknown) {
       console.error(error);
       let message = '';

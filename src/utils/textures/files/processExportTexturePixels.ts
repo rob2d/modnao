@@ -33,8 +33,9 @@ export default function processExportTexturePixels({
   baseLocation: number;
   ramOffset: number;
   colorFormat: TextureColorFormat;
-  textureBuffer: Buffer;
+  textureBuffer: SharedArrayBuffer;
 }) {
+  const buffer = new Uint8Array(textureBuffer);
   for (let y = 0; y < height; y++) {
     const yOffset = width * y;
     for (let offset = yOffset; offset < yOffset + width; offset++) {
@@ -51,8 +52,10 @@ export default function processExportTexturePixels({
       const conversionOp = conversionDict[colorFormat];
       const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
 
-      if (offsetWritten + COLOR_SIZE < textureBuffer.length) {
-        textureBuffer.writeUInt16LE(conversionOp(color), offsetWritten);
+      if (offsetWritten + COLOR_SIZE < buffer.length) {
+        const convertedColor = conversionOp(color);
+        buffer[offsetWritten] = convertedColor & 0xff;
+        buffer[offsetWritten + 1] = (convertedColor >> 8) & 0xff;
       }
 
       if (colorOffset + 3 >= pixelColors.length) {

@@ -1,4 +1,4 @@
-export function padBufferForAlignment(
+export default function padBufferForAlignment(
   alignment: number,
   buffer: Buffer | Uint8Array,
   startLocation = 0

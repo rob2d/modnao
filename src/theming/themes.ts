@@ -67,6 +67,13 @@ const themes = Object.fromEntries(
               alignItems: 'center'
             }
           }
+        },
+        MuiBackdrop: {
+          styleOverrides: {
+            root: {
+              backgroundColor: 'rgba(0, 0, 0, 0.75)'
+            }
+          }
         }
       },
       palette: {
