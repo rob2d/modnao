@@ -35,16 +35,20 @@ const Styled = styled('main')(
       flex-basis: 100%;
     }
 
+    & .MuiBackdrop-root: {
+      backgroundColor: 'rgba(0, 0, 0, 0.75)'
+    }
+
     ${
-      !process.env.JEST_WORKER_ID
-        ? `& > :first-child {
-      position: relative;
-      flex-grow: 1;
-      height: 100%;
-      display: flex;
-      zIndex: -1;
-    }`
-        : ''
+      process.env.JEST_WORKER_ID ? ''
+        : 
+        `& > :first-child {
+          position: relative;
+          flex-grow: 1;
+          height: 100%;
+          display: flex;
+          zIndex: -1;
+        }`
     }
 
     .scene-button {
