@@ -1,59 +1,21 @@
-import quanti from 'quanti';
-import { saveAs } from 'file-saver';
-import { NLUITextureDef } from '@/types/NLAbstractions';
-import { compressLzssBuffer } from '@/utils/data';
+import compressLzssBuffer from '@/utils/data/compressLzssBuffer';
 import compressVqBuffer from '@/utils/data/compressVqBuffer';
-import globalBuffers from '@/utils/data/globalBuffers';
-import { padBufferForAlignment } from '@/utils/data/padBufferForAlignment';
-import { TextureFileType } from './textureFileTypeMap';
-import processExportTexturePixels from './processExportTexturePixels';
-import getQuantizeOptions from './getQuantizationOptions';
+import padBufferForAlignment from '@/utils/data/padBufferForAlignment';
+import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 
-type ExportTextureParams = {
-  textureDefs: NLUITextureDef[];
-  textureFileName?: string;
+export interface ExportTextureFileWorkerPayload {
   textureFileType: TextureFileType;
-  textureBufferKey: string;
+  textureBuffer: SharedArrayBuffer;
   isLzssCompressed: boolean;
-};
+}
 
-export default async function exportTextureFile({
-  textureDefs,
-  textureFileName = '',
+export type ExportTextureFileWorkerResult = SharedArrayBuffer;
+
+export default async function exportTextureFileWorker({
   textureFileType,
-  textureBufferKey,
+  textureBuffer,
   isLzssCompressed
-}: ExportTextureParams) {
-  const textureBuffer = Buffer.from(globalBuffers.get(textureBufferKey));
-
-  for await (const t of textureDefs) {
-    const { baseLocation, ramOffset, width, height, colorFormat } = t;
-
-    const pixelColors = globalBuffers.get(t.bufferKeys.translucent as string);
-    const quantizeOptions = getQuantizeOptions(textureFileType, width);
-
-    if (quantizeOptions) {
-      const palette = quanti(pixelColors, quantizeOptions.colors, 4);
-      if (quantizeOptions.dithering) {
-        palette.ditherProcess(pixelColors, width);
-      } else {
-        palette.process(pixelColors);
-      }
-    }
-
-    processExportTexturePixels({
-      pixelColors,
-      width,
-      height,
-      baseLocation,
-      ramOffset,
-      colorFormat,
-      textureBuffer
-    });
-  }
-
-  let output: Blob;
-
+}: ExportTextureFileWorkerPayload): Promise<ExportTextureFileWorkerResult> {
   const readSection = (buffer: Uint8Array, ...startAndEnd: number[]) =>
     Buffer.from(new Uint8Array(buffer).slice(...startAndEnd));
 
@@ -63,14 +25,16 @@ export default async function exportTextureFile({
     offset?: number
   ) => padBufferForAlignment(startPointer, compressLzssBuffer(section), offset);
 
+  const textureBufferView = Buffer.from(new Uint8Array(textureBuffer));
+
   switch (textureFileType) {
     // character portraits are an interesting niche case
     // where compression exists but not applied to the entire file;
     // the file is also split into 3 (or 4 separate) sections
     // depending on if a character has international name variant
     case 'mvc2-character-portraits': {
-      const buffer = Buffer.alloc(textureBuffer.length);
-      textureBuffer.copy(buffer);
+      const buffer = Buffer.alloc(textureBufferView.length);
+      textureBufferView.copy(buffer);
 
       const startPointer = buffer.readUint32LE(0);
       const pointers = [startPointer];
@@ -146,23 +110,20 @@ export default async function exportTextureFile({
         trailingSection
       ]);
 
-      output = new Blob([outputBuffer], { type: 'application/octet-stream' });
-      break;
+      const sharedBuffer = new SharedArrayBuffer(outputBuffer.length);
+      new Uint8Array(sharedBuffer).set(outputBuffer);
+
+      return sharedBuffer;
     }
     default: {
       const outputBuffer = !isLzssCompressed
-        ? textureBuffer
-        : compressLzssBuffer(textureBuffer);
+        ? new Uint8Array(textureBuffer)
+        : compressLzssBuffer(textureBufferView);
 
-      output = new Blob([outputBuffer], { type: 'application/octet-stream' });
-      break;
+      const sharedBuffer = new SharedArrayBuffer(outputBuffer.length);
+      new Uint8Array(sharedBuffer).set(outputBuffer);
+
+      return sharedBuffer;
     }
   }
-
-  const name = textureFileName.substring(0, textureFileName.lastIndexOf('.'));
-  const extension = textureFileName.substring(
-    textureFileName.lastIndexOf('.') + 1
-  );
-
-  saveAs(output, `${name}.mn.${extension}`);
 }

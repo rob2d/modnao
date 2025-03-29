@@ -58,6 +58,7 @@ export default class ClientThread {
       }
 
       thread.onmessage = (event: MessageEvent<{ result: TResult }>) => {
+        console.log('finished');
         resolve(event.data.result);
         thread.unallocate();
       };

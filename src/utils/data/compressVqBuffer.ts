@@ -4,6 +4,10 @@ import { rgb565ToRgba8888, rgbaToRgb565 } from '../color-conversions';
 const WORD_SIZE = 2;
 const VECTOR_LENGTH = 4;
 
+const averageValues = [
+  127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127
+];
+
 /** @param buffer decompressed buffer to compress */
 export default function compressVqBuffer(buffer: Buffer) {
   console.time('compressVqBuffer');
@@ -49,8 +53,11 @@ export default function compressVqBuffer(buffer: Buffer) {
     const codebookEntry = [];
 
     for (let i = 0; i < 12; i += 3) {
-      const word = [...cluster.centroid].slice(i, i + 3);
-      codebookEntry.push(word[0], word[1], word[2]);
+      codebookEntry.push(
+        cluster.centroid[i],
+        cluster.centroid[i + 1],
+        cluster.centroid[i + 2]
+      );
     }
 
     codebook.push(codebookEntry);
@@ -62,25 +69,23 @@ export default function compressVqBuffer(buffer: Buffer) {
 
   while (codebook.length < 256) {
     // eslint-disable-next-line prettier/prettier
-    codebook.push([
-      127, 127, 127, 
-      127, 127, 127,
-      127, 127, 127,
-      127, 127, 127,
-    ]);
+    codebook.push(averageValues);
   }
 
-  const outputBytes: number[] = [];
+  const outputBytes: number[] = new Array(256 * 12 + indexWordMap.size);
 
   // write initial codebook
+  const rgba = { r: 0, g: 0, b: 0, a: 255 };
+  let byteIndex = 0;
   codebook.forEach((codebookEntry) => {
     for (let i = 0; i < 12; i += 3) {
-      const word = codebookEntry.slice(i, i + 3);
-      const rgba = { r: word[0], g: word[1], b: word[2], a: 255 };
+      rgba.r = codebookEntry[i];
+      rgba.g = codebookEntry[i + 1];
+      rgba.b = codebookEntry[i + 2];
       const rgb565 = rgbaToRgb565(rgba);
 
-      outputBytes.push(rgb565 & 0xff);
-      outputBytes.push((rgb565 >> 8) & 0xff);
+      outputBytes[byteIndex++] = rgb565 & 0xff;
+      outputBytes[byteIndex++] = (rgb565 >> 8) & 0xff;
     }
   });
 
