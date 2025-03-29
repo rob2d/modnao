@@ -252,4 +252,5 @@ export const selectObjectCount = createSelector(
   }
 );
 
-export const selectProcessingOverlayShown = (state: AppState) => state.modelData.exportTextureFileState === 'pending';
+export const selectProcessingOverlayShown = (state: AppState) =>
+  state.modelData.exportTextureFileState === 'pending';

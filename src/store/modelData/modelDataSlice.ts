@@ -151,7 +151,6 @@ const modelDataSlice = createSlice({
       }
     );
 
-
     builder.addCase(
       loadCharacterPortraitsFile.pending,
       (state: ModelDataState) => {
