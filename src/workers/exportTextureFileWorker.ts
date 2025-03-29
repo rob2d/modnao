@@ -1,44 +1,21 @@
-import quanti from 'quanti';
-import { compressLzssBuffer } from '@/utils/data';
+import compressLzssBuffer from '@/utils/data/compressLzssBuffer';
 import compressVqBuffer from '@/utils/data/compressVqBuffer';
-import globalBuffers from '@/utils/data/globalBuffers';
-import { padBufferForAlignment } from '@/utils/data/padBufferForAlignment';
-import processExportTexturePixels from './processExportTexturePixels';
-import getQuantizeOptions from './getQuantizationOptions';
-import { ExportTextureFilePayload } from '@/store';
+import padBufferForAlignment from '@/utils/data/padBufferForAlignment';
+import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 
-export default async function exportTextureFile({
-  textureDefs,
+export interface ExportTextureFileWorkerPayload {
+  textureFileType: TextureFileType;
+  textureBuffer: SharedArrayBuffer;
+  isLzssCompressed: boolean;
+}
+
+export type ExportTextureFileWorkerResult = SharedArrayBuffer;
+
+export default async function exportTextureFileWorker({
   textureFileType,
   textureBuffer,
   isLzssCompressed
-}: ExportTextureFilePayload) {
-  for await (const t of textureDefs) {
-    const { baseLocation, ramOffset, width, height, colorFormat } = t;
-
-    const pixelColors = globalBuffers.get(t.bufferKeys.translucent as string);
-    const quantizeOptions = getQuantizeOptions(textureFileType, width);
-
-    if (quantizeOptions) {
-      const palette = quanti(pixelColors, quantizeOptions.colors, 4);
-      if (quantizeOptions.dithering) {
-        palette.ditherProcess(pixelColors, width);
-      } else {
-        palette.process(pixelColors);
-      }
-    }
-
-    processExportTexturePixels({
-      pixelColors,
-      width,
-      height,
-      baseLocation,
-      ramOffset,
-      colorFormat,
-      textureBuffer
-    });
-  }
-
+}: ExportTextureFileWorkerPayload): Promise<ExportTextureFileWorkerResult> {
   const readSection = (buffer: Uint8Array, ...startAndEnd: number[]) =>
     Buffer.from(new Uint8Array(buffer).slice(...startAndEnd));
 
