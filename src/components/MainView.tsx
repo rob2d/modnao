@@ -2,13 +2,14 @@ import { useCallback, useContext } from 'react';
 import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
 import SceneView from './SceneView';
-import { Button, Paper, styled, Tooltip } from '@mui/material';
+import { Backdrop, Button, CircularProgress, Paper, styled, Tooltip, circularProgressClasses, useTheme } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import {
   selectContentViewMode,
+  selectProcessingOverlayShown,
   showDialog,
   useAppDispatch,
   useAppSelector
@@ -108,12 +109,15 @@ const Styled = styled('main')(
 
 export default function MainView() {
   const { guiPanelExpansionLevel } = useContext(ViewOptionsContext);
+  const theme = useTheme();
   const dispatch = useAppDispatch();
   const onShowAppInfoDialog = useCallback(() => {
     dispatch(showDialog('app-info'));
   }, [dispatch]);
 
   const contentViewMode = useAppSelector(selectContentViewMode);
+  const processingOverlayShown = useAppSelector(selectProcessingOverlayShown);
+
   let mainScene;
 
   const guiPanelVisible =
@@ -173,6 +177,17 @@ export default function MainView() {
         </div>
         <GuiPanel />
         <AppDialog />
+        <Backdrop open={processingOverlayShown}>
+          <svg width={0} height={0}>
+            <defs>
+              <linearGradient id="my_gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={theme.palette.primary.main} />
+                <stop offset="100%" stopColor={theme.palette.secondary.main} />
+              </linearGradient>
+            </defs>
+          </svg>
+          <CircularProgress size={64} sx={{ 'svg circle': { stroke: 'url(#my_gradient)' } }} />
+        </Backdrop>
       </Styled>
     </>
   );

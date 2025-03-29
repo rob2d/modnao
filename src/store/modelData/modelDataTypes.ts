@@ -87,4 +87,5 @@ export interface ModelDataState {
   textureBufferKey?: string;
   polygonBufferKey?: string;
   loadTexturesState: AsyncState;
+  exportTextureFileState: AsyncState;
 }
