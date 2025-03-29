@@ -23,7 +23,6 @@ const nextConfig = {
     '@mui/system',
     '@mui/icons-material',
     'three',
-    '@thi.ng/k-means',
     '@uidotdev/usehooks',
     'nanoid'
   ],

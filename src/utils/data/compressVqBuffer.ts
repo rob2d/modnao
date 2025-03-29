@@ -1,14 +1,11 @@
-import { kmeans } from '@thi.ng/k-means';
+import { kmeans } from 'ml-kmeans';
 import { rgb565ToRgba8888, rgbaToRgb565 } from '../color-conversions';
 
 const WORD_SIZE = 2;
 const VECTOR_LENGTH = 4;
 
-// eslint-disable-next-line prettier/prettier
 const averageValues = [
-  127, 127, 127, 127,
-  127, 127, 127, 127,
-  127, 127, 127, 127
+  127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127
 ];
 
 /** @param buffer decompressed buffer to compress */
@@ -47,31 +44,24 @@ export default function compressVqBuffer(buffer: Buffer) {
     codewords.push(codeword);
   }
 
-  const clusters = kmeans(256, codewords, { maxIter: 10 });
+  const { clusters, centroids } = kmeans(codewords, 256, { maxIterations: 10 });
   const indexWordMap = new Map<number, number>();
   const codebook: number[][] = [];
 
   //assemble indexes into lookup for writing back
-  clusters.forEach((cluster, clusterIndex: number) => {
+  centroids.forEach((centroid) => {
     const codebookEntry = [];
-
     for (let i = 0; i < 12; i += 3) {
-      codebookEntry.push(
-        cluster.centroid[i],
-        cluster.centroid[i + 1],
-        cluster.centroid[i + 2]
-      );
+      codebookEntry.push(centroid[i], centroid[i + 1], centroid[i + 2]);
     }
-
     codebook.push(codebookEntry);
+  });
 
-    cluster.items.forEach((item: number) => {
-      indexWordMap.set(item, clusterIndex);
-    });
+  clusters.forEach((clusterIndex, itemIndex) => {
+    indexWordMap.set(itemIndex, clusterIndex);
   });
 
   while (codebook.length < 256) {
-
     codebook.push(averageValues);
   }
 
@@ -79,7 +69,6 @@ export default function compressVqBuffer(buffer: Buffer) {
 
   // write initial codebook
   const rgba = { r: 0, g: 0, b: 0, a: 255 };
-  let byteIndex = 0;
   codebook.forEach((codebookEntry) => {
     for (let i = 0; i < 12; i += 3) {
       rgba.r = codebookEntry[i];

@@ -26,7 +26,6 @@ const customJestConfig = {
     // workaround to support non esmodule compiled package:
     // jest-module name mapping will actually roll up packages
     // with name transforms, even if they are accessed the same way
-    kmeans: ['<rootDir>/node_modules/@thi.ng/k-means'],
     uiDotEnv: ['<rootDir>/node_modules/@uidotdev/usehooks'],
     nanoid: ['<rootDir>/node_modules/nanoid'],
 
@@ -45,7 +44,7 @@ const customJestConfig = {
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['<rootDir>/.next/'],
   transformIgnorePatterns: [
-    '<rootDir>/node_modules/((!@thi.ng/k-means)|(!@uidotdev/usehooks)|(!nanoid))'
+    '<rootDir>/node_modules/((!@uidotdev/usehooks)|(!nanoid))'
   ],
   testEnvironment: 'jest-environment-jsdom',
   transform: {
