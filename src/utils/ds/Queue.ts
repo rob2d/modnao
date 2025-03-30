@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 class QueueNode<T> {
   constructor(
     public data: T,
