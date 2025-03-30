@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei';
 import { DoubleSide, FrontSide, Mesh, Texture, Vector3 } from 'three';

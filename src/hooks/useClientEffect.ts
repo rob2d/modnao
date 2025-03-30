@@ -8,7 +8,6 @@ const useClientEffect = (
     if (typeof window !== 'undefined') {
       effect();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 };
 
