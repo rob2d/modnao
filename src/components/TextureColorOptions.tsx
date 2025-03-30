@@ -18,6 +18,7 @@ import {
   useAppSelector
 } from '@/store';
 import NumericSliderInput from './NumericSliderInput';
+import { useDebouncedEffect } from '@/hooks';
 
 const StyledList = styled(List)(
   ({ theme }) =>
@@ -82,6 +83,21 @@ export default function TextureColorOptions({
     const { h, s, l } = editedTextures[textureIndex].hsl;
     setHsl(h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL);
   }, [textureIndex]);
+
+  // keep hsl in sync in case we're in TextureView
+  useDebouncedEffect(
+    () => {
+      const stateHsl = editedTextures?.[textureIndex]?.hsl;
+      if (stateHsl) {
+        const { h, s, l } = stateHsl;
+        if (h !== hsl.h || s !== hsl.s || l !== hsl.l) {
+          setHsl(stateHsl);
+        }
+      }
+    },
+    [editedTextures?.[textureIndex]],
+    150
+  );
 
   const onSetH = useCallback((h: number) => {
     setHsl((prev) => ({ ...prev, h }));
