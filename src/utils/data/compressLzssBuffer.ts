@@ -91,7 +91,6 @@ export default function compressLzssBuffer(buffer: Uint8Array) {
       }
 
       if (length >= sequenceLength) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         sequenceIndex = sequenceNode!.data;
         sequenceLength = length;
       }
