@@ -36,6 +36,7 @@ const Styled = styled('main')(
     }
 
     & .MuiBackdrop-root: {
+      z-index: 1;
       backgroundColor: 'rgba(0, 0, 0, 0.75)'
     }
 
