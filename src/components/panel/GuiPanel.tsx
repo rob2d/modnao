@@ -245,10 +245,10 @@ function clamp(num: number, min: number, max: number) {
   return Math.min(Math.max(num, min), max);
 }
 
-type PanelDragParams = [boolean, RefObject<HTMLElement>];
+type PanelDragParams = [boolean, RefObject<HTMLElement | null>];
 
 const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
-  const resizeHandle = useRef<HTMLElement>(null);
+  const resizeHandle = useRef<HTMLElement | null>(null);
   const [dragMouseXY, isMouseDown, resetMouseTracking] =
     useDragMouseOnEl(resizeHandle);
   const levelAtStart = useRef<number>(viewOptions.guiPanelExpansionLevel);

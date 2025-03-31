@@ -8,7 +8,7 @@ import {
   Typography
 } from '@mui/material';
 import Icon from '@mdi/react';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelSection from './GuiPanelSection';
 import { useCallback, useContext, useMemo } from 'react';
