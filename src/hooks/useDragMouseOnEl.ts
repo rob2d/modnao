@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') {
 }
 
 const useDragMouseOnEl = (
-  ref: React.RefObject<HTMLElement>
+  ref: React.RefObject<HTMLElement | null>
 ): [MouseMovementPos, boolean, () => void] => {
   const [isMouseDown, setMouseDown] = useState(false);
   const [movement, setMovement] = useState<MouseMovementPos>({ x: 0, y: 0 });

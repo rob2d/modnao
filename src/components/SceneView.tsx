@@ -1,5 +1,4 @@
 import {
-  MutableRefObject,
   useCallback,
   useContext,
   useEffect,
@@ -64,7 +63,7 @@ export default function SceneView() {
 
   const [textureMap, setTextureMap] =
     useState<Map<string, { texture: DataTexture; bufferKey: string }>>();
-  const canvasRef = useRef() as MutableRefObject<HTMLCanvasElement>;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewOptions = useContext(ViewOptionsContext);
 
   const dispatch = useAppDispatch();
