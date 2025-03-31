@@ -5,9 +5,9 @@ import {
   ToggleButton,
   ToggleButtonGroup
 } from '@mui/material';
-import Grid from '@mui/material/Grid2'; // Grid version 2
+import Grid from '@mui/material/Grid';
 import GuiPanelSection from './GuiPanelSection';
-import { SyntheticEvent, useCallback, useContext, useMemo } from 'react';
+import { JSX, SyntheticEvent, useCallback, useContext, useMemo } from 'react';
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';

@@ -34,7 +34,7 @@ export default function RenderedPolygon({
     wireframeLineWidth,
     disableBackfaceCulling
   } = viewOptions;
-  const textRef = useRef();
+  const textRef = useRef<Mesh>(null);
   const theme = useTheme();
 
   const { scene: colors } = theme.palette;
@@ -51,7 +51,7 @@ export default function RenderedPolygon({
       const cameraPosition = new Vector3();
       camera.getWorldPosition(cameraPosition);
 
-      const mesh = textRef.current as Mesh;
+      const mesh = textRef.current;
       mesh?.lookAt(cameraPosition);
     }
   });
