@@ -32,7 +32,7 @@ export default function RenderedWireframePolygon({
 
   return (
     <line2 geometry={geometry}>
-      <lineMaterial color={color} linewidth={lineWidth * 0.00025} />
+      <lineMaterial color={color} linewidth={lineWidth * 0.5 + 0.5} />
     </line2>
   );
 }

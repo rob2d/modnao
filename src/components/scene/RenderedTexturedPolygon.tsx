@@ -1,5 +1,5 @@
 import { ViewOptions } from '@/contexts/ViewOptionsContext';
-import { MeshBasicMaterialProps } from '@react-three/fiber';
+import { ThreeElements } from '@react-three/fiber';
 
 type Props = {
   vertexPositions: Float32Array;
@@ -7,7 +7,7 @@ type Props = {
   colors: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
-  materialProps: Partial<MeshBasicMaterialProps>;
+  materialProps: Partial<ThreeElements['meshBasicMaterial']>;
   viewOptions: ViewOptions;
 };
 
@@ -28,38 +28,20 @@ export default function RenderedTexturePolygon({
         {...materialProps}
       />
       <bufferGeometry attach='geometry'>
+        {/* Fixed bufferAttributes */}
         <bufferAttribute
           attach='attributes-position'
-          count={vertexPositions.length / 3}
-          array={vertexPositions}
-          itemSize={3}
+          args={[vertexPositions, 3]}
         />
-        <bufferAttribute
-          attach='attributes-uv'
-          count={uvs.length / 2}
-          array={uvs}
-          itemSize={2}
-        />
-        <bufferAttribute
-          attach='attributes-normal'
-          count={normals.length / 3}
-          array={normals}
-          itemSize={3}
-        />
+        <bufferAttribute attach='attributes-uv' args={[uvs, 2]} />
+        <bufferAttribute attach='attributes-normal' args={[normals, 3]} />
+
         {viewOptions.enableVertexColors ? (
-          <bufferAttribute
-            attach='attributes-color'
-            count={colors.length / 4}
-            array={colors}
-            itemSize={4}
-          />
+          <bufferAttribute attach='attributes-color' args={[colors, 4]} />
         ) : undefined}
-        <bufferAttribute
-          array={indices}
-          attach='index'
-          count={indices.length}
-          itemSize={1}
-        />
+
+        {/* Fixed index buffer */}
+        <bufferAttribute attach='index' args={[indices, 1]} />
       </bufferGeometry>
     </>
   );

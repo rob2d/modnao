@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { JSX, useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,

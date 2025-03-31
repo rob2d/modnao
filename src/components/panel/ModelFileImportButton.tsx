@@ -2,7 +2,7 @@ import { useSupportedFilePicker } from '@/hooks';
 import { useAppDispatch } from '@/store';
 import { showError } from '@/store/errorMessages/errorMessagesSlice';
 import { styled } from '@mui/material/styles';
-import { useCallback } from 'react';
+import { JSX, useCallback } from 'react';
 import GuiPanelButton from './GuiPanelButton';
 import FilesSupportedButton from '../FilesSupportedButton';
 
