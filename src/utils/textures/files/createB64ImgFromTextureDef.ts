@@ -1,3 +1,4 @@
+import 'jimp';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { TextureImageBufferKeys } from '../TextureImageBufferKeys';
 import globalBuffers from '@/utils/data/globalBuffers';
