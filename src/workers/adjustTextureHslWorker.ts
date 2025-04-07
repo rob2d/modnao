@@ -1,4 +1,5 @@
 import { hslToRgb, rgbToHsl } from '@/utils/color-conversions';
+import { sharedBufferFrom } from '@/utils/data';
 import { HslValues } from '@/utils/textures';
 
 export type AdjustTextureHslWorkerPayload = {
@@ -52,9 +53,5 @@ export default async function adjustTextureHslWorker({
     imageData[i + 3] = sourceData[i + 3]; // Alpha (unchanged)
   }
 
-  const sharedBuffer = new SharedArrayBuffer(imageData.byteLength);
-  const sharedBufferView = new Uint8Array(sharedBuffer);
-  sharedBufferView.set(imageData);
-
-  return sharedBuffer;
+  return sharedBufferFrom(imageData);
 }
