@@ -1,9 +1,9 @@
-import { encodeZMortonPosition } from '@/utils/textures/parse';
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
-import { decompressLzssBuffer } from '@/utils/data';
+import encodeZMortonPosition from '@/utils/textures/parse/encodeZMortonPosition';
+import decompressLzssBuffer from '@/utils/data/decompressLzssBuffer';
 import textureFileTypeMap from '@/utils/textures/files/textureFileTypeMap';
-import { LoadTexturesBasePayload } from '@/store/modelData';
-import { rgba8888TargetOps } from '@/utils/color-conversions';
+import { LoadTexturesBasePayload } from '@/store/modelData/modelDataTypes';
+import rgba8888TargetOps from '@/utils/color-conversions/rgba8888TargetOps';
 
 export type LoadTextureFileWorkerResult = {
   texturePixelBuffers: SharedArrayBuffer[];
