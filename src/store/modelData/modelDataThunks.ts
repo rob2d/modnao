@@ -26,7 +26,7 @@ import {
   selectUpdatedTextureDefs
 } from '../selectors';
 import { showError } from '../errorMessages/errorMessagesSlice';
-import { AppState, createAppAsyncThunk } from '../storeTypings';
+import { createAppAsyncThunk } from '../storeTypings';
 import {
   LoadPolygonsPayload,
   LoadTexturesPayload,
@@ -43,131 +43,114 @@ const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
 export const sliceName = 'modelData';
 
+const decompressLzssSection = (
+  section: Buffer | Buffer<ArrayBuffer>,
+  startPointer: number,
+  endPointer?: number
+) => {
+  const compressedBufferSection = new Uint8Array(section).slice(
+    startPointer,
+    endPointer
+  );
+  return [
+    Buffer.from(decompressLzssBuffer(Buffer.from(compressedBufferSection))),
+    compressedBufferSection
+  ] as const;
+};
+
+function sharedBufferFrom(sourceBuffer: Buffer | Buffer<ArrayBuffer>) {
+  const sharedBuffer = new SharedArrayBuffer(sourceBuffer.byteLength);
+  const wBuffer = new Uint8Array(sharedBuffer);
+  wBuffer.set(sourceBuffer);
+
+  return sharedBuffer;
+}
+
+// @TODO modularize image section definitions for declarative loading
 export const loadCharacterPortraitsFile = createAppAsyncThunk(
   `${sliceName}/loadCharacterPortraitWsFile`,
   async (file: File, { dispatch }) => {
+    const PTR_SIZE = 4;
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const startPointer = buffer.readUint32LE(0);
-    const pointers = [startPointer];
-
-    for (let offset = 4; offset < startPointer; offset += 4) {
-      pointers.push(buffer.readUInt32LE(offset));
+    const ogPointers = [buffer.readUInt32LE(0)];
+    for (let i = 1; i < ogPointers[0] / PTR_SIZE; i++) {
+      ogPointers.push(buffer.readUInt32LE(i * PTR_SIZE));
     }
 
-    const uint8Array = new Uint8Array(arrayBuffer);
-    const compressedJpLifebarAssets = uint8Array.slice(
-      pointers[0],
-      pointers[1]
+    const sections: Buffer<ArrayBufferLike>[] = [];
+
+    const [jpLifebar] = decompressLzssSection(
+      buffer,
+      ogPointers[0],
+      ogPointers[1]
     );
-    const jpLifebar = new Uint8Array(
-      await decompressLzssBuffer(Buffer.from(compressedJpLifebarAssets))
-    );
+    sections.push(jpLifebar);
+
     let compressedUsLifebar: Uint8Array | undefined;
     let usLifebar: Uint8Array | undefined;
 
-    const compressedVq1Image = uint8Array.slice(pointers[1], pointers[2]);
-    const vq1Image = decompressVqBuffer(
-      Buffer.from(decompressLzssBuffer(Buffer.from(compressedVq1Image))),
-      256,
-      256
+    const [vq1Lzss] = decompressLzssSection(
+      buffer,
+      ogPointers[1],
+      ogPointers[2]
     );
+    const vq1Image = decompressVqBuffer(vq1Lzss, 256, 256);
+    sections.push(vq1Image);
 
-    const compressedVq2Image = uint8Array.slice(
-      ...[pointers[2], ...(pointers[3] ? [pointers[3]] : [])]
+    const [vq2Lzss, compressedVq2Buffer] = decompressLzssSection(
+      buffer,
+      ogPointers[2],
+      ogPointers?.[3]
     );
+    const vq2Image = decompressVqBuffer(vq2Lzss, 128, 128);
+    sections.push(vq2Image);
 
-    const vq2Image = decompressVqBuffer(
-      Buffer.from(decompressLzssBuffer(Buffer.from(compressedVq2Image))),
-      128,
-      128
-    );
-
-    if (pointers[3]) {
-      compressedUsLifebar = uint8Array.slice(pointers[3]);
-      usLifebar = new Uint8Array(
-        await decompressLzssBuffer(Buffer.from(compressedUsLifebar))
+    if (ogPointers[3]) {
+      [usLifebar, compressedUsLifebar] = decompressLzssSection(
+        buffer,
+        ogPointers[3]
       );
+
+      sections.push(Buffer.from(usLifebar));
     }
 
-    const pointerBuffer = Buffer.alloc(startPointer);
-    pointerBuffer.writeUInt32LE(startPointer, 0);
-    pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
-    pointerBuffer.writeUInt32LE(
-      pointerBuffer.readUInt32LE(4) + vq1Image.length,
-      8
-    );
+    let position = ogPointers[0];
 
-    if (pointers[3] !== undefined) {
-      pointerBuffer.writeUInt32LE(
-        pointerBuffer.readUInt32LE(8) + vq2Image.length,
-        12
-      );
-    }
-
-    let position = startPointer;
-    const decompressedOffsets: number[] = [];
-    decompressedOffsets.push(position);
-
-    position += jpLifebar.length;
-    decompressedOffsets.push(position);
-
-    position += vq1Image.length;
-    decompressedOffsets.push(position);
-
-    if (pointers[3] !== undefined) {
-      position += vq2Image.length;
-      decompressedOffsets.push(position);
-    }
-
-    // rewrite pointers to decompressed offsets
-
-    pointerBuffer.writeUInt32LE(startPointer, 0);
-    pointerBuffer.writeUInt32LE(startPointer + jpLifebar.length, 4);
-    pointerBuffer.writeUInt32LE(
-      startPointer + jpLifebar.length + vq1Image.length,
-      8
-    );
-
-    if (usLifebar) {
-      pointerBuffer.writeUInt32LE(
-        pointerBuffer.readUInt32LE(8) + vq2Image.length,
-        12
-      );
+    const pointerBuffer = Buffer.alloc(ogPointers[0]);
+    for (let i = 0; i < sections.length; i++) {
+      pointerBuffer.writeUint32LE(position, PTR_SIZE * i);
+      position += sections[i].length;
     }
 
     const trailingSection = new Uint8Array(buffer).slice(
-      compressedUsLifebar
-        ? pointers[3] + compressedUsLifebar.length
-        : pointers[2] + compressedVq2Image.length
+      ogPointers[ogPointers.length - 1] +
+        (compressedUsLifebar ?? compressedVq2Buffer).length
     );
 
     const tSectionPointer = usLifebar
-      ? pointerBuffer.readUint32LE(12) + usLifebar.length
-      : pointerBuffer.readUint32LE(8) + vq2Image.length;
+      ? pointerBuffer.readUint32LE(PTR_SIZE * 3) + usLifebar.length
+      : pointerBuffer.readUint32LE(PTR_SIZE * 2) + vq2Image.length;
 
     const tSectionBytes = Buffer.from(new Uint8Array(4));
     tSectionBytes.writeUInt32LE(tSectionPointer, 0);
 
     const decompressedBuffer = Buffer.concat([
       pointerBuffer,
-      jpLifebar,
-      vq1Image,
-      vq2Image,
-      ...(usLifebar ? [usLifebar] : []),
+      ...sections,
       trailingSection,
       tSectionBytes
     ]);
 
-    const sharedBuffer = new SharedArrayBuffer(decompressedBuffer.byteLength);
-    const targetBuffer = new Uint8Array(sharedBuffer);
-    targetBuffer.set(new Uint8Array(decompressedBuffer));
-
+    const sharedBuffer = sharedBufferFrom(decompressedBuffer);
     const textureFileType = 'mvc2-character-portraits';
     const textureDefs = textureShapesMap[textureFileType]
-      .slice(0, pointers.length)
-      .map((d, i) => ({ ...d, baseLocation: decompressedOffsets[i] }));
+      .slice(0, ogPointers.length)
+      .map((d, i) => ({
+        ...d,
+        baseLocation: pointerBuffer.readUint32LE(i * PTR_SIZE)
+      }));
 
     await dispatch(
       loadTextureFile({
@@ -181,35 +164,6 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
   }
 );
 
-function cleanupTextureBuffers(state: AppState) {
-  const { modelData } = state;
-  const textureDefKeys: string[] = modelData.textureDefs
-    .flatMap((d) => [d.bufferKeys.opaque, d.bufferKeys.translucent])
-    .filter(Boolean);
-
-  const textureHistoryKeys: string[] = Object.values(modelData.textureHistory)
-    .flatMap((textureSet) =>
-      textureSet.flatMap((t) => [t.bufferKeys.opaque, t.bufferKeys.translucent])
-    )
-    .filter(Boolean) as string[];
-  const replacedTextureKeys = state.replaceTexture.replacementImage?.bufferKey
-    ? [state.replaceTexture.replacementImage.bufferKey]
-    : [];
-
-  const editedTextureKeys: string[] = Object.values(modelData.editedTextures)
-    .flatMap((t) => [t.bufferKeys?.opaque, t.bufferKeys?.translucent])
-    .filter(Boolean) as string[];
-
-  [
-    ...textureDefKeys,
-    ...textureHistoryKeys,
-    ...replacedTextureKeys,
-    ...editedTextureKeys
-  ].forEach((key) => {
-    globalBuffers.delete(key);
-  });
-}
-
 export const loadPolygonFile = createAppAsyncThunk(
   `${sliceName}/loadPolygonFile`,
   async (file: File, { dispatch }) => {
@@ -222,9 +176,7 @@ export const processPolygonFile = createAppAsyncThunk(
   `${sliceName}/processPolygonFile`,
   async (file: File): Promise<LoadPolygonsPayload> => {
     const fBuffer = await file.arrayBuffer();
-    const buffer = new SharedArrayBuffer(fBuffer.byteLength);
-    const wBuffer = new Uint8Array(buffer);
-    wBuffer.set(new Uint8Array(fBuffer));
+    const buffer = sharedBufferFrom(Buffer.from(fBuffer));
     const { polygonBuffer, ...result } = await ClientThread.run<
       LoadPolygonFileWorkerPayload,
       LoadPolygonFileWorkerResult
@@ -247,7 +199,7 @@ export const loadTextureFile = createAppAsyncThunk(
     const prevPolygonBufferKey = state.modelData.polygonBufferKey;
     const prevTextureBufferKey = state.modelData.textureBufferKey;
 
-    // cleanup texture related buffer
+    // cleanup texture related buffers
     setTimeout(() => {
       dispatch(processTextureFile(payload));
       if (prevTextureBufferKey) {
@@ -261,7 +213,40 @@ export const loadTextureFile = createAppAsyncThunk(
         globalBuffers.delete(prevPolygonBufferKey);
       }
 
-      cleanupTextureBuffers(state);
+      const { modelData } = state;
+      const textureDefKeys: string[] = modelData.textureDefs
+        .flatMap((d) => [d.bufferKeys.opaque, d.bufferKeys.translucent])
+        .filter(Boolean);
+
+      const textureHistoryKeys: string[] = Object.values(
+        modelData.textureHistory
+      )
+        .flatMap((textureSet) =>
+          textureSet.flatMap((t) => [
+            t.bufferKeys.opaque,
+            t.bufferKeys.translucent
+          ])
+        )
+        .filter(Boolean) as string[];
+      const replacedTextureKeys = state.replaceTexture.replacementImage
+        ?.bufferKey
+        ? [state.replaceTexture.replacementImage.bufferKey]
+        : [];
+
+      const editedTextureKeys: string[] = Object.values(
+        modelData.editedTextures
+      )
+        .flatMap((t) => [t.bufferKeys?.opaque, t.bufferKeys?.translucent])
+        .filter(Boolean) as string[];
+
+      [
+        ...textureDefKeys,
+        ...textureHistoryKeys,
+        ...replacedTextureKeys,
+        ...editedTextureKeys
+      ].forEach((key) => {
+        globalBuffers.delete(key);
+      });
     }, 250);
   }
 );
@@ -312,8 +297,8 @@ export const processTextureFile = createAppAsyncThunk(
     ) {
       const fBuffer = await file.arrayBuffer();
       const sharedBuffer = new SharedArrayBuffer(fBuffer.byteLength);
-      const arrayBuffer = new Uint8Array(sharedBuffer);
-      arrayBuffer.set(new Uint8Array(fBuffer));
+      const wBuffer = new Uint8Array(sharedBuffer);
+      wBuffer.set(new Uint8Array(fBuffer));
       buffer = Buffer.from(new Uint8Array(decompressLzssBuffer(sharedBuffer)));
     }
     const textureFileBuffer = new SharedArrayBuffer(buffer.byteLength);
