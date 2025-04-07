@@ -1,5 +1,5 @@
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
-import { decompressLzssBuffer } from '@/utils/data';
+import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import {
   HslValues,
@@ -57,14 +57,6 @@ const decompressLzssSection = (
     compressedBufferSection
   ] as const;
 };
-
-function sharedBufferFrom(sourceBuffer: Buffer | Buffer<ArrayBuffer>) {
-  const sharedBuffer = new SharedArrayBuffer(sourceBuffer.byteLength);
-  const wBuffer = new Uint8Array(sharedBuffer);
-  wBuffer.set(sourceBuffer);
-
-  return sharedBuffer;
-}
 
 // @TODO modularize image section definitions for declarative loading
 export const loadCharacterPortraitsFile = createAppAsyncThunk(
@@ -144,6 +136,7 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
     ]);
 
     const sharedBuffer = sharedBufferFrom(decompressedBuffer);
+
     const textureFileType = 'mvc2-character-portraits';
     const textureDefs = textureShapesMap[textureFileType]
       .slice(0, ogPointers.length)
@@ -296,14 +289,10 @@ export const processTextureFile = createAppAsyncThunk(
       state.modelData.resourceAttribs?.hasLzssTextureFile
     ) {
       const fBuffer = await file.arrayBuffer();
-      const sharedBuffer = new SharedArrayBuffer(fBuffer.byteLength);
-      const wBuffer = new Uint8Array(sharedBuffer);
-      wBuffer.set(new Uint8Array(fBuffer));
+      const sharedBuffer = sharedBufferFrom(fBuffer);
       buffer = Buffer.from(new Uint8Array(decompressLzssBuffer(sharedBuffer)));
     }
-    const textureFileBuffer = new SharedArrayBuffer(buffer.byteLength);
-    const arrayBuffer = new Uint8Array(textureFileBuffer);
-    arrayBuffer.set(new Uint8Array(buffer));
+    const textureFileBuffer = sharedBufferFrom(buffer);
 
     const threadResult = await ClientThread.run<
       LoadTextureFileWorkerPayload,

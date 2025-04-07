@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 import scanForModelPointers from './scanForModelPointers';
+import { sharedBufferFrom } from '@/utils/data';
 
 // @TODO use model generation logic when that exists vs
 // arbitrary stage test files with more methodical approach
@@ -12,8 +13,7 @@ describe('scanForModelPointers', () => {
       path.join(process.cwd(), 'src/__mocks__/STGXXPOL.BIN')
     );
 
-    const buffer = new SharedArrayBuffer(polygonFile.byteLength);
-    new Uint8Array(buffer).set(new Uint8Array(polygonFile));
+    const buffer = sharedBufferFrom(polygonFile);
     const results = scanForModelPointers(buffer);
     expect(results).toMatchSnapshot('scan-model-for-pointer-addresses');
   });

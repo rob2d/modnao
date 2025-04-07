@@ -1,3 +1,4 @@
+import { sharedBufferFrom } from '@/utils/data';
 import compressLzssBuffer from '@/utils/data/compressLzssBuffer';
 import compressVqBuffer from '@/utils/data/compressVqBuffer';
 import padBufferForAlignment from '@/utils/data/padBufferForAlignment';
@@ -110,20 +111,14 @@ export default async function exportTextureFileWorker({
         trailingSection
       ]);
 
-      const sharedBuffer = new SharedArrayBuffer(outputBuffer.length);
-      new Uint8Array(sharedBuffer).set(outputBuffer);
-
-      return sharedBuffer;
+      return sharedBufferFrom(outputBuffer);
     }
     default: {
       const outputBuffer = !isLzssCompressed
         ? new Uint8Array(textureBuffer)
         : compressLzssBuffer(textureBufferView);
 
-      const sharedBuffer = new SharedArrayBuffer(outputBuffer.length);
-      new Uint8Array(sharedBuffer).set(outputBuffer);
-
-      return sharedBuffer;
+      return sharedBufferFrom(outputBuffer);
     }
   }
 }
