@@ -80,9 +80,6 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
     );
     sections.push(jpLifebar);
 
-    let compressedUsLifebar: Uint8Array | undefined;
-    let usLifebar: Uint8Array | undefined;
-
     const [vq1Lzss] = decompressLzssSection(
       buffer,
       ogPointers[1],
@@ -99,12 +96,12 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
     const vq2Image = decompressVqBuffer(vq2Lzss, 128, 128);
     sections.push(vq2Image);
 
-    if (ogPointers[3]) {
-      [usLifebar, compressedUsLifebar] = decompressLzssSection(
-        buffer,
-        ogPointers[3]
-      );
+    const [usLifebar, compressedUsLifebar] =
+      ogPointers.length <= 3
+        ? [undefined, undefined]
+        : decompressLzssSection(buffer, ogPointers[3]);
 
+    if (usLifebar) {
       sections.push(Buffer.from(usLifebar));
     }
 
@@ -121,18 +118,18 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
         (compressedUsLifebar ?? compressedVq2Buffer).length
     );
 
-    const tSectionPointer = usLifebar
-      ? pointerBuffer.readUint32LE(PTR_SIZE * 3) + usLifebar.length
-      : pointerBuffer.readUint32LE(PTR_SIZE * 2) + vq2Image.length;
+    const finalSectionPointer =
+      pointerBuffer.readUint32LE(PTR_SIZE * (sections.length - 1)) +
+      sections[sections.length - 1].length;
 
-    const tSectionBytes = Buffer.from(new Uint8Array(4));
-    tSectionBytes.writeUInt32LE(tSectionPointer, 0);
+    const fsPointerBuffer = Buffer.alloc(4);
+    fsPointerBuffer.writeUint32LE(finalSectionPointer, 0);
 
     const decompressedBuffer = Buffer.concat([
       pointerBuffer,
       ...sections,
       trailingSection,
-      tSectionBytes
+      fsPointerBuffer
     ]);
 
     const sharedBuffer = sharedBufferFrom(decompressedBuffer);
