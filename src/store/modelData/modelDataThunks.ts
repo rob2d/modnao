@@ -328,7 +328,8 @@ export const processTextureFile = createAppAsyncThunk(
       textureBufferKey,
       textureDefs: updatedTextureDefs,
       textureFileType,
-      fileName: file.name
+      fileName: file.name,
+      isLzssCompressed
     };
   }
 );
