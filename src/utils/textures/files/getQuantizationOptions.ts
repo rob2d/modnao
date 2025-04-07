@@ -21,7 +21,7 @@ export default function getQuantizeOptions(
     'vs2-stage-file': undefined,
     'vs2-demo-model': undefined,
     'mvc2-stage-preview': undefined,
-    'mvc2-character-win': undefined
+    'mvc2-character-win': { dithering: false, colors: 256 }
   };
   return optionsMap[textureFileType];
 }
