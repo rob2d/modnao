@@ -25,7 +25,9 @@ export default function Contributors() {
     <div className='app-info-section contributors'>
       <DialogSectionHeader>Contributions</DialogSectionHeader>
       <StyledContent>
-        <Typography variant={'subtitle1'}>Design/Development</Typography>
+        <Typography variant={'subtitle1'}>
+          Design&nbsp;/&nbsp;Dev&nbsp;/&nbsp;Algos
+        </Typography>
         <Typography variant={'body2'}>rob2d</Typography>
         <Typography variant={'subtitle1'}>
           Various Binary Format Details
