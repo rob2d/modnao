@@ -41,6 +41,7 @@ import { NLUITextureDef } from '@/types/NLAbstractions';
 import { useFilePicker } from 'use-file-picker';
 import themeMixins from '@/theming/themeMixins';
 import globalBuffers from '@/utils/data/globalBuffers';
+import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 
 const Styled = styled('div')(
   ({ theme }) => `
@@ -103,7 +104,7 @@ const Styled = styled('div')(
   background-color: ${theme.palette.scene.background};
 }
 
-& .texture-img-container img {
+& .texture-img-container > * {
   z-index: 1;
 }
 
@@ -547,7 +548,14 @@ export default function ReplaceTexture() {
           <div className='original-texture section'>
             <Typography variant='h6'>Texture Origin</Typography>
             <div className='original-texture'>
-              <div className='texture-img-container'></div>
+              <div className='texture-img-container'>
+                <ImageBufferCanvas
+                  rgbaBuffer={originTextureBuffer ?? undefined}
+                  alt='original texture to replace'
+                  width={originalWidth}
+                  height={originalHeight}
+                />
+              </div>
               <div className='origin-metadata'>
                 <Typography variant='subtitle1'>Dimensions</Typography>
                 <Typography variant='body2'>
@@ -590,9 +598,8 @@ export default function ReplaceTexture() {
                   <Img
                     alt='Resulting texture after modifications'
                     src={previewDataUrl}
-                    width={originalWidth}
-                    height={originalHeight}
-                    style={referenceTextureStyle}
+                    width={referenceTextureStyle.width}
+                    height={referenceTextureStyle.height}
                   />
                 )}
               </div>
