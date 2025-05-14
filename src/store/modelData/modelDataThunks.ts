@@ -250,7 +250,8 @@ export const processTextureFile = createAppAsyncThunk(
       textureFileType,
       isLzssCompressed = false,
       textureBuffer,
-      textureDefs: providedTextureDefs
+      textureDefs: providedTextureDefs,
+      resourceAttribs
     }: LoadTexturesPayload,
     { getState, dispatch }
   ): Promise<LoadTexturesResultPayload> => {
@@ -268,7 +269,9 @@ export const processTextureFile = createAppAsyncThunk(
           models: [],
           fileName: undefined,
           polygonBufferKey: undefined,
-          textureDefs: textureDefs
+          textureDefs: textureDefs,
+          textureFileType,
+          resourceAttribs
         }
       });
     } else {
@@ -281,10 +284,7 @@ export const processTextureFile = createAppAsyncThunk(
         : new Uint8Array(await file.arrayBuffer())
     );
 
-    if (
-      isLzssCompressed ||
-      state.modelData.resourceAttribs?.hasLzssTextureFile
-    ) {
+    if (isLzssCompressed || resourceAttribs?.hasLzssTextureFile) {
       const fBuffer = await file.arrayBuffer();
       const sharedBuffer = sharedBufferFrom(fBuffer);
       buffer = Buffer.from(new Uint8Array(decompressLzssBuffer(sharedBuffer)));
@@ -299,7 +299,8 @@ export const processTextureFile = createAppAsyncThunk(
       textureDefs,
       textureFileBuffer,
       isLzssCompressed,
-      textureFileType
+      textureFileType,
+      resourceAttribs
     });
 
     const updatedTextureDefs = structuredClone(textureDefs);
@@ -324,12 +325,15 @@ export const processTextureFile = createAppAsyncThunk(
       threadResult.decompressedTextureBuffer
     );
 
+    resourceAttribs = threadResult.resourceAttribs;
+
     return {
       textureBufferKey,
       textureDefs: updatedTextureDefs,
       textureFileType,
       fileName: file.name,
-      isLzssCompressed
+      isLzssCompressed,
+      resourceAttribs
     };
   }
 );

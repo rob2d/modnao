@@ -135,7 +135,8 @@ const modelDataSlice = createSlice({
           fileName,
           isLzssCompressed,
           textureBufferKey,
-          textureFileType
+          textureFileType,
+          resourceAttribs
         } = payload;
 
         state.loadTexturesState = 'fulfilled';
@@ -148,6 +149,7 @@ const modelDataSlice = createSlice({
         state.textureFileName = fileName;
         state.isLzssCompressed = Boolean(isLzssCompressed);
         state.textureBufferKey = textureBufferKey;
+        state.resourceAttribs = resourceAttribs;
       }
     );
 

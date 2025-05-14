@@ -1,19 +1,25 @@
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import encodeZMortonPosition from '@/utils/textures/parse/encodeZMortonPosition';
 import decompressLzssBuffer from '@/utils/data/decompressLzssBuffer';
-import textureFileTypeMap from '@/utils/textures/files/textureFileTypeMap';
+import textureFileTypeMap, {
+  TextureFileType
+} from '@/utils/textures/files/textureFileTypeMap';
 import { LoadTexturesBasePayload } from '@/store/modelData/modelDataTypes';
 import rgba8888TargetOps from '@/utils/color-conversions/rgba8888TargetOps';
+import resourceAttribMappings from '@/constants/resourceAttribMappings';
+import { ResourceAttribs } from '@/types/ResourceAttribs';
 
 export type LoadTextureFileWorkerResult = {
   texturePixelBuffers: SharedArrayBuffer[];
   decompressedTextureBuffer: SharedArrayBuffer;
+  resourceAttribs?: ResourceAttribs;
 };
 
 export type LoadTextureFileWorkerPayload = LoadTexturesBasePayload & {
   fileName: string;
   textureFileBuffer: SharedArrayBuffer;
   textureDefs: NLUITextureDef[];
+  textureFileType: TextureFileType;
 };
 
 const COLOR_SIZE = 2;
@@ -101,7 +107,9 @@ export default function loadTextureFileWorker({
 
     result = {
       texturePixelBuffers,
-      decompressedTextureBuffer: textureFileBuffer
+      decompressedTextureBuffer: textureFileBuffer,
+      resourceAttribs:
+        resourceAttribs ?? resourceAttribMappings[textureFileType]
     };
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
@@ -128,7 +136,9 @@ export default function loadTextureFileWorker({
     return {
       texturePixelBuffers,
       decompressedTextureBuffer,
-      isLzssCompressed: true
+      isLzssCompressed: true,
+      resourceAttribs:
+        resourceAttribs ?? resourceAttribMappings[textureFileType]
     };
   }
 
