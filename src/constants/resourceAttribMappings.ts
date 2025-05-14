@@ -1,4 +1,5 @@
 import { ResourceAttribs } from '@/types/ResourceAttribs';
+import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 
 const cvs2MenuAssets = Object.fromEntries(
   [
@@ -158,29 +159,42 @@ const cvs2MenuAssets = Object.fromEntries(
       identifier: '30',
       textureDefsHash: 'c7198b21be4ce7efc5f4ef32f07914df7f432ea1'
     }
-  ].map((v) => [
-    v.textureDefsHash,
-    {
-      hasLzssTextureFile: true,
-      ...v,
-      game: 'CVS2',
-      resourceType: 'cvs2-menu',
-      filenamePattern: `^DM${v.identifier}(.mn)?POL.BIN$`,
-      identifier: `0x${v.identifier}`
-    }
-  ])
+  ].map((v) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { textureDefsHash, ...fields } = v;
+    return [
+      v.textureDefsHash,
+      {
+        hasLzssTextureFile: true,
+        ...fields,
+        game: 'CVS2',
+        resourceType: 'cvs2-menu',
+        filenamePattern: `^DM${v.identifier}(.mn)?POL.BIN$`,
+        identifier: `0x${v.identifier}`
+      }
+    ];
+  })
 );
 
-const resourceAttribMappings: Record<string, ResourceAttribs> = {
+type ResourceHashKey = TextureFileType | string;
+const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   ...cvs2MenuAssets,
-  ['f6267bcb211d053d6b21b2e224acafd150854f6c']: {
+  f6267bcb211d053d6b21b2e224acafd150854f6c: {
     game: 'MVC2',
     name: 'Carnival (Night)',
     identifier: '0x0C',
     resourceType: 'mvc2-stage',
     filenamePattern: '^STG0C(.mn)?POL.BIN$',
-    textureDefsHash: 'f6267bcb211d053d6b21b2e224acafd150854f6c',
     hasLzssTextureFile: false
+  },
+  'mvc2-stage-preview': {
+    game: 'MVC2',
+    name: 'Stage Previews',
+    identifier: 'SELSTG',
+    resourceType: 'mvc2-menu',
+    filenamePattern: 'SELSTG(.mn)?TEX.BIN',
+    hasLzssTextureFile: true,
+    textureAspectRatio: 1.33
   }
 } as const;
 
