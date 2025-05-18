@@ -1,12 +1,20 @@
 import clsx from 'clsx';
 import {
+  Box,
+  Button,
+  ButtonGroup,
   Divider,
   IconButton,
   Skeleton,
   styled,
   Typography
 } from '@mui/material';
-import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
+import {
+  mdiAspectRatio,
+  mdiMenuLeftOutline,
+  mdiMenuRightOutline,
+  mdiStretchToPageOutline
+} from '@mdi/js';
 import Icon from '@mdi/react';
 import useViewportSizes from 'use-viewport-sizes';
 import {
@@ -16,6 +24,7 @@ import {
   useTextureReplaceDropzone
 } from '@/hooks';
 import {
+  selectResourceAttribs,
   selectTextureIndex,
   selectUpdatedTextureDefs,
   useAppSelector
@@ -23,9 +32,10 @@ import {
 import themeMixins from '@/theming/themeMixins';
 import TextureColorOptions from './TextureColorOptions';
 import { TextureImageBufferKeys } from '@/utils/textures';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ImageBufferCanvas from './ImageBufferCanvas';
+import { useSelector } from 'react-redux';
 
 const Styled = styled('div')(
   ({ theme }) =>
@@ -41,6 +51,7 @@ const Styled = styled('div')(
     & .main {
       display: grid;
       flex-grow: 1;
+      width: 100%;
       grid-template-columns: min-content auto min-content;
     }
 
@@ -94,6 +105,9 @@ const Styled = styled('div')(
       display: flex;
       align-items: center;
       justify-content: center;
+
+      width: var(--size);
+      height: var(--size);
     }
     
     & .texture-preview > div {
@@ -106,6 +120,10 @@ const Styled = styled('div')(
     & .texture-preview-canvas {
       width: var(--size);
       height: var(--size);
+    }
+
+    & .game-aspect-ratio .texture-preview-canvas {
+      height: calc(var(--size) * var(--aspect-ratio));
     }
 
     & .texture-preview > * {
@@ -145,6 +163,13 @@ export default function TextureView() {
   const size = Math.min(Math.round((vpW - 222) * 0.5), Math.round(vpH - 96));
   const textureIndex = useAppSelector(selectTextureIndex);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+  const resourceAttribs = useSelector(selectResourceAttribs);
+  const hasAspectRatio =
+    typeof resourceAttribs?.textureShapesMap?.[textureIndex]
+      .displayedAspectRatio === 'number';
+
+  /** @TODO: create persistent setting */
+  const [viewInGameRatio, setViewInGameRatio] = useState(true);
 
   const { isDragActive, getDragProps, onSelectNewImageFile } =
     useTextureReplaceDropzone(textureIndex);
@@ -169,23 +194,68 @@ export default function TextureView() {
     [textureBufferKey]
   );
 
+  const textureAspectRatioSelection = useMemo(() => {
+    if (!hasAspectRatio) {
+      return undefined;
+    }
+
+    return (
+      <Box
+        sx={(theme) => ({
+          position: 'absolute',
+          top: theme.spacing(1),
+          right: theme.spacing(2)
+        })}
+      >
+        <ButtonGroup>
+          <Button
+            color='secondary'
+            disabled={viewInGameRatio}
+            onClick={() => setViewInGameRatio(true)}
+          >
+            <Icon path={mdiAspectRatio} size={1} />
+          </Button>
+          <Button
+            color='secondary'
+            disabled={!viewInGameRatio}
+            onClick={() => setViewInGameRatio(false)}
+          >
+            <Icon path={mdiStretchToPageOutline} size={1} />
+          </Button>
+        </ButtonGroup>
+      </Box>
+    );
+  }, [viewInGameRatio, textureIndex, hasAspectRatio]);
+
   return (
     <Styled>
       <div className='main'>
+        {textureAspectRatioSelection}
         <div className='model-nav-button'>
           <IconButton color='primary' {...uiControls.prevButtonProps}>
             <Icon path={mdiMenuLeftOutline} size={2} />
           </IconButton>
         </div>
         <div className='center-section'>
-          <div className='texture-preview' {...getDragProps()}>
+          <div
+            className={clsx(
+              'texture-preview',
+              viewInGameRatio && hasAspectRatio && 'game-aspect-ratio'
+            )}
+            {...getDragProps()}
+            style={
+              {
+                '--size': `${size}px`,
+                '--aspect-ratio':
+                  resourceAttribs?.textureShapesMap?.[textureIndex]
+                    ?.displayedAspectRatio
+              } as React.CSSProperties
+            }
+          >
             {!textureBufferKey ? (
               <Skeleton variant='rectangular' width={size} height={size} />
             ) : (
-              <div
-                className={clsx(isDragActive && 'file-drag-active')}
-                style={{ '--size': `${size}px` } as React.CSSProperties}
-              >
+              <div className={clsx(isDragActive && 'file-drag-active')}>
                 <ImageBufferCanvas
                   alt='texture preview'
                   width={textureDefs[textureIndex].width}

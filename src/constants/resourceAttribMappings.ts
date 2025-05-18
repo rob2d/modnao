@@ -1,4 +1,7 @@
+import { NLUITextureDef } from '@/types/NLAbstractions';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
+import createTextureDef from '@/utils/textures/createTextureDef';
+import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
 
 const cvs2MenuAssets = Object.fromEntries(
   [
@@ -158,29 +161,153 @@ const cvs2MenuAssets = Object.fromEntries(
       identifier: '30',
       textureDefsHash: 'c7198b21be4ce7efc5f4ef32f07914df7f432ea1'
     }
-  ].map((v) => [
-    v.textureDefsHash,
-    {
-      hasLzssTextureFile: true,
-      ...v,
-      game: 'CVS2',
-      resourceType: 'cvs2-menu',
-      filenamePattern: `^DM${v.identifier}(.mn)?POL.BIN$`,
-      identifier: `0x${v.identifier}`
-    }
-  ])
+  ].map((v) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { textureDefsHash, ...fields } = v;
+    return [
+      v.textureDefsHash,
+      {
+        hasLzssTextureFile: true,
+        ...fields,
+        game: 'CVS2',
+        resourceType: 'cvs2-menu',
+        filenamePattern: `^DM${v.identifier}(.mn)?POL.BIN$`,
+        identifier: `0x${v.identifier}`
+      }
+    ];
+  })
 );
 
-const resourceAttribMappings: Record<string, ResourceAttribs> = {
+const mvc2PlFacStructure: Partial<NLUITextureDef>[] = [
+  { width: 64, height: 64 },
+  { width: 256, height: 256 },
+  { width: 128, height: 128 },
+  // may be omitted based on if last pointer exists
+  { width: 64, height: 64 }
+];
+
+const fontTextureArgs: Partial<NLUITextureDef> = {
+  width: 128,
+  height: 128,
+  colorFormat: 'ARGB4444',
+  colorFormatValue: 2
+};
+
+type ResourceHashKey = TextureFileType | string;
+const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   ...cvs2MenuAssets,
-  ['f6267bcb211d053d6b21b2e224acafd150854f6c']: {
+  f6267bcb211d053d6b21b2e224acafd150854f6c: {
     game: 'MVC2',
     name: 'Carnival (Night)',
     identifier: '0x0C',
     resourceType: 'mvc2-stage',
     filenamePattern: '^STG0C(.mn)?POL.BIN$',
-    textureDefsHash: 'f6267bcb211d053d6b21b2e224acafd150854f6c',
-    hasLzssTextureFile: false
+    hasLzssTextureFile: true
+  },
+  'mvc2-stage-preview': {
+    game: 'MVC2',
+    name: 'Stage Previews',
+    identifier: 'SELSTG',
+    resourceType: 'mvc2-menu',
+    filenamePattern: '^SELSTG(.mn)?TEX.BIN',
+    hasLzssTextureFile: true,
+    textureShapesMap: [
+      ...[...Array(18).keys()].map((i) =>
+        createTextureDef({
+          width: 128,
+          height: 128,
+          colorFormat: 'RGB565',
+          colorFormatValue: 1,
+          baseLocation: i * 128 * 128 * 2,
+          displayedAspectRatio: 1.33
+        })
+      ),
+      createTextureDef({
+        width: 64,
+        height: 64,
+        colorFormat: 'ARGB4444',
+        colorFormatValue: 2,
+        baseLocation: 18 * 128 * 128 * 2,
+        displayedAspectRatio: 1.33
+      })
+    ]
+  },
+  'mvc2-character-portraits': {
+    game: 'MVC2',
+    name: 'Character Portraits',
+    identifier: 'PLXXFAC',
+    resourceType: 'mvc2-menu',
+    filenamePattern: 'PLXXFAC(.mn)?TEX.BIN',
+    hasLzssTextureFile: false,
+    textureShapesMap: mvc2PlFacStructure.map((t, i) =>
+      createTextureDef({
+        ...t,
+        colorFormat: 'RGB565',
+        colorFormatValue: 1,
+        baseLocation: 0,
+        displayedAspectRatio: {
+          0: undefined,
+          1: 0.6,
+          2: undefined,
+          3: undefined
+        }[i]
+      })
+    )
+  },
+  'mvc2-selection-textures': {
+    game: 'MVC2',
+    name: 'Selection Textures',
+    identifier: 'SELTEX',
+    resourceType: 'mvc2-menu',
+    filenamePattern: 'SELTEX(.mn)?TEX.BIN',
+    hasLzssTextureFile: false,
+    textureShapesMap: [...Array(23).keys()].map((i) =>
+      createTextureDef({ baseLocation: 256 * 256 * 2 * i })
+    )
+  },
+  'mvc2-end-file': {
+    game: 'MVC2',
+    name: 'Ending Sequence Images',
+    identifier: 'ENDTEX',
+    resourceType: 'mvc2-menu',
+    filenamePattern: 'END(DC|NM)TEX(.mn)?TEX.BIN',
+    hasLzssTextureFile: true,
+    textureShapesMap: [
+      ...[...Array(16).keys()].map((i) =>
+        createTextureDef({
+          width: 256,
+          height: 256,
+          colorFormat: 'RGB565',
+          colorFormatValue: 1,
+          baseLocation: i * 256 * 256 * 2
+        })
+      ),
+      createTextureDef({
+        ...fontTextureArgs,
+        baseLocation: 256 * 256 * 16 * 2
+      }),
+      createTextureDef({
+        ...fontTextureArgs,
+        baseLocation: 256 * 256 * 16 * 2 + 128 * 128 * 2
+      })
+    ]
+  },
+  'mvc2-character-win': {
+    game: 'MVC2',
+    name: 'Character Win Portraits',
+    identifier: 'PLXXWIN',
+    resourceType: 'mvc2-menu',
+    filenamePattern: 'PLXXWIN(.mn)?TEX.BIN',
+    hasLzssTextureFile: true,
+    textureShapesMap: [
+      createTextureDef({
+        width: 256,
+        height: 256,
+        colorFormat: 'ARGB4444',
+        colorFormatValue: 2,
+        displayedAspectRatio: 1.33
+      })
+    ]
   }
 } as const;
 

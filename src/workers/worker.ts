@@ -35,6 +35,7 @@ export type WorkerEvent =
       type: 'exportTextureDefRegion';
       payload: ExportTextureDefRegionWorkerPayload;
     };
+
 addEventListener('message', async ({ data }: MessageEvent<WorkerEvent>) => {
   const { type, payload } = data;
   switch (type) {

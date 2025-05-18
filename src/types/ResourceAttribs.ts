@@ -1,4 +1,5 @@
 import { ResourceType } from './ResourceType';
+import { NLUITextureDef } from './NLAbstractions';
 
 /**
  * information pertaining to the file resource
@@ -14,7 +15,8 @@ export type ResourceAttribs = {
   resourceType: ResourceType;
   /** patterns that are accepted to identify this file */
   filenamePattern: string;
-  /** texture definition hash that identifies this file */
-  textureDefsHash: string;
+
   hasLzssTextureFile: boolean;
+
+  textureShapesMap?: NLUITextureDef[];
 };
