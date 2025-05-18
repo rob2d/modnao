@@ -1,11 +1,9 @@
-import { PaletteMode, Theme } from '@mui/material';
 import { CSSProperties } from 'react';
-import { Roboto_Mono } from 'next/font/google';
+import { PaletteMode, Theme } from '@mui/material';
+import localFont from 'next/font/local';
 
-export const robotoMono = Roboto_Mono({
-  display: 'block',
-  subsets: ['latin'],
-  weight: ['300', '400', '700']
+export const robotoMono = localFont({
+  src: [{ path: '../../public/fonts/RobotoMono-VariableFont_wght.ttf' }]
 });
 
 const modes: PaletteMode[] = ['dark', 'light'];

@@ -9,6 +9,7 @@ import {
   processPolygonFile,
   processTextureFile
 } from './modelDataThunks';
+import { textureFileTypeMap } from '@/utils/textures';
 
 export const initialModelDataState: ModelDataState = {
   models: [],
@@ -135,7 +136,8 @@ const modelDataSlice = createSlice({
           fileName,
           isLzssCompressed,
           textureBufferKey,
-          textureFileType
+          textureFileType,
+          resourceAttribs
         } = payload;
 
         state.loadTexturesState = 'fulfilled';
@@ -148,6 +150,9 @@ const modelDataSlice = createSlice({
         state.textureFileName = fileName;
         state.isLzssCompressed = Boolean(isLzssCompressed);
         state.textureBufferKey = textureBufferKey;
+        if (!textureFileTypeMap[payload.textureFileType].polygonMapped) {
+          state.resourceAttribs = resourceAttribs;
+        }
       }
     );
 

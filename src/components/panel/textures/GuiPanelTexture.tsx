@@ -197,7 +197,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
 
   useEffect(() => {
     (async () => {
-      if (!rgbaBuffer || !width || !height) {
+      if (!rgbaBuffer?.length || !width || !height) {
         return;
       }
       const imageData = new ImageData(
