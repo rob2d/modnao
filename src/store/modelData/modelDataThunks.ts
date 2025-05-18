@@ -1,11 +1,7 @@
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import {
-  HslValues,
-  textureFileTypeMap,
-  textureShapesMap
-} from '@/utils/textures';
+import { HslValues, textureFileTypeMap } from '@/utils/textures';
 import { ClientThread } from '@/utils/threads';
 import globalBuffers from '@/utils/data/globalBuffers';
 import {
@@ -38,6 +34,7 @@ import {
   ExportTextureFileWorkerResult
 } from '@/workers/exportTextureFileWorker';
 import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefRegionWorker';
+import resourceAttribMappings from '@/constants/resourceAttribMappings';
 
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
@@ -135,7 +132,9 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
     const sharedBuffer = sharedBufferFrom(decompressedBuffer);
 
     const textureFileType = 'mvc2-character-portraits';
-    const textureDefs = textureShapesMap[textureFileType]
+    const textureDefs = (
+      resourceAttribMappings[textureFileType].textureShapesMap ?? []
+    )
       .slice(0, ogPointers.length)
       .map((d, i) => ({
         ...d,
@@ -191,7 +190,14 @@ export const loadTextureFile = createAppAsyncThunk(
 
     // cleanup texture related buffers
     setTimeout(() => {
-      dispatch(processTextureFile(payload));
+      dispatch(
+        processTextureFile({
+          ...payload,
+          resourceAttribs:
+            payload.resourceAttribs ??
+            resourceAttribMappings[payload.textureFileType]
+        })
+      );
       if (prevTextureBufferKey) {
         globalBuffers.delete(prevTextureBufferKey);
       }
@@ -260,7 +266,10 @@ export const processTextureFile = createAppAsyncThunk(
     let textureDefs: NLUITextureDef[];
 
     if (!textureFileTypeMap[textureFileType].polygonMapped) {
-      textureDefs = providedTextureDefs || textureShapesMap[textureFileType];
+      textureDefs =
+        (providedTextureDefs?.length
+          ? providedTextureDefs
+          : resourceAttribs?.textureShapesMap) ?? [];
 
       // clear polygons if texture headers aren't from poly file
       dispatch({
@@ -269,7 +278,7 @@ export const processTextureFile = createAppAsyncThunk(
           models: [],
           fileName: undefined,
           polygonBufferKey: undefined,
-          textureDefs: textureDefs,
+          textureDefs,
           textureFileType,
           resourceAttribs
         }
@@ -284,7 +293,12 @@ export const processTextureFile = createAppAsyncThunk(
         : new Uint8Array(await file.arrayBuffer())
     );
 
-    if (isLzssCompressed || resourceAttribs?.hasLzssTextureFile) {
+    const isPolyMapped = textureFileTypeMap[textureFileType].polygonMapped;
+    const isDirectResourceLzssd = isPolyMapped
+      ? state.modelData.resourceAttribs
+      : resourceAttribs?.hasLzssTextureFile;
+
+    if (isLzssCompressed || isDirectResourceLzssd) {
       const fBuffer = await file.arrayBuffer();
       const sharedBuffer = sharedBufferFrom(fBuffer);
       buffer = Buffer.from(new Uint8Array(decompressLzssBuffer(sharedBuffer)));
