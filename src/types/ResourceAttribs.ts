@@ -1,4 +1,5 @@
 import { ResourceType } from './ResourceType';
+import { NLUITextureDef } from './NLAbstractions';
 
 /**
  * information pertaining to the file resource
@@ -17,5 +18,5 @@ export type ResourceAttribs = {
 
   hasLzssTextureFile: boolean;
 
-  textureAspectRatio?: number;
+  textureShapesMap?: NLUITextureDef[];
 };
