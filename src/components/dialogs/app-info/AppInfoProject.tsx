@@ -15,9 +15,7 @@ export default function AppInfoProject({ url, title, body }: Props) {
           <Typography variant='subtitle1' textAlign='left'>
             {title}
           </Typography>
-          <Typography variant='body2' color='text.secondary' textAlign='left'>
-            {body}
-          </Typography>
+          {body}
         </CardContent>
       </ButtonBase>
     </Card>
