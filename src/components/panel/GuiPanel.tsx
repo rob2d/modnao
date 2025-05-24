@@ -187,6 +187,10 @@ const StyledPaper = styled(Paper)(
       flex-basis: 50%;
     }
 
+    &.textures.expanded .texture-export-options > .export-texture-images {
+      flex-basis: 100%;
+    }
+
     & .MuiIconButton-root.model-nav-button {
       width: 28px;
     }
