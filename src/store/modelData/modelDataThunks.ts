@@ -1,7 +1,11 @@
 import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import { HslValues, textureFileTypeMap } from '@/utils/textures';
+import {
+  HslValues,
+  TextureFileType,
+  textureFileTypeMap
+} from '@/utils/textures';
 import { ClientThread } from '@/utils/threads';
 import globalBuffers from '@/utils/data/globalBuffers';
 import {
@@ -59,6 +63,7 @@ const decompressLzssSection = (
 export const loadCharacterPortraitsFile = createAppAsyncThunk(
   `${sliceName}/loadCharacterPortraitWsFile`,
   async (file: File, { dispatch }) => {
+    let textureFileType: TextureFileType = 'mvc2-character-portraits';
     const PTR_SIZE = 4;
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -70,19 +75,21 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
 
     const sections: Buffer<ArrayBufferLike>[] = [];
 
-    const [jpLifebar] = decompressLzssSection(
+    textureFileType = 'cvs2-character-portraits';
+
+    const [section1] = decompressLzssSection(
       buffer,
       ogPointers[0],
       ogPointers[1]
     );
-    sections.push(jpLifebar);
+    sections.push(section1);
 
     const [vq1Lzss] = decompressLzssSection(
       buffer,
       ogPointers[1],
       ogPointers[2]
     );
-    const vq1Image = decompressVqBuffer(vq1Lzss, 256, 256);
+    const vq1Image = vq1Lzss;
     sections.push(vq1Image);
 
     const [vq2Lzss, compressedVq2Buffer] = decompressLzssSection(
@@ -90,7 +97,7 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
       ogPointers[2],
       ogPointers?.[3]
     );
-    const vq2Image = decompressVqBuffer(vq2Lzss, 128, 128);
+    const vq2Image = vq2Lzss;
     sections.push(vq2Image);
 
     const [usLifebar, compressedUsLifebar] =
@@ -131,7 +138,6 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
 
     const sharedBuffer = sharedBufferFrom(decompressedBuffer);
 
-    const textureFileType = 'mvc2-character-portraits';
     const textureDefs = (
       resourceAttribMappings[textureFileType].textureShapesMap ?? []
     )
@@ -141,15 +147,25 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
         baseLocation: pointerBuffer.readUint32LE(i * PTR_SIZE)
       }));
 
-    await dispatch(
-      loadTextureFile({
-        file,
-        textureFileType,
-        textureDefs,
-        textureBuffer: sharedBuffer,
-        isLzssCompressed: false
-      })
-    );
+    try {
+      await dispatch(
+        loadTextureFile({
+          file,
+          textureFileType,
+          textureDefs,
+          textureBuffer: sharedBuffer,
+          isLzssCompressed: false
+        })
+      );
+    } catch (error) {
+      console.error('Error loading texture file:', error);
+      dispatch(
+        showError({
+          title: 'Error loading texture file',
+          message: 'Failed to load texture file.'
+        })
+      );
+    }
   }
 );
 

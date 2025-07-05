@@ -24,6 +24,13 @@ export default class ClientThread {
     }
   }
 
+  set onerror(onerror: typeof Worker.prototype.onerror) {
+    if (this.thread) {
+      this.thread.onerror = onerror;
+      throw new Error();
+    }
+  }
+
   postMessage(
     message: unknown
   ): ReturnType<typeof Worker.prototype.postMessage> {

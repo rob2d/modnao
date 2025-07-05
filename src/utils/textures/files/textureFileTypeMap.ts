@@ -1,5 +1,6 @@
 export type TextureFileType =
   | 'mvc2-stage-preview'
+  | 'cvs2-character-portraits'
   | 'mvc2-character-portraits'
   | 'mvc2-character-win'
   | 'mvc2-selection-textures'
@@ -22,10 +23,15 @@ export type TextureFileTypeMeta = {
 };
 
 const textureFileTypeMap: Record<TextureFileType, TextureFileTypeMeta> = {
+  'cvs2-character-portraits': {
+    polygonMapped: false,
+    regexp: /^PL[0-9A-Z]{2}_FAC(.mn)?.BIN$/i,
+    oobReferencable: false
+  },
   'mvc2-character-portraits': {
     polygonMapped: false,
     regexp: /^PL[0-9A-Z]{2}_FAC(.mn)?.BIN$/i,
-    oobReferencable: true
+    oobReferencable: false
   },
 
   'mvc2-character-win': {

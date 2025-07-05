@@ -186,6 +186,14 @@ const mvc2PlFacStructure: Partial<NLUITextureDef>[] = [
   { width: 64, height: 64 }
 ];
 
+const cvs2PlFacStructure: Partial<NLUITextureDef>[] = [
+  { width: 128, height: 128, colorFormat: 'ARGB1555' },
+  { width: 256, height: 256, colorFormat: 'ARGB1555' },
+  { width: 64, height: 64, colorFormat: 'RGB565' },
+  { width: 256, height: 256, colorFormat: 'ARGB1555' },
+  { width: 128, height: 128, colorFormat: 'ARGB4444' }
+];
+
 const fontTextureArgs: Partial<NLUITextureDef> = {
   width: 128,
   height: 128,
@@ -250,6 +258,28 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
           1: 0.6,
           2: undefined,
           3: undefined
+        }[i]
+      })
+    )
+  },
+  'cvs2-character-portraits': {
+    game: 'CVS2',
+    name: 'Character Portraits',
+    identifier: 'PLXXFAC',
+    resourceType: 'cvs2-menu',
+    filenamePattern: 'PLXXFAC(.mn)?TEX.BIN',
+    hasLzssTextureFile: false,
+    textureShapesMap: cvs2PlFacStructure.map((t, i) =>
+      createTextureDef({
+        colorFormat: 'RGB565',
+        ...t,
+        colorFormatValue: 1,
+        baseLocation: 0,
+        displayedAspectRatio: {
+          0: undefined,
+          1: undefined,
+          2: undefined,
+          3: 0.5
         }[i]
       })
     )

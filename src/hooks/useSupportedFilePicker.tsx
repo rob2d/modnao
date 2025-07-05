@@ -151,7 +151,8 @@ export const handleFileInput = async (
   }
 
   switch (textureFileType) {
-    case 'mvc2-character-portraits': {
+    case 'mvc2-character-portraits':
+    case 'cvs2-character-portraits': {
       dispatch(loadCharacterPortraitsFile(selectedTextureFile));
       break;
     }
