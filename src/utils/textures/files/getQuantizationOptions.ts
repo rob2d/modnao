@@ -9,7 +9,9 @@ export default function getQuantizeOptions(
   textureFileType: TextureFileType,
   width: number
 ): QuantizeOptions | undefined {
-  const optionsMap: Record<TextureFileType, QuantizeOptions | undefined> = {
+  const optionsMap: Partial<
+    Record<TextureFileType, QuantizeOptions | undefined>
+  > = {
     'mvc2-character-portraits': {
       dithering: false,
       colors: width === 64 ? 44 : 112
