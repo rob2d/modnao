@@ -3,7 +3,13 @@ import saveAs from 'file-saver';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { useSceneContext } from '@/contexts/SceneContext';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import { selectModelIndex, useAppSelector } from '@/store';
+import {
+  selectHasLoadedTextureFile,
+  selectModelIndex,
+  useAppDispatch,
+  useAppSelector
+} from '@/store';
+import { showError } from '@/store/errorMessages';
 
 async function rotateDataUri(dataURI: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -41,22 +47,60 @@ type GLTFImage = {
   uri: string;
 };
 
+/**
+ * Downloads a scene as a GLTF file;
+ * This was somewhat hacky, due to a request from a very niche
+ * use-case of porting to MVC3 -- not original/main feature of
+ * this app - hence literally rendering the scene and then output it to a GLTF.
+ * R3F has a convenient export function once we've rendered so it didn't
+ * make sense not to agree to this request.
+ *
+ * @param allModels whether we are exporting all models
+ * @returns
+ */
 export default function useSceneGLTFFileDownloader(allModels: boolean) {
-  const { renderAllModels, setRenderAllModels } =
-    useContext(ViewOptionsContext);
+  const dispatch = useAppDispatch();
+  const {
+    renderAllModels,
+    setRenderAllModels,
+    meshDisplayMode,
+    setMeshDisplayMode
+  } = useContext(ViewOptionsContext);
   const { scene } = useSceneContext();
   const modelIndex = useAppSelector(selectModelIndex);
+  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const polygonFileName =
     useAppSelector((s) => s.modelData.polygonFileName) || '';
 
   const onDownloadSceneFile = useCallback(async () => {
+    const prevMeshDisplayMode = meshDisplayMode;
+    // must be rendering in mesh display mode for GLTF to render textures
+
+    if (!scene) {
+      dispatch(
+        showError({
+          title: 'Cannot export GLTF',
+          message: 'no scene instantiated to get GLTF file'
+        })
+      );
+      return;
+    }
+
+    if (!hasLoadedTextureFile) {
+      dispatch(
+        showError({
+          title: 'Cannot export GLTF',
+          message: 'no texture file loaded to export GLTF'
+        })
+      );
+      return;
+    }
+
+    setMeshDisplayMode('textured');
     if (allModels) {
       setRenderAllModels(true);
-      await new Promise((r) => setTimeout(r, 100));
     }
-    if (!scene) {
-      throw new Error('no scene instantiated to get GLTF file');
-    }
+    await new Promise((r) => setTimeout(r, 100));
 
     const output = (await exporter.parseAsync(scene)) as {
       images: GLTFImage[];
@@ -83,7 +127,15 @@ export default function useSceneGLTFFileDownloader(allModels: boolean) {
 
     await new Promise((r) => setTimeout(r, 100));
     setRenderAllModels(false);
-  }, [scene, allModels, renderAllModels, setRenderAllModels]);
+    setMeshDisplayMode(prevMeshDisplayMode);
+  }, [
+    scene,
+    allModels,
+    renderAllModels,
+    setRenderAllModels,
+    meshDisplayMode,
+    setMeshDisplayMode
+  ]);
 
   return onDownloadSceneFile;
 }

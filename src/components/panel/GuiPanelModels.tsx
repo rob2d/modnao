@@ -245,7 +245,7 @@ export default function GuiPanelModels() {
           </GuiPanelButton>
           <GuiPanelButton
             tooltip={
-              'Export a .gltf file representing *all* viewable model' +
+              'Export a .gltf file representing *all* viewable model ' +
               'meshes and textures to import into Maya or Blender.'
             }
             onClick={onExportAllToGLTF}
