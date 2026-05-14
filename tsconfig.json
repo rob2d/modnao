@@ -33,12 +33,13 @@
     "**/*.ts",
     "**/*.tsx",
     "types.d.ts",
-    "./jest.setup.mjs"
+    "./jest.setup.mjs",
+    "src/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"
   ],
-  "typeroots": [
+  "typeRoots": [
     "./node_modules/@types",
     "./src/types"
   ]
