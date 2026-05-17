@@ -38,7 +38,8 @@ import {
   SRGBColorSpace,
   Texture,
   UnsignedByteType,
-  Vector2
+  Vector2,
+  WebGLRenderer
 } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
 import globalBuffers from '@/utils/data/globalBuffers';
@@ -190,6 +191,10 @@ export default function SceneView() {
     ]
   );
 
+  const onSceneCreated = useCallback(({ gl }: { gl: WebGLRenderer }) => {
+    gl.outputColorSpace = SRGBColorSpace;
+  }, []);
+
   return (
     <Canvas
       resize={canvasResizeParams}
@@ -197,6 +202,7 @@ export default function SceneView() {
       frameloop='demand'
       style={canvasStyle}
       ref={canvasRef}
+      onCreated={onSceneCreated}
     >
       <Selection
         enabled={

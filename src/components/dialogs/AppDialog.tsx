@@ -26,7 +26,7 @@ const Dialogs: Record<DialogType, FC> = {
 export default function AppDialog() {
   const dispatch = useAppDispatch();
   const dialogType = useAppSelector((state) => state.dialogs.dialogShown);
-  const Dialog = dialogType ? Dialogs[dialogType] : () => <></>;
+  const Dialog = dialogType ? Dialogs[dialogType] : null;
   const onClose = useCallback(() => {
     switch (dialogType) {
       // user must explicitly close dialog via content
@@ -49,7 +49,7 @@ export default function AppDialog() {
       maxWidth='xl'
     >
       <DialogContent data-testid='app-dialog'>
-        <Dialog />
+        {Dialog ? <Dialog /> : null}
       </DialogContent>
     </StyledDialog>
   );

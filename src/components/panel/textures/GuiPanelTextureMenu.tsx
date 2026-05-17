@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import 'jimp';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
@@ -7,7 +7,6 @@ import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
 import { Divider, styled, Tooltip } from '@mui/material';
 import TextureColorOptions from '../../TextureColorOptions';
-import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
 import { useTextureOptions } from '@/hooks';
 
@@ -50,26 +49,6 @@ export default function GuiPanelTextureMenu({
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
-  // @TODO: extract translucency for use in global context
-  // so this can be used with "Download All Textures" functionality
-
-  // when menu is open, toggle translucent download
-  // when hotkey is pressed
-  const translucentHotkeyPressed = useKeyPress({ targetKey: 't' });
-  const [dlAsTranslucent, setDlAsTranslucent] = useState(() => false);
-
-  useEffect(() => {
-    if (open && translucentHotkeyPressed) {
-      setDlAsTranslucent(!dlAsTranslucent);
-    }
-  }, [open && translucentHotkeyPressed]);
-
-  useEffect(() => {
-    if (!open && dlAsTranslucent) {
-      setDlAsTranslucent(false);
-    }
-  }, [dlAsTranslucent && !open]);
 
   const handleClick = useCallback((event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

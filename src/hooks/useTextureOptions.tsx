@@ -16,11 +16,11 @@ import {
   mdiFileReplace,
   mdiFileUndo
 } from '@mdi/js';
-import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import saveAs from 'file-saver';
 import globalBuffers from '@/utils/data/globalBuffers';
+import useKeyPressEffect from './useKeyPressEffect';
 
 function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const {
@@ -48,7 +48,7 @@ export default function useTextureOptions(
   pixelBufferKeys: TextureImageBufferKeys,
   onReplaceImageFile: (file: File | SharedArrayBuffer) => void,
   handleClose: () => void,
-  disableFunctionality = false,
+  ignoreKeyboardFunctions = false,
   onSelectOption?: () => void
 ) {
   const dispatch = useAppDispatch();
@@ -56,22 +56,20 @@ export default function useTextureOptions(
   const textureFileName = useAppSelector(selectTextureFileName);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
 
-  // when menu is open, toggle translucent download
-  // when hotkey is pressed
-  const translucentHotkeyPressed = useKeyPress({ targetKey: 't' });
-  const [dlAsTranslucent, setDlAsTranslucent] = useState(() => false);
+  // when menu is open, toggle translucent download as hotkey is pressed
+  const [wantsTranslucentDownload, setWantsTranslucentDownload] = useState(
+    () => false
+  );
 
-  useEffect(() => {
-    if (!disableFunctionality && translucentHotkeyPressed) {
-      setDlAsTranslucent(!dlAsTranslucent);
-    }
-  }, [!disableFunctionality && translucentHotkeyPressed]);
+  useKeyPressEffect(
+    't',
+    () => {
+      setWantsTranslucentDownload((prev) => !prev);
+    },
+    { disabled: ignoreKeyboardFunctions }
+  );
 
-  useEffect(() => {
-    if (disableFunctionality && dlAsTranslucent) {
-      setDlAsTranslucent(false);
-    }
-  }, [dlAsTranslucent && disableFunctionality]);
+  const dlAsTranslucent = !ignoreKeyboardFunctions && wantsTranslucentDownload;
 
   const textureHistory = useAppSelector(
     (s) => s.modelData.textureHistory[textureIndex]
@@ -144,6 +142,7 @@ export default function useTextureOptions(
     [
       pixelBufferKeys,
       dlAsTranslucent,
+      wantsTranslucentDownload,
       textureIndex,
       textureHistory,
       openFileSelector,

@@ -1,10 +1,8 @@
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import themes from '@/theming/themes';
 import { createTheme, ScenePalette, Theme, useMediaQuery } from '@mui/material';
 import { ThemeOptions } from '@mui/material/styles';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-
-let hasInitialized = false;
 
 const setupThemeOptions = (
   isDarkMode: boolean,
@@ -27,25 +25,13 @@ const setupThemeOptions = (
 
 export default function useUserTheme() {
   const viewOptions = useContext(ViewOptionsContext);
-  const { scenePalette, themeKey: lightOrDark } = viewOptions;
+  const { scenePalette, themeKey } = viewOptions;
   const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const [themeApplied, setThemeApplied] = useState<Theme>(
-    createTheme(setupThemeOptions(isDarkMode, scenePalette))
+
+  const themeApplied = useMemo<Theme>(
+    () => createTheme(setupThemeOptions(isDarkMode, scenePalette ?? {})),
+    [scenePalette, themeKey, isDarkMode]
   );
-
-  useLayoutEffect(() => {
-    if (!hasInitialized) {
-      hasInitialized = true;
-      return;
-    }
-
-    setThemeApplied(
-      setupThemeOptions(
-        lightOrDark !== undefined ? lightOrDark === 'dark' : isDarkMode,
-        scenePalette
-      )
-    );
-  }, [isDarkMode, scenePalette, lightOrDark]);
 
   return themeApplied;
 }
