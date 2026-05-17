@@ -72,12 +72,12 @@ export const selectEditedTextures = (s: AppState) => s.modelData.editedTextures;
 export const selectUpdatedTextureDefs = createSelector(
   selectTextureDefs,
   selectEditedTextures,
-  (textureDefs, bufferKeyEntriesEntries): typeof textureDefs => {
+  (textureDefs, bufferKeyEntriesEntries): NLUITextureDef[] => {
     const returnTextures = [...textureDefs];
     Object.entries(bufferKeyEntriesEntries).forEach(
       ([index, { bufferKeys }]) => {
         const i = Number.parseInt(index);
-        const entry = { ...returnTextures[i] };
+        const entry = { ...returnTextures[i] } as NLUITextureDef;
         entry.bufferKeys = {
           ...entry.bufferKeys,
           ...bufferKeys

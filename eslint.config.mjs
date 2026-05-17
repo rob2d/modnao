@@ -1,5 +1,5 @@
 import { defineConfig } from 'eslint/config';
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import prettier from 'eslint-plugin-prettier';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,8 +18,8 @@ export default defineConfig([
   {
     extends: [
       ...nextCoreWebVitals,
-      ...compat.extends("plugin:@typescript-eslint/recommended"),
-      ...compat.extends("plugin:prettier/recommended")
+      ...compat.extends('plugin:@typescript-eslint/recommended'),
+      ...compat.extends('plugin:prettier/recommended')
     ],
 
     plugins: {
