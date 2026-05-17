@@ -9,14 +9,7 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import {
-  FocusEventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { FocusEventHandler, useCallback, useMemo, useRef } from 'react';
 
 const StyledListItem = styled(ListItem)(
   ({ theme }) =>
@@ -87,28 +80,19 @@ export default function NumericSliderInput({
   onChange
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [inputValue, setInputValue] = useState(() => `${value}`);
-  useEffect(() => {
-    if (value !== Number.parseInt(inputValue)) {
-      setInputValue(`${value}`);
-    }
-  }, [value, inputValue]);
-
-  useEffect(() => {
-    if (inputRef.current && inputValue !== inputRef.current.value) {
-      inputRef.current.value = inputValue;
-    }
-  }, [inputValue]);
 
   const onChangeTextField: FocusEventHandler<HTMLInputElement> = useCallback(
     (event) => {
       let nextValue = Number.parseInt(event.target.value);
+
       if (!Number.isNaN(nextValue) && nextValue !== value) {
         nextValue = Math.min(max, Math.max(min, nextValue));
         onChange(nextValue);
       }
 
-      setInputValue(event.target.value);
+      if (inputRef.current) {
+        inputRef.current.value = `${Number.isNaN(nextValue) ? value : nextValue}`;
+      }
     },
     [onChange, value, min, max]
   );
@@ -150,9 +134,11 @@ export default function NumericSliderInput({
       </div>
       <div className='input-and-reset'>
         <TextField
+          key={value}
           color='secondary'
           size='small'
           type='text'
+          defaultValue={value}
           slotProps={slotProps}
           className='input'
           onBlur={onChangeTextField}

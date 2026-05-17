@@ -130,6 +130,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
   const viewOptions = useContext(ViewOptionsContext);
+  const isNotPolygonViewMode = contentViewMode !== 'polygons';
 
   const uvClipPaths = useMemo<ClipPath[]>(() => {
     if (
@@ -169,7 +170,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     selected && mesh?.polygons,
     selected && mesh?.textureWrappingFlags,
     polygonIndex,
-    contentViewMode !== 'polygons'
+    isNotPolygonViewMode
   ]);
 
   const { getDragProps, isDragActive, onSelectNewImageFile } =

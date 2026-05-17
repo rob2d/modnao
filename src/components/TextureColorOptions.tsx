@@ -1,4 +1,4 @@
-import { JSX, useCallback, useEffect, useState } from 'react';
+import { JSX, useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import {
   Button,
@@ -55,6 +55,42 @@ const DEFAULT_HSL = {
   l: 0
 };
 
+function TextureColorButtonOption({
+  tooltip,
+  onClick,
+  label,
+  disabled
+}: {
+  tooltip: string;
+  onClick: () => void;
+  label: JSX.Element | string;
+  disabled?: boolean;
+}) {
+  const button = (
+    <Button
+      onClick={onClick}
+      color='secondary'
+      size='small'
+      variant='outlined'
+      fullWidth
+      disabled={disabled}
+    >
+      {label}
+    </Button>
+  );
+  return (
+    <ListItem>
+      {disabled ? (
+        button
+      ) : (
+        <Tooltip title={tooltip} placement='left-start'>
+          {button}
+        </Tooltip>
+      )}
+    </ListItem>
+  );
+}
+
 export default function TextureColorOptions({
   textureIndex,
   variant = 'menu'
@@ -65,24 +101,17 @@ export default function TextureColorOptions({
   const dispatch = useAppDispatch();
   const textureDefs = useAppSelector(selectTextureDefs);
   const editedTextures = useAppSelector(selectEditedTextures);
-  const [hsl, setHsl] = useState<HslValues>(() => {
-    if (!editedTextures?.[textureIndex]?.hsl) {
+  const editedTexture = editedTextures?.[textureIndex];
+  const baseHsl = useMemo(() => {
+    if (!editedTexture?.hsl) {
       return DEFAULT_HSL;
     }
 
-    const { h, s, l } = editedTextures[textureIndex].hsl;
-    return h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL;
-  });
+    const { h, s, l } = editedTexture.hsl;
+    return h || s || l ? editedTexture.hsl : DEFAULT_HSL;
+  }, [editedTexture]);
 
-  useEffect(() => {
-    if (!editedTextures?.[textureIndex]?.hsl) {
-      setHsl(DEFAULT_HSL);
-      return;
-    }
-
-    const { h, s, l } = editedTextures[textureIndex].hsl;
-    setHsl(h || s || l ? editedTextures[textureIndex].hsl : DEFAULT_HSL);
-  }, [textureIndex]);
+  const [hsl, setHsl] = useState<HslValues>(() => baseHsl);
 
   // keep hsl in sync in case we're in TextureView
   useDebouncedEffect(
@@ -95,7 +124,7 @@ export default function TextureColorOptions({
         }
       }
     },
-    [editedTextures?.[textureIndex]],
+    [editedTexture],
     150
   );
 
@@ -125,46 +154,7 @@ export default function TextureColorOptions({
     ) {
       dispatch(adjustTextureHsl({ hsl, textureIndex }));
     }
-  }, [hsl, textureIndex]);
-
-  const ButtonOption = useCallback(
-    ({
-      tooltip,
-      onClick,
-      label,
-      disabled
-    }: {
-      tooltip: string;
-      onClick: () => void;
-      label: JSX.Element | string;
-      disabled?: boolean;
-    }) => {
-      const button = (
-        <Button
-          onClick={onClick}
-          color='secondary'
-          size='small'
-          variant='outlined'
-          fullWidth
-          disabled={disabled}
-        >
-          {label}
-        </Button>
-      );
-      return (
-        <ListItem>
-          {disabled ? (
-            button
-          ) : (
-            <Tooltip title={tooltip} placement='left-start'>
-              {button}
-            </Tooltip>
-          )}
-        </ListItem>
-      );
-    },
-    []
-  );
+  }, [hsl, textureDefs]);
 
   const hslSliders = (
     <>
@@ -199,7 +189,7 @@ export default function TextureColorOptions({
   );
 
   const buttons = (
-    <ButtonOption
+    <TextureColorButtonOption
       tooltip='Apply color changes to all loaded textures'
       onClick={onApplyToAll}
       label={<>Apply to All</>}

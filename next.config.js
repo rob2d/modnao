@@ -17,6 +17,7 @@ const nextConfig = {
       }
     ];
   },
+  reactCompiler: true,
   reactStrictMode: true,
   transpilePackages: [
     '@mui/material',

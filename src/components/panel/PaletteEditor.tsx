@@ -109,6 +109,10 @@ export default function PaletteEditor() {
     palette: { scene: scenePalette }
   } = useTheme();
 
+  const [pickerAnchorEl, setPickerAnchorEl] = useState<
+    (EventTarget & HTMLButtonElement) | null
+  >(() => null);
+
   const viewOptions = useContext(ViewOptionsContext);
 
   const [buttonsKey, setPaletteKey] = useState<keyof ScenePalette | undefined>(
@@ -134,10 +138,6 @@ export default function PaletteEditor() {
     },
     [scenePalette, buttonsKey]
   );
-
-  const [pickerAnchorEl, setPickerAnchorEl] = useState<
-    (EventTarget & HTMLButtonElement) | null
-  >(() => null);
 
   const colorBoxStyles = useMemo(
     () =>
