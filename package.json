@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@emotion/server": "^11.11.0",
+    "@vercel/speed-insights": "^2.0.0",
     "ml-kmeans": "^6.0.0",
     "next-redux-wrapper": "^8.1.0",
     "stream-browserify": "^3.0.0",

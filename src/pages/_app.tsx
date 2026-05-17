@@ -7,6 +7,7 @@ import { wrapper } from '@/store';
 import { ViewOptionsContextProvider } from '@/contexts/ViewOptionsContext';
 import { SceneContextProvider } from '@/contexts/SceneContext';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Provider } from 'react-redux';
 
 const clientSideEmotionCache = createEmotionCache();
@@ -42,6 +43,7 @@ export default function App({ Component, ...theseProps }: ThisAppProps) {
                 : 'development'
             }
           />
+          {process.env.NODE_ENV === 'production' ? <SpeedInsights /> : null}
         </SceneContextProvider>
       </ViewOptionsContextProvider>
     </CacheProvider>
