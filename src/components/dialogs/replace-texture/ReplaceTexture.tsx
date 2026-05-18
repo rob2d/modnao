@@ -14,7 +14,6 @@ import {
   mdiRotateRight
 } from '@mdi/js';
 import Icon from '@mdi/react';
-import { nanoid } from 'nanoid';
 import {
   Button,
   Checkbox,
@@ -347,21 +346,6 @@ export default function ReplaceTexture() {
       })())();
   }, [replacementImage]);
 
-  const processedUpdateId = useMemo(
-    () => nanoid(),
-    [
-      imageDataUrl,
-      originalWidth,
-      originalHeight,
-      originTextureBuffer,
-      preserveOriginAlpha,
-      zoom,
-      rotation,
-      flip,
-      croppedAreaPixels
-    ]
-  );
-
   useDebouncedEffect(
     () => {
       if (!croppedAreaPixels) {
@@ -369,7 +353,6 @@ export default function ReplaceTexture() {
       }
       (async () => {
         //@TODO: revisit/optimize this logic so debounce time can be decreased
-
         const nextCroppedImage =
           (await cropImage(imageDataUrl, croppedAreaPixels, rotation, flip)) ||
           '';
@@ -398,7 +381,17 @@ export default function ReplaceTexture() {
         }
       })();
     },
-    [processedUpdateId],
+    [
+      imageDataUrl,
+      originalWidth,
+      originalHeight,
+      originTextureBuffer,
+      preserveOriginAlpha,
+      zoom,
+      rotation,
+      flip,
+      croppedAreaPixels
+    ],
     200
   );
 
