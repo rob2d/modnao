@@ -295,7 +295,7 @@ export const processTextureFile = createAppAsyncThunk(
 
     const isPolyMapped = textureFileTypeMap[textureFileType].polygonMapped;
     const isDirectResourceLzssd = isPolyMapped
-      ? state.modelData.resourceAttribs
+      ? state.modelData.resourceAttribs?.hasLzssTextureFile
       : resourceAttribs?.hasLzssTextureFile;
 
     if (isLzssCompressed || isDirectResourceLzssd) {

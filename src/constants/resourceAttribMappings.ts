@@ -202,7 +202,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: '0x0C',
     resourceType: 'mvc2-stage',
     filenamePattern: '^STG0C(.mn)?POL.BIN$',
-    hasLzssTextureFile: true
+    hasLzssTextureFile: false
   },
   'mvc2-stage-preview': {
     game: 'MVC2',
