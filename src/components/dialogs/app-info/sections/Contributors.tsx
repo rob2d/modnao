@@ -36,10 +36,12 @@ export default function Contributors() {
           VincentNL, egregiousguy, zocker-160, bankbank, TVIndustries,
           mountainmanjed
         </Typography>
-        <Typography variant={'subtitle1'}>User Testing & Feedback</Typography>
+        <Typography variant={'subtitle1'}>
+          User Testing & Useful Feedback
+        </Typography>
         <Typography variant={'body2'}>
           Magnetro2K, Paxtez, DJ Clayface, Toan, Blindfire604, derek (ateam),
-          ONTortita, tengu
+          ONTortita, tengu, ViolinKen, lethalmonk6
         </Typography>
       </StyledContent>
     </div>
