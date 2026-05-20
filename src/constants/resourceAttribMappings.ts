@@ -162,7 +162,6 @@ const cvs2MenuAssets = Object.fromEntries(
       textureDefsHash: 'c7198b21be4ce7efc5f4ef32f07914df7f432ea1'
     }
   ].map((v) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { textureDefsHash, ...fields } = v;
     return [
       v.textureDefsHash,

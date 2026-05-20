@@ -3,7 +3,6 @@ import { NLUITextureDef } from '@/types/NLAbstractions';
 import { TextureImageBufferKeys } from '../TextureImageBufferKeys';
 import globalBuffers from '@/utils/data/globalBuffers';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const { Jimp } = globalThis as any;
 
 export default async function createImgFromTextureDef({

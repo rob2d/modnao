@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { ReactNode, useCallback, useMemo } from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
 import { ScenePalette, useMediaQuery } from '@mui/material';

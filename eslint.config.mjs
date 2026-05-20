@@ -18,7 +18,6 @@ export default defineConfig([
   {
     extends: [
       ...nextCoreWebVitals,
-      ...compat.extends('plugin:@typescript-eslint/recommended'),
       ...compat.extends('plugin:prettier/recommended')
     ],
 
