@@ -168,7 +168,7 @@ export default function PaletteEditor() {
             </ButtonBase>
           </Tooltip>
         ))}
-        <Tooltip title='Reset or toggle light/dark theme'>
+        <Tooltip title='Reset or toggle light/dark scene theme'>
           <IconButton onClick={viewOptions.toggleLightDarkTheme}>
             <Icon path={mdiThemeLightDark} size={1} />
           </IconButton>
