@@ -198,7 +198,12 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
 
   useEffect(() => {
     (async () => {
-      if (!rgbaBuffer?.length || !width || !height) {
+      if (
+        !rgbaBuffer?.length ||
+        !width ||
+        !height ||
+        rgbaBuffer.length !== width * height * 4
+      ) {
         return;
       }
       const imageData = new ImageData(
@@ -206,10 +211,11 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
         width,
         height
       );
+
       const bitmap = await createImageBitmap(imageData);
       setSrcTextureBitmap(bitmap);
     })();
-  }, [rgbaBuffer]);
+  }, [rgbaBuffer, width, height]);
 
   const imgCanvasRef = useRef<HTMLCanvasElement>(null);
 
