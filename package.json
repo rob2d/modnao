@@ -22,8 +22,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "ml-kmeans": "^7.0.0",
     "next-redux-wrapper": "^8.1.0",
-    "stream-browserify": "^3.0.0",
-    "yargs": "^17.7.1"
+    "stream-browserify": "^3.0.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.29.5",
