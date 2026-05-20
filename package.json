@@ -18,7 +18,9 @@
     "test:snapshots": "jest --updateSnapshot"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
     "@emotion/server": "^11.11.0",
+    "@mui/material-nextjs": "^9.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "ml-kmeans": "^7.0.0",
     "next-redux-wrapper": "^8.1.0",
@@ -87,7 +89,6 @@
     "react-redux": "^9.3.0",
     "three": "^0.184.0",
     "typescript": "^5.8.2",
-    "use-debounce": "^10.1.1",
     "use-file-picker": "^2.1.2",
     "use-viewport-sizes": "^0.8.2"
   },

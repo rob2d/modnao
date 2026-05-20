@@ -1,6 +1,5 @@
 import { ThemeProvider } from '@mui/material/styles';
-import { CacheProvider, EmotionCache } from '@emotion/react';
-import createEmotionCache from '../createEmotionCache';
+import { AppCacheProvider } from '@mui/material-nextjs/v13-pagesRouter';
 import type { AppProps } from 'next/app';
 import useUserTheme from '@/theming/useUserTheme';
 import { wrapper } from '@/store';
@@ -10,10 +9,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Provider } from 'react-redux';
 
-const clientSideEmotionCache = createEmotionCache();
-interface ThisAppProps extends AppProps {
-  emotionCache?: EmotionCache;
-}
+type ThisAppProps = AppProps;
 
 const ThemedApp = ({ Component, ...props }: ThisAppProps) => {
   const theme = useUserTheme();
@@ -26,11 +22,10 @@ const ThemedApp = ({ Component, ...props }: ThisAppProps) => {
 };
 
 export default function App({ Component, ...theseProps }: ThisAppProps) {
-  const { emotionCache = clientSideEmotionCache } = theseProps;
   const { store, props } = wrapper.useWrappedStore(theseProps);
 
   return (
-    <CacheProvider value={emotionCache}>
+    <AppCacheProvider {...theseProps}>
       <ViewOptionsContextProvider>
         <SceneContextProvider>
           <Provider store={store}>
@@ -46,6 +41,6 @@ export default function App({ Component, ...theseProps }: ThisAppProps) {
           {process.env.NODE_ENV === 'production' ? <SpeedInsights /> : null}
         </SceneContextProvider>
       </ViewOptionsContextProvider>
-    </CacheProvider>
+    </AppCacheProvider>
   );
 }
