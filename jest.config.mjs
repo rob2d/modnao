@@ -39,13 +39,8 @@ const customJestConfig = {
     // Handle module aliases
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  setupFilesAfterEnv: ['@testing-library/jest-dom'],
-  // Add more setup options before each test is run
-  // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.mjs'],
   testPathIgnorePatterns: ['<rootDir>/.next/'],
-  transformIgnorePatterns: [
-    '<rootDir>/node_modules/((!@uidotdev/usehooks)|(!nanoid))'
-  ],
   testEnvironment: 'jest-environment-jsdom',
   transform: {
     // Use babel-jest to transpile tests with the next/babel preset

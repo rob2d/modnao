@@ -25,6 +25,9 @@ const nextConfig = {
     '@mui/icons-material',
     'three',
     '@uidotdev/usehooks',
+    'ml-distance-euclidean',
+    'ml-kmeans',
+    'ml-nearest-vector',
     'nanoid'
   ],
   modularizeImports: {

@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import NumericSliderInput from './NumericSliderInput';
 
@@ -16,7 +16,7 @@ describe('NumericSliderInput', () => {
       />
     );
 
-    const element = await screen.findByRole('spinbutton');
+    const element = screen.getByRole('spinbutton');
     expect(element).toBeInTheDocument();
   });
 
@@ -33,12 +33,14 @@ describe('NumericSliderInput', () => {
       />
     );
 
-    const input = await screen.findByRole('spinbutton');
+    const input = screen.getByRole('spinbutton');
     expect(input).toHaveValue(0);
   });
 
   it('calls onChange when input is updated', async () => {
     const onChangeHandler = jest.fn();
+    const user = userEvents.setup();
+
     render(
       <NumericSliderInput
         min={-180}
@@ -51,13 +53,11 @@ describe('NumericSliderInput', () => {
       />
     );
 
-    const input = await screen.findByRole('spinbutton');
+    const input = screen.getByRole('spinbutton');
 
-    await act(async () => {
-      await userEvents.type(input, '180');
-      input.blur();
+    await user.type(input, '180');
+    await user.tab();
 
-      expect(onChangeHandler).toHaveBeenCalledTimes(1);
-    });
+    expect(onChangeHandler).toHaveBeenCalledTimes(1);
   });
 });
