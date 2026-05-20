@@ -64,7 +64,6 @@
   "devDependencies": {
     "@babel/preset-env": "^7.29.5",
     "@emotion/server": "^11.11.0",
-    "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
