@@ -1,4 +1,3 @@
-import 'jimp';
 import {
   revertTextureImage,
   selectTextureFileName,

@@ -1,9 +1,7 @@
-import 'jimp';
+import { Jimp } from 'jimp';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { TextureImageBufferKeys } from '../TextureImageBufferKeys';
 import globalBuffers from '@/utils/data/globalBuffers';
-
-const { Jimp } = globalThis as any;
 
 export default async function createImgFromTextureDef({
   textureDef,
@@ -20,11 +18,11 @@ export default async function createImgFromTextureDef({
 
   const pixels = globalBuffers.get(bufferKey);
 
-  const image = await Jimp.read({
+  const image = Jimp.fromBitmap({
     data: pixels,
     width: textureDef.width,
     height: textureDef.height
   });
 
-  return (await image.getBase64Async(Jimp.MIME_PNG)) as string;
+  return image.getBase64('image/png');
 }

@@ -71,7 +71,7 @@
     "image-js": "^0.36.1",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "jimp": "^0.22.12",
+    "jimp": "^1.6.1",
     "jszip": "^3.10.1",
     "nanoid": "^5.1.11",
     "next": "16.2.6",
