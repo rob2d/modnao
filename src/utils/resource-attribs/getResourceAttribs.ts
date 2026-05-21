@@ -1,14 +1,20 @@
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 
+const filenameOnlyMappings = Object.values(resourceAttribMappings).filter(
+  (attribs) => attribs.allowFileNameOnlyMatch
+);
+
 export default function getResourceAttribs(hash: string, fileName: string) {
-  if (!resourceAttribMappings[hash]) {
-    return undefined;
+  const hashEntry = resourceAttribMappings[hash];
+
+  const foundResource =
+    hashEntry && new RegExp(hashEntry.filenamePattern, 'i').test(fileName);
+
+  if (foundResource) {
+    return hashEntry;
   }
 
-  const hasResourceAttribs = new RegExp(
-    resourceAttribMappings[hash].filenamePattern,
-    'i'
-  ).test(fileName);
-
-  return hasResourceAttribs ? resourceAttribMappings[hash] : undefined;
+  return filenameOnlyMappings.find((attribs) =>
+    new RegExp(attribs.filenamePattern, 'i').test(fileName)
+  );
 }

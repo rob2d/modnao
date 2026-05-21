@@ -18,5 +18,7 @@ export type ResourceAttribs = {
 
   hasLzssTextureFile: boolean;
 
+  allowFileNameOnlyMatch?: boolean;
+
   textureShapesMap?: NLUITextureDef[];
 };
