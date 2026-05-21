@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid';
 import DialogSectionHeader from '../DialogSectionHeader';
 import clsx from 'clsx';
@@ -30,8 +30,9 @@ const rows = [
     filenameFormat: 'DM{NN}TEX.BIN',
     filenameExample: 'DM01TEX.BIN',
     description: 'Demo/menu texture',
+    hasIssues: true,
     notes:
-      'Must be loaded with corresponding POL.BIN file. A few of these files use VQ image-compression on images which is not yet supported. These will appear as tiny garbled sections but can be safely edited/re-saved for non VQ areas.'
+      'Must be loaded with corresponding POL.BIN file. Parts of a few specific files use VQ image-compression on images which is not yet supported. These will appear as tiny garbled sections followed by transparency, but textures without VQ can be safely edited.'
   },
   {
     title: 'Marvel vs Capcom 2',
@@ -102,27 +103,6 @@ const rows = [
   }
 ].map((r, id) => ({ ...r, id }));
 
-const Styled = styled('div')(
-  ({ theme: { palette } }) => `
-    & {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
-
-    & .MuiDataGrid-row {
-      position: relative;
-    }
-
-    & .MuiDataGrid-cell.has-issues, & .MuiDataGrid-cell.has-issues:hover {
-      background-color: ${palette.warningBackground};
-    }
-
-    & .MuiDataGrid-footerContainer {
-      display: none;
-    }`
-);
-
 const redIssueCellClassName = (params: GridCellParams) =>
   clsx(params.row.hasIssues ? 'has-issues' : '');
 
@@ -162,7 +142,29 @@ const GET_AUTO_ROW_HEIGHT = () => 'auto' as const;
 
 export default function FileSupportInfo() {
   return (
-    <Styled>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        '--DataGrid-hasScrollY': 1,
+        '& .data-grid-container': {
+          overflowY: 'auto'
+        },
+        '& .MuiDataGrid-row': {
+          position: 'relative'
+        },
+
+        '& .MuiDataGrid-cell.has-issues, & .MuiDataGrid-cell.has-issues:hover':
+          {
+            backgroundColor: (t) => t.palette.warningBackground
+          },
+
+        '& .MuiDataGrid-footerContainer': {
+          display: 'none'
+        }
+      }}
+    >
       <DialogSectionHeader>Supported Files</DialogSectionHeader>
       <div className='data-grid-container'>
         <DataGrid
@@ -172,6 +174,6 @@ export default function FileSupportInfo() {
           className='data-grid'
         />
       </div>
-    </Styled>
+    </Box>
   );
 }
