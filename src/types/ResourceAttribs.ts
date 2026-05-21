@@ -16,6 +16,8 @@ export type ResourceAttribs = {
   /** patterns that are accepted to identify this file */
   filenamePattern: string;
 
+  textureDefsHash?: string;
+
   hasLzssTextureFile: boolean;
 
   allowFileNameOnlyMatch?: boolean;

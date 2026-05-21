@@ -1,7 +1,7 @@
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 
 const filenameOnlyMappings = Object.values(resourceAttribMappings).filter(
-  (attribs) => attribs.allowFileNameOnlyMatch
+  (attribs) => attribs.allowFileNameOnlyMatch || attribs.textureDefsHash
 );
 
 export default function getResourceAttribs(hash: string, fileName: string) {
@@ -14,7 +14,9 @@ export default function getResourceAttribs(hash: string, fileName: string) {
     return hashEntry;
   }
 
-  return filenameOnlyMappings.find((attribs) =>
-    new RegExp(attribs.filenamePattern, 'i').test(fileName)
+  return filenameOnlyMappings.find(
+    (attribs) =>
+      (!attribs.textureDefsHash || attribs.textureDefsHash === hash) &&
+      new RegExp(attribs.filenamePattern, 'i').test(fileName)
   );
 }
