@@ -4,7 +4,7 @@ import decompressLzssBuffer from '@/utils/data/decompressLzssBuffer';
 import textureFileTypeMap, {
   TextureFileType
 } from '@/utils/textures/files/textureFileTypeMap';
-import { LoadTexturesBasePayload } from '@/store/modelData/modelDataTypes';
+import { LoadTexturesBasePayload } from '@/store/model-data/modelDataTypes';
 import rgba8888TargetOps from '@/utils/color-conversions/rgba8888TargetOps';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import { ResourceAttribs } from '@/types/ResourceAttribs';

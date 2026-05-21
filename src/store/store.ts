@@ -1,10 +1,10 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
 import { dialogsSlice } from './dialogs';
-import { objectViewerSlice } from './objectViewer';
-import modelDataSlice from './modelData/modelDataSlice';
-import { replaceTextureSlice } from './replaceTexture';
-import { errorMessagesSlice } from './errorMessages';
+import { objectViewerSlice } from './object-viewer';
+import modelDataSlice from './model-data/modelDataSlice';
+import { replaceTextureSlice } from './replace-texture';
+import { errorMessagesSlice } from './error-messages';
 import { AppState, AppStore } from './storeTypings';
 
 export const rootReducer = combineReducers({

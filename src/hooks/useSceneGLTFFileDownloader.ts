@@ -9,7 +9,7 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { showError } from '@/store/errorMessages';
+import { showError } from '@/store/error-messages';
 
 async function rotateDataUri(dataURI: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {

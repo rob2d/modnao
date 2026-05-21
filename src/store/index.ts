@@ -1,10 +1,10 @@
 export * from './store';
 export * from './selectors';
 export * from './storeTypings';
-export { default as objectViewerSlice } from './objectViewer/objectViewerSlice';
-export * from './objectViewer/objectViewerSlice';
-export * from './replaceTexture/replaceTextureSlice';
-export * from './modelData';
+export { default as objectViewerSlice } from './object-viewer/objectViewerSlice';
+export * from './object-viewer/objectViewerSlice';
+export * from './replace-texture/replaceTextureSlice';
+export * from './model-data';
 export * from './dialogs';
-export * from './modelData/modelDataSlice';
+export * from './model-data/modelDataSlice';
 export * from '../utils/threads/WorkerThreadPool';

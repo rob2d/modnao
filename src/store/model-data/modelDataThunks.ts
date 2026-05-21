@@ -21,7 +21,7 @@ import {
   selectTextureFileType,
   selectUpdatedTextureDefs
 } from '../selectors';
-import { showError } from '../errorMessages/errorMessagesSlice';
+import { showError } from '../error-messages/errorMessagesSlice';
 import { createAppAsyncThunk } from '../storeTypings';
 import {
   LoadPolygonsPayload,

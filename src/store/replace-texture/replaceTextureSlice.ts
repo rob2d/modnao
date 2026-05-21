@@ -2,7 +2,7 @@ import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import dialogsSlice, { closeDialog } from '../dialogs/dialogsSlice';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
-import { replaceTextureImage } from '../modelData';
+import { replaceTextureImage } from '../model-data';
 import { AppThunk, createAppAsyncThunk } from '../storeTypings';
 import { ReplaceTextureState } from './replaceTextureTypes';
 import globalBuffers from '@/utils/data/globalBuffers';
