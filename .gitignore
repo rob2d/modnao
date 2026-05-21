@@ -40,3 +40,6 @@ next-env.d.ts
 
 # copilot/local gh settings
 .github
+
+# local file samples for RE experiments
+.tmp
