@@ -106,7 +106,7 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
 
     const pointerBuffer = Buffer.alloc(ogPointers[0]);
     for (let i = 0; i < sections.length; i++) {
-      pointerBuffer.writeUint32LE(position, PTR_SIZE * i);
+      pointerBuffer.writeUInt32LE(position, PTR_SIZE * i);
       position += sections[i].length;
     }
 
@@ -116,11 +116,11 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
     );
 
     const finalSectionPointer =
-      pointerBuffer.readUint32LE(PTR_SIZE * (sections.length - 1)) +
+      pointerBuffer.readUInt32LE(PTR_SIZE * (sections.length - 1)) +
       sections[sections.length - 1].length;
 
     const fsPointerBuffer = Buffer.alloc(4);
-    fsPointerBuffer.writeUint32LE(finalSectionPointer, 0);
+    fsPointerBuffer.writeUInt32LE(finalSectionPointer, 0);
 
     const decompressedBuffer = Buffer.concat([
       pointerBuffer,
@@ -138,7 +138,7 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
       .slice(0, ogPointers.length)
       .map((d, i) => ({
         ...d,
-        baseLocation: pointerBuffer.readUint32LE(i * PTR_SIZE)
+        baseLocation: pointerBuffer.readUInt32LE(i * PTR_SIZE)
       }));
 
     await dispatch(
@@ -264,8 +264,9 @@ export const processTextureFile = createAppAsyncThunk(
     const state = getState();
 
     let textureDefs: NLUITextureDef[];
+    const isPolyMapped = textureFileTypeMap[textureFileType].polygonMapped;
 
-    if (!textureFileTypeMap[textureFileType].polygonMapped) {
+    if (!isPolyMapped) {
       textureDefs =
         (providedTextureDefs?.length
           ? providedTextureDefs
@@ -284,7 +285,9 @@ export const processTextureFile = createAppAsyncThunk(
         }
       });
     } else {
-      textureDefs = state.modelData.textureDefs;
+      textureDefs =
+        state.modelData.resourceAttribs?.textureShapesMap ??
+        state.modelData.textureDefs;
     }
 
     let buffer: Uint8Array = new Uint8Array(
@@ -293,7 +296,6 @@ export const processTextureFile = createAppAsyncThunk(
         : new Uint8Array(await file.arrayBuffer())
     );
 
-    const isPolyMapped = textureFileTypeMap[textureFileType].polygonMapped;
     const isDirectResourceLzssd = isPolyMapped
       ? state.modelData.resourceAttribs?.hasLzssTextureFile
       : resourceAttribs?.hasLzssTextureFile;

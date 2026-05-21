@@ -16,11 +16,11 @@ export default function compressVqBuffer(buffer: Buffer) {
 
   for (let i = 0; i < buffer.length; i += VECTOR_LENGTH * WORD_SIZE) {
     const w1 = buffer.readUInt16LE(i);
-    const w2 = buffer.length > i + 2 ? buffer.readUint16LE(i + WORD_SIZE) : 0;
+    const w2 = buffer.length > i + 2 ? buffer.readUInt16LE(i + WORD_SIZE) : 0;
     const w3 =
-      buffer.length > i + 4 ? buffer.readUint16LE(i + 2 * WORD_SIZE) : 0;
+      buffer.length > i + 4 ? buffer.readUInt16LE(i + 2 * WORD_SIZE) : 0;
     const w4 =
-      buffer.length > i + 6 ? buffer.readUint16LE(i + 3 * WORD_SIZE) : 0;
+      buffer.length > i + 6 ? buffer.readUInt16LE(i + 3 * WORD_SIZE) : 0;
     const c1 = rgb565ToRgba8888(w1);
     const c2 = rgb565ToRgba8888(w2);
     const c3 = rgb565ToRgba8888(w3);

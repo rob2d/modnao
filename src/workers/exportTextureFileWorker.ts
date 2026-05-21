@@ -37,7 +37,7 @@ export default async function exportTextureFileWorker({
       const buffer = Buffer.alloc(textureBufferView.length);
       textureBufferView.copy(buffer);
 
-      const startPointer = buffer.readUint32LE(0);
+      const startPointer = buffer.readUInt32LE(0);
       const pointers = [startPointer];
 
       for (let offset = 4; offset < startPointer; offset += 4) {
