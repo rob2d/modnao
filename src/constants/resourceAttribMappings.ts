@@ -288,6 +288,32 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
       createTextureDef({ baseLocation: 256 * 256 * 2 * i })
     )
   },
+  'mvc2-font-file': {
+    game: 'MVC2',
+    name: 'Font Textures',
+    identifier: 'FONT',
+    resourceType: 'mvc2-menu',
+    filenamePattern: '^FONT(.mn)?.BIN',
+    hasLzssTextureFile: false,
+    textureShapesMap: [
+      createTextureDef({
+        width: 256,
+        height: 128,
+        colorFormat: 'ARGB1555',
+        colorFormatValue: 0,
+        type: 13,
+        baseLocation: 0x40
+      }),
+      createTextureDef({
+        width: 64,
+        height: 64,
+        colorFormat: 'ARGB4444',
+        colorFormatValue: 2,
+        type: 1,
+        baseLocation: 0x10040
+      })
+    ]
+  },
   'mvc2-end-file': {
     game: 'MVC2',
     name: 'Ending Sequence Images',
