@@ -195,6 +195,30 @@ const fontTextureArgs: Partial<NLUITextureDef> = {
 type ResourceHashKey = TextureFileType | string;
 const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   ...cvs2MenuAssets,
+  'mvc2-demo-dm0a': {
+    game: 'MVC2',
+    name: 'Demo Model 0A',
+    identifier: '0x0A',
+    resourceType: 'mvc2-menu',
+    textureDefsHash: '36f24126412f66e736346801634d4ba97313bea3',
+    filenamePattern: '^DM0A(.mn)?POL.BIN$',
+    hasLzssTextureFile: true
+  },
+  'mvc2-demo-dm0e': {
+    game: 'MVC2',
+    name: 'Demo Model 0E',
+    identifier: '0x0E',
+    resourceType: 'mvc2-menu',
+    filenamePattern: '^DM0E(.mn)?POL.BIN$',
+    textureDefsHash: '36f24126412f66e736346801634d4ba97313bea3',
+    hasLzssTextureFile: true,
+    textureShapesMap: [
+      createTextureDef({
+        ...fontTextureArgs,
+        baseLocation: 0
+      })
+    ]
+  },
   f6267bcb211d053d6b21b2e224acafd150854f6c: {
     game: 'MVC2',
     name: 'Carnival (Night)',
