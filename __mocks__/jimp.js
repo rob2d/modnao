@@ -1,10 +1,9 @@
-const createMockImage = () => ({
-  getBase64: async () => 'data:image/png;base64,'
-});
+class MockJimp {
+  static read = async () => new MockJimp();
+
+  getBase64 = async () => 'data:image/png;base64,';
+}
 
 module.exports = {
-  Jimp: {
-    fromBitmap: () => createMockImage(),
-    read: async () => createMockImage()
-  }
+  Jimp: MockJimp
 };
