@@ -80,6 +80,13 @@ const rows = [
       'Palette will be limited to fit within size limits (handled automatically on export).'
   },
   {
+    title: 'Marvel vs Capcom 2',
+    filenameFormat: 'SELVM(J|U).BIN',
+    filenameExample: 'SELVMJ.BIN',
+    description: 'VMU selection screen textures',
+    notes: ''
+  },
+  {
     title: 'Capcom vs SNK 2',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG02POL.BIN',

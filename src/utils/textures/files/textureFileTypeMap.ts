@@ -4,6 +4,8 @@ export type TextureFileType =
   | 'mvc2-character-win'
   | 'mvc2-font-file'
   | 'mvc2-selection-textures'
+  | 'mvc2-selection-vmu-jp'
+  | 'mvc2-selection-vmu-us'
   | 'mvc2-end-file'
   // polygon-mapped variants
   | 'cvs2-console-menu'
@@ -45,6 +47,16 @@ const textureFileTypeMap: Record<TextureFileType, TextureFileTypeMeta> = {
     polygonMapped: false,
     regexp: /^SELTEX(.mn)?.BIN$/i,
     oobReferencable: true
+  },
+  'mvc2-selection-vmu-jp': {
+    polygonMapped: false,
+    regexp: /^SELVMJ(.mn)?.BIN$/i,
+    oobReferencable: false
+  },
+  'mvc2-selection-vmu-us': {
+    polygonMapped: false,
+    regexp: /^SELVMU(.mn)?.BIN$/i,
+    oobReferencable: false
   },
   'mvc2-stage-preview': {
     polygonMapped: false,
