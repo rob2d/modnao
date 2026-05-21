@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
@@ -54,6 +56,11 @@ const nextConfig = {
     });
 
     if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        jimp$: path.join(__dirname, 'node_modules/jimp/dist/esm/index.js')
+      };
+
       config.resolve.fallback = {
         ...config.resolve.fallback,
         stream: require.resolve('stream-browserify'),
@@ -70,7 +77,7 @@ const nextConfig = {
       );
     }
 
-    config.resolve.fallback = { fs: false };
+    config.resolve.fallback = { ...config.resolve.fallback, fs: false };
     return config;
   }
 };
