@@ -55,6 +55,7 @@ describe('handleFileInput', () => {
       getMockFilesWithNames(['PL01_WIN.BIN']),
       ...restParams
     );
+    await handleFileInput(getMockFilesWithNames(['FONT.BIN']), ...restParams);
     await handleFileInput(
       getMockFilesWithNames(['ENDNMTEX.BIN']),
       ...restParams

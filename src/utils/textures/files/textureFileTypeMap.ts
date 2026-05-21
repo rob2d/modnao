@@ -2,6 +2,7 @@ export type TextureFileType =
   | 'mvc2-stage-preview'
   | 'mvc2-character-portraits'
   | 'mvc2-character-win'
+  | 'mvc2-font-file'
   | 'mvc2-selection-textures'
   | 'mvc2-end-file'
   // polygon-mapped variants
@@ -32,6 +33,12 @@ const textureFileTypeMap: Record<TextureFileType, TextureFileTypeMeta> = {
     polygonMapped: false,
     regexp: /^PL[0-9A-Z]{2}_WIN(.mn)?.BIN$/i,
     oobReferencable: true
+  },
+
+  'mvc2-font-file': {
+    polygonMapped: false,
+    regexp: /^FONT(.mn)?.BIN$/i,
+    oobReferencable: false
   },
 
   'mvc2-selection-textures': {

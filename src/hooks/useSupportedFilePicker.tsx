@@ -155,6 +155,15 @@ export const handleFileInput = async (
       dispatch(loadCharacterPortraitsFile(selectedTextureFile));
       break;
     }
+    case 'mvc2-font-file':
+      dispatch(
+        loadTextureFile({
+          file: selectedTextureFile,
+          textureFileType,
+          isLzssCompressed: false
+        })
+      );
+      break;
     case 'mvc2-character-win':
     case 'mvc2-stage-preview':
     case 'mvc2-selection-textures':

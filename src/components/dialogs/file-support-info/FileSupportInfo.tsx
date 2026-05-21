@@ -59,6 +59,13 @@ const rows = [
   },
   {
     title: 'Marvel vs Capcom 2',
+    filenameFormat: 'FONT.BIN',
+    filenameExample: 'FONT.BIN',
+    description: 'Font textures',
+    notes: ''
+  },
+  {
+    title: 'Marvel vs Capcom 2',
     filenameFormat: 'SELSTG.BIN',
     filenameExample: 'SELSTG.BIN',
     description: 'Stage select screen previews.',
