@@ -167,6 +167,8 @@ const cvs2MenuAssets = Object.fromEntries(
       v.textureDefsHash,
       {
         hasLzssTextureFile: true,
+        polygonMapped: true,
+        oobReferencable: false,
         ...fields,
         game: 'CVS2',
         resourceType: 'cvs2-menu',
@@ -202,6 +204,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     resourceType: 'mvc2-menu',
     textureDefsHash: '36f24126412f66e736346801634d4ba97313bea3',
     filenamePattern: '^DM0A(.mn)?POL.BIN$',
+    polygonMapped: true,
+    oobReferencable: true,
     hasLzssTextureFile: true
   },
   'mvc2-demo-dm0e': {
@@ -211,6 +215,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     resourceType: 'mvc2-menu',
     filenamePattern: '^DM0E(.mn)?POL.BIN$',
     textureDefsHash: '36f24126412f66e736346801634d4ba97313bea3',
+    polygonMapped: true,
+    oobReferencable: true,
     hasLzssTextureFile: true,
     textureShapesMap: [
       createTextureDef({
@@ -225,6 +231,10 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: '0x0C',
     resourceType: 'mvc2-stage',
     filenamePattern: '^STG0C(.mn)?POL.BIN$',
+    polygonMapped: true,
+    oobReferencable: false,
+    hasLzssTextureFile: false
+  },
     hasLzssTextureFile: false
   },
   'mvc2-stage-preview': {
@@ -233,6 +243,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: 'SELSTG',
     resourceType: 'mvc2-menu',
     filenamePattern: '^SELSTG(.mn)?TEX.BIN',
+    polygonMapped: false,
+    oobReferencable: false,
     hasLzssTextureFile: true,
     textureShapesMap: [
       ...[...Array(18).keys()].map((i) =>
@@ -261,6 +273,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: 'PLXXFAC',
     resourceType: 'mvc2-menu',
     filenamePattern: 'PLXXFAC(.mn)?TEX.BIN',
+    polygonMapped: false,
+    oobReferencable: true,
     hasLzssTextureFile: false,
     textureShapesMap: mvc2PlFacStructure.map((t, i) =>
       createTextureDef({
@@ -283,6 +297,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: 'SELTEX',
     resourceType: 'mvc2-menu',
     filenamePattern: 'SELTEX(.mn)?TEX.BIN',
+    polygonMapped: false,
+    oobReferencable: true,
     hasLzssTextureFile: false,
     textureShapesMap: [...Array(23).keys()].map((i) =>
       createTextureDef({ baseLocation: 256 * 256 * 2 * i })
@@ -294,6 +310,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: 'SELVMJ',
     resourceType: 'mvc2-menu',
     filenamePattern: '^SELVMJ(.mn)?.BIN',
+    polygonMapped: false,
+    oobReferencable: false,
     hasLzssTextureFile: false,
     textureShapesMap: [
       createTextureDef({
@@ -308,6 +326,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: 'SELVMU',
     resourceType: 'mvc2-menu',
     filenamePattern: '^SELVMU(.mn)?.BIN',
+    polygonMapped: false,
+    oobReferencable: false,
     hasLzssTextureFile: false,
     textureShapesMap: [
       createTextureDef({
@@ -322,6 +342,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: 'FONT',
     resourceType: 'mvc2-menu',
     filenamePattern: '^FONT(.mn)?.BIN',
+    polygonMapped: false,
+    oobReferencable: false,
     hasLzssTextureFile: false,
     textureShapesMap: [
       createTextureDef({
@@ -348,6 +370,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: 'ENDTEX',
     resourceType: 'mvc2-menu',
     filenamePattern: 'END(DC|NM)TEX(.mn)?TEX.BIN',
+    polygonMapped: false,
+    oobReferencable: false,
     hasLzssTextureFile: true,
     textureShapesMap: [
       ...[...Array(16).keys()].map((i) =>
@@ -375,6 +399,8 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     identifier: 'PLXXWIN',
     resourceType: 'mvc2-menu',
     filenamePattern: 'PLXXWIN(.mn)?TEX.BIN',
+    polygonMapped: false,
+    oobReferencable: true,
     hasLzssTextureFile: true,
     textureShapesMap: [
       createTextureDef({
