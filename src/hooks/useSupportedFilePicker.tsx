@@ -7,9 +7,9 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import { TextureFileType } from '@/utils/textures';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
+import TextureFileType from '@/types/TextureFileType';
 
 /** polygon files which may be associated to textures */
 export const POLYGON_FILE = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL.BIN$/i;
