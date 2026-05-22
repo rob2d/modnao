@@ -32,37 +32,38 @@ const cvs2MenuAssets = Object.fromEntries(
     },
     {
       identifier: '05',
-      name: '???',
+      name: 'News Report Recap',
       textureDefsHash: 'cfa93b9d48d530fdd55b83aae884899682a469bb'
     },
     {
       identifier: '06',
-      name: '???',
-      textureDefsHash: 'cd8a97c922b4c3b70a2cdef77ac875308c2634c7'
+      name: 'News Report Static-out',
+      textureDefsHash: 'cd8a97c922b4c3b70a2cdef77ac875308c2634c7',
+      oobReferencable: true
     },
     {
       identifier: '07',
-      name: '???',
+      name: 'Yellow Selection Cards',
       textureDefsHash: 'f2ad774a770d9af0e2f12563ca32f2696e487e9d',
       hasLzssTextureFile: false
     },
     {
       identifier: '08',
-      name: '???',
+      name: 'Credit Font & Name Entry',
       textureDefsHash: '5aa7a27512e74fda6bf3aed2e62df6d2ebdab363'
     },
     {
       identifier: '09',
-      name: '???',
+      name: 'Explosion and Red to White BG',
       textureDefsHash: 'b74caa7d3f89fcce022a3b500f7b9fe4d5fcdc70'
     },
     {
       identifier: '10',
-      name: '???',
+      name: 'Intro: Capcom Rocks & SNK Beam Countdown',
       textureDefsHash: '06a61b584c40ef35e4b8812db09f370a280d17ec'
     },
     {
-      name: '???',
+      name: 'Intro: Kyo x Ryu Countdown',
       identifier: '11',
       textureDefsHash: '8abaeac1aa3cf80db93b9eebc46939693233a97f'
     },
@@ -172,7 +173,7 @@ const cvs2MenuAssets = Object.fromEntries(
         ...fields,
         game: 'CVS2',
         resourceType: 'cvs2-menu',
-        filenamePattern: `^DM${v.identifier}(.mn)?POL.BIN$`,
+        filenamePattern: `^DM(${v.identifier})(.mn)?POL.BIN$`,
         identifier: `0x${v.identifier}`
       }
     ];
@@ -233,8 +234,6 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     filenamePattern: '^STG0C(.mn)?POL.BIN$',
     polygonMapped: true,
     oobReferencable: false,
-    hasLzssTextureFile: false
-  },
     hasLzssTextureFile: false
   },
   'mvc2-stage-preview': {
