@@ -236,6 +236,28 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     oobReferencable: false,
     hasLzssTextureFile: false
   },
+  'vs2-stage-file': {
+    game: 'VS2',
+    name: 'Stage File (unspecified)',
+    identifier: 'STXX',
+    resourceType: 'vs2-stage',
+    filenamePattern: '^ST(G)?(E)?[0-9A-Z]{2}(.mn)?POL.BIN$',
+    polygonMapped: true,
+    oobReferencable: false,
+    hasLzssTextureFile: false,
+    allowFileNameOnlyMatch: true
+  },
+  'vs2-demo-model': {
+    game: 'VS2',
+    name: 'Demo Model (unspecified)',
+    identifier: 'DMXX',
+    resourceType: 'vs2-demo',
+    filenamePattern: '^DM[0-9A-Z]{2}(E)?(.mn)?POL.BIN$',
+    polygonMapped: true,
+    oobReferencable: true,
+    hasLzssTextureFile: false,
+    allowFileNameOnlyMatch: true
+  },
   'mvc2-stage-preview': {
     game: 'MVC2',
     name: 'Stage Previews',

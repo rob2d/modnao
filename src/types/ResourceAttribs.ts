@@ -6,7 +6,7 @@ import { NLUITextureDef } from './NLAbstractions';
  * and important attributes to define it
  */
 export type ResourceAttribs = {
-  game: 'MVC2' | 'CVS2' | 'CVS1Pro';
+  game: 'MVC2' | 'CVS2' | 'CVS1Pro' | 'VS2';
   name: string;
   identifier: string;
   resourceType: ResourceType;
