@@ -1,4 +1,4 @@
-import { TextureFileType } from './textureFileTypeMap';
+import type TextureFileType from '@/types/TextureFileType';
 
 type QuantizeOptions = {
   colors: number;

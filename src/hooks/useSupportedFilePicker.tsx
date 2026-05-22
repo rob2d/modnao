@@ -7,23 +7,24 @@ import {
   useAppDispatch,
   useAppSelector
 } from '@/store';
-import {
-  TextureFileType,
-  textureFileTypeMap,
-  TextureFileTypeMeta
-} from '@/utils/textures';
+import { TextureFileType } from '@/utils/textures';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
+import resourceAttribMappings from '@/constants/resourceAttribMappings';
 
 /** polygon files which may be associated to textures */
 export const POLYGON_FILE = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL.BIN$/i;
 
-export const textureFileEntries = Object.entries(textureFileTypeMap) as [
-  TextureFileType,
-  TextureFileTypeMeta
-][];
+export const textureFileEntries = Object.entries(resourceAttribMappings)
+  .filter(
+    ([resourceHashKey, attribs]) => attribs.textureFileType === resourceHashKey
+  )
+  .map(
+    ([textureFileType, attribs]) =>
+      [textureFileType as TextureFileType, attribs] as const
+  );
 
-const dedicatedTextureKVs = textureFileEntries.filter(
-  ([, entry]) => !entry.polygonMapped
+const dedicatedTextureEntries = textureFileEntries.filter(
+  ([textureFileType]) => !resourceAttribMappings[textureFileType].polygonMapped
 );
 
 export const handleFileInput = async (
@@ -60,21 +61,21 @@ export const handleFileInput = async (
 
     if (
       textureFileType &&
-      !textureFileTypeMap[textureFileType]?.polygonMapped
+      !resourceAttribMappings[textureFileType].polygonMapped
     ) {
       handleError(DEDICATED_TEXTURE_FILE_ERROR);
       return;
     }
 
-    for (const [type, entry] of dedicatedTextureKVs) {
-      if (f.name.match(entry.regexp)) {
+    for (const [type, attribs] of dedicatedTextureEntries) {
+      if (new RegExp(attribs.filenamePattern, 'i').test(f.name)) {
         if (i > 0) {
           handleError(DEDICATED_TEXTURE_FILE_ERROR);
           return;
         }
 
         selectedTextureFile = f;
-        textureFileType = type as TextureFileType;
+        textureFileType = type;
         return;
       }
     }
@@ -88,8 +89,8 @@ export const handleFileInput = async (
       }
     }
 
-    for (const [fileTypeChecked, entry] of textureFileEntries) {
-      if (f.name.match(entry.regexp)) {
+    for (const [fileTypeChecked, attribs] of textureFileEntries) {
+      if (new RegExp(attribs.filenamePattern, 'i').test(f.name)) {
         if (!selectedTextureFile) {
           selectedTextureFile = f;
           textureFileType = fileTypeChecked;
@@ -123,7 +124,7 @@ export const handleFileInput = async (
   if (
     selectedTextureFile &&
     textureFileType &&
-    textureFileTypeMap?.[textureFileType].polygonMapped
+    resourceAttribMappings[textureFileType].polygonMapped
   ) {
     if (polygonFilename || selectedPolygonFile) {
       dispatch(

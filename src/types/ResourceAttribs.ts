@@ -1,5 +1,13 @@
-import { ResourceType } from './ResourceType';
+import type TextureFileType from './TextureFileType';
 import { NLUITextureDef } from './NLAbstractions';
+
+type ResourceType =
+  | 'mvc2-stage'
+  | 'cvs2-stage'
+  | 'cvs2-menu'
+  | 'mvc2-menu'
+  | 'vs2-stage'
+  | 'vs2-demo';
 
 /**
  * information pertaining to the file resource
@@ -13,6 +21,7 @@ export type ResourceAttribs = {
   filenamePattern: string;
   polygonMapped: boolean;
   oobReferencable: boolean;
+  textureFileType?: TextureFileType;
   textureDefsHash?: string;
   hasLzssTextureFile: boolean;
   allowFileNameOnlyMatch?: boolean;

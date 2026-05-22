@@ -1,7 +1,7 @@
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
 import createTextureDef from '@/utils/textures/createTextureDef';
-import { TextureFileType } from '@/utils/textures/files/textureFileTypeMap';
+import type TextureFileType from '@/types/TextureFileType';
 
 const cvs2MenuAssets = Object.fromEntries(
   [
@@ -236,9 +236,31 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     oobReferencable: false,
     hasLzssTextureFile: false
   },
+  'cvs2-console-menu': {
+    game: 'CVS2',
+    name: 'Console Menu',
+    identifier: 'DCXX',
+    resourceType: 'cvs2-menu',
+    filenamePattern: '^DC[0-9A-Z]{2}(E)?(.mn)?TEX.BIN$',
+    polygonMapped: true,
+    oobReferencable: false,
+    textureFileType: 'cvs2-console-menu',
+    hasLzssTextureFile: true
+  },
   'vs2-stage-file': {
     game: 'VS2',
-    name: 'Stage File (unspecified)',
+    name: 'Stage Texture File (unspecified)',
+    identifier: 'STXX',
+    resourceType: 'vs2-stage',
+    filenamePattern: '^ST(G)?(E)?[0-9A-Z]{2}TEX(.mn)?.BIN$',
+    polygonMapped: true,
+    oobReferencable: false,
+    textureFileType: 'vs2-stage-file',
+    hasLzssTextureFile: false
+  },
+  'vs2-stage-polygon-file': {
+    game: 'VS2',
+    name: 'Stage Polygon File (unspecified)',
     identifier: 'STXX',
     resourceType: 'vs2-stage',
     filenamePattern: '^ST(G)?(E)?[0-9A-Z]{2}(.mn)?POL.BIN$',
@@ -249,7 +271,18 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   },
   'vs2-demo-model': {
     game: 'VS2',
-    name: 'Demo Model (unspecified)',
+    name: 'Demo Model Texture File (unspecified)',
+    identifier: 'DMXX',
+    resourceType: 'vs2-demo',
+    filenamePattern: '^DM[0-9A-Z]{2}(E)?TEX(.mn)?.BIN$',
+    polygonMapped: true,
+    oobReferencable: true,
+    textureFileType: 'vs2-demo-model',
+    hasLzssTextureFile: false
+  },
+  'vs2-demo-polygon-file': {
+    game: 'VS2',
+    name: 'Demo Model Polygon File (unspecified)',
     identifier: 'DMXX',
     resourceType: 'vs2-demo',
     filenamePattern: '^DM[0-9A-Z]{2}(E)?(.mn)?POL.BIN$',
@@ -263,9 +296,10 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     name: 'Stage Previews',
     identifier: 'SELSTG',
     resourceType: 'mvc2-menu',
-    filenamePattern: '^SELSTG(.mn)?TEX.BIN',
+    filenamePattern: '^SELSTG(.mn)?.BIN$',
     polygonMapped: false,
     oobReferencable: false,
+    textureFileType: 'mvc2-stage-preview',
     hasLzssTextureFile: true,
     textureShapesMap: [
       ...[...Array(18).keys()].map((i) =>
@@ -293,9 +327,10 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     name: 'Character Portraits',
     identifier: 'PLXXFAC',
     resourceType: 'mvc2-menu',
-    filenamePattern: 'PLXXFAC(.mn)?TEX.BIN',
+    filenamePattern: '^PL[0-9A-Z]{2}_FAC(.mn)?.BIN$',
     polygonMapped: false,
     oobReferencable: true,
+    textureFileType: 'mvc2-character-portraits',
     hasLzssTextureFile: false,
     textureShapesMap: mvc2PlFacStructure.map((t, i) =>
       createTextureDef({
@@ -317,9 +352,10 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     name: 'Selection Textures',
     identifier: 'SELTEX',
     resourceType: 'mvc2-menu',
-    filenamePattern: 'SELTEX(.mn)?TEX.BIN',
+    filenamePattern: '^SELTEX(.mn)?.BIN$',
     polygonMapped: false,
     oobReferencable: true,
+    textureFileType: 'mvc2-selection-textures',
     hasLzssTextureFile: false,
     textureShapesMap: [...Array(23).keys()].map((i) =>
       createTextureDef({ baseLocation: 256 * 256 * 2 * i })
@@ -333,6 +369,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     filenamePattern: '^SELVMJ(.mn)?.BIN',
     polygonMapped: false,
     oobReferencable: false,
+    textureFileType: 'mvc2-selection-vmu-jp',
     hasLzssTextureFile: false,
     textureShapesMap: [
       createTextureDef({
@@ -349,6 +386,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     filenamePattern: '^SELVMU(.mn)?.BIN',
     polygonMapped: false,
     oobReferencable: false,
+    textureFileType: 'mvc2-selection-vmu-us',
     hasLzssTextureFile: false,
     textureShapesMap: [
       createTextureDef({
@@ -365,6 +403,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     filenamePattern: '^FONT(.mn)?.BIN',
     polygonMapped: false,
     oobReferencable: false,
+    textureFileType: 'mvc2-font-file',
     hasLzssTextureFile: false,
     textureShapesMap: [
       createTextureDef({
@@ -390,9 +429,10 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     name: 'Ending Sequence Images',
     identifier: 'ENDTEX',
     resourceType: 'mvc2-menu',
-    filenamePattern: 'END(DC|NM)TEX(.mn)?TEX.BIN',
+    filenamePattern: '^END(DC|NM)TEX(.mn)?.BIN$',
     polygonMapped: false,
     oobReferencable: false,
+    textureFileType: 'mvc2-end-file',
     hasLzssTextureFile: true,
     textureShapesMap: [
       ...[...Array(16).keys()].map((i) =>
@@ -419,9 +459,10 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     name: 'Character Win Portraits',
     identifier: 'PLXXWIN',
     resourceType: 'mvc2-menu',
-    filenamePattern: 'PLXXWIN(.mn)?TEX.BIN',
+    filenamePattern: '^PL[0-9A-Z]{2}_WIN(.mn)?.BIN$',
     polygonMapped: false,
     oobReferencable: true,
+    textureFileType: 'mvc2-character-win',
     hasLzssTextureFile: true,
     textureShapesMap: [
       createTextureDef({
