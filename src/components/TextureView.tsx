@@ -17,20 +17,16 @@ import {
 } from '@mdi/js';
 import Icon from '@mdi/react';
 import useViewportSizes from 'use-viewport-sizes';
-import {
-  useObjectNavControls,
-  useObjectUINav,
-  useTextureOptions,
-  useTextureReplaceDropzone
-} from '@/hooks';
+import { useObjectNavControls, useObjectUINav } from '@/modules/object-viewer';
+import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
+import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import {
   selectResourceAttribs,
   selectTextureIndex,
-  selectUpdatedTextureDefs,
-  useAppSelector
-} from '@/store';
+  selectUpdatedTextureDefs
+} from '@/selectors';
+import { useAppSelector } from '@/storeTypings';
 import themeMixins from '@/theming/themeMixins';
-import TextureColorOptions from './TextureColorOptions';
 import { TextureImageBufferKeys } from '@/utils/textures';
 import { useMemo, useState } from 'react';
 import globalBuffers from '@/utils/data/globalBuffers';

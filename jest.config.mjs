@@ -26,7 +26,7 @@ const customJestConfig = {
     // workaround to support non esmodule compiled package:
     // jest-module name mapping will actually roll up packages
     // with name transforms, even if they are accessed the same way
-    '^jimp$': '<rootDir>/__mocks__/jimp.js',
+    '^jimp$': '<rootDir>/src/__mocks__/jimp.js',
     uiDotEnv: ['<rootDir>/node_modules/@uidotdev/usehooks'],
     nanoid: ['<rootDir>/node_modules/nanoid'],
 

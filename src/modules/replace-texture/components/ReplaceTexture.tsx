@@ -26,15 +26,15 @@ import {
   Typography
 } from '@mui/material';
 import {
-  applyReplacedTextureImage,
-  closeDialog,
   selectReplacementImage,
   selectReplacementTextureIndex,
-  selectUpdatedTextureDefs,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
-import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
+  selectUpdatedTextureDefs
+} from '@/selectors';
+import { closeDialog } from '@/modules/dialogs';
+import { applyReplacedTextureImage } from '../replaceTextureSlice';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { useDebouncedEffect } from '@/hooks';
+import useTextureReplaceDropzone from '../hooks/useTextureReplaceDropzone';
 import cropImage from '@/utils/images/cropImage';
 import type { NLUITextureDef } from '@/types';
 import { useFilePicker } from 'use-file-picker';

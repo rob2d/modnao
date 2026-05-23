@@ -17,9 +17,9 @@ import GuiPanelModels from './GuiPanelModels';
 import {
   selectContentViewMode,
   selectHasLoadedPolygonFile,
-  selectLoadTexturesState,
-  useAppSelector
-} from '@/store';
+  selectLoadTexturesState
+} from '@/selectors';
+import { useAppSelector } from '@/storeTypings';
 import {
   mdiArrowExpandHorizontal,
   mdiArrowExpandLeft,

@@ -1,6 +1,6 @@
-import { useSupportedFilePicker } from '@/hooks';
-import { useAppDispatch } from '@/store';
-import { showError } from '@/store/error-messages/errorMessagesSlice';
+import { useSupportedFilePicker } from '@/modules/model-data';
+import { showError } from '@/modules/error-messages';
+import { useAppDispatch } from '@/storeTypings';
 import { styled } from '@mui/material/styles';
 import { JSX, useCallback } from 'react';
 import GuiPanelButton from './GuiPanelButton';

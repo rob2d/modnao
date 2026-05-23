@@ -1,13 +1,9 @@
-import {
-  closeDialog,
-  DialogType,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+import { closeDialog, DialogType } from '@/modules/dialogs';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { Dialog, DialogContent, styled } from '@mui/material';
 import { FC, useCallback } from 'react';
 import AppInfo from './app-info/AppInfo';
-import ReplaceTexture from './replace-texture/ReplaceTexture';
+import { ReplaceTexture } from '@/modules/replace-texture';
 import FileSupportInfo from './file-support-info/FileSupportInfo';
 
 const StyledDialog = styled(Dialog)(

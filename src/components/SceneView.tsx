@@ -14,12 +14,11 @@ import {
   selectMeshSelectionType,
   selectModel,
   selectObjectKey,
-  selectUpdatedTextureDefs,
-  setObjectKey,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
-import { useObjectNavControls } from '@/hooks';
+  selectUpdatedTextureDefs
+} from '@/selectors';
+import { setObjectKey } from '@/modules/object-viewer';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { useObjectNavControls } from '@/modules/object-viewer';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { useTheme } from '@mui/material';
 import { SceneContextSetup } from '@/contexts/SceneContext';

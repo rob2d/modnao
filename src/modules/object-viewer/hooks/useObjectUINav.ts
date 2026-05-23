@@ -1,13 +1,8 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import useHeldRepetitionTimer from './useHeldRepetitionTimer';
-import {
-  navToNextObject,
-  navToPrevObject,
-  selectObjectCount,
-  selectObjectIndex,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+import { useHeldRepetitionTimer } from '@/hooks';
+import { navToNextObject, navToPrevObject } from '../objectViewerSlice';
+import { selectObjectCount, selectObjectIndex } from '@/selectors';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 
 export default function useObjectNavUIControls() {
   const dispatch = useAppDispatch();

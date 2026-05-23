@@ -2,8 +2,8 @@ import { JSX, useCallback, useEffect, useMemo } from 'react';
 import { saveAs } from 'file-saver';
 import dayjs from 'dayjs';
 import JSZip from 'jszip';
+import { downloadTextureFile } from '@/modules/model-data';
 import {
-  downloadTextureFile,
   selectCanExportTextures,
   selectContentViewMode,
   selectHasLoadedTextureFile,
@@ -14,10 +14,9 @@ import {
   selectObjectPolygonIndex,
   selectSelectedTexture,
   selectTextureFileName,
-  selectUpdatedTextureDefs,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+  selectUpdatedTextureDefs
+} from '@/selectors';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { createB64ImgFromTextureDef } from '@/utils/textures';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';

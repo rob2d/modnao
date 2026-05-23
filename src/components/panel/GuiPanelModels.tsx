@@ -18,16 +18,15 @@ import {
   selectModelCount,
   selectModelIndex,
   selectObjectKey,
-  selectPolygonFileName,
-  setObjectType,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+  selectPolygonFileName
+} from '@/selectors';
+import { setObjectType } from '@/modules/object-viewer';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import {
   useModelSelectionExport,
   useObjectUINav,
   useSceneGLTFFileDownloader
-} from '@/hooks';
+} from '@/modules/object-viewer';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ModelFileImportButton from './ModelFileImportButton';

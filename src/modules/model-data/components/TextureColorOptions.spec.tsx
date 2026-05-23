@@ -2,7 +2,8 @@ import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import TextureColorOptions from './TextureColorOptions';
 import type { NLUITextureDef } from '@/types';
-import { AppState, EditedTexture } from '@/store';
+import { EditedTexture } from '../modelDataTypes';
+import { AppState } from '@/storeTypings';
 import { TextureImageBufferKeys } from '@/utils/textures';
 
 const mockTextureState = {

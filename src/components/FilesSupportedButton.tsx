@@ -1,4 +1,5 @@
-import { showDialog, useAppDispatch } from '@/store';
+import { showDialog } from '@/modules/dialogs';
+import { useAppDispatch } from '@/storeTypings';
 import { Button } from '@mui/material';
 import clsx from 'clsx';
 import { useCallback } from 'react';

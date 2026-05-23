@@ -3,10 +3,9 @@ import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,
   loadPolygonFile,
-  loadTextureFile,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+  loadTextureFile
+} from '../modelDataThunks';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import type { TextureFileType } from '@/types';

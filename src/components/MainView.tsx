@@ -15,13 +15,12 @@ import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
+import { showDialog } from '@/modules/dialogs';
 import {
   selectContentViewMode,
-  selectProcessingOverlayShown,
-  showDialog,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+  selectProcessingOverlayShown
+} from '@/selectors';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import TextureView from './TextureView';
 import ErrorMessage from './ErrorMessage';
 

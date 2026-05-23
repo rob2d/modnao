@@ -1,10 +1,6 @@
-import {
-  revertTextureImage,
-  selectTextureFileName,
-  selectUpdatedTextureDefs,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+import { revertTextureImage } from '../modelDataSlice';
+import { selectTextureFileName, selectUpdatedTextureDefs } from '@/selectors';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import {
   createB64ImgFromTextureDef,
   TextureImageBufferKeys
@@ -19,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import saveAs from 'file-saver';
 import globalBuffers from '@/utils/data/globalBuffers';
-import useKeyPressEffect from './useKeyPressEffect';
+import { useKeyPressEffect } from '@/hooks';
 
 function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const {
