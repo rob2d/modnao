@@ -1,4 +1,4 @@
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 import O from '@/constants/StructOffsets';
 import S from '@/constants/StructSizes';
 import {

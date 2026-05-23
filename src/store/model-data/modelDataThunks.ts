@@ -1,4 +1,4 @@
-import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import type { NLUITextureDef, TextureDataUrlType } from '@/types';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { HslValues } from '@/utils/textures';

@@ -1,4 +1,4 @@
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 import { nlTextureDefConversions } from './NLPropConversionDefs';
 import { processNLConversions } from './processNLConversions';
 

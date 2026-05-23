@@ -1,11 +1,14 @@
-import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import type {
+  NLUITextureDef,
+  ResourceAttribs,
+  TextureDataUrlType,
+  TextureFileType
+} from '@/types';
 import encodeZMortonPosition from '@/utils/textures/parse/encodeZMortonPosition';
 import decompressLzssBuffer from '@/utils/data/decompressLzssBuffer';
-import type TextureFileType from '@/types/TextureFileType';
 import { LoadTexturesBasePayload } from '@/store/model-data/modelDataTypes';
 import rgba8888TargetOps from '@/utils/color-conversions/rgba8888TargetOps';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
-import { ResourceAttribs } from '@/types/ResourceAttribs';
 
 export type LoadTextureFileWorkerResult = {
   texturePixelBuffers: SharedArrayBuffer[];

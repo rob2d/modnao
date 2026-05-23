@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ButtonBase, Skeleton, styled, Tooltip } from '@mui/material';
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { ContentViewMode, NLUITextureDef } from '@/types';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import {
   selectMesh,
@@ -10,7 +10,6 @@ import {
   useAppSelector
 } from '@/store';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import ContentViewMode from '@/types/ContentViewMode';
 import themeMixins from '@/theming/themeMixins';
 import { useTextureReplaceDropzone } from '@/hooks';
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';

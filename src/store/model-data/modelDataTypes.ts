@@ -1,7 +1,9 @@
-import { AsyncState } from '@/types/AsyncState';
-import { NLUITextureDef } from '@/types/NLAbstractions';
-import { ResourceAttribs } from '@/types/ResourceAttribs';
-import TextureFileType from '@/types/TextureFileType';
+import type {
+  AsyncState,
+  NLUITextureDef,
+  ResourceAttribs,
+  TextureFileType
+} from '@/types';
 import { HslValues, TextureImageBufferKeys } from '@/utils/textures';
 
 export type EditedTexture = {

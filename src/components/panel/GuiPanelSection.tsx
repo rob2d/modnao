@@ -9,7 +9,7 @@ import {
   Typography
 } from '@mui/material';
 import Icon from '@mdi/react';
-import { AsyncState } from '@/types/AsyncState';
+import type { AsyncState } from '@/types';
 
 const StyledSubheader = styled(ListSubheader)(
   ({ theme }) => `

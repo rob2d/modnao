@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import GuiPanel from './GuiPanel';
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 import { AppState, ModelDataState } from '@/store';
 
 const mockState = {

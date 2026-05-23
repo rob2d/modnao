@@ -1,4 +1,4 @@
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 import globalBuffers from '@/utils/data/globalBuffers';
 import createB64ImgFromTextureDef from './createB64ImgFromTextureDef';
 

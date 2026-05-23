@@ -1,7 +1,5 @@
-import { NLUITextureDef } from '@/types/NLAbstractions';
-import { ResourceAttribs } from '@/types/ResourceAttribs';
+import type { NLUITextureDef, ResourceAttribs, TextureFileType } from '@/types';
 import createTextureDef from '@/utils/textures/createTextureDef';
-import type TextureFileType from '@/types/TextureFileType';
 import cvs2MenuAttribMappings from './resource-mappings/cvs2MenuAttribMappings';
 
 const mvc2PlFacStructure: Partial<NLUITextureDef>[] = [

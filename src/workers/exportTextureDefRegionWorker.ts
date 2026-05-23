@@ -1,6 +1,5 @@
 import quanti from 'quanti';
-import { NLUITextureDef } from '@/types/NLAbstractions';
-import type TextureFileType from '@/types/TextureFileType';
+import type { NLUITextureDef, TextureFileType } from '@/types';
 import processExportTexturePixels from '@/utils/textures/files/processExportTexturePixels';
 import getQuantizeOptions from '@/utils/textures/files/getQuantizationOptions';
 

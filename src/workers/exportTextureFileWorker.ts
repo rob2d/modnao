@@ -2,7 +2,7 @@ import sharedBufferFrom from '@/utils/data/sharedBufferFrom';
 import compressLzssBuffer from '@/utils/data/compressLzssBuffer';
 import compressVqBuffer from '@/utils/data/compressVqBuffer';
 import padBufferForAlignment from '@/utils/data/padBufferForAlignment';
-import type TextureFileType from '@/types/TextureFileType';
+import type { TextureFileType } from '@/types';
 
 export interface ExportTextureFileWorkerPayload {
   textureFileType: TextureFileType;

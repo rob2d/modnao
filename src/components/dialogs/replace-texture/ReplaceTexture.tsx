@@ -36,7 +36,7 @@ import {
 } from '@/store';
 import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 import { useFilePicker } from 'use-file-picker';
 import themeMixins from '@/theming/themeMixins';
 import globalBuffers from '@/utils/data/globalBuffers';
