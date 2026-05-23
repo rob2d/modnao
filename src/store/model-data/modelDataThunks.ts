@@ -452,6 +452,8 @@ export const downloadTextureFile = createAppAsyncThunk(
 
     try {
       const textureBuffer = globalBuffers.getShared(textureBufferKey);
+
+      // preserve unchanged VQ regions
       const changedTextureIndexes = new Set([
         ...Object.keys(state.modelData.editedTextures).map(Number),
         ...Object.entries(state.modelData.textureHistory)
