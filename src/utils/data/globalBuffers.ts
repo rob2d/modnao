@@ -5,7 +5,10 @@ import BufferStorage from './BufferStorage';
  * in UI thread
  */
 const globalBuffers = new BufferStorage();
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  Object.assign(window, { globalBuffers });
+const debugWindow =
+  process.env.NODE_ENV === 'development' ? globalThis.window : undefined;
+
+if (debugWindow) {
+  Object.assign(debugWindow, { globalBuffers });
 }
 export default globalBuffers;
