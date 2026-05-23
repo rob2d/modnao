@@ -1,11 +1,8 @@
 import { AsyncState } from '@/types/AsyncState';
 import { NLUITextureDef } from '@/types/NLAbstractions';
 import { ResourceAttribs } from '@/types/ResourceAttribs';
-import {
-  HslValues,
-  TextureFileType,
-  TextureImageBufferKeys
-} from '@/utils/textures';
+import TextureFileType from '@/types/TextureFileType';
+import { HslValues, TextureImageBufferKeys } from '@/utils/textures';
 
 export type EditedTexture = {
   width: number;
