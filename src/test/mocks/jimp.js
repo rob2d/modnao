@@ -1,5 +1,5 @@
 class MockJimp {
-  static read = async () => new MockJimp();
+  static fromBitmap = () => new MockJimp();
 
   getBase64 = async () => 'data:image/png;base64,';
 }

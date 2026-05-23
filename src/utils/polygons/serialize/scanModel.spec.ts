@@ -8,7 +8,7 @@ import scanModel from './scanModel';
 describe('scanModel', () => {
   it('extracts a test stage file predictably', async () => {
     const fileBuffer = await fs.readFile(
-      path.join(process.cwd(), 'src/__mocks__/STGXXPOL.BIN')
+      path.join(process.cwd(), 'src/test/fixtures/STGXXPOL.BIN')
     );
 
     const buffer = new SharedArrayBuffer(fileBuffer.byteLength);

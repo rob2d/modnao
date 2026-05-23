@@ -10,7 +10,7 @@ import { sharedBufferFrom } from '@/utils/data';
 describe('scanForModelPointers', () => {
   it('returns the correct list of model pointer addresses in a stage file', async () => {
     const polygonFile = await fs.readFile(
-      path.join(process.cwd(), 'src/__mocks__/STGXXPOL.BIN')
+      path.join(process.cwd(), 'src/test/fixtures/STGXXPOL.BIN')
     );
 
     const buffer = sharedBufferFrom(polygonFile);

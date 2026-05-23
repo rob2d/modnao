@@ -13,6 +13,7 @@ const customJestConfig = {
     '**/*.{js,jsx,ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
+    '!<rootDir>/src/test/**',
     '!<rootDir>/out/**',
     '!<rootDir>/.next/**',
     '!<rootDir>/*.config.js',
@@ -26,21 +27,21 @@ const customJestConfig = {
     // workaround to support non esmodule compiled package:
     // jest-module name mapping will actually roll up packages
     // with name transforms, even if they are accessed the same way
-    '^jimp$': '<rootDir>/src/__mocks__/jimp.js',
+    '^jimp$': '<rootDir>/src/test/mocks/jimp.js',
     uiDotEnv: ['<rootDir>/node_modules/@uidotdev/usehooks'],
     nanoid: ['<rootDir>/node_modules/nanoid'],
 
     // Handle CSS imports (without CSS modules)
-    '^.+\\.(css|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
+    '^.+\\.(css|sass|scss)$': '<rootDir>/src/test/mocks/styleMock.js',
 
     // Handle image imports
     // https://jestjs.io/docs/webpack#handling-static-assets
-    '^.+\\.(png|jpg|jpeg|gif|webp|avif|ico|bmp|svg)$/i': `<rootDir>/__mocks__/fileMock.js`,
+    '^.+\\.(png|jpg|jpeg|gif|webp|avif|ico|bmp|svg)$/i': `<rootDir>/src/test/mocks/fileMock.js`,
 
     // Handle module aliases
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.mjs'],
+  setupFilesAfterEnv: ['<rootDir>/src/test/jest.setup.mjs'],
   testPathIgnorePatterns: ['<rootDir>/.next/'],
   testEnvironment: 'jest-environment-jsdom',
   transform: {

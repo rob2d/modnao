@@ -33,7 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     "types.d.ts",
-    "./jest.setup.mjs",
+    "src/test/jest.setup.mjs",
     "src/types/**/*.d.ts"
   ],
   "exclude": [
