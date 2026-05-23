@@ -58,6 +58,28 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     oobReferencable: false,
     hasLzssTextureFile: false
   },
+  c8fd59b26aed2e4a87af2ed05c851d9b0510b219: {
+    game: 'MVC2',
+    name: 'Special Effects',
+    identifier: 'EFKY',
+    resourceType: 'mvc2-menu',
+    filenamePattern: '^EFKY(.mn)?POL.BIN$',
+    polygonMapped: true,
+    oobReferencable: false,
+    textureFileType: 'mvc2-special-effects',
+    hasLzssTextureFile: false
+  },
+  'mvc2-special-effects': {
+    game: 'MVC2',
+    name: 'Special Effects',
+    identifier: 'EFKY',
+    resourceType: 'mvc2-menu',
+    filenamePattern: '^EFKY(.mn)?TEX.BIN$',
+    polygonMapped: true,
+    oobReferencable: false,
+    textureFileType: 'mvc2-special-effects',
+    hasLzssTextureFile: false
+  },
   'cvs2-console-menu': {
     game: 'CVS2',
     name: 'Console Menu',

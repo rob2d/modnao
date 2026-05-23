@@ -1,7 +1,9 @@
-const WORD_SIZE = 2;
-const VECTOR_LENGTH = 4;
-const CODEBOOK_SIZE = 256;
-const CODEWORD_START = WORD_SIZE * VECTOR_LENGTH * CODEBOOK_SIZE;
+import {
+  TEXTURE_COLOR_SIZE,
+  VQ_CODEBOOK_BYTE_SIZE,
+  VQ_CODEBOOK_ENTRY_COUNT,
+  VQ_CODEBOOK_VECTOR_LENGTH
+} from '../textures/VqFormatConstants';
 
 export default function decompressVqBuffer(
   bufferPassed: Buffer,
@@ -13,34 +15,34 @@ export default function decompressVqBuffer(
   const output: number[] = new Array(w * h);
 
   try {
-    for (let i = 0; i < CODEBOOK_SIZE; i++) {
+    for (let i = 0; i < VQ_CODEBOOK_ENTRY_COUNT; i++) {
       const entry = [];
 
-      for (let j = 0; j < VECTOR_LENGTH; j++) {
-        const position = (i * VECTOR_LENGTH + j) * WORD_SIZE;
+      for (let j = 0; j < VQ_CODEBOOK_VECTOR_LENGTH; j++) {
+        const position =
+          (i * VQ_CODEBOOK_VECTOR_LENGTH + j) * TEXTURE_COLOR_SIZE;
         const word = buffer.readUInt16LE(position);
         entry.push(word);
       }
       codebook.push(entry);
     }
 
-    for (let i = 0; i < buffer.length - CODEWORD_START; i += 1) {
-      const codewords = buffer.readUInt8(i + CODEWORD_START);
+    for (let i = 0; i < buffer.length - VQ_CODEBOOK_BYTE_SIZE; i += 1) {
+      const codewords = buffer.readUInt8(i + VQ_CODEBOOK_BYTE_SIZE);
       const vector = codebook[codewords];
 
-      output[i * 4] = vector[0];
-      output[i * 4 + 1] = vector[1];
-      output[i * 4 + 2] = vector[2];
-      output[i * 4 + 3] = vector[3];
+      for (let j = 0; j < VQ_CODEBOOK_VECTOR_LENGTH; j++) {
+        output[i * VQ_CODEBOOK_VECTOR_LENGTH + j] = vector[j];
+      }
     }
   } catch (error) {
     console.error(error);
   }
 
-  const outputBuffer = Buffer.alloc(output.length * WORD_SIZE);
+  const outputBuffer = Buffer.alloc(output.length * TEXTURE_COLOR_SIZE);
 
   for (let i = 0; i < output.length; i++) {
-    outputBuffer.writeUInt16LE(output[i], i * WORD_SIZE);
+    outputBuffer.writeUInt16LE(output[i], i * TEXTURE_COLOR_SIZE);
   }
 
   return outputBuffer;

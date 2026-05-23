@@ -2,6 +2,7 @@ import type { NLUITextureDef, TextureDataUrlType } from '@/types';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { HslValues } from '@/utils/textures';
+import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
 import { ClientThread } from '@/utils/threads';
 import globalBuffers from '@/utils/data/globalBuffers';
 import {
@@ -451,20 +452,36 @@ export const downloadTextureFile = createAppAsyncThunk(
 
     try {
       const textureBuffer = globalBuffers.getShared(textureBufferKey);
+
+      // preserve unchanged VQ regions
+      const changedTextureIndexes = new Set([
+        ...Object.keys(state.modelData.editedTextures).map(Number),
+        ...Object.entries(state.modelData.textureHistory)
+          .filter(([, history]) => history.length > 0)
+          .map(([textureIndex]) => Number(textureIndex))
+      ]);
+
       await Promise.all(
-        textureDefs.map((textureDef) =>
-          ClientThread.run<ExportTextureDefRegionWorkerPayload, void>(
-            'exportTextureDefRegion',
-            {
-              textureDef,
-              textureFileType,
-              textureBuffer,
-              pixelColors: globalBuffers.getShared(
-                textureDef.bufferKeys.translucent
-              )
-            }
+        textureDefs
+          .map((textureDef, textureIndex) => ({ textureDef, textureIndex }))
+          .filter(
+            ({ textureDef, textureIndex }) =>
+              textureDef.type !== VQ_TEXTURE_ENCODE_TYPE ||
+              changedTextureIndexes.has(textureIndex)
           )
-        )
+          .map(({ textureDef }) =>
+            ClientThread.run<ExportTextureDefRegionWorkerPayload, void>(
+              'exportTextureDefRegion',
+              {
+                textureDef,
+                textureFileType,
+                textureBuffer,
+                pixelColors: globalBuffers.getShared(
+                  textureDef.bufferKeys.translucent
+                )
+              }
+            )
+          )
       );
 
       const outputBuffer = await ClientThread.run<

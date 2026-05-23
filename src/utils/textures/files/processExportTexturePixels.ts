@@ -42,6 +42,11 @@ export default function processExportTexturePixels({
       const [positionX, positionY] = decodeZMortonPosition(offset);
       const positionOffset = positionY * width + positionX;
       const colorOffset = positionOffset * 4;
+
+      if (colorOffset + 3 >= pixelColors.length) {
+        continue;
+      }
+
       const color = {
         r: pixelColors[colorOffset],
         g: pixelColors[colorOffset + 1],
@@ -52,14 +57,10 @@ export default function processExportTexturePixels({
       const conversionOp = conversionDict[colorFormat];
       const offsetWritten = baseLocation - ramOffset + offset * COLOR_SIZE;
 
-      if (offsetWritten + COLOR_SIZE < buffer.length) {
+      if (offsetWritten + COLOR_SIZE <= buffer.length) {
         const convertedColor = conversionOp(color);
         buffer[offsetWritten] = convertedColor & 0xff;
         buffer[offsetWritten + 1] = (convertedColor >> 8) & 0xff;
-      }
-
-      if (colorOffset + 3 >= pixelColors.length) {
-        continue;
       }
     }
   }

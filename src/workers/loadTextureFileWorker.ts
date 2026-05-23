@@ -9,6 +9,9 @@ import decompressLzssBuffer from '@/utils/data/decompressLzssBuffer';
 import { LoadTexturesBasePayload } from '@/store/model-data/modelDataTypes';
 import rgba8888TargetOps from '@/utils/color-conversions/rgba8888TargetOps';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
+import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
+import { getTextureDefDataLength } from '@/utils/textures';
+import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
 
 export type LoadTextureFileWorkerResult = {
   texturePixelBuffers: SharedArrayBuffer[];
@@ -37,6 +40,17 @@ function createTexturePixelBuffers(
 
   textureDefs.forEach((t) => {
     const realLocation = t.baseLocation - t.ramOffset;
+    const isVqTexture = t.type === VQ_TEXTURE_ENCODE_TYPE;
+    const textureBufferLength = getTextureDefDataLength(t);
+    const sourceBuffer = !isVqTexture
+      ? fileBuffer
+      : decompressVqBuffer(
+          fileBuffer.subarray(realLocation, realLocation + textureBufferLength),
+          t.width,
+          t.height
+        );
+    const sourceLocation = !isVqTexture ? realLocation : 0;
+
     for (const type of urlTypes) {
       const sharedPixelBuffer = new SharedArrayBuffer(t.width * t.height * 4);
       const pixels = new Uint8ClampedArray(sharedPixelBuffer);
@@ -54,16 +68,16 @@ function createTexturePixelBuffers(
             continue;
           }
           const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
-          const readOffset = realLocation + offsetDrawn * COLOR_SIZE;
+          const readOffset = sourceLocation + offsetDrawn * COLOR_SIZE;
           // textures may point out of bounds (this would be to RAM elsewhere in-game)
-          if (readOffset >= fileBuffer.length && !failOutOfBounds) {
+          if (readOffset >= sourceBuffer.length && !failOutOfBounds) {
             texturePixelBuffers.push(new SharedArrayBuffer(0));
             console.error('texture buffer out of range');
             hasPushed = true;
             continue;
           }
 
-          const colorValue = fileBuffer.readUInt16LE(readOffset);
+          const colorValue = sourceBuffer.readUInt16LE(readOffset);
           const conversionOp = rgba8888TargetOps[t.colorFormat];
           const color = conversionOp(colorValue);
 

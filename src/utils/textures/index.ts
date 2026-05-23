@@ -7,5 +7,6 @@ export * from './HslValues';
 export * from './serialize';
 export * from './parse';
 export * from './files';
+export { default as getTextureDefDataLength } from './getTextureDefDataLength';
 export { default as uvToClipPathPoint } from './uvToClipPathPoint';
 export { default as createTextureDef } from './createTextureDef';
