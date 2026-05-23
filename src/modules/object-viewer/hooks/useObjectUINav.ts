@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import useHeldRepetitionTimer from './useHeldRepetitionTimer';
-import { navToNextObject, navToPrevObject } from '@/modules/object-viewer';
+import { useHeldRepetitionTimer } from '@/hooks';
+import { navToNextObject, navToPrevObject } from '../objectViewerSlice';
 import { selectObjectCount, selectObjectIndex } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 

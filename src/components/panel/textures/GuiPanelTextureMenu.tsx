@@ -7,7 +7,7 @@ import { mdiDotsVertical } from '@mdi/js';
 import { Divider, styled, Tooltip } from '@mui/material';
 import TextureColorOptions from '../../TextureColorOptions';
 import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
-import { useTextureOptions } from '@/hooks';
+import { useTextureOptions } from '@/modules/model-data';
 
 const StyledMenuButtonContainer = styled('div')(
   ({ theme }) => `& {

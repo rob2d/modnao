@@ -3,10 +3,7 @@ import saveAs from 'file-saver';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { useSceneContext } from '@/contexts/SceneContext';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import {
-  selectHasLoadedTextureFile,
-  selectModelIndex
-} from '@/selectors';
+import { selectHasLoadedTextureFile, selectModelIndex } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { showError } from '@/modules/error-messages';
 

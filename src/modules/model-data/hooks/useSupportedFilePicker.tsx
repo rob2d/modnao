@@ -4,7 +4,7 @@ import {
   loadCharacterPortraitsFile,
   loadPolygonFile,
   loadTextureFile
-} from '@/modules/model-data';
+} from '../modelDataThunks';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';

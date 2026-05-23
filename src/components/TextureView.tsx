@@ -17,12 +17,9 @@ import {
 } from '@mdi/js';
 import Icon from '@mdi/react';
 import useViewportSizes from 'use-viewport-sizes';
-import {
-  useObjectNavControls,
-  useObjectUINav,
-  useTextureOptions,
-  useTextureReplaceDropzone
-} from '@/hooks';
+import { useObjectNavControls, useObjectUINav } from '@/modules/object-viewer';
+import { useTextureOptions } from '@/modules/model-data';
+import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import {
   selectResourceAttribs,
   selectTextureIndex,

@@ -1,4 +1,4 @@
-import { useSupportedFilePicker } from '@/hooks';
+import { useSupportedFilePicker } from '@/modules/model-data';
 import { showError } from '@/modules/error-messages';
 import { useAppDispatch } from '@/storeTypings';
 import { styled } from '@mui/material/styles';

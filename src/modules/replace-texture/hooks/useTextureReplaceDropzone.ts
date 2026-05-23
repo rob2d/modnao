@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { selectReplacementTexture } from '@/modules/replace-texture';
+import { selectReplacementTexture } from '../replaceTextureSlice';
 import { useAppDispatch } from '@/storeTypings';
 
 export default function useTextureReplaceDropzone(textureIndex: number) {

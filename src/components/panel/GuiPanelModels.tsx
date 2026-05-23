@@ -26,7 +26,7 @@ import {
   useModelSelectionExport,
   useObjectUINav,
   useSceneGLTFFileDownloader
-} from '@/hooks';
+} from '@/modules/object-viewer';
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ModelFileImportButton from './ModelFileImportButton';

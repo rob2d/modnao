@@ -1,4 +1,4 @@
-import { revertTextureImage } from '@/modules/model-data';
+import { revertTextureImage } from '../modelDataSlice';
 import { selectTextureFileName, selectUpdatedTextureDefs } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import {
@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import saveAs from 'file-saver';
 import globalBuffers from '@/utils/data/globalBuffers';
-import useKeyPressEffect from './useKeyPressEffect';
+import { useKeyPressEffect } from '@/hooks';
 
 function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const {

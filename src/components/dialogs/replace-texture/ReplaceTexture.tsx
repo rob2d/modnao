@@ -33,7 +33,8 @@ import {
 import { closeDialog } from '@/modules/dialogs';
 import { applyReplacedTextureImage } from '@/modules/replace-texture';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
+import { useDebouncedEffect } from '@/hooks';
+import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import cropImage from '@/utils/images/cropImage';
 import type { NLUITextureDef } from '@/types';
 import { useFilePicker } from 'use-file-picker';

@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
-import { navToNextObject, navToPrevObject } from '@/modules/object-viewer';
+import { navToNextObject, navToPrevObject } from '../objectViewerSlice';
 import { useAppDispatch } from '@/storeTypings';
 import { UnknownAction } from '@reduxjs/toolkit';
-import useHeldRepetitionTimer from './useHeldRepetitionTimer';
+import { useHeldRepetitionTimer } from '@/hooks';
 
 /** controls left/right object nav as well as hides and shows the gui menu */
 export default function useObjectNavControls() {

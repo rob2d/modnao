@@ -8,7 +8,7 @@ import { setObjectViewedIndex } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import themeMixins from '@/theming/themeMixins';
-import { useTextureReplaceDropzone } from '@/hooks';
+import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { uvToClipPathPoint } from '@/utils/textures';
