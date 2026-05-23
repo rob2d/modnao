@@ -3,12 +3,9 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ButtonBase, Skeleton, styled, Tooltip } from '@mui/material';
 import type { ContentViewMode, NLUITextureDef } from '@/types';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
-import {
-  selectMesh,
-  setObjectViewedIndex,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+import { selectMesh } from '@/selectors';
+import { setObjectViewedIndex } from '@/modules/object-viewer';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import themeMixins from '@/theming/themeMixins';
 import { useTextureReplaceDropzone } from '@/hooks';

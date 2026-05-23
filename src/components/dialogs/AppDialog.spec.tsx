@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import AppDialog from './AppDialog';
-import { AppState } from '@/store';
+import { AppState } from '@/storeTypings';
 
 describe('AppDialog', () => {
   it('renders the correct dialog when dialogShown state has a specified dialog set', async () => {

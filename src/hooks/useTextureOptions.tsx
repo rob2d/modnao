@@ -1,10 +1,6 @@
-import {
-  revertTextureImage,
-  selectTextureFileName,
-  selectUpdatedTextureDefs,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+import { revertTextureImage } from '@/modules/model-data';
+import { selectTextureFileName, selectUpdatedTextureDefs } from '@/selectors';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import {
   createB64ImgFromTextureDef,
   TextureImageBufferKeys

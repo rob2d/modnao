@@ -10,13 +10,12 @@ import {
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
 import { HslValues } from '@/utils/textures';
+import { adjustTextureHsl } from '@/modules/model-data';
 import {
-  adjustTextureHsl,
   selectEditedTextures,
-  selectTextureDefs,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+  selectTextureDefs
+} from '@/selectors';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import NumericSliderInput from './NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
 

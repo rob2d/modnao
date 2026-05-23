@@ -26,14 +26,13 @@ import {
   Typography
 } from '@mui/material';
 import {
-  applyReplacedTextureImage,
-  closeDialog,
   selectReplacementImage,
   selectReplacementTextureIndex,
-  selectUpdatedTextureDefs,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+  selectUpdatedTextureDefs
+} from '@/selectors';
+import { closeDialog } from '@/modules/dialogs';
+import { applyReplacedTextureImage } from '@/modules/replace-texture';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { useDebouncedEffect, useTextureReplaceDropzone } from '@/hooks';
 import cropImage from '@/utils/images/cropImage';
 import type { NLUITextureDef } from '@/types';

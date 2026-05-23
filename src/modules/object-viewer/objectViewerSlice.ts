@@ -1,8 +1,8 @@
 import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { selectContentViewMode } from '../selectors';
-import { createAppAsyncThunk } from '../storeTypings';
-import { processPolygonFile } from '../model-data';
+import { selectContentViewMode } from '@/selectors';
+import { createAppAsyncThunk } from '@/storeTypings';
+import { processPolygonFile } from '@/modules/model-data';
 
 export interface ObjectViewerState {
   modelIndex: number;

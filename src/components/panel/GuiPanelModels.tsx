@@ -18,11 +18,10 @@ import {
   selectModelCount,
   selectModelIndex,
   selectObjectKey,
-  selectPolygonFileName,
-  setObjectType,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+  selectPolygonFileName
+} from '@/selectors';
+import { setObjectType } from '@/modules/object-viewer';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import {
   useModelSelectionExport,
   useObjectUINav,

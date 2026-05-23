@@ -17,18 +17,13 @@ import {
   AdjustTextureHslWorkerPayload,
   AdjustTextureHslWorkerResult
 } from '@/workers/adjustTextureHslWorker';
+import { showError } from '@/modules/error-messages';
 import {
   selectHasCompressedTextures,
   selectTextureFileType,
   selectUpdatedTextureDefs
-} from '../selectors';
-import { showError } from '../error-messages/errorMessagesSlice';
-import { createAppAsyncThunk } from '../storeTypings';
-import {
-  LoadPolygonsPayload,
-  LoadTexturesPayload,
-  LoadTexturesResultPayload
-} from './modelDataTypes';
+} from '@/selectors';
+import { createAppAsyncThunk } from '@/storeTypings';
 import saveAs from 'file-saver';
 import {
   ExportTextureFileWorkerPayload,
@@ -36,6 +31,11 @@ import {
 } from '@/workers/exportTextureFileWorker';
 import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefRegionWorker';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
+import {
+  LoadPolygonsPayload,
+  LoadTexturesPayload,
+  LoadTexturesResultPayload
+} from './modelDataTypes';
 
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 

@@ -5,7 +5,8 @@ import type { RenderOptions } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 
 import useUserTheme from '@/theming/useUserTheme';
-import { type AppState, type AppStore, setupStore } from '@/store';
+import { setupStore } from '@/store';
+import type { AppState, AppStore } from '@/storeTypings';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   preloadedState?: AppState;

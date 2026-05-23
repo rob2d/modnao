@@ -5,11 +5,10 @@ import { useSceneContext } from '@/contexts/SceneContext';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import {
   selectHasLoadedTextureFile,
-  selectModelIndex,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
-import { showError } from '@/store/error-messages';
+  selectModelIndex
+} from '@/selectors';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { showError } from '@/modules/error-messages';
 
 async function rotateDataUri(dataURI: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {

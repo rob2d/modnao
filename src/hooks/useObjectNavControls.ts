@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
-import { navToNextObject, navToPrevObject, useAppDispatch } from '@/store';
+import { navToNextObject, navToPrevObject } from '@/modules/object-viewer';
+import { useAppDispatch } from '@/storeTypings';
 import { UnknownAction } from '@reduxjs/toolkit';
 import useHeldRepetitionTimer from './useHeldRepetitionTimer';
 

@@ -6,7 +6,7 @@ import type {
 } from '@/types';
 import encodeZMortonPosition from '@/utils/textures/parse/encodeZMortonPosition';
 import decompressLzssBuffer from '@/utils/data/decompressLzssBuffer';
-import { LoadTexturesBasePayload } from '@/store/model-data/modelDataTypes';
+import { LoadTexturesBasePayload } from '@/modules/model-data';
 import rgba8888TargetOps from '@/utils/color-conversions/rgba8888TargetOps';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';

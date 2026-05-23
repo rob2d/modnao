@@ -26,9 +26,9 @@ import {
 import {
   selectResourceAttribs,
   selectTextureIndex,
-  selectUpdatedTextureDefs,
-  useAppSelector
-} from '@/store';
+  selectUpdatedTextureDefs
+} from '@/selectors';
+import { useAppSelector } from '@/storeTypings';
 import themeMixins from '@/theming/themeMixins';
 import TextureColorOptions from './TextureColorOptions';
 import { TextureImageBufferKeys } from '@/utils/textures';

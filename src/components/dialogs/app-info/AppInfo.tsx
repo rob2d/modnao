@@ -8,12 +8,9 @@ import SceneNavigationHints from './sections/SceneNavigationHints';
 import DevUpdates from './sections/DevUpdates';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
-import {
-  closeDialog,
-  selectIsAppInfoDialogShown,
-  useAppDispatch,
-  useAppSelector
-} from '@/store';
+import { closeDialog } from '@/modules/dialogs';
+import { selectIsAppInfoDialogShown } from '@/selectors';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
 
 const Styled = styled('div')(
   ({ theme }) => `

@@ -4,9 +4,9 @@ import {
   selectMeshSelectionType,
   selectModel,
   selectModelIndex,
-  selectObjectKey,
-  useAppSelector
-} from '@/store';
+  selectObjectKey
+} from '@/selectors';
+import { useAppSelector } from '@/storeTypings';
 
 export default function useModelSelectionExport() {
   const model = useAppSelector(selectModel);

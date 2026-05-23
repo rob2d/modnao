@@ -2,7 +2,7 @@ import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
 import { JSX } from 'react';
 
-export const sliceName = 'errorMessages';
+const sliceName = 'errorMessages';
 
 export interface ErrorMessage {
   title: string;
