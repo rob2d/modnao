@@ -10,13 +10,10 @@ import {
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
 import { HslValues } from '@/utils/textures';
-import { adjustTextureHsl } from '@/modules/model-data';
-import {
-  selectEditedTextures,
-  selectTextureDefs
-} from '@/selectors';
+import { adjustTextureHsl } from '../modelDataThunks';
+import { selectEditedTextures, selectTextureDefs } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import NumericSliderInput from './NumericSliderInput';
+import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
 
 const StyledList = styled(List)(

@@ -31,10 +31,10 @@ import {
   selectUpdatedTextureDefs
 } from '@/selectors';
 import { closeDialog } from '@/modules/dialogs';
-import { applyReplacedTextureImage } from '@/modules/replace-texture';
+import { applyReplacedTextureImage } from '../replaceTextureSlice';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { useDebouncedEffect } from '@/hooks';
-import { useTextureReplaceDropzone } from '@/modules/replace-texture';
+import useTextureReplaceDropzone from '../hooks/useTextureReplaceDropzone';
 import cropImage from '@/utils/images/cropImage';
 import type { NLUITextureDef } from '@/types';
 import { useFilePicker } from 'use-file-picker';

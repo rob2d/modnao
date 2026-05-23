@@ -18,7 +18,7 @@ import {
 import Icon from '@mdi/react';
 import useViewportSizes from 'use-viewport-sizes';
 import { useObjectNavControls, useObjectUINav } from '@/modules/object-viewer';
-import { useTextureOptions } from '@/modules/model-data';
+import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
 import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import {
   selectResourceAttribs,
@@ -27,7 +27,6 @@ import {
 } from '@/selectors';
 import { useAppSelector } from '@/storeTypings';
 import themeMixins from '@/theming/themeMixins';
-import TextureColorOptions from './TextureColorOptions';
 import { TextureImageBufferKeys } from '@/utils/textures';
 import { useMemo, useState } from 'react';
 import globalBuffers from '@/utils/data/globalBuffers';
