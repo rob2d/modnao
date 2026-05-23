@@ -1,5 +1,5 @@
 import { hasher } from 'node-object-hash';
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 
 const hashCreator = hasher({ sort: true, alg: 'sha1' });
 

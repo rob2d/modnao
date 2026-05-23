@@ -1,5 +1,5 @@
 import { Jimp } from 'jimp';
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 import { TextureImageBufferKeys } from '../TextureImageBufferKeys';
 import globalBuffers from '@/utils/data/globalBuffers';
 

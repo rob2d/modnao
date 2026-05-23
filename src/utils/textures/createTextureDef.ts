@@ -1,4 +1,4 @@
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 
 export default function createTextureDef(
   def: Partial<NLUITextureDef>

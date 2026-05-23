@@ -1,8 +1,7 @@
 import scanForModelPointers from '@/utils/polygons/serialize/scanForModelPointers';
 import scanModel from '@/utils/polygons/serialize/scanModel';
 import scanTextureHeaderData from '@/utils/polygons/serialize/scanTextureHeaderData';
-import { NLUITextureDef } from '@/types/NLAbstractions';
-import { ResourceAttribs } from '@/types/ResourceAttribs';
+import type { NLUITextureDef, ResourceAttribs } from '@/types';
 import getTextureDefsHash from '@/utils/resource-attribs/getTextureDefsHash';
 import getResourceAttribs from '@/utils/resource-attribs/getResourceAttribs';
 

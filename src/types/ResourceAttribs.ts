@@ -1,26 +1,29 @@
-import { ResourceType } from './ResourceType';
+import type TextureFileType from './TextureFileType';
 import { NLUITextureDef } from './NLAbstractions';
+
+type ResourceType =
+  | 'mvc2-stage'
+  | 'cvs2-stage'
+  | 'cvs2-menu'
+  | 'mvc2-menu'
+  | 'vs2-stage'
+  | 'vs2-demo';
 
 /**
  * information pertaining to the file resource
  * and important attributes to define it
  */
 export type ResourceAttribs = {
-  game: 'MVC2' | 'CVS2' | 'CVS1Pro';
-  /** name e.g. "MVC2 Carnival Stage" */
+  game: 'MVC2' | 'CVS2' | 'CVS1Pro' | 'VS2';
   name: string;
-  /** possible visual way to id a resource, e.g. hex id like 0x12 */
   identifier: string;
-  /** describes the type of resource e.g. "MVC2 stage file" */
   resourceType: ResourceType;
-  /** patterns that are accepted to identify this file */
   filenamePattern: string;
-
+  polygonMapped: boolean;
+  oobReferencable: boolean;
+  textureFileType?: TextureFileType;
   textureDefsHash?: string;
-
   hasLzssTextureFile: boolean;
-
   allowFileNameOnlyMatch?: boolean;
-
   textureShapesMap?: NLUITextureDef[];
 };

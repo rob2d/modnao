@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import TextureColorOptions from './TextureColorOptions';
-import { NLUITextureDef } from '@/types/NLAbstractions';
+import type { NLUITextureDef } from '@/types';
 import { AppState, EditedTexture } from '@/store';
 import { TextureImageBufferKeys } from '@/utils/textures';
 

@@ -1,13 +1,14 @@
-import { NLUITextureDef, TextureDataUrlType } from '@/types/NLAbstractions';
+import type {
+  NLUITextureDef,
+  ResourceAttribs,
+  TextureDataUrlType,
+  TextureFileType
+} from '@/types';
 import encodeZMortonPosition from '@/utils/textures/parse/encodeZMortonPosition';
 import decompressLzssBuffer from '@/utils/data/decompressLzssBuffer';
-import textureFileTypeMap, {
-  TextureFileType
-} from '@/utils/textures/files/textureFileTypeMap';
 import { LoadTexturesBasePayload } from '@/store/model-data/modelDataTypes';
 import rgba8888TargetOps from '@/utils/color-conversions/rgba8888TargetOps';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
-import { ResourceAttribs } from '@/types/ResourceAttribs';
 
 export type LoadTextureFileWorkerResult = {
   texturePixelBuffers: SharedArrayBuffer[];
@@ -91,8 +92,9 @@ export default function loadTextureFileWorker({
   resourceAttribs
 }: LoadTextureFileWorkerPayload) {
   let result: LoadTextureFileWorkerResult;
-  const expectOobReferences =
-    textureFileTypeMap[textureFileType].oobReferencable;
+  const resolvedResourceAttribs =
+    resourceAttribs ?? resourceAttribMappings[textureFileType];
+  const expectOobReferences = resolvedResourceAttribs.oobReferencable;
 
   try {
     if (isLzssCompressed || resourceAttribs?.hasLzssTextureFile) {
@@ -108,8 +110,7 @@ export default function loadTextureFileWorker({
     result = {
       texturePixelBuffers,
       decompressedTextureBuffer: textureFileBuffer,
-      resourceAttribs:
-        resourceAttribs ?? resourceAttribMappings[textureFileType]
+      resourceAttribs: resolvedResourceAttribs
     };
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
@@ -137,8 +138,7 @@ export default function loadTextureFileWorker({
       texturePixelBuffers,
       decompressedTextureBuffer,
       isLzssCompressed: true,
-      resourceAttribs:
-        resourceAttribs ?? resourceAttribMappings[textureFileType]
+      resourceAttribs: resolvedResourceAttribs
     };
   }
 
