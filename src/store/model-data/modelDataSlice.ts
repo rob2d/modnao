@@ -57,7 +57,11 @@ const modelDataSlice = createSlice({
       { payload: { textureIndex } }: PayloadAction<{ textureIndex: number }>
     ) {
       // only valid if there's an actual texture to revert to
-      if (state.textureHistory[textureIndex].length === 0) {
+      if (
+        !state.textureHistory[textureIndex] ||
+        state.textureHistory[textureIndex].length === 0
+      ) {
+        return;
       }
 
       delete state.editedTextures[textureIndex];
