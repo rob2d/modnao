@@ -1,7 +1,6 @@
 import { useContext, useMemo } from 'react';
 import themes from '@/theming/themes';
 import { createTheme, ScenePalette, Theme, useMediaQuery } from '@mui/material';
-import { ThemeOptions } from '@mui/material/styles';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 
 const setupThemeOptions = (
@@ -9,7 +8,8 @@ const setupThemeOptions = (
   scenePalette: Partial<ScenePalette> | undefined
 ) => {
   const theme = themes[isDarkMode ? 'dark' : 'light'];
-  const themeOptions = {
+  return {
+    cssVariables: true,
     ...theme,
     palette: {
       ...(theme.palette || {}),
@@ -18,9 +18,7 @@ const setupThemeOptions = (
         ...scenePalette
       }
     }
-  } as ThemeOptions;
-
-  return createTheme(themeOptions);
+  };
 };
 
 export default function useUserTheme() {

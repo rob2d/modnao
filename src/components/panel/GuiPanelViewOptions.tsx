@@ -1,7 +1,7 @@
 import {
+  Box,
   FormControlLabel,
   Slider,
-  styled,
   ToggleButton,
   ToggleButtonGroup
 } from '@mui/material';
@@ -21,45 +21,6 @@ import {
 } from '@mdi/js';
 import PaletteEditor from './PaletteEditor';
 import ViewOptionCheckbox from './ViewOptionCheckbox';
-
-const Styled = styled('div')(
-  {
-    shouldForwardProp: (prop: string) =>
-      prop !== 'textColor' && prop !== 'buttonTextColor'
-  },
-  ({ theme }) => `
-  & .MuiSlider-root {
-    width: calc(100% - 124px);
-    margin-left: ${theme.spacing(2)};
-    margin-right: ${theme.spacing(1)};
-  }
-  
-  & .display-mode {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .expanded & .display-mode {
-    margin-top: ${theme.spacing(1)};
-  }
-
-  & .settings-row .MuiTypography-root.MuiFormControlLabel-label {
-    display: flex;
-    align-items: center;
-  }
-  
-  & .settings-row .MuiTypography-root.MuiFormControlLabel-label > svg {
-    margin-right: -2px;
-  }
-
-  & .experimental-divider {
-    width: 100%;
-    height: 1px;
-    border-bottom: ${theme.palette.error.main} 1px dashed;
-  }
-  `
-);
 
 export default function GuiPanelViewOptions() {
   const viewOptions = useContext(ViewOptionsContext);
@@ -207,7 +168,37 @@ export default function GuiPanelViewOptions() {
 
   return (
     <GuiPanelSection title='View Options'>
-      <Styled className='view-options'>
+      <Box
+        className='view-options'
+        sx={{
+          '& .MuiSlider-root': {
+            width: 'calc(100% - 124px)',
+            ml: 2,
+            mr: 1
+          },
+          '& .display-mode': {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end'
+          },
+          '.expanded & .display-mode': {
+            mt: 1
+          },
+          '& .settings-row .MuiTypography-root.MuiFormControlLabel-label': {
+            display: 'flex',
+            alignItems: 'center'
+          },
+          '& .settings-row .MuiTypography-root.MuiFormControlLabel-label > svg':
+            {
+              mr: '-2px'
+            },
+          '& .experimental-divider': {
+            width: '100%',
+            height: '1px',
+            borderBottom: '1px dashed var(--mui-palette-error-main)'
+          }
+        }}
+      >
         <Grid container className='property-table'>
           <Grid
             className='display-mode'
@@ -259,7 +250,7 @@ export default function GuiPanelViewOptions() {
           />
         )}
         {responsiveSettingsRows}
-      </Styled>
+      </Box>
     </GuiPanelSection>
   );
 }

@@ -8,6 +8,8 @@ type Props = {
   alt: string;
 };
 
+const pixelatedStyle = { imageRendering: 'pixelated' } as const;
+
 const ImageBufferCanvas = forwardRef<HTMLCanvasElement, Props>(
   ({ rgbaBuffer, width, height, className, alt }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,6 +43,7 @@ const ImageBufferCanvas = forwardRef<HTMLCanvasElement, Props>(
         className={className}
         role='img'
         aria-label={alt}
+        style={pixelatedStyle}
       />
     );
   }

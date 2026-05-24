@@ -1,17 +1,10 @@
 import { closeDialog, DialogType } from '@/modules/dialogs';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import { Dialog, DialogContent, styled } from '@mui/material';
+import { Dialog, DialogContent } from '@mui/material';
 import { FC, useCallback } from 'react';
 import AppInfo from './app-info/AppInfo';
 import { ReplaceTexture } from '@/modules/replace-texture';
 import FileSupportInfo from './file-support-info/FileSupportInfo';
-
-const StyledDialog = styled(Dialog)(
-  () => `
-& .MuiDialogContent-root {
-  display: flex;
-}`
-);
 
 const Dialogs: Record<DialogType, FC> = {
   'app-info': AppInfo,
@@ -22,7 +15,7 @@ const Dialogs: Record<DialogType, FC> = {
 export default function AppDialog() {
   const dispatch = useAppDispatch();
   const dialogType = useAppSelector((state) => state.dialogs.dialogShown);
-  const Dialog = dialogType ? Dialogs[dialogType] : null;
+  const DialogComponent = dialogType ? Dialogs[dialogType] : null;
   const onClose = useCallback(() => {
     switch (dialogType) {
       // user must explicitly close dialog via content
@@ -38,15 +31,16 @@ export default function AppDialog() {
   }, [dialogType]);
 
   return (
-    <StyledDialog
+    <Dialog
       onClose={onClose}
       open={Boolean(dialogType)}
       fullWidth={true}
       maxWidth='xl'
+      sx={{ '& .MuiDialogContent-root': { display: 'flex' } }}
     >
       <DialogContent data-testid='app-dialog'>
-        {Dialog ? <Dialog /> : null}
+        {DialogComponent ? <DialogComponent /> : null}
       </DialogContent>
-    </StyledDialog>
+    </Dialog>
   );
 }

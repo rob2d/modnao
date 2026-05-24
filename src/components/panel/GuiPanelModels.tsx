@@ -1,7 +1,7 @@
 import {
+  Box,
   Button,
   IconButton,
-  styled,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -30,29 +30,6 @@ import {
 import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ModelFileImportButton from './ModelFileImportButton';
-
-const StyledButtons = styled('div')(
-  ({ theme }) => `
-  & {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .panel.expanded & {
-    flex-direction: row;
-  }
-
-  .panel.expanded & > div:nth-child(2) {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .poly-export-buttons {
-    margin-bottom: ${theme.spacing(1)}
-  }
-`
-);
 
 export default function GuiPanelModels() {
   const viewOptions = useContext(ViewOptionsContext);
@@ -229,7 +206,23 @@ export default function GuiPanelModels() {
           </ToggleButtonGroup>
         </Grid>
       </Grid>
-      <StyledButtons>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          '.panel.expanded &': {
+            flexDirection: 'row'
+          },
+          '.panel.expanded & > div:nth-child(2)': {
+            display: 'flex',
+            flexDirection: 'column'
+          },
+          '& .poly-export-buttons': {
+            mb: 1
+          }
+        }}
+      >
         <ModelFileImportButton />
         <div className='poly-export-buttons'>
           <GuiPanelButton
@@ -254,7 +247,7 @@ export default function GuiPanelModels() {
           </GuiPanelButton>
           {exportSelectionButton}
         </div>
-      </StyledButtons>
+      </Box>
     </GuiPanelSection>
   );
 }

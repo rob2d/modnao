@@ -1,13 +1,6 @@
 import { JSX, useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import {
-  Button,
-  List,
-  ListItem,
-  ListSubheader,
-  styled,
-  Tooltip
-} from '@mui/material';
+import { Button, List, ListItem, ListSubheader, Tooltip } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
 import { HslValues } from '@/utils/textures';
 import { adjustTextureHsl } from '../modelDataThunks';
@@ -16,34 +9,23 @@ import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
 
-const StyledList = styled(List)(
-  ({ theme }) =>
-    `
-    &.texture-view {
-      display: flex;
-      padding: 0;
-    }
-
-    ${theme.breakpoints.down('md')} {
-      &.texture-view {
-        flex-direction: column;
-      }
-    }
-
-    &.texture-view .MuiListItem-root {
-      padding-left: ${theme.spacing(0)};
-      padding-right: ${theme.spacing(0)};
-    }
-
-    & .MuiButton svg {
-      margin-right: ${theme.spacing(1)};
-    }
-    
-    & .slider p {
-      display: flex;
-      align-items: center;
-    }`
-);
+const textureColorOptionsListSx = {
+  '&.texture-view': {
+    display: 'flex',
+    p: 0,
+    flexDirection: { xs: 'column', md: 'row' }
+  },
+  '&.texture-view .MuiListItem-root': {
+    px: 0
+  },
+  '& .MuiButton svg': {
+    mr: 1
+  },
+  '& .slider p': {
+    display: 'flex',
+    alignItems: 'center'
+  }
+};
 
 const DEFAULT_HSL = {
   h: 0,
@@ -194,23 +176,24 @@ export default function TextureColorOptions({
 
   if (variant === 'texture-view') {
     return (
-      <StyledList className={variant}>
+      <List className={variant} sx={textureColorOptionsListSx}>
         {hslSliders}
         {buttons}
-      </StyledList>
+      </List>
     );
   }
 
   return (
-    <StyledList
+    <List
       dense
       className={clsx('hsv-sliders', variant)}
       subheader={
         <ListSubheader component='div'>Color Adjustment</ListSubheader>
       }
+      sx={textureColorOptionsListSx}
     >
       {hslSliders}
       {buttons}
-    </StyledList>
+    </List>
   );
 }

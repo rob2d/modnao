@@ -1,25 +1,20 @@
-import { styled, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
 import AppInfoProject from '../AppInfoProject';
 import DialogSectionContentCards from '../../DialogSectionContentCards';
 
-const Styled = styled('div')(
-  ({ theme }) => `
-
-  & {
-    display: flex;
-    flex-direction: column;
-  }
-
-  & .MuiTypography-h6 {
-    margin-top: ${theme.spacing(1)};
-  }
-`
-);
-
 export default function OtherProjects() {
   return (
-    <Styled className='app-info-section scroll-body'>
+    <Box
+      className='app-info-section scroll-body'
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        '& .MuiTypography-h6': {
+          mt: 1
+        }
+      }}
+    >
       <DialogSectionHeader>Other Notable Projects</DialogSectionHeader>
       <DialogSectionContentCards>
         <AppInfoProject
@@ -81,6 +76,6 @@ export default function OtherProjects() {
           }
         />
       </DialogSectionContentCards>
-    </Styled>
+    </Box>
   );
 }

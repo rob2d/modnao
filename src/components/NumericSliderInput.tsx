@@ -4,57 +4,11 @@ import {
   IconButton,
   ListItem,
   Slider,
-  styled,
   TextField,
   Tooltip,
   Typography
 } from '@mui/material';
 import { FocusEventHandler, useCallback, useMemo, useRef } from 'react';
-
-const StyledListItem = styled(ListItem)(
-  ({ theme }) =>
-    `
-    & {
-      display: flex;
-      flex-direction: column;
-    }
-
-    & .slider {
-      display: flex;
-      width: 100%;
-    }
-
-    & .input-and-reset {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      padding-left: ${theme.spacing(3)};
-      padding-right: ${theme.spacing(2)};
-      justify-content: flex-end;
-
-      & .MuiIconButton-root {
-        padding: 0 0;
-        margin-left: ${theme.spacing(2)};
-      }
-    }
-    
-    & .MuiSlider-root {
-      margin-left: ${theme.spacing(2)};
-      /* for tooltip popover since there are conflicts in Mui subheaders */
-      z-index: 1;
-      width: calc(100% - 48px);
-    }
-
-    & .MuiTextField-root.input  {
-      width: 72px;
-    }
-
-    & .MuiTextField-root.input input {
-      text-align: right;
-      padding: ${theme.spacing(0)} ${theme.spacing(1)};
-    }
-`
-);
 
 type Props = {
   label: string;
@@ -115,7 +69,41 @@ export default function NumericSliderInput({
   );
 
   return (
-    <StyledListItem>
+    <ListItem
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        '& .slider': {
+          display: 'flex',
+          width: '100%'
+        },
+        '& .input-and-reset': {
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          pl: 3,
+          pr: 2,
+          justifyContent: 'flex-end',
+          '& .MuiIconButton-root': {
+            p: 0,
+            ml: 2
+          }
+        },
+        '& .MuiSlider-root': {
+          ml: 2,
+          zIndex: 1,
+          width: 'calc(100% - 48px)'
+        },
+        '& .MuiTextField-root.input': {
+          width: '72px'
+        },
+        '& .MuiTextField-root.input input': {
+          textAlign: 'right',
+          py: 0,
+          px: 1
+        }
+      }}
+    >
       <div className='slider'>
         <Tooltip title={labelTooltip} placement='left'>
           <Typography variant='body1'>{label}</Typography>
@@ -149,6 +137,6 @@ export default function NumericSliderInput({
           <Icon path={mdiRefresh} size={1} />
         </IconButton>
       </div>
-    </StyledListItem>
+    </ListItem>
   );
 }

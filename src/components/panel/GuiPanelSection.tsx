@@ -4,36 +4,11 @@ import {
   IconButton,
   ListSubheader,
   Skeleton,
-  styled,
   Tooltip,
   Typography
 } from '@mui/material';
 import Icon from '@mdi/react';
 import type { AsyncState } from '@/types';
-
-const StyledSubheader = styled(ListSubheader)(
-  ({ theme }) => `
-
-  & {
-    margin-top: ${theme.spacing(1)};
-    padding-left: 0;
-    padding-right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    line-height: 1.5;
-  }
-  
-  .header-text {
-    display: flex;
-    flex-direction: column;
-  }
-    
-  & + .collapsed-content {
-    margin-top: ${theme.spacing(1)};
-  }
-  `
-);
 
 type Props = {
   children: React.ReactNode;
@@ -70,7 +45,23 @@ export default function GuiPanelSection({
 
   return (
     <>
-      <StyledSubheader>
+      <ListSubheader
+        sx={{
+          mt: 1,
+          px: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          lineHeight: 1.5,
+          '& .header-text': {
+            display: 'flex',
+            flexDirection: 'column'
+          },
+          '& + .collapsed-content': {
+            mt: 1
+          }
+        }}
+      >
         <div className='header-text'>
           <Typography variant='subtitle2'>{title}</Typography>
           {subtitleDisplayed}
@@ -86,7 +77,7 @@ export default function GuiPanelSection({
             />
           </IconButton>
         </Tooltip>
-      </StyledSubheader>
+      </ListSubheader>
       {!isExpanded ? (
         <div className='collapsed-content'>{collapsedContent}</div>
       ) : undefined}

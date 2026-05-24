@@ -20,21 +20,8 @@ import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { createB64ImgFromTextureDef } from '@/utils/textures';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
-import { Chip, Divider, styled } from '@mui/material';
+import { Box, Chip, Divider } from '@mui/material';
 import GuiPanelSection from './GuiPanelSection';
-
-const Styled = styled('div')(
-  ({ theme }) => `
-& .MuiDivider-root {
-  margin: ${theme.spacing(2)} 0;
-}
-
-& {
-  display: block;
-  text-align: left;
-}
-`
-);
 
 export default function GuiPanelViewOptions() {
   const dispatch = useAppDispatch();
@@ -179,7 +166,16 @@ export default function GuiPanelViewOptions() {
       subtitle={textureFileName}
       subtitleLoadingState={loadTexturesState}
     >
-      <Styled className='textures'>
+      <Box
+        className='textures'
+        sx={{
+          display: 'block',
+          textAlign: 'left',
+          '& .MuiDivider-root': {
+            my: 2
+          }
+        }}
+      >
         {textures}
         {!offsceneTextures.length ? undefined : (
           <>
@@ -191,7 +187,7 @@ export default function GuiPanelViewOptions() {
             {offsceneTextures}
           </>
         )}
-      </Styled>
+      </Box>
       <div className='texture-export-options'>
         {!canExportTextures ? undefined : (
           <div className='export-texture-button-container'>

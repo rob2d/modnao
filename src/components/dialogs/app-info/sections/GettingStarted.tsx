@@ -1,44 +1,16 @@
 import {
+  Box,
   Button,
   Link,
   Step,
   StepContent,
   StepLabel,
   Stepper,
-  styled,
   Typography
 } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
 import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
-
-const Styled = styled('div')(
-  ({ theme }) => `& {
-  
-  .MuiButton-root {
-    pointer-events: none;
-  }
-
-  & .highlight {
-    font-weight: bold;
-  }
-
-  & .MuiTypography-root {
-    text-wrap: balance;
-  }
-
-  .burger-menu-icon {
-    position: relative;
-    top: 6px;
-  }
-
-  .model-no-highlight {
-    font-weight: bold;
-    border-bottom: 2px solid ${theme.palette.secondary.main};
-    margin: 0 1px;
-  }
-}`
-);
 
 const noop = () => undefined;
 
@@ -46,7 +18,28 @@ export default function GettingStarted() {
   return (
     <div className='app-info-section getting-started'>
       <DialogSectionHeader>Getting Started</DialogSectionHeader>
-      <Styled>
+      <Box
+        sx={{
+          '& .MuiButton-root': {
+            pointerEvents: 'none'
+          },
+          '& .highlight': {
+            fontWeight: 'bold'
+          },
+          '& .MuiTypography-root': {
+            textWrap: 'balance'
+          },
+          '& .burger-menu-icon': {
+            position: 'relative',
+            top: '6px'
+          },
+          '& .model-no-highlight': {
+            fontWeight: 'bold',
+            borderBottom: '2px solid var(--mui-palette-secondary-main)',
+            mx: '1px'
+          }
+        }}
+      >
         <Stepper orientation='vertical' nonLinear>
           <Step key='Extract Game Files' active={true}>
             <StepLabel>Extract Game Files</StepLabel>
@@ -126,7 +119,7 @@ export default function GettingStarted() {
             </StepContent>
           </Step>
         </Stepper>
-      </Styled>
+      </Box>
     </div>
   );
 }

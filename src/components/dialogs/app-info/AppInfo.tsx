@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Button, Divider, styled } from '@mui/material';
+import { Box, Button, Divider } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiChevronDoubleRight } from '@mdi/js';
 import Contributors from './sections/Contributors';
@@ -12,70 +12,6 @@ import { closeDialog } from '@/modules/dialogs';
 import { selectIsAppInfoDialogShown } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 
-const Styled = styled('div')(
-  ({ theme }) => `
-    & {
-      display: grid;
-      grid-template-columns: 5fr 7fr 5fr;
-      grid-template-rows: 1fr 1fr;
-      gap: ${theme.spacing(2)};
-    }
-
-    & .ok-button {
-      position: absolute;
-      bottom: ${theme.spacing(2)};
-      right: ${theme.spacing(2)};
-    }
-
-    ${theme.breakpoints.up('lg')} {
-      & .getting-started {
-        grid-row-start: 1;
-        grid-row-end: 3;
-      }
-
-      & .dev-updates {
-        grid-row-start: 1;
-        grid-row-end: 2;
-      }
-
-      & .howto-and-contributions {
-        grid-row-start: 1;
-        grid-row-end: 4;
-      }
-    }
-
-
-    ${theme.breakpoints.down('lg')} {
-      & {
-        grid-template-rows: 1fr 1fr 1fr 1fr;
-        grid-template-columns: none;
-      }
-    }*
-
-    & > * {
-      overflow-y: auto;
-    }
-
-    & .app-info-section:not(:last-child):not(.MuiDivider-root) {
-      padding-bottom: ${theme.spacing(3)};
-    }
-
-    .howto-and-contributions .MuiDivider-root {
-      margin-bottom: ${theme.spacing(2)};
-    }
-    
-    ${theme.breakpoints.up('md')} {
-      & .updates-and-projects > *:not(.MuiDivider-root) {
-        height: 50%;
-        overflow-y: auto;
-      }
-
-      & .updates-and-projects {
-        overflow-y: hidden;
-      }
-    }`
-);
-
 export default function AppInfo() {
   const dispatch = useAppDispatch();
 
@@ -86,7 +22,47 @@ export default function AppInfo() {
   const isAppInfoDialogShown = useAppSelector(selectIsAppInfoDialogShown);
 
   return (
-    <Styled>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: 'none', lg: '5fr 7fr 5fr' },
+        gridTemplateRows: { xs: '1fr 1fr 1fr 1fr', lg: '1fr 1fr' },
+        gap: 2,
+        '& .ok-button': {
+          position: 'absolute',
+          bottom: 'calc(var(--mui-spacing) * 2)',
+          right: 'calc(var(--mui-spacing) * 2)'
+        },
+        '& .getting-started': {
+          gridRowStart: { lg: 1 },
+          gridRowEnd: { lg: 3 }
+        },
+        '& .dev-updates': {
+          gridRowStart: { lg: 1 },
+          gridRowEnd: { lg: 2 }
+        },
+        '& .howto-and-contributions': {
+          gridRowStart: { lg: 1 },
+          gridRowEnd: { lg: 4 }
+        },
+        '& > *': {
+          overflowY: 'auto'
+        },
+        '& .app-info-section:not(:last-child):not(.MuiDivider-root)': {
+          pb: 3
+        },
+        '& .howto-and-contributions .MuiDivider-root': {
+          mb: 2
+        },
+        '& .updates-and-projects > *:not(.MuiDivider-root)': {
+          height: { md: '50%' },
+          overflowY: { md: 'auto' }
+        },
+        '& .updates-and-projects': {
+          overflowY: { md: 'hidden' }
+        }
+      }}
+    >
       <GettingStarted />
       <DevUpdates />
       <div className='howto-and-contributions'>
@@ -106,6 +82,6 @@ export default function AppInfo() {
         )}
       </div>
       <OtherProjects />
-    </Styled>
+    </Box>
   );
 }
