@@ -1,5 +1,7 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 
+import { useResizeObserverSize } from '@/hooks';
+
 type Props = {
   rgbaBuffer?: Uint8Array;
   width: number;
@@ -13,11 +15,29 @@ const pixelatedStyle = { imageRendering: 'pixelated' } as const;
 const ImageBufferCanvas = forwardRef<HTMLCanvasElement, Props>(
   ({ rgbaBuffer, width, height, className, alt }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const renderedSize = useResizeObserverSize(canvasRef, {
+      width,
+      height
+    });
+    const isPixelated =
+      renderedSize.width >= width && renderedSize.height >= height;
+
+    const setCanvasRef = (canvas: HTMLCanvasElement | null) => {
+      canvasRef.current = canvas;
+
+      if (typeof ref === 'function') {
+        ref(canvas);
+        return;
+      }
+
+      if (ref) {
+        ref.current = canvas;
+      }
+    };
 
     useEffect(() => {
-      const canvas =
-        (ref as React.RefObject<HTMLCanvasElement>)?.current ||
-        canvasRef.current;
+      const canvas = canvasRef.current;
+
       if (rgbaBuffer && canvas) {
         const context = canvas.getContext('2d');
         if (context) {
@@ -33,17 +53,17 @@ const ImageBufferCanvas = forwardRef<HTMLCanvasElement, Props>(
           context.putImageData(imageData, 0, 0);
         }
       }
-    }, [rgbaBuffer, width, height, ref]);
+    }, [rgbaBuffer, width, height]);
 
     return (
       <canvas
-        ref={ref || canvasRef}
+        ref={setCanvasRef}
         width={width}
         height={height}
         className={className}
         role='img'
         aria-label={alt}
-        style={pixelatedStyle}
+        style={isPixelated ? pixelatedStyle : undefined}
       />
     );
   }
