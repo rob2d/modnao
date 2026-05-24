@@ -109,7 +109,7 @@ export default function DevUpdates() {
   return (
     <Box
       className='app-info-section dev-updates scroll-body'
-      sx={(theme) => ({
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         '& .MuiButtonBase-root': {
@@ -125,22 +125,17 @@ export default function DevUpdates() {
         '& .MuiCardContent-root': {
           display: 'flex',
           flexDirection: 'column',
-          flexBasis: '85%',
+          flexBasis: { xs: '100%', md: '85%' },
           textAlign: 'left'
         },
         '& .MuiCardMedia-root': {
           width: '15%',
           height: '100%'
         },
-        [theme.breakpoints.down('md')]: {
-          '& .vlog-entry-image': {
-            display: 'none'
-          },
-          '& .MuiCardContent-root': {
-            flexBasis: '100%'
-          }
+        '& .vlog-entry-image': {
+          display: { xs: 'none', md: 'block' }
         }
-      })}
+      }}
     >
       <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
       <DialogSectionContentCards>{vlogContent}</DialogSectionContentCards>

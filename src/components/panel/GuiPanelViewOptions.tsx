@@ -170,7 +170,7 @@ export default function GuiPanelViewOptions() {
     <GuiPanelSection title='View Options'>
       <Box
         className='view-options'
-        sx={(theme) => ({
+        sx={{
           '& .MuiSlider-root': {
             width: 'calc(100% - 124px)',
             ml: 2,
@@ -195,9 +195,9 @@ export default function GuiPanelViewOptions() {
           '& .experimental-divider': {
             width: '100%',
             height: '1px',
-            borderBottom: `${theme.palette.error.main} 1px dashed`
+            borderBottom: '1px dashed var(--mui-palette-error-main)'
           }
-        })}
+        }}
       >
         <Grid container className='property-table'>
           <Grid

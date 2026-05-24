@@ -98,11 +98,11 @@ export default function TextureView() {
 
     return (
       <Box
-        sx={(theme) => ({
+        sx={{
           position: 'absolute',
-          top: theme.spacing(1),
-          right: theme.spacing(2)
-        })}
+          top: 'var(--mui-spacing)',
+          right: 'calc(var(--mui-spacing) * 2)'
+        }}
       >
         <ButtonGroup>
           <Button
@@ -126,7 +126,7 @@ export default function TextureView() {
 
   return (
     <Box
-      sx={(theme) => ({
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
@@ -164,12 +164,8 @@ export default function TextureView() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          width: '100%'
-        },
-        [theme.breakpoints.down('md')]: {
-          '& .texture-controls > *, & .texture-controls > * > ul': {
-            flexDirection: 'column'
-          }
+          width: '100%',
+          flexDirection: { xs: 'column', md: 'row' }
         },
         '& .texture-controls > * > *, & .texture-controls > * > ul > *': {
           flexGrow: 1,
@@ -202,8 +198,8 @@ export default function TextureView() {
           position: 'relative'
         },
         '& .texture-preview > div.file-drag-active:after':
-          themeMixins.fileDragActiveAfter(theme)
-      })}
+          themeMixins.fileDragActiveAfter
+      }}
     >
       <div className='main'>
         {textureAspectRatioSelection}

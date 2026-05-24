@@ -1,7 +1,6 @@
 import { JSX, useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { Button, List, ListItem, ListSubheader, Tooltip } from '@mui/material';
-import type { Theme } from '@mui/material/styles';
 import { useThrottle } from '@uidotdev/usehooks';
 import { HslValues } from '@/utils/textures';
 import { adjustTextureHsl } from '../modelDataThunks';
@@ -10,15 +9,11 @@ import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
 
-const textureColorOptionsListSx = (theme: Theme) => ({
+const textureColorOptionsListSx = {
   '&.texture-view': {
     display: 'flex',
-    p: 0
-  },
-  [theme.breakpoints.down('md')]: {
-    '&.texture-view': {
-      flexDirection: 'column'
-    }
+    p: 0,
+    flexDirection: { xs: 'column', md: 'row' }
   },
   '&.texture-view .MuiListItem-root': {
     px: 0
@@ -30,7 +25,7 @@ const textureColorOptionsListSx = (theme: Theme) => ({
     display: 'flex',
     alignItems: 'center'
   }
-});
+};
 
 const DEFAULT_HSL = {
   h: 0,

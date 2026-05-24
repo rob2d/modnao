@@ -272,7 +272,7 @@ export default function ReplaceTexture() {
   return (
     <>
       <Box
-        sx={(theme) => ({
+        sx={{
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
@@ -284,8 +284,7 @@ export default function ReplaceTexture() {
             flexDirection: 'row',
             flexGrow: 1
           },
-          '& .content.file-drag-active:after':
-            themeMixins.fileDragActiveAfter(theme),
+          '& .content.file-drag-active:after': themeMixins.fileDragActiveAfter,
           '& .section': {
             display: 'flex',
             flexDirection: 'column'
@@ -295,9 +294,7 @@ export default function ReplaceTexture() {
           },
           '& .original-texture': {
             flexShrink: 0,
-            [theme.breakpoints.down('md')]: {
-              maxWidth: '280px'
-            }
+            maxWidth: { xs: '280px', md: 'none' }
           },
           '& .texture-img-container': {
             position: 'relative',
@@ -317,7 +314,7 @@ export default function ReplaceTexture() {
             width: '100%',
             height: '100%',
             opacity: 0.5,
-            backgroundColor: theme.palette.scene.background
+            backgroundColor: 'var(--mui-palette-scene-background)'
           },
           '& .texture-img-container > *': {
             zIndex: 1
@@ -328,7 +325,7 @@ export default function ReplaceTexture() {
             width: '100%',
             mb: 2,
             overflow: 'hidden',
-            backgroundColor: theme.palette.scene.background
+            backgroundColor: 'var(--mui-palette-scene-background)'
           },
           '& .controls': {
             display: 'flex',
@@ -392,7 +389,7 @@ export default function ReplaceTexture() {
             pt: 0,
             pb: 0
           }
-        })}
+        }}
       >
         <div
           className={clsx('content', isDragActive && 'file-drag-active')}

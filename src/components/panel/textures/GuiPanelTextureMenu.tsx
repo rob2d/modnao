@@ -60,15 +60,15 @@ export default function GuiPanelTextureMenu({
 
   return (
     <Box
-      sx={(theme) => ({
+      sx={{
         position: 'absolute',
-        top: theme.spacing(1),
-        right: theme.spacing(0),
+        top: 'var(--mui-spacing)',
+        right: 0,
         '& .MuiIconButton-root svg': {
-          color: theme.palette.primary.contrastText,
+          color: 'var(--mui-palette-primary-contrastText)',
           filter: 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.8))'
         }
-      })}
+      }}
     >
       <IconButton color='primary' aria-haspopup='true' onClick={handleClick}>
         <Icon path={mdiDotsVertical} size={1} />

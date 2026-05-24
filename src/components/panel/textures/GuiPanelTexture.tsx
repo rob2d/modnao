@@ -16,21 +16,20 @@ import { uvToClipPathPoint } from '@/utils/textures';
 
 const IMG_SIZE = '174px';
 
-const panelTextureSx: SxProps<Theme> = (theme) => ({
+const panelTextureSx: SxProps<Theme> = {
   position: 'relative',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
   flexDirection: 'column',
   width: IMG_SIZE,
-  backgroundColor: theme.palette.panelTexture.background ?? 'transparent',
+  backgroundColor: 'var(--mui-palette-panelTexture-background, transparent)',
   '& .image-area': {
     position: 'relative',
     display: 'flex',
     width: '100%'
   },
-  '& .image-area.file-drag-active:after':
-    themeMixins.fileDragActiveAfter(theme),
+  '& .image-area.file-drag-active:after': themeMixins.fileDragActiveAfter,
   '& .img': {
     width: IMG_SIZE,
     height: IMG_SIZE,
@@ -49,7 +48,7 @@ const panelTextureSx: SxProps<Theme> = (theme) => ({
     content: "''",
     borderWidth: '3px',
     borderStyle: 'solid',
-    borderColor: theme.palette.primary.main,
+    borderColor: 'var(--mui-palette-primary-main)',
     pointerEvents: 'none'
   },
   '&.mode-textures.selectable': {
@@ -76,14 +75,14 @@ const panelTextureSx: SxProps<Theme> = (theme) => ({
   },
   '& .size-notation': {
     position: 'absolute',
-    right: theme.spacing(1),
-    bottom: theme.spacing(1),
-    color: theme.palette.primary.contrastText,
+    right: 'var(--mui-spacing)',
+    bottom: 'var(--mui-spacing)',
+    color: 'var(--mui-palette-primary-contrastText)',
     textShadow: '1px 1px 1px black',
     filter: 'drop-shadow(3px 3px 1px black)',
     userSelect: 'none'
   }
-});
+};
 
 export type GuiPanelTextureProps =
   | {

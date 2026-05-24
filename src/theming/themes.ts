@@ -1,4 +1,5 @@
 import { CSSProperties } from 'react';
+import type {} from '@mui/material/themeCssVarsAugmentation';
 import { PaletteMode, Theme } from '@mui/material';
 import localFont from 'next/font/local';
 

@@ -122,7 +122,7 @@ export default function GuiPanel() {
         expansionLevel > 1 && 'expanded',
         expansionLevel > 1 && `expanded-${expansionLevel - 1}`
       )}
-      sx={(theme) => ({
+      sx={{
         position: 'relative',
         height: '100vh',
         transition: `opacity ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease`,
@@ -198,7 +198,7 @@ export default function GuiPanel() {
           justifyContent: 'flex-end'
         },
         '& .textures': {
-          width: `calc(100% + (${theme.spacing(2)} * 2))`,
+          width: 'calc(100% + (var(--mui-spacing) * 4))',
           mx: -2,
           pl: 2,
           mb: 0,
@@ -262,13 +262,13 @@ export default function GuiPanel() {
           backgroundColor: 'transparent',
           transition: `background-color ${TRANSITION_TIME} ease`,
           '&:hover': {
-            backgroundColor: theme.palette.action.hover
+            backgroundColor: 'var(--mui-palette-action-hover)'
           },
           '&.active': {
-            backgroundColor: theme.palette.action.selected
+            backgroundColor: 'var(--mui-palette-action-selected)'
           },
           '& svg': {
-            color: theme.palette.text.hoverHint,
+            color: 'var(--mui-palette-text-hoverHint)',
             opacity: 0
           },
           '&:hover svg, &.active svg': {
@@ -276,7 +276,7 @@ export default function GuiPanel() {
             transition: `opacity ${TRANSITION_TIME} ease`
           }
         }
-      })}
+      }}
     >
       <div
         className={clsx('resize-handle', resizeMouseDown && 'active')}

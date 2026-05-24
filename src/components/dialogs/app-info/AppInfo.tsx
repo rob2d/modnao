@@ -23,31 +23,27 @@ export default function AppInfo() {
 
   return (
     <Box
-      sx={(theme) => ({
+      sx={{
         display: 'grid',
-        gridTemplateColumns: 'none',
-        gridTemplateRows: '1fr 1fr 1fr 1fr',
+        gridTemplateColumns: { xs: 'none', lg: '5fr 7fr 5fr' },
+        gridTemplateRows: { xs: '1fr 1fr 1fr 1fr', lg: '1fr 1fr' },
         gap: 2,
         '& .ok-button': {
           position: 'absolute',
-          bottom: theme.spacing(2),
-          right: theme.spacing(2)
+          bottom: 'calc(var(--mui-spacing) * 2)',
+          right: 'calc(var(--mui-spacing) * 2)'
         },
-        [theme.breakpoints.up('lg')]: {
-          gridTemplateColumns: '5fr 7fr 5fr',
-          gridTemplateRows: '1fr 1fr',
-          '& .getting-started': {
-            gridRowStart: 1,
-            gridRowEnd: 3
-          },
-          '& .dev-updates': {
-            gridRowStart: 1,
-            gridRowEnd: 2
-          },
-          '& .howto-and-contributions': {
-            gridRowStart: 1,
-            gridRowEnd: 4
-          }
+        '& .getting-started': {
+          gridRowStart: { lg: 1 },
+          gridRowEnd: { lg: 3 }
+        },
+        '& .dev-updates': {
+          gridRowStart: { lg: 1 },
+          gridRowEnd: { lg: 2 }
+        },
+        '& .howto-and-contributions': {
+          gridRowStart: { lg: 1 },
+          gridRowEnd: { lg: 4 }
         },
         '& > *': {
           overflowY: 'auto'
@@ -58,16 +54,14 @@ export default function AppInfo() {
         '& .howto-and-contributions .MuiDivider-root': {
           mb: 2
         },
-        [theme.breakpoints.up('md')]: {
-          '& .updates-and-projects > *:not(.MuiDivider-root)': {
-            height: '50%',
-            overflowY: 'auto'
-          },
-          '& .updates-and-projects': {
-            overflowY: 'hidden'
-          }
+        '& .updates-and-projects > *:not(.MuiDivider-root)': {
+          height: { md: '50%' },
+          overflowY: { md: 'auto' }
+        },
+        '& .updates-and-projects': {
+          overflowY: { md: 'hidden' }
         }
-      })}
+      }}
     >
       <GettingStarted />
       <DevUpdates />

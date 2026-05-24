@@ -171,7 +171,7 @@ export default function FileSupportInfo() {
 
         '& .MuiDataGrid-cell.has-issues, & .MuiDataGrid-cell.has-issues:hover':
           {
-            backgroundColor: (t) => t.palette.warningBackground
+            backgroundColor: 'var(--mui-palette-warningBackground)'
           },
 
         '& .MuiDataGrid-footerContainer': {

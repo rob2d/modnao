@@ -80,7 +80,7 @@ export default function PaletteEditor() {
 
   return (
     <Box
-      sx={(theme) => ({
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
@@ -96,16 +96,16 @@ export default function PaletteEditor() {
           display: 'flex',
           alignItems: 'center',
           '& .color.selected .MuiTypography-button': {
-            color: theme.palette.primary.main
+            color: 'var(--mui-palette-primary-main)'
           },
           '& .color.selected .color-box': {
-            borderColor: theme.palette.primary.main
+            borderColor: 'var(--mui-palette-primary-main)'
           },
           '& .color-box': {
             borderWidth: '2px',
             borderStyle: 'solid',
-            width: theme.spacing(4),
-            height: theme.spacing(4)
+            width: 'calc(var(--mui-spacing) * 4)',
+            height: 'calc(var(--mui-spacing) * 4)'
           }
         },
         '& .MuiDivider': {
@@ -135,7 +135,7 @@ export default function PaletteEditor() {
         '& .picker': {
           mr: 4
         }
-      })}
+      }}
     >
       <div className='buttons'>
         {[...buttonsKeyMap.entries()].map(([key, label]) => (

@@ -8,8 +8,7 @@ import {
   Button,
   CircularProgress,
   Paper,
-  Tooltip,
-  useTheme
+  Tooltip
 } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiInformationOutline } from '@mdi/js';
@@ -26,7 +25,6 @@ import ErrorMessage from './ErrorMessage';
 
 export default function MainView() {
   const { guiPanelExpansionLevel } = useContext(ViewOptionsContext);
-  const theme = useTheme();
   const dispatch = useAppDispatch();
   const onShowAppInfoDialog = useCallback(() => {
     dispatch(showDialog('app-info'));
@@ -63,7 +61,7 @@ export default function MainView() {
       <ErrorMessage />
       <Box
         component='main'
-        sx={(theme) => ({
+        sx={{
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
@@ -76,13 +74,12 @@ export default function MainView() {
                   position: 'relative',
                   flexGrow: 1,
                   height: '100%',
-                  display: 'flex',
-                  zIndex: -1
+                  display: 'flex'
                 }
               }),
           '& .scene-button': {
             position: 'absolute',
-            right: theme.spacing(1),
+            right: 'var(--mui-spacing)',
             transition: 'opacity 0.5s ease',
             opacity: 1,
             pointerEvents: 'all'
@@ -92,10 +89,10 @@ export default function MainView() {
             opacity: 0
           },
           '& .palette-button': {
-            bottom: theme.spacing(8)
+            bottom: 'calc(var(--mui-spacing) * 8)'
           },
           '& .info-button': {
-            bottom: theme.spacing(1)
+            bottom: 'var(--mui-spacing)'
           },
           '& .info-button svg': {
             filter: 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))'
@@ -137,7 +134,7 @@ export default function MainView() {
             width: '100%',
             height: '100%'
           }
-        })}
+        }}
       >
         <div
           className={clsx(
@@ -184,8 +181,11 @@ export default function MainView() {
                 x2='0%'
                 y2='100%'
               >
-                <stop offset='0%' stopColor={theme.palette.primary.main} />
-                <stop offset='100%' stopColor={theme.palette.secondary.main} />
+                <stop offset='0%' stopColor='var(--mui-palette-primary-main)' />
+                <stop
+                  offset='100%'
+                  stopColor='var(--mui-palette-secondary-main)'
+                />
               </linearGradient>
             </defs>
           </svg>

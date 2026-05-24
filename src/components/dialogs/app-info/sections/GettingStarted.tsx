@@ -19,7 +19,7 @@ export default function GettingStarted() {
     <div className='app-info-section getting-started'>
       <DialogSectionHeader>Getting Started</DialogSectionHeader>
       <Box
-        sx={(theme) => ({
+        sx={{
           '& .MuiButton-root': {
             pointerEvents: 'none'
           },
@@ -35,10 +35,10 @@ export default function GettingStarted() {
           },
           '& .model-no-highlight': {
             fontWeight: 'bold',
-            borderBottom: `2px solid ${theme.palette.secondary.main}`,
+            borderBottom: '2px solid var(--mui-palette-secondary-main)',
             mx: '1px'
           }
-        })}
+        }}
       >
         <Stepper orientation='vertical' nonLinear>
           <Step key='Extract Game Files' active={true}>
