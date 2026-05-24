@@ -234,7 +234,7 @@ export default function GuiPanel() {
         },
         '&.textures.expanded .texture-export-options > .export-texture-images':
           {
-            flexBasis: '100%'
+            flexBasis: '50%'
           },
         '& .MuiIconButton-root.model-nav-button': {
           width: '28px'
