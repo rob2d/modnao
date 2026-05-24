@@ -6,7 +6,6 @@ import {
   Divider,
   IconButton,
   Skeleton,
-  styled,
   Typography
 } from '@mui/material';
 import {
@@ -32,104 +31,6 @@ import { useMemo, useState } from 'react';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ImageBufferCanvas from './ImageBufferCanvas';
 import { useSelector } from 'react-redux';
-
-const Styled = styled('div')(
-  ({ theme }) =>
-    `& {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      align-items: center;
-      justify-content: center;
-      max-height:100vh;
-    }
-
-    & .main {
-      display: grid;
-      flex-grow: 1;
-      width: 100%;
-      grid-template-columns: min-content auto min-content;
-    }
-
-    & .main > * {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    & .controls-panel {
-      display: flex;
-      flex-shrink: 0;
-    }
-
-    & .center-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      max-height:100%;
-    }
-
-    & .texture-controls {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
-
-    & .texture-controls > *, .texture-controls > * > ul {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-    }
-
-    ${theme.breakpoints.down('md')} {
-      & .texture-controls > *, .texture-controls > * > ul {
-        flex-direction: column;
-      }
-    }
-
-    & .texture-controls > * > *, .texture-controls > * > ul > * {
-      flex-grow: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    & .texture-preview {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      width: var(--size);
-      height: var(--size);
-    }
-    
-    & .texture-preview > div {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform: rotate(-90deg);
-    }
-
-    & .texture-preview-canvas {
-      width: var(--size);
-      height: var(--size);
-    }
-
-    & .game-aspect-ratio .texture-preview-canvas {
-      height: calc(var(--size) * var(--aspect-ratio));
-    }
-
-    & .texture-preview > * {
-      position: relative;
-    }
-    
-    & .texture-preview > div.file-drag-active:after {
-      ${themeMixins.fileDragActiveAfter(theme)}
-    }`
-);
 
 function TextureViewControlsButton({
   onClick,
@@ -224,7 +125,86 @@ export default function TextureView() {
   }, [viewInGameRatio, textureIndex, hasAspectRatio]);
 
   return (
-    <Styled>
+    <Box
+      sx={(theme) => ({
+        display: 'flex',
+        flexDirection: 'column',
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        maxHeight: '100vh',
+        '& .main': {
+          display: 'grid',
+          flexGrow: 1,
+          width: '100%',
+          gridTemplateColumns: 'min-content auto min-content'
+        },
+        '& .main > *': {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        '& .controls-panel': {
+          display: 'flex',
+          flexShrink: 0
+        },
+        '& .center-section': {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          maxHeight: '100%'
+        },
+        '& .texture-controls': {
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%'
+        },
+        '& .texture-controls > *, & .texture-controls > * > ul': {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%'
+        },
+        [theme.breakpoints.down('md')]: {
+          '& .texture-controls > *, & .texture-controls > * > ul': {
+            flexDirection: 'column'
+          }
+        },
+        '& .texture-controls > * > *, & .texture-controls > * > ul > *': {
+          flexGrow: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        },
+        '& .texture-preview': {
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 'var(--size)',
+          height: 'var(--size)'
+        },
+        '& .texture-preview > div': {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transform: 'rotate(-90deg)'
+        },
+        '& .texture-preview-canvas': {
+          width: 'var(--size)',
+          height: 'var(--size)'
+        },
+        '& .game-aspect-ratio .texture-preview-canvas': {
+          height: 'calc(var(--size) * var(--aspect-ratio))'
+        },
+        '& .texture-preview > *': {
+          position: 'relative'
+        },
+        '& .texture-preview > div.file-drag-active:after':
+          themeMixins.fileDragActiveAfter(theme)
+      })}
+    >
       <div className='main'>
         {textureAspectRatioSelection}
         <div className='model-nav-button'>
@@ -284,6 +264,6 @@ export default function TextureView() {
         </div>
       </div>
       <div className='controls-panel'></div>
-    </Styled>
+    </Box>
   );
 }

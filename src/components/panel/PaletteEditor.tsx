@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { SketchPicker } from 'react-color';
 import {
+  Box,
   ButtonBase,
   IconButton,
   Popover,
   ScenePalette,
-  styled,
   Tooltip,
   useTheme
 } from '@mui/material';
@@ -13,80 +13,6 @@ import clsx from 'clsx';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import Icon from '@mdi/react';
 import { mdiThemeLightDark } from '@mdi/js';
-
-const Styled = styled('div')(
-  ({ theme }) =>
-    `& {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      align-items: flex-end;
-    }
-
-    & .color {
-      display: flex;
-      align-items: center;
-    }
-
-    & .color:not(:last-child) {
-      margin-right: ${theme.spacing(1)};
-    }
-
-    & div.buttons {
-      display: flex;
-      align-items: center;
-
-      & .color.selected .MuiTypography-button {
-        color: ${theme.palette.primary.main};
-      }
-
-      & .color.selected .color-box {
-        border-color: ${theme.palette.primary.main};
-      }
-
-      & .color-box {
-        border-width: 2px;
-        border-style: solid;
-        width: ${theme.spacing(4)};
-        height: ${theme.spacing(4)};
-      }
-    }
-
-    & .MuiDivider {
-      display: flex;
-      align-items: center;
-    }
-
-    & .MuiTypography-subtitle2 {
-      display: flex;
-      align-items: center;
-    }
-
-    & .popover {
-      position: fixed;
-      zIndex: 2;
-      left: -30px;
-    }
-
-    /* escapes the popover from the overflow of the main view */
-    & .popover-content {
-      position: fixed;
-    }
-
-    & .cover {
-      position: fixed;
-      top: 0px;
-      right: 0px;
-      bottom: 0px;
-      left: 0px;
-      overflow: visible;
-    }
-
-    & .picker {
-      margin-right: 32px;
-    }
-    `
-);
 
 const buttonsKeyMap = new Map<string, string>([
   ['background', 'Background'],
@@ -153,7 +79,64 @@ export default function PaletteEditor() {
   );
 
   return (
-    <Styled>
+    <Box
+      sx={(theme) => ({
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        alignItems: 'flex-end',
+        '& .color': {
+          display: 'flex',
+          alignItems: 'center'
+        },
+        '& .color:not(:last-child)': {
+          mr: 1
+        },
+        '& div.buttons': {
+          display: 'flex',
+          alignItems: 'center',
+          '& .color.selected .MuiTypography-button': {
+            color: theme.palette.primary.main
+          },
+          '& .color.selected .color-box': {
+            borderColor: theme.palette.primary.main
+          },
+          '& .color-box': {
+            borderWidth: '2px',
+            borderStyle: 'solid',
+            width: theme.spacing(4),
+            height: theme.spacing(4)
+          }
+        },
+        '& .MuiDivider': {
+          display: 'flex',
+          alignItems: 'center'
+        },
+        '& .MuiTypography-subtitle2': {
+          display: 'flex',
+          alignItems: 'center'
+        },
+        '& .popover': {
+          position: 'fixed',
+          zIndex: 2,
+          left: '-30px'
+        },
+        '& .popover-content': {
+          position: 'fixed'
+        },
+        '& .cover': {
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          overflow: 'visible'
+        },
+        '& .picker': {
+          mr: 4
+        }
+      })}
+    >
       <div className='buttons'>
         {[...buttonsKeyMap.entries()].map(([key, label]) => (
           <Tooltip title={label} key={key}>
@@ -189,6 +172,6 @@ export default function PaletteEditor() {
           />
         </Popover>
       )}
-    </Styled>
+    </Box>
   );
 }

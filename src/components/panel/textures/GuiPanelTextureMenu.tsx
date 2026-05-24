@@ -4,30 +4,9 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
-import { Divider, styled, Tooltip } from '@mui/material';
+import { Box, Divider, Tooltip } from '@mui/material';
 import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
 import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
-
-const StyledMenuButtonContainer = styled('div')(
-  ({ theme }) => `& {
-    position: absolute;
-    top: ${theme.spacing(1)};
-    right: ${theme.spacing(0)};
-  }
-
-  & .MuiIconButton-root svg {
-    color: ${theme.palette.primary.contrastText};
-    filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.8));
-  }`
-);
-
-const StyledMenu = styled(Menu)(
-  ({ theme }) => `
-    li.MuiMenuItem-root > svg {
-      margin-right: ${theme.spacing(2)};
-    }
-    `
-);
 
 /**
  * menu sits on a Popper, so it is a bit cleaner
@@ -80,21 +59,36 @@ export default function GuiPanelTextureMenu({
   );
 
   return (
-    <StyledMenuButtonContainer>
+    <Box
+      sx={(theme) => ({
+        position: 'absolute',
+        top: theme.spacing(1),
+        right: theme.spacing(0),
+        '& .MuiIconButton-root svg': {
+          color: theme.palette.primary.contrastText,
+          filter: 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.8))'
+        }
+      })}
+    >
       <IconButton color='primary' aria-haspopup='true' onClick={handleClick}>
         <Icon path={mdiDotsVertical} size={1} />
       </IconButton>
-      <StyledMenu
+      <Menu
         style={MENU_OFFSET_STYLE}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         anchorOrigin={MENU_ANCHOR_ORIGIN}
+        sx={{
+          'li.MuiMenuItem-root > svg': {
+            mr: 2
+          }
+        }}
       >
         {options}
         <Divider />
         <TextureColorOptions textureIndex={textureIndex} variant='menu' />
-      </StyledMenu>
-    </StyledMenuButtonContainer>
+      </Menu>
+    </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box } from '@mui/material';
 import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid';
 import DialogSectionHeader from '../DialogSectionHeader';
 import clsx from 'clsx';

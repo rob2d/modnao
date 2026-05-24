@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ButtonBase, Skeleton, styled, Tooltip } from '@mui/material';
+import { Box, ButtonBase, Skeleton, Tooltip } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 import type { ContentViewMode, NLUITextureDef } from '@/types';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import { selectMesh } from '@/selectors';
@@ -15,88 +16,74 @@ import { uvToClipPathPoint } from '@/utils/textures';
 
 const IMG_SIZE = '174px';
 
-const StyledPanelTexture = styled('div')(
-  ({ theme }) =>
-    `
-  & {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      width: ${IMG_SIZE};
-      background-color: ${theme.palette.panelTexture.background};
+const panelTextureSx: SxProps<Theme> = (theme) => ({
+  position: 'relative',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+  width: IMG_SIZE,
+  backgroundColor: theme.palette.panelTexture.background ?? 'transparent',
+  '& .image-area': {
+    position: 'relative',
+    display: 'flex',
+    width: '100%'
+  },
+  '& .image-area.file-drag-active:after':
+    themeMixins.fileDragActiveAfter(theme),
+  '& .img': {
+    width: IMG_SIZE,
+    height: IMG_SIZE,
+    borderColor: 'transparent',
+    borderWidth: '3px',
+    borderStyle: 'solid',
+    opacity: 1,
+    transform: 'rotate(-90deg)'
+  },
+  '& .selected:after': {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    content: "''",
+    borderWidth: '3px',
+    borderStyle: 'solid',
+    borderColor: theme.palette.primary.main,
+    pointerEvents: 'none'
+  },
+  '&.mode-textures.selectable': {
+    cursor: 'pointer'
+  },
+  '& .uv-overlay': {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: IMG_SIZE,
+    height: IMG_SIZE,
+    border: '3px solid transparent',
+    pointerEvents: 'none'
+  },
+  '& .uv-overlay canvas': {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
+    transform: 'rotate(-90deg)',
+    pointerEvents: 'none'
+  },
+  '& .size-notation': {
+    position: 'absolute',
+    right: theme.spacing(1),
+    bottom: theme.spacing(1),
+    color: theme.palette.primary.contrastText,
+    textShadow: '1px 1px 1px black',
+    filter: 'drop-shadow(3px 3px 1px black)',
+    userSelect: 'none'
   }
-      
-  & .image-area {
-    position: relative;
-    display: flex;
-    width: 100%;
-  }
-
-  & .image-area.file-drag-active:after {
-    ${themeMixins.fileDragActiveAfter(theme)}
-  }
-    
-  & .img {
-    width: ${IMG_SIZE};
-    height: ${IMG_SIZE};
-    border-color: transparent;
-    border-width: 3px;
-    border-style: solid;
-    opacity: 1.0;
-    transform: rotate(-90deg);
-  }
-
-  & .selected:after {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    content: '';
-    border-width: 3px;
-    border-style: solid;
-    border-color: ${theme.palette.primary.main};
-    pointer-events: none;
-  }
-
-  &.mode-textures.selectable {
-    cursor: pointer;
-  }
-
-  .uv-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: ${IMG_SIZE};
-    height: ${IMG_SIZE};
-    border: 3px solid transparent;
-    pointer-events: none;
-  }
-
-  .uv-overlay canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    transform: rotate(-90deg);
-    pointer-events: none;
-  }
-
-  & .size-notation {
-    position: absolute;
-    right: ${theme.spacing(1)};
-    bottom: ${theme.spacing(1)};
-    color: ${theme.palette.primary.contrastText};
-    text-shadow: 1px 1px 1px black;
-    filter: drop-shadow(3px 3px 1px black);
-    user-select: none;
-  }
-  `
-);
+});
 
 export type GuiPanelTextureProps =
   | {
@@ -295,11 +282,12 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
 
   if (!imageBufferKey) {
     return (
-      <StyledPanelTexture
+      <Box
         className={clsx(
           `mode-${contentViewMode}`,
           isSelectable && 'selectable'
         )}
+        sx={panelTextureSx}
       >
         <Skeleton
           variant='rectangular'
@@ -307,7 +295,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
           width='100%'
           className='img'
         />
-      </StyledPanelTexture>
+      </Box>
     );
   }
 
@@ -323,12 +311,13 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   );
 
   return (
-    <StyledPanelTexture
+    <Box
       className={clsx(
         `mode-${contentViewMode}`,
         isSelectable && 'selectable',
         viewOptions.uvRegionsHighlighted && 'uvs-enabled'
       )}
+      sx={panelTextureSx}
     >
       {!isSelectable ? (
         <div {...mainContentProps}>{content}</div>
@@ -344,6 +333,6 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
           onReplaceImageFile={onSelectNewImageFile}
         />
       ) : undefined}
-    </StyledPanelTexture>
+    </Box>
   );
 }

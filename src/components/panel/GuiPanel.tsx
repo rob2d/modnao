@@ -1,6 +1,6 @@
 import Img from 'next/image';
 import Icon from '@mdi/react';
-import { Divider, Paper, styled } from '@mui/material';
+import { Divider, Paper } from '@mui/material';
 import {
   LegacyRef,
   RefObject,
@@ -35,213 +35,6 @@ const expandLevelIcons = [
   mdiArrowExpandHorizontal,
   mdiArrowExpandRight
 ];
-
-const StyledPaper = styled(Paper)(
-  {
-    shouldForwardProp: (prop: string) =>
-      prop !== 'textColor' && prop !== 'buttonTextColor'
-  },
-  ({ theme }) => `
-    &.MuiPaper-root {
-      position: relative;
-      height: 100vh;
-      transition: opacity ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease;
-      opacity: 1;
-      pointer-events: all;
-      overflow: hidden;
-    }
-
-    &.collapsed:not(.welcome):not(:hover) {
-      opacity: 0;
-    }
-
-    &.MuiPaper-root {
-      width: ${PANEL_WIDTHS[1]}px;
-      flex-shrink: 0;
-    }
-
-    &.MuiPaper-root.collapsed {
-      width: ${PANEL_WIDTHS[0]}px;
-      flex-shrink: 0;
-    }
-
-    &.MuiPaper-root.expanded-1 {
-      width: ${PANEL_WIDTHS[2]}px;
-    }
-
-    &.MuiPaper-root.expanded-2 {
-      width: ${PANEL_WIDTHS[3]}px;
-    }
-
-    & > .content {
-      container-name: panel;
-      container-type: normal;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      flex-shrink: 0;
-      
-      display: flex;
-      flex-direction: column; 
-      align-items: flex-end;
-      box-sizing: border-box;
-      padding-left: ${theme.spacing(2)};
-      padding-right: ${theme.spacing(2)};
-      padding-top: 0;
-      padding-bottom: 0;
-    }
-
-    & > .content {
-      width: 100%;
-      opacity: 1;
-      transition: opacity ${TRANSITION_TIME} ease;
-    }
-
-    &.collapsed:not(.welcome) {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
-
-    &.collapsed:not(.welcome) > .content {
-      opacity: 0;
-    }
-
-    & .content .MuiToggleButtonGroup-root:not(:first-item):not(.display-mode) {
-      margin-top: ${theme.spacing(1)};
-    }
-
-    & .content .MuiToggleButtonGroup-root {
-      margin-bottom: ${theme.spacing(1)};
-    }
-
-    & .content .MuiToggleButtonGroup-root .MuiButtonBase-root {
-      width: 100%;
-      justify-content: center;
-    }
-
-    & .content > .MuiTypography-subtitle2, & .content > :not(.MuiDivider-root):not(.textures) {
-      width: 100%;
-    }
-
-    &.expanded .content #select-pol-or-tex-button {
-      margin-bottom: 0px;
-    }
-
-    & .property-table *:nth-of-type(even) {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    & .settings-row {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    & .textures {
-      width: calc(100% + (${theme.spacing(2)} * 2));
-      margin-left: -${theme.spacing(2)};
-      margin-right: -${theme.spacing(2)};
-      padding-left: ${theme.spacing(2)};
-      margin-bottom: 0;
-      flex-grow: 2;
-      overflow-y: auto;
-    }
-
-    & .view-options {
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      flex-grow: 0;
-    }
-
-    & .MuiButton-root.MuiButton-outlined {
-      justify-content: center;
-    }
-
-    & .MuiButton-root.MuiButton-outlined:not(:last-child),
-    &.panel:not(.expanded) .export-texture-button-container:not(:last-child),
-    &.panel:not(.expanded) .export-texture-images:not(:last-child) {
-      margin-bottom: ${theme.spacing(1)};
-    }
-
-    & .texture-export-options {
-      display: flex;
-      flex-direction: column;
-      margin-top: ${theme.spacing(1)};
-      margin-bottom: ${theme.spacing(1)};
-    }
-
-    &.expanded .texture-export-options {
-      flex-direction: row;
-    }
-
-    &.expanded .texture-export-options > *:nth-child(1) {
-      margin-right: ${theme.spacing(1)};
-    }
-
-    &.expanded .texture-export-options > * {
-      flex-basis: 50%;
-    }
-
-    &.textures.expanded .texture-export-options > .export-texture-images {
-      flex-basis: 100%;
-    }
-
-    & .MuiIconButton-root.model-nav-button {
-      width: 28px;
-    }
-
-    & .grid-control-label {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-    }
-
-    &.collapsed .resize-handle {
-      width: calc(100%);
-    }
-
-    & .resize-handle {
-      user-select: none;
-      cursor: col-resize;
-      position: absolute;
-      top: 0;
-      left: 0px;
-      width: 16px;
-      height: 100%;
-      z-index: 1;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background-color: transparent;
-      transition: background-color ${TRANSITION_TIME} ease;
-
-      &:hover {
-        background-color: ${theme.palette.action.hover};
-      }
-
-      &.active {
-        background-color: ${theme.palette.action.selected};
-      }
-
-      & svg {
-        color: ${theme.palette.text.hoverHint};
-        opacity: 0;
-      }
-
-      &:hover svg, &.active svg {
-        opacity: 1;
-        transition: opacity ${TRANSITION_TIME} ease;
-      }
-    }
-  `
-);
 
 const PANEL_DRAG_THRESHOLD = 24;
 
@@ -319,7 +112,7 @@ export default function GuiPanel() {
   }, [viewOptions.guiPanelExpansionLevel]);
 
   return (
-    <StyledPaper
+    <Paper
       square
       className={clsx(
         'panel',
@@ -329,6 +122,161 @@ export default function GuiPanel() {
         expansionLevel > 1 && 'expanded',
         expansionLevel > 1 && `expanded-${expansionLevel - 1}`
       )}
+      sx={(theme) => ({
+        position: 'relative',
+        height: '100vh',
+        transition: `opacity ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease`,
+        opacity: 1,
+        pointerEvents: 'all',
+        overflow: 'hidden',
+        width: `${PANEL_WIDTHS[1]}px`,
+        flexShrink: 0,
+        '&.collapsed:not(.welcome):not(:hover)': {
+          opacity: 0
+        },
+        '&.collapsed': {
+          width: `${PANEL_WIDTHS[0]}px`,
+          flexShrink: 0
+        },
+        '&.expanded-1': {
+          width: `${PANEL_WIDTHS[2]}px`
+        },
+        '&.expanded-2': {
+          width: `${PANEL_WIDTHS[3]}px`
+        },
+        '& > .content': {
+          containerName: 'panel',
+          containerType: 'normal',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100vh',
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          boxSizing: 'border-box',
+          px: 2,
+          py: 0,
+          opacity: 1,
+          transition: `opacity ${TRANSITION_TIME} ease`
+        },
+        '&.collapsed:not(.welcome)': {
+          position: 'absolute',
+          top: 0,
+          right: 0
+        },
+        '&.collapsed:not(.welcome) > .content': {
+          opacity: 0
+        },
+        '& .content .MuiToggleButtonGroup-root:not(:first-item):not(.display-mode)':
+          {
+            mt: 1
+          },
+        '& .content .MuiToggleButtonGroup-root': {
+          mb: 1
+        },
+        '& .content .MuiToggleButtonGroup-root .MuiButtonBase-root': {
+          width: '100%',
+          justifyContent: 'center'
+        },
+        '& .content > .MuiTypography-subtitle2, & .content > :not(.MuiDivider-root):not(.textures)':
+          {
+            width: '100%'
+          },
+        '&.expanded .content #select-pol-or-tex-button': {
+          mb: 0
+        },
+        '& .property-table *:nth-of-type(even)': {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end'
+        },
+        '& .settings-row': {
+          display: 'flex',
+          justifyContent: 'flex-end'
+        },
+        '& .textures': {
+          width: `calc(100% + (${theme.spacing(2)} * 2))`,
+          mx: -2,
+          pl: 2,
+          mb: 0,
+          flexGrow: 2,
+          overflowY: 'auto'
+        },
+        '& .view-options': {
+          display: 'flex',
+          flexDirection: 'column',
+          flexShrink: 0,
+          flexGrow: 0
+        },
+        '& .MuiButton-root.MuiButton-outlined': {
+          justifyContent: 'center'
+        },
+        '& .MuiButton-root.MuiButton-outlined:not(:last-child), &.panel:not(.expanded) .export-texture-button-container:not(:last-child), &.panel:not(.expanded) .export-texture-images:not(:last-child)':
+          {
+            mb: 1
+          },
+        '& .texture-export-options': {
+          display: 'flex',
+          flexDirection: 'column',
+          my: 1
+        },
+        '&.expanded .texture-export-options': {
+          flexDirection: 'row'
+        },
+        '&.expanded .texture-export-options > *:nth-child(1)': {
+          mr: 1
+        },
+        '&.expanded .texture-export-options > *': {
+          flexBasis: '50%'
+        },
+        '&.textures.expanded .texture-export-options > .export-texture-images':
+          {
+            flexBasis: '100%'
+          },
+        '& .MuiIconButton-root.model-nav-button': {
+          width: '28px'
+        },
+        '& .grid-control-label': {
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'center'
+        },
+        '&.collapsed .resize-handle': {
+          width: '100%'
+        },
+        '& .resize-handle': {
+          userSelect: 'none',
+          cursor: 'col-resize',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '16px',
+          height: '100%',
+          zIndex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'transparent',
+          transition: `background-color ${TRANSITION_TIME} ease`,
+          '&:hover': {
+            backgroundColor: theme.palette.action.hover
+          },
+          '&.active': {
+            backgroundColor: theme.palette.action.selected
+          },
+          '& svg': {
+            color: theme.palette.text.hoverHint,
+            opacity: 0
+          },
+          '&:hover svg, &.active svg': {
+            opacity: 1,
+            transition: `opacity ${TRANSITION_TIME} ease`
+          }
+        }
+      })}
     >
       <div
         className={clsx('resize-handle', resizeMouseDown && 'active')}
@@ -364,6 +312,6 @@ export default function GuiPanel() {
           </>
         )}
       </div>
-    </StyledPaper>
+    </Paper>
   );
 }

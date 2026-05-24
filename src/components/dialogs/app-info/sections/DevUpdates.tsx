@@ -2,12 +2,12 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import {
+  Box,
   ButtonBase,
   Card,
   CardContent,
   CardMedia,
   Skeleton,
-  styled,
   Typography
 } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
@@ -24,50 +24,6 @@ type Vlog = {
   thumbnailUrl: string;
   publishedAt: string;
 };
-
-const StyledContent = styled('div')(
-  ({ theme }) => `
-& {
-  display: flex;
-  flex-direction: column;
-}
-
-& .MuiButtonBase-root {
-  width: 100%;
-}
-
-& .vlog-entry {
-  width: 100%;
-  height: auto;
-}
-
-& .MuiCard-root {
-  display: flex; 
-}
-
-& .MuiCardContent-root {
-  display: flex;
-  flex-direction: column;
-  flex-basis: 85%;
-  text-align: left;
-}
-
-& .MuiCardMedia-root {
-  width: 15%; 
-  height: 100%;
-}
-
-${theme.breakpoints.down('md')} {
-  & .vlog-entry-image {
-    display: none;
-  }
-
-  & .MuiCardContent-root {
-    flex-basis: 100%;
-  }
-}
-`
-);
 
 const origin =
   typeof window !== 'undefined' && window.location.origin
@@ -151,9 +107,43 @@ export default function DevUpdates() {
         ));
 
   return (
-    <StyledContent className='app-info-section dev-updates scroll-body'>
+    <Box
+      className='app-info-section dev-updates scroll-body'
+      sx={(theme) => ({
+        display: 'flex',
+        flexDirection: 'column',
+        '& .MuiButtonBase-root': {
+          width: '100%'
+        },
+        '& .vlog-entry': {
+          width: '100%',
+          height: 'auto'
+        },
+        '& .MuiCard-root': {
+          display: 'flex'
+        },
+        '& .MuiCardContent-root': {
+          display: 'flex',
+          flexDirection: 'column',
+          flexBasis: '85%',
+          textAlign: 'left'
+        },
+        '& .MuiCardMedia-root': {
+          width: '15%',
+          height: '100%'
+        },
+        [theme.breakpoints.down('md')]: {
+          '& .vlog-entry-image': {
+            display: 'none'
+          },
+          '& .MuiCardContent-root': {
+            flexBasis: '100%'
+          }
+        }
+      })}
+    >
       <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
       <DialogSectionContentCards>{vlogContent}</DialogSectionContentCards>
-    </StyledContent>
+    </Box>
   );
 }

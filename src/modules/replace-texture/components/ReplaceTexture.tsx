@@ -15,13 +15,13 @@ import {
 } from '@mdi/js';
 import Icon from '@mdi/react';
 import {
+  Box,
   Button,
   Checkbox,
   Divider,
   FormControlLabel,
   Skeleton,
   Slider,
-  styled,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -41,164 +41,6 @@ import { useFilePicker } from 'use-file-picker';
 import themeMixins from '@/theming/themeMixins';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
-
-const Styled = styled('div')(
-  ({ theme }) => `
-& {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-& .MuiTypography-h5 {
-  margin-bottom: ${theme.spacing(2)};
-}
-
-& .content {
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-}
-
-& .content.file-drag-active:after {
-    ${themeMixins.fileDragActiveAfter}
-}
-
-& .section {
-  display: flex;
-  flex-direction: column;
-}
-
-& .replacement-setup {
-  flex-grow: 6;
-}
-
-& .original-texture {
-  flex-shrink: 0;
-
-  ${theme.breakpoints.down('md')} {
-    max-width: 280px;
-  }
-}
-
-& .texture-img-container {
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  margin-bottom: ${theme.spacing(1)};
-  object-fit: cover;
-}
-
-& .texture-img-container::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.5;
-  background-color: ${theme.palette.scene.background};
-}
-
-& .texture-img-container > * {
-  z-index: 1;
-}
-
-& .cropper {
-  flex-grow: 1;
-  position: relative;
-  width: 100%;
-  margin-bottom: ${theme.spacing(2)};
-  overflow: hidden;
-  background-color: ${theme.palette.scene.background};
-}
-
-& .controls {
-  display: flex;
-  justify-content: space-between;
-}
-
-& .controls .button-group {
-  display: inline-flex;
-}
-
-& .controls .button-group .MuiButtonBase-root.MuiButton-root {
-  min-width: 60px;
-}
-
-& .controls .MuiSlider-root {
-  min-width: 120px;
-  margin-left: ${theme.spacing(2)};
-}
-
-& .controls .MuiFormControlLabel-label {
-  display: flex;
-  align-items: center;
-}
-
-
-& .original-texture.section .MuiFormControlLabel-labelPlacementEnd {
-  display: block;
-}
-
-
-& .controls > .MuiButton-root {
-  min-width: 48px;
-  margin-left: ${theme.spacing(1)};
-}
-
-& .MuiDivider-vertical {
-  margin: 0 ${theme.spacing(2)};
-}
-
-& .MuiDivider-root:not(.MuiDivider-vertical) {
-  margin: ${theme.spacing(2)} 0;
-}
-
-& .MuiButton-root .icon-check {
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-
-
-& .origin-metadata {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-& .origin-metadata > .MuiTypography-root {
-  display: flex;
-  align-items: center;
-}
-
-& .origin-metadata > :nth-child(even) {
-  justify-content: flex-end;
-}
-
-& .result {
-  flex-grow: 1;
-
-}
-
-& .dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-& .dialog-actions > .MuiButton-root:not(:last-child) {
-  margin-right: ${theme.spacing(2)};
-}
-
-& .MuiButtonBase-root.MuiCheckbox-root {
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
-`
-);
 
 const DEFAULT_FLIP_STATE = { horizontal: false, vertical: false };
 
@@ -429,7 +271,129 @@ export default function ReplaceTexture() {
 
   return (
     <>
-      <Styled>
+      <Box
+        sx={(theme) => ({
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          '& .MuiTypography-h5': {
+            mb: 2
+          },
+          '& .content': {
+            display: 'flex',
+            flexDirection: 'row',
+            flexGrow: 1
+          },
+          '& .content.file-drag-active:after':
+            themeMixins.fileDragActiveAfter(theme),
+          '& .section': {
+            display: 'flex',
+            flexDirection: 'column'
+          },
+          '& .replacement-setup': {
+            flexGrow: 6
+          },
+          '& .original-texture': {
+            flexShrink: 0,
+            [theme.breakpoints.down('md')]: {
+              maxWidth: '280px'
+            }
+          },
+          '& .texture-img-container': {
+            position: 'relative',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            m: 0,
+            mb: 1,
+            objectFit: 'cover'
+          },
+          '& .texture-img-container::before': {
+            content: "''",
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '100%',
+            opacity: 0.5,
+            backgroundColor: theme.palette.scene.background
+          },
+          '& .texture-img-container > *': {
+            zIndex: 1
+          },
+          '& .cropper': {
+            flexGrow: 1,
+            position: 'relative',
+            width: '100%',
+            mb: 2,
+            overflow: 'hidden',
+            backgroundColor: theme.palette.scene.background
+          },
+          '& .controls': {
+            display: 'flex',
+            justifyContent: 'space-between'
+          },
+          '& .controls .button-group': {
+            display: 'inline-flex'
+          },
+          '& .controls .button-group .MuiButtonBase-root.MuiButton-root': {
+            minWidth: '60px'
+          },
+          '& .controls .MuiSlider-root': {
+            minWidth: '120px',
+            ml: 2
+          },
+          '& .controls .MuiFormControlLabel-label': {
+            display: 'flex',
+            alignItems: 'center'
+          },
+          '& .original-texture.section .MuiFormControlLabel-labelPlacementEnd':
+            {
+              display: 'block'
+            },
+          '& .controls > .MuiButton-root': {
+            minWidth: '48px',
+            ml: 1
+          },
+          '& .MuiDivider-vertical': {
+            mx: 2
+          },
+          '& .MuiDivider-root:not(.MuiDivider-vertical)': {
+            my: 2
+          },
+          '& .MuiButton-root .icon-check': {
+            position: 'absolute',
+            right: 0,
+            top: 0
+          },
+          '& .origin-metadata': {
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr'
+          },
+          '& .origin-metadata > .MuiTypography-root': {
+            display: 'flex',
+            alignItems: 'center'
+          },
+          '& .origin-metadata > :nth-child(even)': {
+            justifyContent: 'flex-end'
+          },
+          '& .result': {
+            flexGrow: 1
+          },
+          '& .dialog-actions': {
+            display: 'flex',
+            justifyContent: 'flex-end'
+          },
+          '& .dialog-actions > .MuiButton-root:not(:last-child)': {
+            mr: 2
+          },
+          '& .MuiButtonBase-root.MuiCheckbox-root': {
+            pt: 0,
+            pb: 0
+          }
+        })}
+      >
         <div
           className={clsx('content', isDragActive && 'file-drag-active')}
           {...getDragProps()}
@@ -646,7 +610,7 @@ export default function ReplaceTexture() {
             </div>
           </div>
         </div>
-      </Styled>
+      </Box>
     </>
   );
 }

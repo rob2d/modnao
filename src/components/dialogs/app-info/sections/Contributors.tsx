@@ -1,30 +1,24 @@
-import { styled, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
-
-const StyledContent = styled('div')(
-  ({ theme }) => `
-    & {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    & .MuiTypography-subtitle1 {
-      margin-bottom: 0;
-    }
-
-    & .MuiTypography-body2 {
-      padding-left: ${theme.spacing(2)};
-      margin-bottom: ${theme.spacing(2)};
-    }
-    `
-);
 
 export default function Contributors() {
   return (
     <div className='app-info-section contributors'>
       <DialogSectionHeader>Contributions</DialogSectionHeader>
-      <StyledContent>
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          '& .MuiTypography-subtitle1': {
+            mb: 0
+          },
+          '& .MuiTypography-body2': {
+            pl: 2,
+            mb: 2
+          }
+        }}
+      >
         <Typography variant={'subtitle1'}>
           Design&nbsp;/&nbsp;Dev&nbsp;/&nbsp;Algos
         </Typography>
@@ -43,7 +37,7 @@ export default function Contributors() {
           Magnetro2K, Paxtez, DJ Clayface, Toan, Blindfire604, derek (ateam),
           ONTortita, tengu, ViolinKen, lethalmonk6
         </Typography>
-      </StyledContent>
+      </Box>
     </div>
   );
 }

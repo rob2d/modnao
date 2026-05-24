@@ -4,10 +4,10 @@ import GuiPanel from './panel/GuiPanel';
 import SceneView from './SceneView';
 import {
   Backdrop,
+  Box,
   Button,
   CircularProgress,
   Paper,
-  styled,
   Tooltip,
   useTheme
 } from '@mui/material';
@@ -23,101 +23,6 @@ import {
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import TextureView from './TextureView';
 import ErrorMessage from './ErrorMessage';
-
-const Styled = styled('main')(
-  ({ theme }) => `
-    & {
-      position: relative;
-      display: flex;
-      align-items: center;
-      height: 100vh;
-      flex-basis: 100%;
-    }
-
-    & .MuiBackdrop-root: {
-      z-index: 1;
-      backgroundColor: 'rgba(0, 0, 0, 0.75)'
-    }
-
-    ${
-      process.env.JEST_WORKER_ID
-        ? ''
-        : `& > :first-child {
-          position: relative;
-          flex-grow: 1;
-          height: 100%;
-          display: flex;
-          zIndex: -1;
-        }`
-    }
-
-    .scene-button {
-      position: absolute;
-      right: ${theme.spacing(1)};
-      transition: opacity 0.5s ease;
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .scene-button.hidden {
-      pointer-events: none;
-      opacity: 0;
-    }
-    
-    .palette-button {
-      bottom: ${theme.spacing(8)};
-    }
-    
-    .info-button {
-      bottom: ${theme.spacing(1)};
-    }
-
-    .info-button svg {
-      filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
-    }
-
-    .welcome-panel {
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      padding: ${theme.spacing(1)} 0px ${theme.spacing(1)} ${theme.spacing(2)};
-      max-height: 100vh;
-      max-width: 100%;
-    }
-
-    .welcome-panel > .MuiPaper-root {
-      height: 100%;
-    }
-
-    .welcome-panel > img {
-      flex-shrink: 0;
-    }
-
-    .welcome-panel > div {
-      display: flex;
-      padding: ${theme.spacing(1)} ${theme.spacing(2)};
-      max-height: 100%;
-      max-width: 100%;
-    }
-
-    .welcome-panel > div > .MuiPaper-root {
-      display: flex;
-      padding: ${theme.spacing(2)};
-    }
-
-    .main-content {
-      position: relative;
-    }
-
-    .main-content.full-view {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-  `
-);
 
 export default function MainView() {
   const { guiPanelExpansionLevel } = useContext(ViewOptionsContext);
@@ -156,7 +61,84 @@ export default function MainView() {
   return (
     <>
       <ErrorMessage />
-      <Styled>
+      <Box
+        component='main'
+        sx={(theme) => ({
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          height: '100vh',
+          flexBasis: '100%',
+          ...(process.env.JEST_WORKER_ID
+            ? {}
+            : {
+                '& > :first-child': {
+                  position: 'relative',
+                  flexGrow: 1,
+                  height: '100%',
+                  display: 'flex',
+                  zIndex: -1
+                }
+              }),
+          '& .scene-button': {
+            position: 'absolute',
+            right: theme.spacing(1),
+            transition: 'opacity 0.5s ease',
+            opacity: 1,
+            pointerEvents: 'all'
+          },
+          '& .scene-button.hidden': {
+            pointerEvents: 'none',
+            opacity: 0
+          },
+          '& .palette-button': {
+            bottom: theme.spacing(8)
+          },
+          '& .info-button': {
+            bottom: theme.spacing(1)
+          },
+          '& .info-button svg': {
+            filter: 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))'
+          },
+          '& .welcome-panel': {
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            pt: 1,
+            pb: 1,
+            pl: 2,
+            maxHeight: '100vh',
+            maxWidth: '100%'
+          },
+          '& .welcome-panel > .MuiPaper-root': {
+            height: '100%'
+          },
+          '& .welcome-panel > img': {
+            flexShrink: 0
+          },
+          '& .welcome-panel > div': {
+            display: 'flex',
+            py: 1,
+            px: 2,
+            maxHeight: '100%',
+            maxWidth: '100%'
+          },
+          '& .welcome-panel > div > .MuiPaper-root': {
+            display: 'flex',
+            p: 2
+          },
+          '& .main-content': {
+            position: 'relative'
+          },
+          '& .main-content.full-view': {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%'
+          }
+        })}
+      >
         <div
           className={clsx(
             'main-content',
@@ -189,7 +171,10 @@ export default function MainView() {
         </div>
         <GuiPanel />
         <AppDialog />
-        <Backdrop open={processingOverlayShown}>
+        <Backdrop
+          open={processingOverlayShown}
+          sx={{ zIndex: 1, backgroundColor: 'rgba(0, 0, 0, 0.75)' }}
+        >
           <svg width={0} height={0}>
             <defs>
               <linearGradient
@@ -209,7 +194,7 @@ export default function MainView() {
             sx={{ 'svg circle': { stroke: 'url(#my_gradient)' } }}
           />
         </Backdrop>
-      </Styled>
+      </Box>
     </>
   );
 }
