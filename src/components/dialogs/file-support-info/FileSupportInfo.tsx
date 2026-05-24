@@ -87,6 +87,20 @@ const rows = [
     notes: ''
   },
   {
+    title: 'Capcom vs SNK Pro',
+    filenameFormat: 'STG{NN}POL.BIN',
+    filenameExample: 'STG02POL.BIN',
+    description: 'Stage model/polygons',
+    notes: `Corresponding textures are in similarly named TEX.BIN files.`
+  },
+  {
+    title: 'Capcom vs SNK Pro',
+    filenameFormat: 'STG{NN}TEX.BIN',
+    filenameExample: 'STG02TEX.BIN',
+    description: 'Stage textures',
+    notes: `Must be loaded with a corresponding POL.BIN file.`
+  },
+  {
     title: 'Capcom vs SNK 2',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG02POL.BIN',

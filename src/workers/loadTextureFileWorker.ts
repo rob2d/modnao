@@ -16,6 +16,7 @@ import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
 export type LoadTextureFileWorkerResult = {
   texturePixelBuffers: SharedArrayBuffer[];
   decompressedTextureBuffer: SharedArrayBuffer;
+  isLzssCompressed?: boolean;
   resourceAttribs?: ResourceAttribs;
 };
 

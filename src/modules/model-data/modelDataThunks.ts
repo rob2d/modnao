@@ -299,9 +299,11 @@ export const processTextureFile = createAppAsyncThunk(
         : new Uint8Array(await file.arrayBuffer())
     );
 
-    const isDirectResourceLzssd = activeResourceAttribs.hasLzssTextureFile;
+    const usesLzssTextureFile = Boolean(
+      isLzssCompressed || activeResourceAttribs.hasLzssTextureFile
+    );
 
-    if (isLzssCompressed || isDirectResourceLzssd) {
+    if (usesLzssTextureFile) {
       const fBuffer = await file.arrayBuffer();
       const sharedBuffer = sharedBufferFrom(fBuffer);
       buffer = Buffer.from(new Uint8Array(decompressLzssBuffer(sharedBuffer)));
@@ -315,7 +317,7 @@ export const processTextureFile = createAppAsyncThunk(
       fileName: file.name,
       textureDefs,
       textureFileBuffer,
-      isLzssCompressed,
+      isLzssCompressed: usesLzssTextureFile,
       textureFileType,
       resourceAttribs: activeResourceAttribs
     });
@@ -349,7 +351,8 @@ export const processTextureFile = createAppAsyncThunk(
       textureDefs: updatedTextureDefs,
       textureFileType,
       fileName: file.name,
-      isLzssCompressed,
+      isLzssCompressed:
+        usesLzssTextureFile || Boolean(threadResult.isLzssCompressed),
       resourceAttribs: finalResourceAttribs
     };
   }
