@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
-import { mdiUnfoldLessHorizontal, mdiUnfoldMoreHorizontal } from '@mdi/js';
+import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import {
   IconButton,
   ListSubheader,
@@ -7,7 +8,6 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import Icon from '@mdi/react';
 import type { AsyncState } from '@/types';
 
 type Props = {
@@ -69,12 +69,11 @@ export default function GuiPanelSection({
         {isExpanded ? undefined : collapsedContentFABs}
         <Tooltip title={`${isExpanded ? 'Collapse' : 'Expand'} section`}>
           <IconButton onClick={toggleContentExpanded}>
-            <Icon
-              path={
-                !isExpanded ? mdiUnfoldLessHorizontal : mdiUnfoldMoreHorizontal
-              }
-              size={1}
-            />
+            {!isExpanded ? (
+              <UnfoldLessIcon fontSize='small' />
+            ) : (
+              <UnfoldMoreIcon fontSize='small' />
+            )}
           </IconButton>
         </Tooltip>
       </ListSubheader>

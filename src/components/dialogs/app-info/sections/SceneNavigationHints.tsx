@@ -1,6 +1,5 @@
 import { Typography } from '@mui/material';
-import { mdiInformationOutline } from '@mdi/js';
-import Icon from '@mdi/react';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DialogSectionHeader from '../../DialogSectionHeader';
 
 export default function KeyboardShortcuts() {
@@ -23,7 +22,7 @@ export default function KeyboardShortcuts() {
           display={'flex'}
           marginTop={1}
         >
-          <Icon path={mdiInformationOutline} size={1} />
+          <InfoOutlinedIcon fontSize='small' />
           &nbsp;&nbsp;Displays this info.
         </Typography>
       </div>

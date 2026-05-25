@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { Box, Button } from '@mui/material';
-import Icon from '@mdi/react';
-import { mdiChevronDoubleRight } from '@mdi/js';
 import Contributors from './sections/Contributors';
 import KeyboardShortcuts from './sections/KeyboardShortcuts';
 import SceneNavigationHints from './sections/SceneNavigationHints';
@@ -97,7 +96,7 @@ export default function AppInfo() {
         </Box>
         {!isAppInfoDialogShown ? null : (
           <Button variant='outlined' className='ok-button' onClick={onClose}>
-            OK <Icon path={mdiChevronDoubleRight} size={1} />
+            OK <KeyboardDoubleArrowRightIcon fontSize='small' />
           </Button>
         )}
       </Box>

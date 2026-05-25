@@ -1,5 +1,4 @@
-import { mdiRefresh } from '@mdi/js';
-import Icon from '@mdi/react';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   IconButton,
   ListItem,
@@ -134,7 +133,7 @@ export default function NumericSliderInput({
           inputMode='numeric'
         />
         <IconButton size='small' color='secondary' onClick={onResetValue}>
-          <Icon path={mdiRefresh} size={1} />
+          <RefreshIcon fontSize='small' />
         </IconButton>
       </div>
     </ListItem>

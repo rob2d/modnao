@@ -1,4 +1,8 @@
 import clsx from 'clsx';
+import AspectRatioIcon from '@mui/icons-material/AspectRatio';
+import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
   Box,
   Button,
@@ -8,13 +12,6 @@ import {
   Skeleton,
   Typography
 } from '@mui/material';
-import {
-  mdiAspectRatio,
-  mdiMenuLeftOutline,
-  mdiMenuRightOutline,
-  mdiStretchToPageOutline
-} from '@mdi/js';
-import Icon from '@mdi/react';
 import useViewportSizes from 'use-viewport-sizes';
 import { useObjectNavControls, useObjectUINav } from '@/modules/object-viewer';
 import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
@@ -26,26 +23,26 @@ import {
 } from '@/selectors';
 import { useAppSelector } from '@/storeTypings';
 import { TextureImageBufferKeys } from '@/utils/textures';
-import { useMemo, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ImageBufferCanvas from './ImageBufferCanvas';
 import { useSelector } from 'react-redux';
 
 function TextureViewControlsButton({
   onClick,
-  iconPath,
+  icon,
   label,
   disabled = false
 }: {
   onClick: () => void;
-  iconPath: string;
+  icon: ReactNode;
   label: string;
   disabled?: boolean;
 }) {
   return (
     <div>
       <IconButton color='primary' onClick={onClick} disabled={disabled}>
-        <Icon path={iconPath} size={1} />
+        {icon}
         <Typography variant='button'>{label}</Typography>
       </IconButton>
     </div>
@@ -109,14 +106,14 @@ export default function TextureView() {
             disabled={viewInGameRatio}
             onClick={() => setViewInGameRatio(true)}
           >
-            <Icon path={mdiAspectRatio} size={1} />
+            <AspectRatioIcon fontSize='small' />
           </Button>
           <Button
             color='secondary'
             disabled={!viewInGameRatio}
             onClick={() => setViewInGameRatio(false)}
           >
-            <Icon path={mdiStretchToPageOutline} size={1} />
+            <FitScreenOutlinedIcon fontSize='small' />
           </Button>
         </ButtonGroup>
       </Box>
@@ -204,7 +201,7 @@ export default function TextureView() {
         {textureAspectRatioSelection}
         <div className='model-nav-button'>
           <IconButton color='primary' {...uiControls.prevButtonProps}>
-            <Icon path={mdiMenuLeftOutline} size={2} />
+            <KeyboardArrowLeftIcon fontSize='large' />
           </IconButton>
         </div>
         <div className='center-section'>
@@ -254,7 +251,7 @@ export default function TextureView() {
         </div>
         <div className='model-nav-button'>
           <IconButton color='primary' {...uiControls.nextButtonProps}>
-            <Icon path={mdiMenuRightOutline} size={2} />
+            <KeyboardArrowRightIcon fontSize='large' />
           </IconButton>
         </div>
       </div>

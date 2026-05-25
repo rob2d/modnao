@@ -1,10 +1,9 @@
-import Icon from '@mdi/react';
+import { ReactNode, SyntheticEvent } from 'react';
 import { Checkbox, FormControlLabel, Tooltip } from '@mui/material';
-import { SyntheticEvent } from 'react';
 
 type Props = {
   checked: boolean;
-  iconPath?: string;
+  icon?: ReactNode;
   label?: string;
   tooltipHint: string;
   tooltipPlacement?:
@@ -26,7 +25,7 @@ type Props = {
 export default function ViewOptionCheckbox({
   checked,
   onChange,
-  iconPath,
+  icon,
   label,
   tooltipHint,
   tooltipPlacement
@@ -37,7 +36,7 @@ export default function ViewOptionCheckbox({
         control={<Checkbox checked={checked} />}
         label={
           <>
-            {iconPath ? <Icon path={iconPath} size={1} /> : undefined}
+            {icon ?? undefined}
             {label ?? undefined}
           </>
         }

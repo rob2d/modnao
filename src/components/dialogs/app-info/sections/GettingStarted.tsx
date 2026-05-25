@@ -8,9 +8,8 @@ import {
   Stepper,
   Typography
 } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DialogSectionHeader from '../../DialogSectionHeader';
-import Icon from '@mdi/react';
-import { mdiDotsVertical } from '@mdi/js';
 import { useScrollEdges } from '@/hooks';
 
 const noop = () => undefined;
@@ -99,11 +98,7 @@ export default function GettingStarted() {
                 </Typography>
                 <Typography>
                   Click a polygon to highlight its texture, then hit the&nbsp;
-                  <Icon
-                    path={mdiDotsVertical}
-                    size={0.75}
-                    className='burger-menu-icon'
-                  />
+                  <MoreVertIcon fontSize='small' className='burger-menu-icon' />
                   &nbsp;icon. Edit the texture color sliders or replace the
                   image. You can also drag a file into the right panel.
                 </Typography>

@@ -9,8 +9,7 @@ import {
   CircularProgress,
   Tooltip
 } from '@mui/material';
-import Icon from '@mdi/react';
-import { mdiInformationOutline } from '@mdi/js';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import { showDialog } from '@/modules/dialogs';
@@ -148,7 +147,7 @@ export default function MainView() {
                 )}
                 color='info'
               >
-                <Icon path={mdiInformationOutline} size={1.5} />
+                <InfoOutlinedIcon fontSize='medium' />
               </Button>
             </Tooltip>
           )}

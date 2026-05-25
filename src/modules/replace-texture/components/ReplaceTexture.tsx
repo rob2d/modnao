@@ -3,17 +3,14 @@ import clsx from 'clsx';
 import Cropper, { Area } from 'react-easy-crop';
 import { Image } from 'image-js';
 import Img from 'next/image';
-import {
-  mdiCheckBold,
-  mdiCropRotate,
-  mdiFileImage,
-  mdiFlipHorizontal,
-  mdiFlipVertical,
-  mdiMagnify,
-  mdiRefresh,
-  mdiRotateRight
-} from '@mdi/js';
-import Icon from '@mdi/react';
+import CheckIcon from '@mui/icons-material/Check';
+import CropRotateIcon from '@mui/icons-material/CropRotate';
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import RotateRightIcon from '@mui/icons-material/RotateRight';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import {
   Box,
   Button,
@@ -44,7 +41,7 @@ import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 const DEFAULT_FLIP_STATE = { horizontal: false, vertical: false };
 
 const optionAppliedCheckmark = (
-  <Icon className={'icon-check'} path={mdiCheckBold} size={0.6} />
+  <CheckIcon className='icon-check' fontSize='small' />
 );
 
 export default function ReplaceTexture() {
@@ -414,7 +411,7 @@ export default function ReplaceTexture() {
               <div>
                 <div className='button-group'>
                   <FormControlLabel
-                    label={<Icon path={mdiMagnify} size={1} />}
+                    label={<ZoomInIcon fontSize='small' />}
                     labelPlacement='start'
                     control={
                       <Slider
@@ -436,13 +433,13 @@ export default function ReplaceTexture() {
                       className='sub-control'
                       onClick={onResetZoom}
                     >
-                      <Icon path={mdiRefresh} size={1} />
+                      <RefreshIcon fontSize='small' />
                     </Button>
                   </Tooltip>
                 </div>
                 <div className='button-group'>
                   <FormControlLabel
-                    label={<Icon path={mdiCropRotate} size={1} />}
+                    label={<CropRotateIcon fontSize='small' />}
                     labelPlacement='start'
                     control={
                       <Slider
@@ -464,26 +461,26 @@ export default function ReplaceTexture() {
                       className='sub-control'
                       onClick={onResetRotation}
                     >
-                      <Icon path={mdiRefresh} size={1} />
+                      <RefreshIcon fontSize='small' />
                     </Button>
                   </Tooltip>
                 </div>
                 <div className='button-group'>
                   <Tooltip title='Rotate to nearest next 90° (appears on preview)'>
                     <Button color='primary' onClick={onRotateRight}>
-                      <Icon path={mdiRotateRight} size={1} />
+                      <RotateRightIcon fontSize='small' />
                     </Button>
                   </Tooltip>
                   <Tooltip title='Flip horizontally (appears on preview)'>
                     <Button color='primary' onClick={onFlipHorizontal}>
                       {!flip.horizontal ? undefined : optionAppliedCheckmark}
-                      <Icon path={mdiFlipHorizontal} size={1} />
+                      <SwapHorizIcon fontSize='small' />
                     </Button>
                   </Tooltip>
                   <Tooltip title='Flip vertically (appears on preview)'>
                     <Button color='primary' onClick={onFlipVertical}>
                       {!flip.vertical ? undefined : optionAppliedCheckmark}
-                      <Icon path={mdiFlipVertical} size={1} />
+                      <SwapVertIcon fontSize='small' />
                     </Button>
                   </Tooltip>
                 </div>
@@ -491,7 +488,7 @@ export default function ReplaceTexture() {
               <div>
                 <Tooltip title='Select new image file. You can also drag and drop a file into the overall dialog'>
                   <Button color='primary' onClick={openFilePicker}>
-                    <Icon path={mdiFileImage} size={1} />
+                    <ImageOutlinedIcon fontSize='small' />
                   </Button>
                 </Tooltip>
               </div>

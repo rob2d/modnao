@@ -1,5 +1,7 @@
 import Img from 'next/image';
-import Icon from '@mdi/react';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { Divider, Paper } from '@mui/material';
 import {
   LegacyRef,
@@ -20,20 +22,15 @@ import {
   selectLoadTexturesState
 } from '@/selectors';
 import { useAppSelector } from '@/storeTypings';
-import {
-  mdiArrowExpandHorizontal,
-  mdiArrowExpandLeft,
-  mdiArrowExpandRight
-} from '@mdi/js';
 import { useDragMouseOnEl } from '@/hooks';
 
 const PANEL_WIDTHS = [32, 222, 388, 222 + 174 * 2 + 22];
 const TRANSITION_TIME = `0.32s`;
 
 const expandLevelIcons = [
-  mdiArrowExpandLeft,
-  mdiArrowExpandHorizontal,
-  mdiArrowExpandRight
+  KeyboardDoubleArrowLeftIcon,
+  FirstPageIcon,
+  KeyboardDoubleArrowRightIcon
 ];
 
 const PANEL_DRAG_THRESHOLD = 24;
@@ -110,6 +107,8 @@ export default function GuiPanel() {
         break;
     }
   }, [viewOptions.guiPanelExpansionLevel]);
+
+  const ExpandLevelIcon = expandLevelIcons[expansionLevel];
 
   return (
     <Paper
@@ -283,7 +282,7 @@ export default function GuiPanel() {
         ref={resizeHandle as LegacyRef<HTMLDivElement>}
         onClick={onClickResizeHandle}
       >
-        <Icon path={expandLevelIcons[expansionLevel]} size={0.75} />
+        <ExpandLevelIcon fontSize='small' />
       </div>
       <div className='content'>
         {contentViewMode !== 'welcome' ? undefined : (

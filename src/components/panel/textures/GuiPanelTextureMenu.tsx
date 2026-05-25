@@ -1,9 +1,8 @@
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Icon from '@mdi/react';
-import { mdiDotsVertical } from '@mdi/js';
 import { Box, Divider, Tooltip } from '@mui/material';
 import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
 import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
@@ -49,7 +48,7 @@ export default function GuiPanelTextureMenu({
         <Tooltip title={o.tooltip} key={i} placement='left'>
           <MenuItem onClick={o.onClick} disabled={o.disabled}>
             <>
-              <Icon path={o.iconPath} size={1} />
+              {o.icon}
               {o.label}
             </>
           </MenuItem>
@@ -71,7 +70,7 @@ export default function GuiPanelTextureMenu({
       }}
     >
       <IconButton color='primary' aria-haspopup='true' onClick={handleClick}>
-        <Icon path={mdiDotsVertical} size={1} />
+        <MoreVertIcon fontSize='small' />
       </IconButton>
       <Menu
         style={MENU_OFFSET_STYLE}

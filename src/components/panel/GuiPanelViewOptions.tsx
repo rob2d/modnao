@@ -1,3 +1,9 @@
+import ChangeHistoryIcon from '@mui/icons-material/ChangeHistory';
+import DataArrayIcon from '@mui/icons-material/DataArray';
+import FlipToBackIcon from '@mui/icons-material/FlipToBack';
+import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
+import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
+import StraightenIcon from '@mui/icons-material/Straighten';
 import {
   Box,
   FormControlLabel,
@@ -11,14 +17,6 @@ import { JSX, SyntheticEvent, useCallback, useContext, useMemo } from 'react';
 import ViewOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/ViewOptionsContext';
-import {
-  mdiAxisArrow,
-  mdiCodeArray,
-  mdiCursorDefaultOutline,
-  mdiFlipToBack,
-  mdiFormatColorFill,
-  mdiTangram
-} from '@mdi/js';
 import PaletteEditor from './PaletteEditor';
 import ViewOptionCheckbox from './ViewOptionCheckbox';
 
@@ -95,21 +93,21 @@ export default function GuiPanelViewOptions() {
         key='axes-visibility'
         checked={viewOptions.axesHelperVisible}
         tooltipHint='Toggle axes helper visibility'
-        iconPath={mdiAxisArrow}
+        icon={<StraightenIcon fontSize='small' />}
         onChange={onSetAxesHelperVisible}
       />,
       <ViewOptionCheckbox
         key='cursor-visible'
         checked={viewOptions.sceneCursorVisible}
         tooltipHint='Toggle scene cursor visibility'
-        iconPath={mdiCursorDefaultOutline}
+        icon={<MouseOutlinedIcon fontSize='small' />}
         onChange={onSetSceneCursorVisible}
       />,
       <ViewOptionCheckbox
         key='disable-backface-culling'
         checked={viewOptions.disableBackfaceCulling}
         tooltipHint='Disable Backface Culling / Make material visible on both sides of polygons'
-        iconPath={mdiFlipToBack}
+        icon={<FlipToBackIcon fontSize='small' />}
         onChange={onSetDisableBackfaceCulling}
       />,
       <ViewOptionCheckbox
@@ -119,7 +117,7 @@ export default function GuiPanelViewOptions() {
           'View UV Clipping Regions when selecting a polygon that has an ' +
           'associated texture loaded.'
         }
-        iconPath={mdiTangram}
+        icon={<ChangeHistoryIcon fontSize='small' />}
         onChange={onSetUvRegionsHighlighted}
       />
     ];
@@ -130,7 +128,7 @@ export default function GuiPanelViewOptions() {
           key='vertex-colors'
           checked={viewOptions.enableVertexColors}
           tooltipHint='Enable Vertex Colors; this is usually used for simulating shading and lighting effects.'
-          iconPath={mdiFormatColorFill}
+          icon={<FormatColorFillIcon fontSize='small' />}
           onChange={onSetEnableVertexColors}
         />
       ) : undefined
@@ -141,7 +139,7 @@ export default function GuiPanelViewOptions() {
         key='dev-options-visible'
         checked={viewOptions.devOptionsVisible}
         tooltipHint='Enable developer/debug option visibility'
-        iconPath={mdiCodeArray}
+        icon={<DataArrayIcon fontSize='small' />}
         onChange={onSetDevOptionsVisible}
       />
     );

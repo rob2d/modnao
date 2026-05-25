@@ -7,7 +7,8 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import Icon from '@mdi/react';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import Grid from '@mui/material/Grid';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelSection from './GuiPanelSection';
@@ -27,7 +28,6 @@ import {
   useObjectUINav,
   useSceneGLTFFileDownloader
 } from '@/modules/object-viewer';
-import { mdiMenuLeftOutline, mdiMenuRightOutline } from '@mdi/js';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
 import ModelFileImportButton from './ModelFileImportButton';
 
@@ -114,7 +114,7 @@ export default function GuiPanelModels() {
       {...uiNav.prevButtonProps}
       disabled={navButtonLeftDisabled}
     >
-      <Icon path={mdiMenuLeftOutline} size={1} />
+      <KeyboardArrowLeftIcon fontSize='small' />
     </IconButton>
   );
 
@@ -134,7 +134,7 @@ export default function GuiPanelModels() {
       {...uiNav.nextButtonProps}
       disabled={navButtonRightDisabled}
     >
-      <Icon path={mdiMenuRightOutline} size={1} />
+      <KeyboardArrowRightIcon fontSize='small' />
     </IconButton>
   );
 

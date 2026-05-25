@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { SketchPicker } from 'react-color';
+import ContrastIcon from '@mui/icons-material/Contrast';
 import {
   Box,
   ButtonBase,
@@ -11,8 +12,6 @@ import {
 } from '@mui/material';
 import clsx from 'clsx';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import Icon from '@mdi/react';
-import { mdiThemeLightDark } from '@mdi/js';
 
 const buttonsKeyMap = new Map<string, string>([
   ['background', 'Background'],
@@ -153,7 +152,7 @@ export default function PaletteEditor() {
         ))}
         <Tooltip title='Reset or toggle light/dark scene theme'>
           <IconButton onClick={viewOptions.toggleLightDarkTheme}>
-            <Icon path={mdiThemeLightDark} size={1} />
+            <ContrastIcon fontSize='small' />
           </IconButton>
         </Tooltip>
       </div>

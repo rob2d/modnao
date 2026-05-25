@@ -1,3 +1,7 @@
+import CropFreeIcon from '@mui/icons-material/CropFree';
+import DownloadIcon from '@mui/icons-material/Download';
+import UndoIcon from '@mui/icons-material/Undo';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { revertTextureImage } from '../modelDataSlice';
 import { selectTextureFileName, selectUpdatedTextureDefs } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
@@ -5,17 +9,19 @@ import {
   createB64ImgFromTextureDef,
   TextureImageBufferKeys
 } from '@/utils/textures';
-import {
-  mdiCropFree,
-  mdiFileDownload,
-  mdiFileReplace,
-  mdiFileUndo
-} from '@mdi/js';
-import { useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import saveAs from 'file-saver';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { useKeyPressEffect } from '@/hooks';
+
+interface TextureOption {
+  label: string;
+  icon: ReactNode;
+  tooltip: string;
+  disabled?: boolean;
+  onClick: () => void | Promise<void>;
+}
 
 function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
   const {
@@ -71,10 +77,10 @@ export default function useTextureOptions(
   );
 
   const options = useMemo(
-    () => [
+    (): TextureOption[] => [
       {
         label: 'Undo Change',
-        iconPath: mdiFileUndo,
+        icon: <UndoIcon fontSize='small' />,
         tooltip:
           'Undo a previous replace-texture or crop/resize operation; does not include color changes',
         disabled: !textureHistory?.length,
@@ -87,7 +93,7 @@ export default function useTextureOptions(
       },
       {
         label: 'Crop/Rotate',
-        iconPath: mdiCropFree,
+        icon: <CropFreeIcon fontSize='small' />,
         tooltip:
           'Open image replace dialog with existing image to crop/rotate in-place',
         async onClick() {
@@ -101,7 +107,7 @@ export default function useTextureOptions(
       },
       {
         label: 'Replace',
-        iconPath: mdiFileReplace,
+        icon: <UploadFileIcon fontSize='small' />,
         tooltip:
           'Replace this texture with another image file.' +
           'Special zero-alpha pixels will be auto re-applied ' +
@@ -114,7 +120,7 @@ export default function useTextureOptions(
       },
       {
         label: `Download ${dlAsTranslucent ? '(T)' : '(O)'}`,
-        iconPath: mdiFileDownload,
+        icon: <DownloadIcon fontSize='small' />,
         tooltip: `Download texture as a PNG [${
           dlAsTranslucent ? 'translucent' : 'opaque'
         }]. Press 'T' key to toggle translucency.`,
