@@ -1,16 +1,19 @@
 import { createSlice, UnknownAction } from '@reduxjs/toolkit';
+import type { Theme } from '@mui/material';
+import type { SystemStyleObject } from '@mui/system';
+import { castDraft } from 'immer';
 import { HYDRATE } from 'next-redux-wrapper';
 
 export type DialogType = 'app-info' | 'replace-texture' | 'file-support-info';
 
 export interface ShowDialogPayload {
   type: DialogType;
-  width?: string;
+  sx?: SystemStyleObject<Theme>;
 }
 
 export interface DialogsState {
   dialogShown?: DialogType;
-  width?: string;
+  sx?: SystemStyleObject<Theme>;
 }
 
 export const initialDialogsState: DialogsState = {
@@ -21,21 +24,26 @@ const dialogsSlice = createSlice({
   name: 'dialogs',
   initialState: initialDialogsState,
   reducers: {
-    showDialog(state, action: { payload: DialogType | ShowDialogPayload }) {
-      if (typeof action.payload === 'string') {
-        state.dialogShown = action.payload;
-        state.width = undefined;
+    showDialog(
+      state,
+      { payload }: { payload: DialogType | ShowDialogPayload }
+    ) {
+      if (typeof payload === 'string') {
+        state.dialogShown = payload;
+        state.sx = undefined;
 
         return;
       }
 
-      state.dialogShown = action.payload.type;
-      state.width = action.payload.width;
+      const { type, sx } = payload;
+
+      state.dialogShown = type;
+      state.sx = sx ? castDraft(sx) : undefined;
     },
 
     closeDialog(state) {
       state.dialogShown = undefined;
-      state.width = undefined;
+      state.sx = undefined;
     }
   },
   extraReducers: (builder) => {

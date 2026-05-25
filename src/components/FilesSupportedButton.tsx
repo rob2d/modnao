@@ -14,7 +14,12 @@ export default function FilesSupportedButton({
     dispatch(
       showDialog({
         type: 'file-support-info',
-        width: 'calc(100vw - 32px)'
+        sx: {
+          '& .MuiDialog-paper': {
+            width: 'calc(100vw - 32px)',
+            maxWidth: 'calc(100vw - 32px)'
+          }
+        }
       })
     );
   }, [dispatch]);

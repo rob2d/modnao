@@ -14,7 +14,7 @@ const Dialogs: Record<DialogType, FC> = {
 
 export default function AppDialog() {
   const dispatch = useAppDispatch();
-  const { dialogShown, width } = useAppSelector((state) => state.dialogs);
+  const { dialogShown, sx } = useAppSelector((state) => state.dialogs);
   const DialogComponent = dialogShown ? Dialogs[dialogShown] : null;
   const onClose = useCallback(() => {
     switch (dialogShown) {
@@ -35,17 +35,10 @@ export default function AppDialog() {
       onClose={onClose}
       open={Boolean(dialogShown)}
       fullWidth={true}
-      maxWidth={width ? false : 'xl'}
+      maxWidth={'xl'}
       sx={{
         '& .MuiDialogContent-root': { display: 'flex' },
-        ...(width
-          ? {
-              '& .MuiDialog-paper': {
-                width,
-                maxWidth: width
-              }
-            }
-          : {})
+        ...(sx ?? {})
       }}
     >
       <DialogContent data-testid='app-dialog'>
