@@ -177,47 +177,53 @@ const rows = supportEntries.map((row, id) => ({
 const getIssuesCellClassName = (params: GridCellParams) =>
   clsx(params.row.hasIssues ? 'has-issues' : '');
 
-const columns: GridColDef<FileSupportEntry>[] = [
-  {
-    field: 'title',
-    headerName: 'Title',
-    width: 200,
-    cellClassName: getIssuesCellClassName
-  },
-  {
-    field: 'filenameFormat',
-    headerName: 'Filename Format',
-    width: 200,
-    cellClassName: getIssuesCellClassName
-  },
-  {
-    field: 'filenameExample',
-    headerName: 'Example',
-    width: 150
-  },
-  {
-    field: 'fileType',
-    headerName: 'Type',
-    width: 98,
-    cellClassName: getIssuesCellClassName
-  },
-  {
-    field: 'description',
-    headerName: 'Description',
-    width: 320
-  },
-  {
-    field: 'notes',
-    headerName: 'Notes',
-    sortable: false,
-    width: 400,
-    cellClassName: getIssuesCellClassName
-  }
-];
-
 const GET_AUTO_ROW_HEIGHT = () => 'auto' as const;
 
 export default function FileSupportInfo() {
+  const columns: GridColDef<FileSupportEntry>[] = [
+    {
+      field: 'title',
+      headerName: 'Title',
+      cellClassName: getIssuesCellClassName,
+      flex: 1.1,
+      minWidth: 200
+    },
+    {
+      field: 'filenameFormat',
+      headerName: 'Filename Format',
+      cellClassName: getIssuesCellClassName,
+      flex: 1.2,
+      minWidth: 200
+    },
+    {
+      field: 'filenameExample',
+      headerName: 'Example',
+      flex: 0.9,
+      minWidth: 150
+    },
+    {
+      field: 'fileType',
+      headerName: 'Type',
+      cellClassName: getIssuesCellClassName,
+      flex: 0.7,
+      minWidth: 98
+    },
+    {
+      field: 'description',
+      headerName: 'Description',
+      flex: 1.5,
+      minWidth: 320
+    },
+    {
+      field: 'notes',
+      headerName: 'Notes',
+      sortable: false,
+      cellClassName: getIssuesCellClassName,
+      flex: 2,
+      minWidth: 400
+    }
+  ];
+
   return (
     <Box
       sx={{
