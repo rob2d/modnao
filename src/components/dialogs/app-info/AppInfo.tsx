@@ -38,6 +38,13 @@ export default function AppInfo() {
         gridTemplateColumns: { xs: 'none', lg: '5fr 7fr 5fr' },
         gridTemplateRows: { xs: '1fr 1fr 1fr 1fr', lg: '1fr 1fr' },
         gap: 1,
+        '& .app-info-section:not(:last-child):not(.MuiDivider-root)': {
+          mb: 2
+        },
+        '& .MuiCardContent-root.MuiCardContent-root': {
+          py: 1,
+          px: 2
+        },
         '& .ok-button': {
           position: 'absolute',
           bottom: 'calc(var(--mui-spacing) * 2)',

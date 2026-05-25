@@ -154,6 +154,27 @@ const themes = Object.fromEntries(
               alignItems: 'center'
             }
           }
+        },
+        MuiStepLabel: {
+          styleOverrides: {
+            label: {
+              '&.Mui-completed': {
+                fontWeight: 700
+              }
+            },
+            root: {
+              '&.MuiStepLabel-vertical': {
+                padding: '4px 0px'
+              }
+            }
+          }
+        },
+        MuiStepConnector: {
+          styleOverrides: {
+            line: {
+              minHeight: '12px'
+            }
+          }
         }
       },
       palette: {
