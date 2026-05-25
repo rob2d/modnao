@@ -5,7 +5,7 @@ import { mdiChevronDoubleRight } from '@mdi/js';
 import Contributors from './sections/Contributors';
 import KeyboardShortcuts from './sections/KeyboardShortcuts';
 import SceneNavigationHints from './sections/SceneNavigationHints';
-import DevUpdates from './sections/DevUpdates';
+import DevVlog from './sections/DevVlog';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
 import { closeDialog } from '@/modules/dialogs';
@@ -27,7 +27,7 @@ export default function AppInfo() {
         display: 'grid',
         gridTemplateColumns: { xs: 'none', lg: '5fr 7fr 5fr' },
         gridTemplateRows: { xs: '1fr 1fr 1fr 1fr', lg: '1fr 1fr' },
-        gap: 2,
+        gap: 1,
         '& .ok-button': {
           position: 'absolute',
           bottom: 'calc(var(--mui-spacing) * 2)',
@@ -37,7 +37,7 @@ export default function AppInfo() {
           gridRowStart: { lg: 1 },
           gridRowEnd: { lg: 3 }
         },
-        '& .dev-updates': {
+        '& .dev-vlog': {
           gridRowStart: { lg: 1 },
           gridRowEnd: { lg: 2 }
         },
@@ -64,7 +64,7 @@ export default function AppInfo() {
       }}
     >
       <GettingStarted />
-      <DevUpdates />
+      <DevVlog />
       <div className='howto-and-contributions'>
         <KeyboardShortcuts />
         <Divider />

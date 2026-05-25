@@ -7,7 +7,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Paper,
   Tooltip
 } from '@mui/material';
 import Icon from '@mdi/react';
@@ -109,7 +108,8 @@ export default function MainView() {
           },
           '& .welcome-panel > div > .MuiPaper-root': {
             display: 'flex',
-            p: 2
+            px: 0,
+            py: 2
           },
           '& .main-content': {
             position: 'relative'

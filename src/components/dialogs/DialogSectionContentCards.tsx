@@ -10,11 +10,11 @@ export default function DialogSectionContentCards({ children }: Props) {
         flexDirection: 'column',
         height: '100%',
         overflowY: 'auto',
-        px: 1,
+        px: 0,
         '& > *': {
           flexShrink: 0,
-          mx: 1,
-          mb: 2
+          mb: 2,
+          mr: 1
         }
       }}
     >

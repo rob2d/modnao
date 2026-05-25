@@ -52,7 +52,7 @@ const useVlogApi = () => {
   return [vlogs, error] as [Vlog[], string | undefined];
 };
 
-export default function DevUpdates() {
+export default function DevVlog() {
   const [vlogs, vlogApiError] = useVlogApi();
 
   const vlogContent = vlogApiError
@@ -61,7 +61,7 @@ export default function DevUpdates() {
       ? Array(10)
           .fill(0)
           .map((_, i) => (
-            <Card key={i} elevation={2}>
+            <Card key={i} elevation={2} sx={{ ml: 0 }} variant='outlined'>
               <CardContent>
                 <Typography component='div' variant='subtitle1'>
                   <Skeleton height={60} />
@@ -78,7 +78,12 @@ export default function DevUpdates() {
             </Card>
           ))
       : (vlogs || []).map((v: Vlog) => (
-          <Card key={v.id} elevation={2}>
+          <Card
+            key={v.id}
+            elevation={2}
+            sx={{ ml: 0, mr: 1 }}
+            variant='outlined'
+          >
             <ButtonBase
               onClick={() =>
                 window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
@@ -108,7 +113,7 @@ export default function DevUpdates() {
 
   return (
     <Box
-      className='app-info-section dev-updates scroll-body'
+      className='app-info-section dev-vlog scroll-body'
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -137,7 +142,7 @@ export default function DevUpdates() {
         }
       }}
     >
-      <DialogSectionHeader>Dev Updates / Vlog</DialogSectionHeader>
+      <DialogSectionHeader>Dev Vlog</DialogSectionHeader>
       <DialogSectionContentCards>{vlogContent}</DialogSectionContentCards>
     </Box>
   );
