@@ -25,7 +25,6 @@ import {
   selectUpdatedTextureDefs
 } from '@/selectors';
 import { useAppSelector } from '@/storeTypings';
-import themeMixins from '@/theming/themeMixins';
 import { TextureImageBufferKeys } from '@/utils/textures';
 import { useMemo, useState } from 'react';
 import globalBuffers from '@/utils/data/globalBuffers';
@@ -126,7 +125,7 @@ export default function TextureView() {
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
@@ -198,8 +197,8 @@ export default function TextureView() {
           position: 'relative'
         },
         '& .texture-preview > div.file-drag-active:after':
-          themeMixins.fileDragActiveAfter
-      }}
+          theme.mixins.fileDragActiveAfter
+      })}
     >
       <div className='main'>
         {textureAspectRatioSelection}

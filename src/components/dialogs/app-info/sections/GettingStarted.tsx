@@ -11,115 +11,130 @@ import {
 import DialogSectionHeader from '../../DialogSectionHeader';
 import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
+import { useScrollEdges } from '@/hooks';
 
 const noop = () => undefined;
 
 export default function GettingStarted() {
+  const { containerRef, hasScrollAbove, hasScrollBelow, scrollEdgeStyle } =
+    useScrollEdges<HTMLDivElement>();
+
   return (
-    <div className='app-info-section getting-started'>
-      <DialogSectionHeader>Getting Started</DialogSectionHeader>
+    <Box
+      className='app-info-section getting-started'
+      data-scroll-above={hasScrollAbove}
+      data-scroll-below={hasScrollBelow}
+      style={scrollEdgeStyle}
+      sx={(theme) => theme.mixins.dialogScrollEdgeFrame}
+    >
       <Box
-        sx={{
-          '& .MuiButton-root': {
-            pointerEvents: 'none'
-          },
-          '& .highlight': {
-            fontWeight: 'bold'
-          },
-          '& .MuiTypography-root': {
-            textWrap: 'balance'
-          },
-          '& .burger-menu-icon': {
-            position: 'relative',
-            top: '6px'
-          },
-          '& .model-no-highlight': {
-            fontWeight: 'bold',
-            borderBottom: '2px solid var(--mui-palette-secondary-main)',
-            mx: '1px'
-          }
-        }}
+        ref={containerRef}
+        sx={(theme) => theme.mixins.dialogScrollEdgeScroller}
       >
-        <Stepper orientation='vertical' nonLinear>
-          <Step key='Extract Game Files' active={true}>
-            <StepLabel>Extract Game Files</StepLabel>
-            <StepContent>
-              <Typography>
-                Download&nbsp;
-                <Link
-                  href='https://www.romhacking.net/utilities/1459/'
-                  target='_new'
-                >
-                  GDI Explorer
-                </Link>
-                &nbsp;and extract your .cdi/.gdi file contents of your legally
-                owned and app-supported ROM file.
-              </Typography>
-            </StepContent>
-          </Step>
-          <Step key='Import Polygon and Texture Files' active={true}>
-            <StepLabel>Import Polygon and/or Texture File</StepLabel>
-            <StepContent>
-              <Typography>
-                Click&nbsp;
-                <Button
-                  onClick={noop}
-                  color='primary'
-                  size='small'
-                  variant='outlined'
-                >
-                  Import Model/Texture
-                </Button>
-                &nbsp; to load a polygon and an associated texture file, or just
-                a dedicated texture file by itself. Hold control when clicking
-                to select multiple files.
-              </Typography>
-            </StepContent>
-          </Step>
-          <Step key='Navigate Models and Edit Textures' active={true}>
-            <StepLabel>Browse Models and Edit Textures</StepLabel>
-            <StepContent>
-              <Typography>
-                Browse Models using arrow keys or model navigation buttons.
-              </Typography>
-              <Typography>
-                Click a polygon to highlight its texture, then hit the&nbsp;
-                <Icon
-                  path={mdiDotsVertical}
-                  size={1}
-                  className='burger-menu-icon'
-                />
-                &nbsp;icon. Edit the texture color sliders or replace the image.
-                You can also drag a file into the right panel.
-              </Typography>
-            </StepContent>
-          </Step>
-          <Step key='Export Textures and Build' active={true}>
-            <StepLabel>Export Textures and Build</StepLabel>
-            <StepContent>
-              <Typography>
-                Once textures are edited, click&nbsp;
-                <Button
-                  onClick={noop}
-                  color='primary'
-                  size='small'
-                  variant='outlined'
-                >
-                  Export Textures
-                </Button>
-                &nbsp;to export. Rebuild your files using&nbsp;
-                <Link
-                  href='https://projects.sappharad.com/tools/gdibuilder13_win32.zip'
-                  target='_new'
-                >
-                  GDI Builder
-                </Link>
-                .
-              </Typography>
-            </StepContent>
-          </Step>
-        </Stepper>
+        <DialogSectionHeader>Getting Started</DialogSectionHeader>
+        <Box
+          sx={{
+            '& .MuiButton-root': {
+              pointerEvents: 'none'
+            },
+            '& .highlight': {
+              fontWeight: 'bold'
+            },
+            '& .MuiTypography-root': {
+              textWrap: 'balance'
+            },
+            '& .burger-menu-icon': {
+              position: 'relative',
+              top: '6px'
+            },
+            '& .model-no-highlight': {
+              fontWeight: 'bold',
+              borderBottom: '2px solid var(--mui-palette-secondary-main)',
+              mx: '1px'
+            }
+          }}
+        >
+          <Stepper orientation='vertical' nonLinear>
+            <Step key='Extract Game Files' active={true}>
+              <StepLabel>Extract Game Files</StepLabel>
+              <StepContent>
+                <Typography>
+                  Download&nbsp;
+                  <Link
+                    href='https://www.romhacking.net/utilities/1459/'
+                    target='_new'
+                  >
+                    GDI Explorer
+                  </Link>
+                  &nbsp;and extract your .cdi/.gdi file contents of your legally
+                  owned and app-supported ROM file.
+                </Typography>
+              </StepContent>
+            </Step>
+            <Step key='Import Polygon and Texture Files' active={true}>
+              <StepLabel>Import Polygon and/or Texture File</StepLabel>
+              <StepContent>
+                <Typography>
+                  Click&nbsp;
+                  <Button
+                    onClick={noop}
+                    color='primary'
+                    size='small'
+                    variant='outlined'
+                  >
+                    Import Model/Texture
+                  </Button>
+                  &nbsp; to load a polygon and an associated texture file, or
+                  just a dedicated texture file by itself. Hold control when
+                  clicking to select multiple files.
+                </Typography>
+              </StepContent>
+            </Step>
+            <Step key='Navigate Models and Edit Textures' active={true}>
+              <StepLabel>Browse Models and Edit Textures</StepLabel>
+              <StepContent>
+                <Typography>
+                  Browse Models using arrow keys or model navigation buttons.
+                </Typography>
+                <Typography>
+                  Click a polygon to highlight its texture, then hit the&nbsp;
+                  <Icon
+                    path={mdiDotsVertical}
+                    size={1}
+                    className='burger-menu-icon'
+                  />
+                  &nbsp;icon. Edit the texture color sliders or replace the
+                  image. You can also drag a file into the right panel.
+                </Typography>
+              </StepContent>
+            </Step>
+            <Step key='Export Textures and Build' active={true}>
+              <StepLabel>Export Textures and Build</StepLabel>
+              <StepContent>
+                <Typography>
+                  Once textures are edited, click&nbsp;
+                  <Button
+                    onClick={noop}
+                    color='primary'
+                    size='small'
+                    variant='outlined'
+                  >
+                    Export Textures
+                  </Button>
+                  &nbsp;to export. Rebuild your files using&nbsp;
+                  <Link
+                    href='https://projects.sappharad.com/tools/gdibuilder13_win32.zip'
+                    target='_new'
+                  >
+                    GDI Builder
+                  </Link>
+                  .
+                </Typography>
+              </StepContent>
+            </Step>
+          </Stepper>
+        </Box>
       </Box>
-    </div>
+    </Box>
   );
 }

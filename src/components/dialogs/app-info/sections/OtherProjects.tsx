@@ -2,21 +2,31 @@ import { Box, Typography } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
 import AppInfoProject from '../AppInfoProject';
 import DialogSectionContentCards from '../../DialogSectionContentCards';
+import { useScrollEdges } from '@/hooks';
 
 export default function OtherProjects() {
+  const { containerRef, hasScrollAbove, hasScrollBelow, scrollEdgeStyle } =
+    useScrollEdges<HTMLDivElement>();
+
   return (
     <Box
-      className='app-info-section scroll-body'
+      className='app-info-section'
       sx={{
         display: 'flex',
         flexDirection: 'column',
+        minHeight: 0,
         '& .MuiTypography-h6': {
           mt: 1
         }
       }}
     >
       <DialogSectionHeader>Other Notable Projects</DialogSectionHeader>
-      <DialogSectionContentCards>
+      <DialogSectionContentCards
+        containerRef={containerRef}
+        hasScrollAbove={hasScrollAbove}
+        hasScrollBelow={hasScrollBelow}
+        scrollEdgeStyle={scrollEdgeStyle}
+      >
         <AppInfoProject
           url='https://paxtez.zachd.com'
           title={<>Paxtez&apos; MVC2 Mod Tool</>}

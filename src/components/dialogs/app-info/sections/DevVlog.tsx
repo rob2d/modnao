@@ -13,6 +13,7 @@ import {
 import DialogSectionHeader from '../../DialogSectionHeader';
 import DialogSectionContentCards from '../../DialogSectionContentCards';
 import { useClientEffect } from '@/hooks';
+import { useScrollEdges } from '@/hooks';
 dayjs.extend(advancedFormat);
 
 type Vlog = {
@@ -54,6 +55,8 @@ const useVlogApi = () => {
 
 export default function DevVlog() {
   const [vlogs, vlogApiError] = useVlogApi();
+  const { containerRef, hasScrollAbove, hasScrollBelow, scrollEdgeStyle } =
+    useScrollEdges<HTMLDivElement>();
 
   const vlogContent = vlogApiError
     ? 'Failed to fetch vlogs'
@@ -117,6 +120,7 @@ export default function DevVlog() {
       sx={{
         display: 'flex',
         flexDirection: 'column',
+        minHeight: 0,
         '& .MuiButtonBase-root': {
           width: '100%'
         },
@@ -143,7 +147,14 @@ export default function DevVlog() {
       }}
     >
       <DialogSectionHeader>Dev Vlog</DialogSectionHeader>
-      <DialogSectionContentCards>{vlogContent}</DialogSectionContentCards>
+      <DialogSectionContentCards
+        containerRef={containerRef}
+        hasScrollAbove={hasScrollAbove}
+        hasScrollBelow={hasScrollBelow}
+        scrollEdgeStyle={scrollEdgeStyle}
+      >
+        {vlogContent}
+      </DialogSectionContentCards>
     </Box>
   );
 }

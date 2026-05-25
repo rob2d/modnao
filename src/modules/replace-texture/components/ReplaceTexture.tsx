@@ -38,7 +38,6 @@ import useTextureReplaceDropzone from '../hooks/useTextureReplaceDropzone';
 import cropImage from '@/utils/images/cropImage';
 import type { NLUITextureDef } from '@/types';
 import { useFilePicker } from 'use-file-picker';
-import themeMixins from '@/theming/themeMixins';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 
@@ -272,7 +271,7 @@ export default function ReplaceTexture() {
   return (
     <>
       <Box
-        sx={{
+        sx={(theme) => ({
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
@@ -284,7 +283,7 @@ export default function ReplaceTexture() {
             flexDirection: 'row',
             flexGrow: 1
           },
-          '& .content.file-drag-active:after': themeMixins.fileDragActiveAfter,
+          '& .content.file-drag-active:after': theme.mixins.fileDragActiveAfter,
           '& .section': {
             display: 'flex',
             flexDirection: 'column'
@@ -389,7 +388,7 @@ export default function ReplaceTexture() {
             pt: 0,
             pb: 0
           }
-        }}
+        })}
       >
         <div
           className={clsx('content', isDragActive && 'file-drag-active')}

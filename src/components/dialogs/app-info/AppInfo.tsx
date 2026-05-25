@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Box, Button, Divider } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiChevronDoubleRight } from '@mdi/js';
 import Contributors from './sections/Contributors';
@@ -8,12 +8,19 @@ import SceneNavigationHints from './sections/SceneNavigationHints';
 import DevVlog from './sections/DevVlog';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
+import { useScrollEdges } from '@/hooks';
 import { closeDialog } from '@/modules/dialogs';
 import { selectIsAppInfoDialogShown } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 
 export default function AppInfo() {
   const dispatch = useAppDispatch();
+  const {
+    containerRef: howToAndContributionsRef,
+    hasScrollAbove: howToAndContributionsHasScrollAbove,
+    hasScrollBelow: howToAndContributionsHasScrollBelow,
+    scrollEdgeStyle: howToAndContributionsScrollEdgeStyle
+  } = useScrollEdges<HTMLDivElement>();
 
   const onClose = useCallback(() => {
     dispatch(closeDialog());
@@ -25,6 +32,9 @@ export default function AppInfo() {
     <Box
       sx={{
         display: 'grid',
+        width: '100%',
+        height: '100%',
+        minHeight: 0,
         gridTemplateColumns: { xs: 'none', lg: '5fr 7fr 5fr' },
         gridTemplateRows: { xs: '1fr 1fr 1fr 1fr', lg: '1fr 1fr' },
         gap: 1,
@@ -46,10 +56,8 @@ export default function AppInfo() {
           gridRowEnd: { lg: 4 }
         },
         '& > *': {
-          overflowY: 'auto'
-        },
-        '& .app-info-section:not(:last-child):not(.MuiDivider-root)': {
-          pb: 3
+          minHeight: 0,
+          overflow: 'hidden'
         },
         '& .howto-and-contributions .MuiDivider-root': {
           mb: 2
@@ -65,20 +73,27 @@ export default function AppInfo() {
     >
       <GettingStarted />
       <DevVlog />
-      <div className='howto-and-contributions'>
-        <KeyboardShortcuts />
-        <SceneNavigationHints />
-        <Contributors />
-        {!isAppInfoDialogShown ? undefined : (
-          <Button
-            variant='outlined'
-            className='ok-button'
-            onClick={onClose as () => void}
-          >
+      <Box
+        className='app-info-section howto-and-contributions'
+        data-scroll-above={howToAndContributionsHasScrollAbove}
+        data-scroll-below={howToAndContributionsHasScrollBelow}
+        style={howToAndContributionsScrollEdgeStyle}
+        sx={(theme) => theme.mixins.dialogScrollEdgeFrame}
+      >
+        <Box
+          ref={howToAndContributionsRef}
+          sx={(theme) => theme.mixins.dialogScrollEdgeScroller}
+        >
+          <KeyboardShortcuts />
+          <SceneNavigationHints />
+          <Contributors />
+        </Box>
+        {!isAppInfoDialogShown ? null : (
+          <Button variant='outlined' className='ok-button' onClick={onClose}>
             OK <Icon path={mdiChevronDoubleRight} size={1} />
           </Button>
         )}
-      </div>
+      </Box>
       <OtherProjects />
     </Box>
   );
