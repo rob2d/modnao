@@ -198,13 +198,13 @@ const columns: GridColDef<FileSupportEntry>[] = [
   {
     field: 'fileType',
     headerName: 'Type',
-    width: 120,
+    width: 98,
     cellClassName: getIssuesCellClassName
   },
   {
     field: 'description',
     headerName: 'Description',
-    width: 350
+    width: 320
   },
   {
     field: 'notes',

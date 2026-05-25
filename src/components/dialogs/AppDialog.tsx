@@ -14,10 +14,10 @@ const Dialogs: Record<DialogType, FC> = {
 
 export default function AppDialog() {
   const dispatch = useAppDispatch();
-  const dialogType = useAppSelector((state) => state.dialogs.dialogShown);
-  const DialogComponent = dialogType ? Dialogs[dialogType] : null;
+  const { dialogShown, width } = useAppSelector((state) => state.dialogs);
+  const DialogComponent = dialogShown ? Dialogs[dialogShown] : null;
   const onClose = useCallback(() => {
-    switch (dialogType) {
+    switch (dialogShown) {
       // user must explicitly close dialog via content
       // within the dialog for the following types
       case 'replace-texture': {
@@ -28,15 +28,25 @@ export default function AppDialog() {
         break;
       }
     }
-  }, [dialogType]);
+  }, [dialogShown]);
 
   return (
     <Dialog
       onClose={onClose}
-      open={Boolean(dialogType)}
+      open={Boolean(dialogShown)}
       fullWidth={true}
-      maxWidth='xl'
-      sx={{ '& .MuiDialogContent-root': { display: 'flex' } }}
+      maxWidth={width ? false : 'xl'}
+      sx={{
+        '& .MuiDialogContent-root': { display: 'flex' },
+        ...(width
+          ? {
+              '& .MuiDialog-paper': {
+                width,
+                maxWidth: width
+              }
+            }
+          : {})
+      }}
     >
       <DialogContent data-testid='app-dialog'>
         {DialogComponent ? <DialogComponent /> : null}

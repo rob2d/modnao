@@ -3,8 +3,14 @@ import { HYDRATE } from 'next-redux-wrapper';
 
 export type DialogType = 'app-info' | 'replace-texture' | 'file-support-info';
 
+export interface ShowDialogPayload {
+  type: DialogType;
+  width?: string;
+}
+
 export interface DialogsState {
   dialogShown?: DialogType;
+  width?: string;
 }
 
 export const initialDialogsState: DialogsState = {
@@ -15,12 +21,21 @@ const dialogsSlice = createSlice({
   name: 'dialogs',
   initialState: initialDialogsState,
   reducers: {
-    showDialog(state, action: { payload: DialogType }) {
-      state.dialogShown = action.payload;
+    showDialog(state, action: { payload: DialogType | ShowDialogPayload }) {
+      if (typeof action.payload === 'string') {
+        state.dialogShown = action.payload;
+        state.width = undefined;
+
+        return;
+      }
+
+      state.dialogShown = action.payload.type;
+      state.width = action.payload.width;
     },
 
     closeDialog(state) {
       state.dialogShown = undefined;
+      state.width = undefined;
     }
   },
   extraReducers: (builder) => {
