@@ -101,6 +101,20 @@ const rows = [
     notes: `Must be loaded with a corresponding POL.BIN file.`
   },
   {
+    title: 'Capcom vs SNK Pro',
+    filenameFormat: 'DM{NN}POL.BIN',
+    filenameExample: 'DM00POL.BIN',
+    description: 'Demo/menu model/polygons',
+    notes: `Corresponding textures are in similarly named TEX.BIN files.`
+  },
+  {
+    title: 'Capcom vs SNK Pro',
+    filenameFormat: 'DM{NN}TEX.BIN',
+    filenameExample: 'DM00TEX.BIN',
+    description: 'Demo/menu textures',
+    notes: `Must be loaded with a corresponding POL.BIN file.`
+  },
+  {
     title: 'Capcom vs SNK 2',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG02POL.BIN',

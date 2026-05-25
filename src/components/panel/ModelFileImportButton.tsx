@@ -48,7 +48,7 @@ export default function ModelFileImportButton() {
     >
       <GuiPanelButton
         id='select-pol-or-tex-button'
-        tooltip='Select an MVC2, CVS1, or CVS2 STG POL.BIN and/or TEX.BIN files'
+        tooltip='Select MVC2, CVS1, or CVS2 POL.BIN and/or TEX.BIN files'
         onClick={openFileSelector}
       >
         Import Model/Texture
