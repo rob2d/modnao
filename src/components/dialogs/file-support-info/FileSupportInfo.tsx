@@ -3,11 +3,22 @@ import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid';
 import DialogSectionHeader from '../DialogSectionHeader';
 import clsx from 'clsx';
 
-const rows = [
+interface FileSupportEntry {
+  title: string;
+  filenameFormat: string;
+  filenameExample: string;
+  fileType: 'Polygon' | 'Texture';
+  description: string;
+  notes?: string;
+  hasIssues?: boolean;
+}
+
+const supportEntries: FileSupportEntry[] = [
   {
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG01POL.BIN',
+    fileType: 'Polygon',
     description: 'Stage model/polygons',
     notes: 'Corresponding textures are in similarly named TEX.BIN files'
   },
@@ -15,6 +26,7 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'STG{NN}TEX.BIN',
     filenameExample: 'STG01TEX.BIN',
+    fileType: 'Texture',
     description: 'Stage textures',
     notes: 'Must be loaded with a corresponding POL.BIN file.'
   },
@@ -22,6 +34,7 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'DM{NN}POL.BIN',
     filenameExample: 'DM01POL.BIN',
+    fileType: 'Polygon',
     description: 'Demo/menu model/polygons',
     notes: 'Corresponding textures are in similarly named TEX.BIN files'
   },
@@ -29,6 +42,7 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'DM{NN}TEX.BIN',
     filenameExample: 'DM01TEX.BIN',
+    fileType: 'Texture',
     description: 'Demo/menu texture',
     hasIssues: true,
     notes:
@@ -38,13 +52,14 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'PL{NN}_WIN.BIN',
     filenameExample: 'PL1B_WIN.BIN',
-    description: 'Player win portrait texture',
-    notes: ''
+    fileType: 'Texture',
+    description: 'Player win portrait texture'
   },
   {
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'PL{NN}_FAC.BIN',
     filenameExample: 'PL0D_FAC.BIN',
+    fileType: 'Texture',
     description:
       'Player lifebars (both Japanese & US/International), super portrait and v.s. portrait',
     notes:
@@ -54,27 +69,28 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'END(DC|NM)TEX.BIN',
     filenameExample: 'ENDDCTEX.BIN',
-    description: 'Game ending pictures and hi score name font.',
-    notes: ''
+    fileType: 'Texture',
+    description: 'Game ending pictures and hi score name font.'
   },
   {
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'FONT.BIN',
     filenameExample: 'FONT.BIN',
-    description: 'Font textures',
-    notes: ''
+    fileType: 'Texture',
+    description: 'Font textures'
   },
   {
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'SELSTG.BIN',
     filenameExample: 'SELSTG.BIN',
-    description: 'Stage select screen previews.',
-    notes: ''
+    fileType: 'Texture',
+    description: 'Stage select screen previews.'
   },
   {
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'SELTEX.BIN',
     filenameExample: 'SELTEX.BIN',
+    fileType: 'Texture',
     description: 'Stage select screen textures',
     notes:
       'Palette will be limited to fit within size limits (handled automatically on export).'
@@ -83,13 +99,14 @@ const rows = [
     title: 'Marvel vs Capcom 2',
     filenameFormat: 'SELVM(J|U).BIN',
     filenameExample: 'SELVMJ.BIN',
-    description: 'VMU selection screen textures',
-    notes: ''
+    fileType: 'Texture',
+    description: 'VMU selection screen textures'
   },
   {
     title: 'Capcom vs SNK Pro',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG02POL.BIN',
+    fileType: 'Polygon',
     description: 'Stage model/polygons',
     notes: `Corresponding textures are in similarly named TEX.BIN files.`
   },
@@ -97,6 +114,7 @@ const rows = [
     title: 'Capcom vs SNK Pro',
     filenameFormat: 'STG{NN}TEX.BIN',
     filenameExample: 'STG02TEX.BIN',
+    fileType: 'Texture',
     description: 'Stage textures',
     notes: `Must be loaded with a corresponding POL.BIN file.`
   },
@@ -104,6 +122,7 @@ const rows = [
     title: 'Capcom vs SNK Pro',
     filenameFormat: 'DM{NN}POL.BIN',
     filenameExample: 'DM00POL.BIN',
+    fileType: 'Polygon',
     description: 'Demo/menu model/polygons',
     notes: `Corresponding textures are in similarly named TEX.BIN files.`
   },
@@ -111,6 +130,7 @@ const rows = [
     title: 'Capcom vs SNK Pro',
     filenameFormat: 'DM{NN}TEX.BIN',
     filenameExample: 'DM00TEX.BIN',
+    fileType: 'Texture',
     description: 'Demo/menu textures',
     notes: `Must be loaded with a corresponding POL.BIN file.`
   },
@@ -118,6 +138,7 @@ const rows = [
     title: 'Capcom vs SNK 2',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG02POL.BIN',
+    fileType: 'Polygon',
     description: 'Stage model/polygons',
     notes: `Corresponding textures are in similarly named TEX.BIN files.`
   },
@@ -125,6 +146,7 @@ const rows = [
     title: 'Capcom vs SNK 2',
     filenameFormat: 'STG{NN}(E)TEX.BIN',
     filenameExample: 'STG02TEX.BIN',
+    fileType: 'Texture',
     description: 'Stage textures',
     notes: `Must be loaded with a corresponding POL.BIN file.`
   },
@@ -132,6 +154,7 @@ const rows = [
     title: 'Capcom vs SNK 2',
     filenameFormat: 'DC{NN}POL.BIN',
     filenameExample: 'DC26POL.BIN',
+    fileType: 'Polygon',
     description: 'Menu/Gui polygons/models',
     notes: `Corresponding textures are in similarly named TEX.BIN files.`
   },
@@ -139,32 +162,44 @@ const rows = [
     title: 'Capcom vs SNK 2',
     filenameFormat: 'DC(E){NN}TEX.BIN',
     filenameExample: 'DC02TEX.BIN',
+    fileType: 'Texture',
     description: 'Menu/Gui textures',
     notes: `Must be loaded with a corresponding POL.BIN file. Certain files are not able to load due to VQ sections, palette will be limited on export.`,
     hasIssues: true
   }
-].map((r, id) => ({ ...r, id }));
+];
 
-const redIssueCellClassName = (params: GridCellParams) =>
+const rows = supportEntries.map((row, id) => ({
+  ...row,
+  id
+}));
+
+const getIssuesCellClassName = (params: GridCellParams) =>
   clsx(params.row.hasIssues ? 'has-issues' : '');
 
-const columns: GridColDef[] = [
+const columns: GridColDef<FileSupportEntry>[] = [
   {
     field: 'title',
     headerName: 'Title',
     width: 200,
-    cellClassName: redIssueCellClassName
+    cellClassName: getIssuesCellClassName
   },
   {
     field: 'filenameFormat',
     headerName: 'Filename Format',
     width: 200,
-    cellClassName: redIssueCellClassName
+    cellClassName: getIssuesCellClassName
   },
   {
     field: 'filenameExample',
     headerName: 'Example',
     width: 150
+  },
+  {
+    field: 'fileType',
+    headerName: 'Type',
+    width: 120,
+    cellClassName: getIssuesCellClassName
   },
   {
     field: 'description',
@@ -176,7 +211,7 @@ const columns: GridColDef[] = [
     headerName: 'Notes',
     sortable: false,
     width: 400,
-    cellClassName: redIssueCellClassName
+    cellClassName: getIssuesCellClassName
   }
 ];
 
