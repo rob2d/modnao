@@ -7,7 +7,7 @@ export default function DialogSectionHeader({ children }: Props) {
     <Typography
       variant='h6'
       className='section-header'
-      sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
+      sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}
     >
       {children}
     </Typography>

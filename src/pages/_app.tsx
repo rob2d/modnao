@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles';
 import { AppCacheProvider } from '@mui/material-nextjs/v13-pagesRouter';
 import type { AppProps } from 'next/app';
+import '@/theming/globals.css';
 import useUserTheme from '@/theming/useUserTheme';
 import { wrapper } from '@/store';
 import { ViewOptionsContextProvider } from '@/contexts/ViewOptionsContext';

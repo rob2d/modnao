@@ -7,7 +7,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Paper,
   Tooltip
 } from '@mui/material';
 import Icon from '@mdi/react';
@@ -48,9 +47,7 @@ export default function MainView() {
     default:
       mainScene = (
         <div className='welcome-panel'>
-          <Paper variant='outlined'>
-            <AppInfo />
-          </Paper>
+          <AppInfo />
         </div>
       );
       break;
@@ -100,29 +97,19 @@ export default function MainView() {
           '& .welcome-panel': {
             boxSizing: 'border-box',
             display: 'flex',
-            flexDirection: 'column',
-            pt: 1,
-            pb: 1,
-            pl: 2,
+            py: 1,
+            px: 2,
             maxHeight: '100vh',
-            maxWidth: '100%'
-          },
-          '& .welcome-panel > .MuiPaper-root': {
+            maxWidth: '100%',
             height: '100%'
           },
           '& .welcome-panel > img': {
             flexShrink: 0
           },
-          '& .welcome-panel > div': {
-            display: 'flex',
-            py: 1,
-            px: 2,
-            maxHeight: '100%',
-            maxWidth: '100%'
-          },
           '& .welcome-panel > div > .MuiPaper-root': {
             display: 'flex',
-            p: 2
+            px: 0,
+            py: 2
           },
           '& .main-content': {
             position: 'relative'

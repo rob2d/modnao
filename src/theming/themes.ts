@@ -1,6 +1,8 @@
 import { CSSProperties } from 'react';
 import type {} from '@mui/material/themeCssVarsAugmentation';
-import { PaletteMode, Theme } from '@mui/material';
+import { PaletteMode } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
+import type { SystemStyleObject } from '@mui/system';
 import localFont from 'next/font/local';
 
 export const robotoMono = localFont({
@@ -8,6 +10,20 @@ export const robotoMono = localFont({
 });
 
 const modes: PaletteMode[] = ['dark', 'light'];
+
+type AppThemeMixin = SystemStyleObject<Theme>;
+
+interface AppThemeMixins {
+  dialogScrollEdgeFrame: AppThemeMixin;
+  dialogScrollEdgeScroller: AppThemeMixin;
+  fileDragActiveAfter: AppThemeMixin;
+}
+
+interface AppThemeMixinsOptions {
+  dialogScrollEdgeFrame?: AppThemeMixin;
+  dialogScrollEdgeScroller?: AppThemeMixin;
+  fileDragActiveAfter?: AppThemeMixin;
+}
 
 declare module '@mui/material' {
   export type ScenePalette = {
@@ -39,6 +55,74 @@ declare module '@mui/material' {
   }
 }
 
+declare module '@mui/material/styles' {
+  interface Mixins extends AppThemeMixins {}
+
+  interface MixinsOptions extends AppThemeMixinsOptions {}
+}
+
+const mixins = {
+  dialogScrollEdgeFrame: {
+    position: 'relative',
+    boxSizing: 'border-box',
+    height: '100%',
+    minHeight: 0,
+    overflow: 'hidden',
+    borderTop: '1px solid transparent',
+    borderBottom: '1px solid transparent',
+    transition: 'border-color 160ms ease',
+    '&::before, &::after': {
+      content: '""',
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      height: 'calc(var(--mui-spacing) * 3)',
+      pointerEvents: 'none',
+      zIndex: 2,
+      opacity: 0,
+      transition: 'opacity 160ms ease'
+    },
+    '&::before': {
+      top: 0,
+      background:
+        'linear-gradient(to bottom, rgb(0 0 0 / 0.03), rgb(0 0 0 / 0.015), rgb(0 0 0 / 0))'
+    },
+    '&::after': {
+      bottom: 0,
+      background:
+        'linear-gradient(to top, rgb(0 0 0 / 0.03), rgb(0 0 0 / 0.015), rgb(0 0 0 / 0))'
+    },
+    '&[data-scroll-above="true"]': {
+      '&::before': {
+        opacity: 'var(--dialog-scroll-edge-top-opacity, 1)'
+      }
+    },
+    '&[data-scroll-below="true"]': {
+      '&::after': {
+        opacity: 'var(--dialog-scroll-edge-bottom-opacity, 1)'
+      }
+    }
+  } satisfies AppThemeMixin,
+  dialogScrollEdgeScroller: {
+    height: '100%',
+    minHeight: 0,
+    overflowY: 'auto'
+  } satisfies AppThemeMixin,
+  fileDragActiveAfter: {
+    content: "''",
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'var(--mui-palette-secondary-light)',
+    border: '3px solid var(--mui-palette-secondary-main)',
+    mixBlendMode: 'hard-light',
+    opacity: 0.75,
+    pointerEvents: 'none'
+  } satisfies AppThemeMixin
+} satisfies AppThemeMixins;
+
 export type AppThemes = {
   [key in PaletteMode]: Theme;
 };
@@ -48,8 +132,12 @@ const themes = Object.fromEntries(
     mode,
     {
       typography: {
-        fontFamily: robotoMono.style.fontFamily
+        fontFamily: robotoMono.style.fontFamily,
+        h6: {
+          fontFamily: 'Neue Aachen Pro Medium, sans-serif'
+        }
       },
+      mixins,
       components: {
         MuiListSubheader: {
           styleOverrides: {
@@ -64,6 +152,27 @@ const themes = Object.fromEntries(
             icon: {
               fontSize: '28px',
               alignItems: 'center'
+            }
+          }
+        },
+        MuiStepLabel: {
+          styleOverrides: {
+            label: {
+              '&.Mui-completed': {
+                fontWeight: 700
+              }
+            },
+            root: {
+              '&.MuiStepLabel-vertical': {
+                padding: '4px 0px'
+              }
+            }
+          }
+        },
+        MuiStepConnector: {
+          styleOverrides: {
+            line: {
+              minHeight: '12px'
             }
           }
         }

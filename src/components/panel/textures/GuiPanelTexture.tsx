@@ -8,7 +8,6 @@ import { selectMesh } from '@/selectors';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import ViewOptionsContext from '@/contexts/ViewOptionsContext';
-import themeMixins from '@/theming/themeMixins';
 import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import globalBuffers from '@/utils/data/globalBuffers';
@@ -16,7 +15,7 @@ import { uvToClipPathPoint } from '@/utils/textures';
 
 const IMG_SIZE = '174px';
 
-const panelTextureSx: SxProps<Theme> = {
+const panelTextureSx: SxProps<Theme> = (theme) => ({
   position: 'relative',
   display: 'inline-flex',
   alignItems: 'center',
@@ -29,7 +28,7 @@ const panelTextureSx: SxProps<Theme> = {
     display: 'flex',
     width: '100%'
   },
-  '& .image-area.file-drag-active:after': themeMixins.fileDragActiveAfter,
+  '& .image-area.file-drag-active:after': theme.mixins.fileDragActiveAfter,
   '& .img': {
     width: IMG_SIZE,
     height: IMG_SIZE,
@@ -82,7 +81,7 @@ const panelTextureSx: SxProps<Theme> = {
     filter: 'drop-shadow(3px 3px 1px black)',
     userSelect: 'none'
   }
-};
+});
 
 export type GuiPanelTextureProps =
   | {
