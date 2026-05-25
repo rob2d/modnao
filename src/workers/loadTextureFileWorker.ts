@@ -1,30 +1,26 @@
-import type {
-  NLUITextureDef,
-  ResourceAttribs,
-  TextureDataUrlType,
-  TextureFileType
-} from '@/types';
+import type { NLUITextureDef, TextureDataUrlType } from '@/types';
 import encodeZMortonPosition from '@/utils/textures/parse/encodeZMortonPosition';
 import decompressLzssBuffer from '@/utils/data/decompressLzssBuffer';
-import { LoadTexturesBasePayload } from '@/modules/model-data';
 import rgba8888TargetOps from '@/utils/color-conversions/rgba8888TargetOps';
-import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import { getTextureDefDataLength } from '@/utils/textures';
+import getTextureDefDataLength from '@/utils/textures/getTextureDefDataLength';
 import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
+import type { LoadTexturesBasePayload } from '@/modules/model-data/modelDataTypes';
 
 export type LoadTextureFileWorkerResult = {
   texturePixelBuffers: SharedArrayBuffer[];
   decompressedTextureBuffer: SharedArrayBuffer;
   isLzssCompressed?: boolean;
-  resourceAttribs?: ResourceAttribs;
 };
 
-export type LoadTextureFileWorkerPayload = LoadTexturesBasePayload & {
+export type LoadTextureFileWorkerPayload = Pick<
+  LoadTexturesBasePayload,
+  'isLzssCompressed'
+> & {
   fileName: string;
   textureFileBuffer: SharedArrayBuffer;
   textureDefs: NLUITextureDef[];
-  textureFileType: TextureFileType;
+  oobReferenceable?: boolean;
 };
 
 const COLOR_SIZE = 2;
@@ -99,20 +95,14 @@ function createTexturePixelBuffers(
 export default function loadTextureFileWorker({
   textureFileBuffer,
   textureDefs,
-  textureFileType,
-  isLzssCompressed,
-  /** @TODO streamline architecture so initial
-   * call contains these attributes within the first call
-   */
-  resourceAttribs
+  oobReferenceable,
+  isLzssCompressed
 }: LoadTextureFileWorkerPayload) {
   let result: LoadTextureFileWorkerResult;
-  const resolvedResourceAttribs =
-    resourceAttribs ?? resourceAttribMappings[textureFileType];
-  const expectOobReferences = resolvedResourceAttribs.oobReferencable;
+  const expectOobReferences = oobReferenceable;
 
   try {
-    if (isLzssCompressed || resourceAttribs?.hasLzssTextureFile) {
+    if (isLzssCompressed) {
       new Error('Decompressed File');
     }
 
@@ -124,8 +114,7 @@ export default function loadTextureFileWorker({
 
     result = {
       texturePixelBuffers,
-      decompressedTextureBuffer: textureFileBuffer,
-      resourceAttribs: resolvedResourceAttribs
+      decompressedTextureBuffer: textureFileBuffer
     };
   } catch (error) {
     // if an overflow error occurs, this is an indicator that the
@@ -152,8 +141,7 @@ export default function loadTextureFileWorker({
     return {
       texturePixelBuffers,
       decompressedTextureBuffer,
-      isLzssCompressed: true,
-      resourceAttribs: resolvedResourceAttribs
+      isLzssCompressed: true
     };
   }
 

@@ -317,9 +317,8 @@ export const processTextureFile = createAppAsyncThunk(
       fileName: file.name,
       textureDefs,
       textureFileBuffer,
-      isLzssCompressed: usesLzssTextureFile,
-      textureFileType,
-      resourceAttribs: activeResourceAttribs
+      oobReferenceable: activeResourceAttribs.oobReferencable,
+      isLzssCompressed: usesLzssTextureFile
     });
 
     const updatedTextureDefs = structuredClone(textureDefs);
@@ -344,8 +343,6 @@ export const processTextureFile = createAppAsyncThunk(
       threadResult.decompressedTextureBuffer
     );
 
-    const finalResourceAttribs = threadResult.resourceAttribs;
-
     return {
       textureBufferKey,
       textureDefs: updatedTextureDefs,
@@ -353,7 +350,7 @@ export const processTextureFile = createAppAsyncThunk(
       fileName: file.name,
       isLzssCompressed:
         usesLzssTextureFile || Boolean(threadResult.isLzssCompressed),
-      resourceAttribs: finalResourceAttribs
+      resourceAttribs: activeResourceAttribs
     };
   }
 );
