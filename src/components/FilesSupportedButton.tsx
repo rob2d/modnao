@@ -11,7 +11,17 @@ export default function FilesSupportedButton({
 }) {
   const dispatch = useAppDispatch();
   const onShowFileSupportInfo = useCallback(() => {
-    dispatch(showDialog('file-support-info'));
+    dispatch(
+      showDialog({
+        type: 'file-support-info',
+        sx: {
+          '& .MuiDialog-paper': {
+            width: 'calc(100vw - 32px)',
+            maxWidth: 'calc(100vw - 32px)'
+          }
+        }
+      })
+    );
   }, [dispatch]);
 
   return (
