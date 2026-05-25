@@ -22,3 +22,11 @@ the NaomiLib model binary data formats:
 <a href="https://github.com/zocker-160" title="zocker-160"><img src="https://avatars.githubusercontent.com/u/36563538?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
 <a href="https://github.com/TVIndustries" title="TVIndustries"><img src="https://avatars.githubusercontent.com/u/63134071?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
 <a href="https://github.com/mountainmanjed" title="Jed Hudson"><img src="https://avatars.githubusercontent.com/u/5819256?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
+
+## License & Attribution
+
+Code in this repository originates here. If you use, copy, modify, or redistribute any part of this project or derivative works based on it, you must attribute that work.
+
+This project is released under a **non‑commercial, no‑AI training/modeling, copyleft license**. All rights are reserved.
+
+See the [LICENSE](./LICENSE) file for details.
