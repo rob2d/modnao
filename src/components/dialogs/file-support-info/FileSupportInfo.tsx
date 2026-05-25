@@ -50,6 +50,22 @@ const supportEntries: FileSupportEntry[] = [
   },
   {
     title: 'Marvel vs Capcom 2',
+    filenameFormat: 'EFKYPOL.BIN',
+    filenameExample: 'EFKYPOL.BIN',
+    fileType: 'Polygon',
+    description: 'Special effects model/polygons',
+    notes: 'Corresponding textures are in EFKYTEX.BIN'
+  },
+  {
+    title: 'Marvel vs Capcom 2',
+    filenameFormat: 'EFKYTEX.BIN',
+    filenameExample: 'EFKYTEX.BIN',
+    fileType: 'Texture',
+    description: 'Special effects textures',
+    notes: 'Must be loaded with a corresponding EFKYPOL.BIN file.'
+  },
+  {
+    title: 'Marvel vs Capcom 2',
     filenameFormat: 'PL{NN}_WIN.BIN',
     filenameExample: 'PL1B_WIN.BIN',
     fileType: 'Texture',
