@@ -94,7 +94,7 @@ export default function DevVlog() {
                   {v.title}
                 </Typography>
                 <Typography
-                  variant='subtitle1'
+                  variant='body2'
                   color='text.secondary'
                   component='div'
                 >

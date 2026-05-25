@@ -67,9 +67,7 @@ export default function AppInfo() {
       <DevVlog />
       <div className='howto-and-contributions'>
         <KeyboardShortcuts />
-        <Divider />
         <SceneNavigationHints />
-        <Divider />
         <Contributors />
         {!isAppInfoDialogShown ? undefined : (
           <Button
