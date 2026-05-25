@@ -1,5 +1,64 @@
-import { useState } from 'react';
-import useDebouncedEffect from './useDebouncedEffect';
+import { useCallback, useState, useSyncExternalStore } from 'react';
+
+const storageKeyListeners = new Map<string, Set<() => void>>();
+const storageSnapshotCache = new Map<
+  string,
+  { storedValue: string | null; parsedValue: unknown }
+>();
+
+function parseStoredValue<T>(defaultValue: T, storedValue: string): T {
+  switch (typeof defaultValue) {
+    case 'string':
+      return storedValue as T;
+    case 'number':
+      return Number(storedValue) as T;
+    case 'boolean':
+      return (storedValue === 'true') as T;
+    default:
+      return JSON.parse(storedValue) as T;
+  }
+}
+
+function writeStoredValue<T>(storageKey: string, value: T) {
+  switch (typeof value) {
+    case 'string':
+      localStorage.setItem(storageKey, value);
+      break;
+    case 'boolean':
+    case 'number':
+      localStorage.setItem(storageKey, `${value}`);
+      break;
+    case 'object':
+      localStorage.setItem(storageKey, JSON.stringify(value));
+      break;
+  }
+}
+
+function readStoredValue<T>(defaultValue: T, storageKey?: string): T {
+  if (!storageKey || typeof window === 'undefined') {
+    return defaultValue;
+  }
+
+  const storedValue = window.localStorage.getItem(storageKey);
+  const cachedSnapshot = storageSnapshotCache.get(storageKey);
+
+  if (cachedSnapshot?.storedValue === storedValue) {
+    return cachedSnapshot.parsedValue as T;
+  }
+
+  const parsedValue =
+    storedValue === null
+      ? defaultValue
+      : parseStoredValue(defaultValue, storedValue);
+
+  storageSnapshotCache.set(storageKey, { storedValue, parsedValue });
+
+  return parsedValue;
+}
+
+function notifyStorageKeyListeners(storageKey: string) {
+  storageKeyListeners.get(storageKey)?.forEach((listener) => listener());
+}
 
 /**
  * creates a hook that allows for the setting of a value
@@ -9,52 +68,60 @@ export default function useViewOptionSetting<T>(
   defaultValue: T,
   storageKey?: string
 ): [T, (value: T) => void] {
-  const [value, setValue] = useState<T>(() => {
-    if (typeof window === 'undefined') {
-      return defaultValue;
-    }
+  const [localValue, setLocalValue] = useState<T>(() => defaultValue);
 
-    const { localStorage } = window;
-
-    if (storageKey) {
-      const storedValue = localStorage.getItem(storageKey);
-      if (storedValue !== null) {
-        switch (typeof defaultValue) {
-          case 'string':
-            return storedValue as T;
-          case 'number':
-            return Number(storedValue) as T;
-          case 'boolean':
-            return (storedValue === 'true') as T;
-          default:
-            return JSON.parse(storedValue) as T;
-        }
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      if (!storageKey || typeof window === 'undefined') {
+        return () => undefined;
       }
-    }
 
-    return defaultValue;
-  });
+      const listeners =
+        storageKeyListeners.get(storageKey) ?? new Set<() => void>();
 
-  useDebouncedEffect(
-    () => {
-      if (storageKey) {
-        switch (typeof value) {
-          case 'string':
-            localStorage.setItem(storageKey, value);
-            break;
-          case 'boolean':
-          case 'number':
-            localStorage.setItem(storageKey, `${value}`);
-            break;
-          case 'object':
-            localStorage.setItem(storageKey, JSON.stringify(value));
-            break;
+      listeners.add(onStoreChange);
+      storageKeyListeners.set(storageKey, listeners);
+
+      const onStorage = (event: StorageEvent) => {
+        if (event.key === storageKey) {
+          onStoreChange();
         }
-      }
+      };
+
+      window.addEventListener('storage', onStorage);
+
+      return () => {
+        listeners.delete(onStoreChange);
+
+        if (listeners.size === 0) {
+          storageKeyListeners.delete(storageKey);
+        }
+
+        window.removeEventListener('storage', onStorage);
+      };
     },
-    [value],
-    250
+    [storageKey]
   );
 
-  return [value, setValue];
+  const storedValue = useSyncExternalStore(
+    subscribe,
+    () => readStoredValue(defaultValue, storageKey),
+    () => defaultValue
+  );
+
+  const setStoredValue = useCallback(
+    (value: T) => {
+      if (!storageKey) {
+        return;
+      }
+
+      writeStoredValue(storageKey, value);
+      notifyStorageKeyListeners(storageKey);
+    },
+    [storageKey]
+  );
+
+  return storageKey
+    ? [storedValue, setStoredValue]
+    : [localValue, setLocalValue];
 }

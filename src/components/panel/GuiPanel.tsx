@@ -286,7 +286,14 @@ export default function GuiPanel() {
       </div>
       <div className='content'>
         {contentViewMode !== 'welcome' ? undefined : (
-          <Img alt='logo' src='/logo.svg' width={222} height={172} />
+          <Img
+            alt='logo'
+            src='/logo.svg'
+            width={222}
+            height={172}
+            loading='eager'
+            style={{ height: 'auto' }}
+          />
         )}
         {contentViewMode !== 'textures' ? (
           <>
