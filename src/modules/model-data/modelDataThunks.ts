@@ -299,9 +299,11 @@ export const processTextureFile = createAppAsyncThunk(
         : new Uint8Array(await file.arrayBuffer())
     );
 
-    const isDirectResourceLzssd = activeResourceAttribs.hasLzssTextureFile;
+    const usesLzssTextureFile = Boolean(
+      isLzssCompressed || activeResourceAttribs.hasLzssTextureFile
+    );
 
-    if (isLzssCompressed || isDirectResourceLzssd) {
+    if (usesLzssTextureFile) {
       const fBuffer = await file.arrayBuffer();
       const sharedBuffer = sharedBufferFrom(fBuffer);
       buffer = Buffer.from(new Uint8Array(decompressLzssBuffer(sharedBuffer)));
@@ -315,9 +317,8 @@ export const processTextureFile = createAppAsyncThunk(
       fileName: file.name,
       textureDefs,
       textureFileBuffer,
-      isLzssCompressed,
-      textureFileType,
-      resourceAttribs: activeResourceAttribs
+      oobReferenceable: activeResourceAttribs.oobReferencable,
+      isLzssCompressed: usesLzssTextureFile
     });
 
     const updatedTextureDefs = structuredClone(textureDefs);
@@ -342,15 +343,14 @@ export const processTextureFile = createAppAsyncThunk(
       threadResult.decompressedTextureBuffer
     );
 
-    const finalResourceAttribs = threadResult.resourceAttribs;
-
     return {
       textureBufferKey,
       textureDefs: updatedTextureDefs,
       textureFileType,
       fileName: file.name,
-      isLzssCompressed,
-      resourceAttribs: finalResourceAttribs
+      isLzssCompressed:
+        usesLzssTextureFile || Boolean(threadResult.isLzssCompressed),
+      resourceAttribs: activeResourceAttribs
     };
   }
 );

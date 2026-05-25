@@ -3,6 +3,8 @@ import { NLUITextureDef } from './NLAbstractions';
 
 type ResourceType =
   | 'mvc2-stage'
+  | 'cvs1-stage'
+  | 'cvs1-demo'
   | 'cvs2-stage'
   | 'cvs2-menu'
   | 'mvc2-menu'
