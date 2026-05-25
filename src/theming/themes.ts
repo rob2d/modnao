@@ -48,7 +48,10 @@ const themes = Object.fromEntries(
     mode,
     {
       typography: {
-        fontFamily: robotoMono.style.fontFamily
+        fontFamily: robotoMono.style.fontFamily,
+        h6: {
+          fontFamily: 'Neue Aachen Pro Medium, sans-serif'
+        }
       },
       components: {
         MuiListSubheader: {
