@@ -45,7 +45,7 @@ export default function GettingStarted() {
             },
             '& .burger-menu-icon': {
               position: 'relative',
-              top: '6px'
+              top: '3px'
             },
             '& .model-no-highlight': {
               fontWeight: 'bold',
@@ -81,12 +81,13 @@ export default function GettingStarted() {
                     color='primary'
                     size='small'
                     variant='outlined'
+                    sx={{ lineHeight: 1, mr: 1 }}
                   >
                     Import Model/Texture
                   </Button>
-                  &nbsp; to load a polygon and an associated texture file, or
-                  just a dedicated texture file by itself. Hold control when
-                  clicking to select multiple files.
+                  to load a polygon and an associated texture file, or just a
+                  dedicated texture file by itself. Hold control when clicking
+                  to select multiple files.
                 </Typography>
               </StepContent>
             </Step>
@@ -100,7 +101,7 @@ export default function GettingStarted() {
                   Click a polygon to highlight its texture, then hit the&nbsp;
                   <Icon
                     path={mdiDotsVertical}
-                    size={1}
+                    size={0.75}
                     className='burger-menu-icon'
                   />
                   &nbsp;icon. Edit the texture color sliders or replace the
@@ -118,6 +119,7 @@ export default function GettingStarted() {
                     color='primary'
                     size='small'
                     variant='outlined'
+                    sx={{ lineHeight: 1 }}
                   >
                     Export Textures
                   </Button>
