@@ -151,6 +151,22 @@ const supportEntries: FileSupportEntry[] = [
     notes: `Must be loaded with a corresponding POL.BIN file.`
   },
   {
+    title: 'Capcom vs SNK Pro',
+    filenameFormat: 'DC{NN}POL.BIN',
+    filenameExample: 'DC04POL.BIN',
+    fileType: 'Polygon',
+    description: 'Dreamcast menu/gui model/polygons',
+    notes: `Corresponding textures are in similarly named TEX.BIN files.`
+  },
+  {
+    title: 'Capcom vs SNK Pro',
+    filenameFormat: 'DC{NN}TEX.BIN',
+    filenameExample: 'DC04TEX.BIN',
+    fileType: 'Texture',
+    description: 'Dreamcast menu/gui textures',
+    notes: `Must be loaded with a corresponding POL.BIN file.`
+  },
+  {
     title: 'Capcom vs SNK 2',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG02POL.BIN',

@@ -38,6 +38,44 @@ describe('getResourceAttribs', () => {
     ['d8fe02eae09901a05cd38c659748b17aa3f8477c', 'DM86POL.BIN', true]
   ] as const;
 
+  const cvs1DreamcastFiles = [
+    ['452ad62f6b1a681bf1e2821047e0ec4bcd208359', 'DC00POL.BIN', 'DC00', true],
+    ['09dd5e9a38f66f8e17d24d89536f7a08dec96a5d', 'DC01POL.BIN', 'DC01', true],
+    [
+      '3828c1c9cbbc4ecf57b2d47375ac44f485489bc7',
+      'DC02POL.BIN',
+      'DC02/DC13/DC14',
+      true
+    ],
+    [
+      '3828c1c9cbbc4ecf57b2d47375ac44f485489bc7',
+      'DC13POL.BIN',
+      'DC02/DC13/DC14',
+      true
+    ],
+    [
+      '3828c1c9cbbc4ecf57b2d47375ac44f485489bc7',
+      'DC14POL.BIN',
+      'DC02/DC13/DC14',
+      true
+    ],
+    ['46ab3b79a7722f5410e9ae3927fee6f7466e36c5', 'DC03POL.BIN', 'DC03', true],
+    ['b47bc2e14375874994dc56ddb1738a2fd86bdd77', 'DC04POL.BIN', 'DC04', true],
+    ['59beec84ef82b9ef729d03491eaf1d4b692e011c', 'DC05POL.BIN', 'DC05', true],
+    ['0f9160c70236e47fe029e67b6c320eae0a8bb0a1', 'DC06POL.BIN', 'DC06', true],
+    ['25f845c1132b6c64e9ef9b408264d5ff8e1a971f', 'DC07POL.BIN', 'DC07', true],
+    ['15703dcb1c83f25ac4df17f6bb2ffba0ba02817e', 'DC08POL.BIN', 'DC08', true],
+    ['8479cf7fa14b4151fb3d90081185d35f0142e8fb', 'DC09POL.BIN', 'DC09', true],
+    ['b8839467c810e3f271a1190d661749fcb0994f74', 'DC10POL.BIN', 'DC10', true],
+    ['9d50e34716b43b9554c1f39745fc9f4f7526fa5a', 'DC11POL.BIN', 'DC11', true],
+    ['46d0f1bda75d7aac95546edd12623e8a09032487', 'DC12POL.BIN', 'DC12', true],
+    ['54f188c3bbdc3e6508a797edfeec5712fa240da7', 'DC19POL.BIN', 'DC19', true],
+    ['c4249fbf6af80566dc66084f49d7d8eb1d585c5c', 'DC20POL.BIN', 'DC20', false],
+    ['8ba015405ad5df60e8cc21eed342aeaf0babb2fe', 'DC21POL.BIN', 'DC21', true],
+    ['c48c61109144051f9686d7f2231bb12a0f2c4504', 'DC22POL.BIN', 'DC22', false],
+    ['3f4d6f623d3a137ad0f5af8a0a5ded7d6a63618a', 'DC23POL.BIN', 'DC23', true]
+  ] as const;
+
   it.each(cvs1StageFiles)(
     'resolves %s and %s as a CVS1 stage resource',
     (hash, fileName, identifier) => {
@@ -61,6 +99,21 @@ describe('getResourceAttribs', () => {
       expect(resourceAttribs).toMatchObject({
         game: 'CVS1Pro',
         resourceType: 'cvs1-demo',
+        polygonMapped: true,
+        hasLzssTextureFile
+      });
+    }
+  );
+
+  it.each(cvs1DreamcastFiles)(
+    'resolves %s and %s as a CVS1 Dreamcast menu resource',
+    (hash, fileName, identifier, hasLzssTextureFile) => {
+      const resourceAttribs = getResourceAttribs(hash, fileName);
+
+      expect(resourceAttribs).toMatchObject({
+        game: 'CVS1Pro',
+        identifier,
+        resourceType: 'cvs1-menu',
         polygonMapped: true,
         hasLzssTextureFile
       });

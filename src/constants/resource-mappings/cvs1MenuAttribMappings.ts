@@ -9,6 +9,15 @@ const cvs1DemoResourceAttribs = {
   hasLzssTextureFile: true
 } satisfies Omit<ResourceAttribs, 'identifier' | 'filenamePattern'>;
 
+const cvs1DreamcastResourceAttribs = {
+  game: 'CVS1Pro',
+  name: 'Dreamcast Menu File (unspecified)',
+  resourceType: 'cvs1-menu',
+  polygonMapped: true,
+  oobReferencable: false,
+  hasLzssTextureFile: true
+} satisfies Omit<ResourceAttribs, 'identifier' | 'filenamePattern'>;
+
 const cvs1MenuSources = [
   {
     textureDefsHash: '37d9fb1acd9cac80d6f786850fa6c3b4c4ca044e',
@@ -122,16 +131,133 @@ const cvs1MenuSources = [
   }
 ] as const;
 
+const cvs1DreamcastSources = [
+  {
+    textureDefsHash: '452ad62f6b1a681bf1e2821047e0ec4bcd208359',
+    name: 'Dreamcast Menu 00',
+    identifier: 'DC00',
+    filenamePattern: '^DC00(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '09dd5e9a38f66f8e17d24d89536f7a08dec96a5d',
+    name: 'Dreamcast Menu 01',
+    identifier: 'DC01',
+    filenamePattern: '^DC01(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '3828c1c9cbbc4ecf57b2d47375ac44f485489bc7',
+    name: 'Dreamcast Menus 02/13/14',
+    identifier: 'DC02/DC13/DC14',
+    filenamePattern: '^DC(02|13|14)(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '46ab3b79a7722f5410e9ae3927fee6f7466e36c5',
+    name: 'Dreamcast Menu 03',
+    identifier: 'DC03',
+    filenamePattern: '^DC03(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: 'b47bc2e14375874994dc56ddb1738a2fd86bdd77',
+    name: 'Dreamcast Menu 04',
+    identifier: 'DC04',
+    filenamePattern: '^DC04(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '59beec84ef82b9ef729d03491eaf1d4b692e011c',
+    name: 'Dreamcast Menu 05',
+    identifier: 'DC05',
+    filenamePattern: '^DC05(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '0f9160c70236e47fe029e67b6c320eae0a8bb0a1',
+    name: 'Dreamcast Menu 06',
+    identifier: 'DC06',
+    filenamePattern: '^DC06(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '25f845c1132b6c64e9ef9b408264d5ff8e1a971f',
+    name: 'Dreamcast Menu 07',
+    identifier: 'DC07',
+    filenamePattern: '^DC07(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '15703dcb1c83f25ac4df17f6bb2ffba0ba02817e',
+    name: 'Dreamcast Menu 08',
+    identifier: 'DC08',
+    filenamePattern: '^DC08(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '8479cf7fa14b4151fb3d90081185d35f0142e8fb',
+    name: 'Dreamcast Menu 09',
+    identifier: 'DC09',
+    filenamePattern: '^DC09(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: 'b8839467c810e3f271a1190d661749fcb0994f74',
+    name: 'Dreamcast Menu 10',
+    identifier: 'DC10',
+    filenamePattern: '^DC10(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '9d50e34716b43b9554c1f39745fc9f4f7526fa5a',
+    name: 'Dreamcast Menu 11',
+    identifier: 'DC11',
+    filenamePattern: '^DC11(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '46d0f1bda75d7aac95546edd12623e8a09032487',
+    name: 'Dreamcast Menu 12',
+    identifier: 'DC12',
+    filenamePattern: '^DC12(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: '54f188c3bbdc3e6508a797edfeec5712fa240da7',
+    name: 'Dreamcast Menu 19',
+    identifier: 'DC19',
+    filenamePattern: '^DC19(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: 'c4249fbf6af80566dc66084f49d7d8eb1d585c5c',
+    name: 'Dreamcast Menu 20',
+    identifier: 'DC20',
+    filenamePattern: '^DC20(.mn)?POL.BIN$',
+    hasLzssTextureFile: false
+  },
+  {
+    textureDefsHash: '8ba015405ad5df60e8cc21eed342aeaf0babb2fe',
+    name: 'Dreamcast Menu 21',
+    identifier: 'DC21',
+    filenamePattern: '^DC21(.mn)?POL.BIN$'
+  },
+  {
+    textureDefsHash: 'c48c61109144051f9686d7f2231bb12a0f2c4504',
+    name: 'Dreamcast Menu 22',
+    identifier: 'DC22',
+    filenamePattern: '^DC22(.mn)?POL.BIN$',
+    hasLzssTextureFile: false
+  },
+  {
+    textureDefsHash: '3f4d6f623d3a137ad0f5af8a0a5ded7d6a63618a',
+    name: 'Dreamcast Menu 23',
+    identifier: 'DC23',
+    filenamePattern: '^DC23(.mn)?POL.BIN$'
+  }
+] as const;
+
+const cvs1ResourceSources = [
+  ...cvs1MenuSources.map((source) => ({
+    ...cvs1DemoResourceAttribs,
+    ...source
+  })),
+  ...cvs1DreamcastSources.map((source) => ({
+    ...cvs1DreamcastResourceAttribs,
+    ...source
+  }))
+];
+
 const cvs1MenuAttribMappings = Object.fromEntries(
-  cvs1MenuSources.map(
-    ({ textureDefsHash, ...fields }) =>
-      [
-        textureDefsHash,
-        {
-          ...cvs1DemoResourceAttribs,
-          ...fields
-        }
-      ] as const
+  cvs1ResourceSources.map(
+    ({ textureDefsHash, ...fields }) => [textureDefsHash, fields] as const
   )
 ) satisfies Record<string, ResourceAttribs>;
 

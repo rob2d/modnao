@@ -279,7 +279,7 @@ export default function GuiPanel() {
     >
       <div
         className={clsx('resize-handle', resizeMouseDown && 'active')}
-        ref={resizeHandle as LegacyRef<HTMLDivElement>}
+        ref={resizeHandle}
         onClick={onClickResizeHandle}
       >
         <ExpandLevelIcon fontSize='small' />
