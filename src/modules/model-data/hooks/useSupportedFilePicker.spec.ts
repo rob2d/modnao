@@ -44,6 +44,10 @@ describe('handleFileInput', () => {
       ...restParams
     );
     await handleFileInput(
+      getMockFilesWithNames(['DC01POL.BIN', 'DC01TEX.BIN']),
+      ...restParams
+    );
+    await handleFileInput(
       getMockFilesWithNames(['EFKYPOL.BIN', 'EFKYTEX.BIN']),
       ...restParams
     );
