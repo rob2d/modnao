@@ -3,14 +3,7 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { Divider, Paper } from '@mui/material';
-import {
-  LegacyRef,
-  RefObject,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef
-} from 'react';
+import { RefObject, useCallback, useContext, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import ViewOptionsContext, { ViewOptions } from '@/contexts/ViewOptionsContext';
 import GuiPanelViewOptions from './GuiPanelViewOptions';
@@ -39,10 +32,10 @@ function clamp(num: number, min: number, max: number) {
   return Math.min(Math.max(num, min), max);
 }
 
-type PanelDragParams = [boolean, RefObject<HTMLElement | null>];
+type PanelDragParams = [boolean, RefObject<HTMLDivElement | null>];
 
 const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
-  const resizeHandle = useRef<HTMLElement | null>(null);
+  const resizeHandle = useRef<HTMLDivElement | null>(null);
   const [dragMouseXY, isMouseDown, resetMouseTracking] =
     useDragMouseOnEl(resizeHandle);
   const levelAtStart = useRef<number>(viewOptions.guiPanelExpansionLevel);
