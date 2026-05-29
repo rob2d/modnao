@@ -6,7 +6,6 @@ import {
   useRef,
   useState
 } from 'react';
-import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import {
   selectAllDisplayedMeshes,
@@ -41,11 +40,12 @@ import {
   WebGLRenderer
 } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
+import SceneCameraControls from './scene/SceneCameraControls';
 import globalBuffers from '@/utils/data/globalBuffers';
 
 ColorManagement.enabled = true;
 
-const cameraParams = { far: 5000000 };
+const cameraParams = { near: 0.1, far: 5000000 };
 const canvasResizeParams = { debounce: 125 };
 
 const TEXTURE_ROTATION = 1.5708;
@@ -85,6 +85,7 @@ export default function SceneView() {
       position: 'absolute' as const,
       top: '0',
       left: '0',
+      touchAction: 'none',
       background: theme.palette.scene.background,
       cursor: viewOptions.sceneCursorVisible ? 'default' : 'none'
     }),
@@ -223,8 +224,8 @@ export default function SceneView() {
         <group>
           {!viewOptions.axesHelperVisible ? undefined : axesHelper}
           {renderedModels}
-          <OrbitControls />
         </group>
+        <SceneCameraControls />
       </Selection>
     </Canvas>
   );
