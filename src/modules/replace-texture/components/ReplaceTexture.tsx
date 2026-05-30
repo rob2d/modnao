@@ -200,7 +200,7 @@ export default function ReplaceTexture() {
           height: originalHeight
         });
 
-        // restore zero-alpha origin pixels when necessary
+        // restore the original alpha coverage after crop/resize
         if (preserveOriginAlpha && originTextureBuffer) {
           const sharedBuffer = new SharedArrayBuffer(
             resizedImage.width * resizedImage.height * 4
@@ -209,9 +209,7 @@ export default function ReplaceTexture() {
           rgbaBuffer.set(resizedImage.getRGBAData());
 
           for (let i = 0; i < rgbaBuffer.length; i += 4) {
-            if (originTextureBuffer[i + 3] === 0) {
-              rgbaBuffer[i + 3] = 0;
-            }
+            rgbaBuffer[i + 3] = originTextureBuffer[i + 3];
           }
           setProcessedRgba(rgbaBuffer);
         } else {
@@ -568,17 +566,15 @@ export default function ReplaceTexture() {
               </Tooltip>
               <Tooltip
                 title={
-                  'Re-sets transparent pixels to zero-alpha. In certain scenarios ' +
-                  'this is useful to edit "invisible" sections of colors with alpha ' +
-                  'of zero that actually have meaningful data. A sane default is to ' +
-                  'leave this on when in doubt since it only affects a small percentage ' +
-                  'of games/scenarios.'
+                  'Keeps the original transparent parts of the texture. Some games also ' +
+                  'hide useful colors inside invisible pixels, so leaving this on helps ' +
+                  'keep those details.'
                 }
                 placement='left-start'
               >
                 <FormControlLabel
                   control={<Checkbox checked={preserveOriginAlpha} />}
-                  label='Preserve origin zero-alpha pixels'
+                  label='Preserve original alpha channel'
                   labelPlacement='end'
                   onChange={() => setPreserveOriginAlpha(!preserveOriginAlpha)}
                 />
