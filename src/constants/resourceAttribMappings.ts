@@ -1,7 +1,9 @@
 import type { NLUITextureDef, ResourceAttribs, TextureFileType } from '@/types';
 import createTextureDef from '@/utils/textures/createTextureDef';
 import cvs1MenuAttribMappings from './resource-mappings/cvs1MenuAttribMappings';
+import cvs1StandaloneStageTextureAttribMappings from './resource-mappings/cvs1StandaloneStageTextureAttribMappings';
 import cvs2MenuAttribMappings from './resource-mappings/cvs2MenuAttribMappings';
+import sfa3StageAttribMappings from './resource-mappings/sfa3StageAttribMappings';
 
 const mvc2PlFacStructure: Partial<NLUITextureDef>[] = [
   { width: 64, height: 64 },
@@ -67,6 +69,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     filenamePattern: '^STG0C(.mn)?POL.BIN$'
   },
   ...cvs1MenuAttribMappings,
+  ...cvs1StandaloneStageTextureAttribMappings,
   'mvc2-demo-dm0a': {
     game: 'MVC2',
     name: 'Demo Model 0A',
@@ -138,6 +141,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     textureFileType: 'cvs2-console-menu',
     hasLzssTextureFile: true
   },
+  ...sfa3StageAttribMappings,
   'vs2-stage-file': {
     game: 'VS2',
     name: 'Stage Texture File (unspecified)',

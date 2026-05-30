@@ -64,7 +64,9 @@ function createTexturePixelBuffers(
           if (hasPushed) {
             continue;
           }
-          const offsetDrawn = encodeZMortonPosition(offset - yOffset, y);
+          const x = offset - yOffset;
+          const sourceX = t.flipX ? t.width - 1 - x : x;
+          const offsetDrawn = encodeZMortonPosition(sourceX, y);
           const readOffset = sourceLocation + offsetDrawn * COLOR_SIZE;
           // textures may point out of bounds (this would be to RAM elsewhere in-game)
           if (readOffset >= sourceBuffer.length && !failOutOfBounds) {

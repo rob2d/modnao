@@ -75,6 +75,11 @@ describe('handleFileInput', () => {
     await handleFileInput(getMockFilesWithNames(['SELSTG.BIN']), ...restParams);
     await handleFileInput(getMockFilesWithNames(['SELVMJ.BIN']), ...restParams);
     await handleFileInput(getMockFilesWithNames(['SELVMU.BIN']), ...restParams);
+    await handleFileInput(
+      getMockFilesWithNames(['ST00TEX.BIN']),
+      ...restParams
+    );
+    await handleFileInput(getMockFilesWithNames(['ST00.PAC']), ...restParams);
 
     expect(onError).not.toHaveBeenCalled();
   });

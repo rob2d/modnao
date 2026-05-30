@@ -22,6 +22,7 @@ export default function processExportTexturePixels({
   pixelColors,
   width,
   height,
+  flipX,
   baseLocation,
   ramOffset,
   colorFormat,
@@ -30,6 +31,7 @@ export default function processExportTexturePixels({
   pixelColors: Uint8Array;
   width: number;
   height: number;
+  flipX?: boolean;
   baseLocation: number;
   ramOffset: number;
   colorFormat: TextureColorFormat;
@@ -40,7 +42,8 @@ export default function processExportTexturePixels({
     const yOffset = width * y;
     for (let offset = yOffset; offset < yOffset + width; offset++) {
       const [positionX, positionY] = decodeZMortonPosition(offset);
-      const positionOffset = positionY * width + positionX;
+      const sourceX = flipX ? width - 1 - positionX : positionX;
+      const positionOffset = positionY * width + sourceX;
       const colorOffset = positionOffset * 4;
 
       if (colorOffset + 3 >= pixelColors.length) {

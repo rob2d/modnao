@@ -105,6 +105,7 @@ export type NLTextureDef = {
 
 export type NLUITextureDef = NLTextureDef & {
   disableEdits?: boolean;
+  flipX?: boolean;
   bufferKeys: TextureImageBufferKeys;
   displayedAspectRatio?: number;
 };

@@ -1,4 +1,8 @@
-import type { NLUITextureDef, TextureDataUrlType } from '@/types';
+import type {
+  NLUITextureDef,
+  TextureDataUrlType,
+  TextureFileType
+} from '@/types';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import { HslValues } from '@/utils/textures';
@@ -31,6 +35,8 @@ import {
 } from '@/workers/exportTextureFileWorker';
 import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefRegionWorker';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
+import getResourceAttribs from '@/utils/resource-attribs/getResourceAttribs';
+import { parseSfa3PacTextureDefs } from '@/utils/textures/files';
 import {
   LoadPolygonsPayload,
   LoadTexturesPayload,
@@ -154,6 +160,45 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
   }
 );
 
+export const loadSfa3PacFile = createAppAsyncThunk(
+  `${sliceName}/loadSfa3PacFile`,
+  async (
+    { file, textureFileType }: { file: File; textureFileType: TextureFileType },
+    { dispatch }
+  ) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const resourceAttribs =
+      getResourceAttribs('', file.name) ??
+      resourceAttribMappings[textureFileType];
+    const textureDefs = parseSfa3PacTextureDefs(
+      buffer,
+      resourceAttribs.textureShapesMap
+    );
+
+    if (!textureDefs.length) {
+      dispatch(
+        showError({
+          title: 'Unsupported SFA3 PAC',
+          message: 'No supported direct-color PVR textures were found.'
+        })
+      );
+      return;
+    }
+
+    await dispatch(
+      loadTextureFile({
+        file,
+        textureFileType,
+        resourceAttribs,
+        textureDefs,
+        textureBuffer: sharedBufferFrom(buffer),
+        isLzssCompressed: false
+      })
+    );
+  }
+);
+
 export const loadPolygonFile = createAppAsyncThunk(
   `${sliceName}/loadPolygonFile`,
   async (file: File, { dispatch }) => {
@@ -184,9 +229,13 @@ export const loadTextureFile = createAppAsyncThunk(
   `${sliceName}/loadTextureFile`,
   async (payload: LoadTexturesPayload, { getState, dispatch }) => {
     const state = getState();
+    const mappedResourceAttribs =
+      resourceAttribMappings[payload.textureFileType];
     const resourceAttribs =
       payload.resourceAttribs ??
-      resourceAttribMappings[payload.textureFileType];
+      (!mappedResourceAttribs.polygonMapped
+        ? (getResourceAttribs('', payload.file.name) ?? mappedResourceAttribs)
+        : mappedResourceAttribs);
 
     // cleanup buffer if no polygon needed
     const prevPolygonBufferKey = state.modelData.polygonBufferKey;

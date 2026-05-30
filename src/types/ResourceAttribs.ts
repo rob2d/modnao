@@ -9,6 +9,7 @@ type ResourceType =
   | 'cvs2-stage'
   | 'cvs2-menu'
   | 'mvc2-menu'
+  | 'sfa3-stage'
   | 'vs2-stage'
   | 'vs2-demo';
 
@@ -17,7 +18,7 @@ type ResourceType =
  * and important attributes to define it
  */
 export type ResourceAttribs = {
-  game: 'MVC2' | 'CVS2' | 'CVS1Pro' | 'VS2';
+  game: 'MVC2' | 'CVS2' | 'CVS1Pro' | 'SFA3' | 'VS2';
   name: string;
   identifier: string;
   resourceType: ResourceType;

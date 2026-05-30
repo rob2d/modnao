@@ -20,7 +20,8 @@ export default async function exportTextureDefRegionWorker({
   pixelColors
 }: ExportTextureDefRegionWorkerPayload) {
   const pixelColorsBuffer = new Uint8Array(pixelColors);
-  const { baseLocation, ramOffset, width, height, colorFormat } = textureDef;
+  const { baseLocation, ramOffset, width, height, colorFormat, flipX } =
+    textureDef;
   const quantizeOptions = getQuantizeOptions(textureFileType, width);
 
   if (quantizeOptions) {
@@ -39,6 +40,7 @@ export default async function exportTextureDefRegionWorker({
       pixelColors: pixelColorsBuffer,
       width,
       height,
+      flipX,
       baseLocation: 0,
       ramOffset: 0,
       colorFormat,
@@ -70,6 +72,7 @@ export default async function exportTextureDefRegionWorker({
     pixelColors: pixelColorsBuffer,
     width,
     height,
+    flipX,
     baseLocation,
     ramOffset,
     colorFormat,

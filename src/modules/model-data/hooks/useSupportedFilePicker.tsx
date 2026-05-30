@@ -3,6 +3,7 @@ import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,
   loadPolygonFile,
+  loadSfa3PacFile,
   loadTextureFile
 } from '../modelDataThunks';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
@@ -151,6 +152,15 @@ export const handleFileInput = async (
   }
 
   switch (textureFileType) {
+    case 'sfa3-stage-pac': {
+      dispatch(
+        loadSfa3PacFile({
+          file: selectedTextureFile,
+          textureFileType
+        })
+      );
+      return;
+    }
     case 'mvc2-character-portraits': {
       dispatch(loadCharacterPortraitsFile(selectedTextureFile));
       break;
@@ -166,6 +176,7 @@ export const handleFileInput = async (
         })
       );
       break;
+    case 'cvs1-stage-textures':
     case 'mvc2-character-win':
     case 'mvc2-stage-preview':
     case 'mvc2-selection-textures':
@@ -200,7 +211,7 @@ export default function useSupportedFilePicker(
   const { plainFiles, openFilePicker } = useFilePicker({
     multiple: true,
     readAs: 'ArrayBuffer',
-    accept: ['.BIN']
+    accept: ['.BIN', '.PAC']
   });
 
   useEffect(() => {
