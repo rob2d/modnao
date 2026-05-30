@@ -129,4 +129,32 @@ describe('getResourceAttribs', () => {
       hasLzssTextureFile: false
     });
   });
+
+  it('resolves CVS1 standalone stage textures by filename without per-file texture types', () => {
+    const resourceAttribs = getResourceAttribs('unknown', 'ST00TEX.BIN');
+
+    expect(resourceAttribs).toMatchObject({
+      game: 'CVS1Pro',
+      identifier: 'ST00',
+      resourceType: 'cvs1-stage',
+      polygonMapped: false,
+      textureFileType: 'cvs1-stage-textures',
+      hasLzssTextureFile: true
+    });
+    expect(resourceAttribs?.textureShapesMap).toHaveLength(67);
+  });
+
+  it('resolves SFA3 PAC files by filename without per-file texture types', () => {
+    const resourceAttribs = getResourceAttribs('unknown', 'ST00.PAC');
+
+    expect(resourceAttribs).toMatchObject({
+      game: 'SFA3',
+      identifier: 'ST00',
+      resourceType: 'sfa3-stage',
+      polygonMapped: false,
+      textureFileType: 'sfa3-stage-pac',
+      hasLzssTextureFile: false
+    });
+    expect(resourceAttribs?.textureShapesMap).toHaveLength(6);
+  });
 });

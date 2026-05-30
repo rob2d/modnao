@@ -188,6 +188,16 @@ const supportEntries: FileSupportEntry[] = [
   },
   {
     title: 'Capcom vs SNK Pro',
+    filenameFormat: 'ST{NN}TEX.BIN',
+    filenameExample: 'ST00TEX.BIN',
+    fileType: 'Texture',
+    description: 'Standalone stage texture bundles',
+    hasIssues: true,
+    notes:
+      'Can be loaded individually. Initial 256x256 textures load, but the rest have various issues and cannot be exported reliably'
+  },
+  {
+    title: 'Capcom vs SNK Pro',
     filenameFormat: 'DM{NN}POL.BIN',
     filenameExample: 'DM00POL.BIN',
     fileType: 'Polygon',
@@ -254,6 +264,16 @@ const supportEntries: FileSupportEntry[] = [
     description: 'Menu/Gui textures',
     notes: `Must be loaded with a corresponding POL.BIN file. Certain files are not able to load due to VQ sections, palette will be limited on export.`,
     hasIssues: true
+  },
+  {
+    title: 'Street Fighter Alpha 3',
+    filenameFormat: 'ST{XX}(.mn).PAC',
+    filenameExample: 'ST00.PAC',
+    fileType: 'Texture',
+    description: 'Stage background tiles',
+    hasIssues: true,
+    notes:
+      'Can be loaded individually. Export is not currently supported for these stage background tile PAC files.'
   }
 ];
 
