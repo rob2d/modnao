@@ -119,6 +119,58 @@ const supportEntries: FileSupportEntry[] = [
     description: 'VMU selection screen textures'
   },
   {
+    title: 'Capcom vs SNK',
+    filenameFormat: 'STG{NN}POL.BIN',
+    filenameExample: 'STG02POL.BIN',
+    fileType: 'Polygon',
+    description: 'Stage model/polygons',
+    notes: 'Corresponding textures are in similarly named TEX.BIN files.'
+  },
+  {
+    title: 'Capcom vs SNK',
+    filenameFormat: 'STG{NN}TEX.BIN',
+    filenameExample: 'STG02TEX.BIN',
+    fileType: 'Texture',
+    description: 'Stage textures',
+    notes: 'Must be loaded with a corresponding POL.BIN file.'
+  },
+  {
+    title: 'Capcom vs SNK',
+    filenameFormat: 'DM{NN}POL.BIN',
+    filenameExample: 'DM00POL.BIN',
+    fileType: 'Polygon',
+    description: 'Demo/menu model/polygons',
+    notes: 'Corresponding textures are in similarly named TEX.BIN files.'
+  },
+  {
+    title: 'Capcom vs SNK',
+    filenameFormat: 'DM{NN}TEX.BIN',
+    filenameExample: 'DM00TEX.BIN',
+    fileType: 'Texture',
+    description: 'Demo/menu textures',
+    hasIssues: true,
+    notes:
+      'Must be loaded with a corresponding POL.BIN file. A few files still have loading issues, saving edited textures is not reliable yet, and these texture files cannot currently be exported.'
+  },
+  {
+    title: 'Capcom vs SNK',
+    filenameFormat: 'DC{NN}POL.BIN',
+    filenameExample: 'DC04POL.BIN',
+    fileType: 'Polygon',
+    description: 'Dreamcast menu/gui model/polygons',
+    notes: 'Corresponding textures are in similarly named TEX.BIN files.'
+  },
+  {
+    title: 'Capcom vs SNK',
+    filenameFormat: 'DC{NN}TEX.BIN',
+    filenameExample: 'DC04TEX.BIN',
+    fileType: 'Texture',
+    description: 'Dreamcast menu/gui textures',
+    hasIssues: true,
+    notes:
+      'Must be loaded with a corresponding POL.BIN file. A few files still have loading issues, saving edited textures is not reliable yet, and these texture files cannot currently be exported.'
+  },
+  {
     title: 'Capcom vs SNK Pro',
     filenameFormat: 'STG{NN}POL.BIN',
     filenameExample: 'STG02POL.BIN',
@@ -148,7 +200,9 @@ const supportEntries: FileSupportEntry[] = [
     filenameExample: 'DM00TEX.BIN',
     fileType: 'Texture',
     description: 'Demo/menu textures',
-    notes: `Must be loaded with a corresponding POL.BIN file.`
+    hasIssues: true,
+    notes:
+      'Must be loaded with a corresponding POL.BIN file. A few files still have loading issues, saving edited textures is not reliable yet, and these texture files cannot currently be exported.'
   },
   {
     title: 'Capcom vs SNK Pro',
@@ -164,7 +218,9 @@ const supportEntries: FileSupportEntry[] = [
     filenameExample: 'DC04TEX.BIN',
     fileType: 'Texture',
     description: 'Dreamcast menu/gui textures',
-    notes: `Must be loaded with a corresponding POL.BIN file.`
+    hasIssues: true,
+    notes:
+      'Must be loaded with a corresponding POL.BIN file. A few files still have loading issues, saving edited textures is not reliable yet, and these texture files cannot currently be exported.'
   },
   {
     title: 'Capcom vs SNK 2',
@@ -201,10 +257,16 @@ const supportEntries: FileSupportEntry[] = [
   }
 ];
 
-const rows = supportEntries.map((row, id) => ({
-  ...row,
-  id
-}));
+const rows = [...supportEntries]
+  .sort(
+    (a, b) =>
+      a.title.localeCompare(b.title) * 1000 +
+      a.filenameFormat.localeCompare(b.filenameFormat)
+  )
+  .map((row, id) => ({
+    ...row,
+    id
+  }));
 
 const getIssuesCellClassName = (params: GridCellParams) =>
   clsx(params.row.hasIssues ? 'has-issues' : '');
