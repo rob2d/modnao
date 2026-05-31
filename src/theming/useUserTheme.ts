@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import themes from '@/theming/themes';
 import { createTheme, ScenePalette, Theme, useMediaQuery } from '@mui/material';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 
 const setupThemeOptions = (
   isDarkMode: boolean,
@@ -22,8 +22,8 @@ const setupThemeOptions = (
 };
 
 export default function useUserTheme() {
-  const viewOptions = useContext(ViewOptionsContext);
-  const { scenePalette, themeKey } = viewOptions;
+  const sceneOptions = useContext(SceneOptionsContext);
+  const { scenePalette, themeKey } = sceneOptions;
   const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
   const themeApplied = useMemo<Theme>(

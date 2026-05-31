@@ -7,7 +7,7 @@ import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import { selectMesh } from '@/selectors';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import globalBuffers from '@/utils/data/globalBuffers';
@@ -110,7 +110,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   } = props;
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
-  const viewOptions = useContext(ViewOptionsContext);
+  const sceneOptions = useContext(SceneOptionsContext);
   const isNotPolygonViewMode = contentViewMode !== 'polygons';
 
   const uvClipPaths = useMemo<ClipPath[]>(() => {
@@ -259,7 +259,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
         'image-area',
         selected && 'selected',
         isDragActive && 'file-drag-active',
-        viewOptions.uvRegionsHighlighted
+        sceneOptions.uvRegionsHighlighted
       ),
       ...getDragProps(),
       ...(!isSelectable
@@ -271,7 +271,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     }),
     [
       isDragActive,
-      viewOptions.uvRegionsHighlighted,
+      sceneOptions.uvRegionsHighlighted,
       selected,
       textureIndex,
       isSelectable
@@ -313,7 +313,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       className={clsx(
         `mode-${contentViewMode}`,
         isSelectable && 'selectable',
-        viewOptions.uvRegionsHighlighted && 'uvs-enabled'
+        sceneOptions.uvRegionsHighlighted && 'uvs-enabled'
       )}
       sx={panelTextureSx}
     >

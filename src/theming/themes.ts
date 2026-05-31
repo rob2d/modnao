@@ -9,6 +9,22 @@ export const robotoMono = localFont({
   src: [{ path: '../../public/fonts/RobotoMono-VariableFont_wght.ttf' }]
 });
 
+export const publicSans = localFont({
+  src: [
+    {
+      path: '../../public/fonts/PublicSans-VariableFont_wght.ttf',
+      style: 'normal',
+      weight: '100 900'
+    },
+    {
+      path: '../../public/fonts/PublicSans-Italic-VariableFont_wght.ttf',
+      style: 'italic',
+      weight: '100 900'
+    }
+  ],
+  display: 'swap'
+});
+
 const modes: PaletteMode[] = ['dark', 'light'];
 
 type AppThemeMixin = SystemStyleObject<Theme>;
@@ -132,9 +148,29 @@ const themes = Object.fromEntries(
     mode,
     {
       typography: {
-        fontFamily: robotoMono.style.fontFamily,
+        root: {
+          fontSize: '0.875rem'
+        },
+        fontFamily: publicSans.style.fontFamily,
+        body1: {
+          fontSize: '0.875rem'
+        },
+        body2: {
+          fontSize: '0.775rem'
+        },
+        subtitle1: {
+          fontSize: '0.875rem',
+          fontWeight: 600
+        },
+        subtitle2: {
+          fontSize: '0.775rem',
+          fontWeight: 600
+        },
         h6: {
           fontFamily: 'Neue Aachen Pro Medium, sans-serif'
+        },
+        button: {
+          fontSize: '0.775rem'
         }
       },
       mixins,
@@ -155,11 +191,20 @@ const themes = Object.fromEntries(
             }
           }
         },
+        MuiButton: {
+          styleOverrides: {
+            root: {
+              fontSize: '0.725rem',
+              fontWeight: 500
+            }
+          }
+        },
         MuiStepLabel: {
           styleOverrides: {
             label: {
-              '&.Mui-completed': {
-                fontWeight: 700
+              '&.Mui-completed,&.Mui-active': {
+                fontWeight: 700,
+                fontSize: '0.875rem'
               }
             },
             root: {
@@ -180,7 +225,7 @@ const themes = Object.fromEntries(
       palette: {
         mode,
         primary: {
-          main: '#FF00F2',
+          main: '#e800dd',
           light: '#e98df5',
           contrastText: '#FFF'
         },

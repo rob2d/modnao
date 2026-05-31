@@ -14,105 +14,105 @@ import {
 import Grid from '@mui/material/Grid';
 import GuiPanelSection from './GuiPanelSection';
 import { JSX, SyntheticEvent, useCallback, useContext, useMemo } from 'react';
-import ViewOptionsContext, {
+import SceneOptionsContext, {
   MeshDisplayMode
-} from '@/contexts/ViewOptionsContext';
+} from '@/contexts/SceneOptionsContext';
 import PaletteEditor from './PaletteEditor';
-import ViewOptionCheckbox from './ViewOptionCheckbox';
+import SceneOptionCheckbox from './SceneOptionCheckbox';
 
 export default function GuiPanelViewOptions() {
-  const viewOptions = useContext(ViewOptionsContext);
+  const sceneOptions = useContext(SceneOptionsContext);
 
   const onSetMeshDisplayMode = useCallback(
     (_: React.MouseEvent<HTMLElement>, mode: MeshDisplayMode) => {
-      viewOptions.setMeshDisplayMode(mode);
+      sceneOptions.setMeshDisplayMode(mode);
     },
-    [viewOptions.setMeshDisplayMode]
+    [sceneOptions.setMeshDisplayMode]
   );
 
   const onSetAxesHelperVisible = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setAxesHelperVisible(value);
+      sceneOptions.setAxesHelperVisible(value);
     },
-    [viewOptions.setAxesHelperVisible]
+    [sceneOptions.setAxesHelperVisible]
   );
 
   const onSetObjectAddressesVisible = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setObjectAddressesVisible(value);
+      sceneOptions.setObjectAddressesVisible(value);
     },
-    [viewOptions.setObjectAddressesVisible]
+    [sceneOptions.setObjectAddressesVisible]
   );
 
   const onSetWireframeLineWidth = useCallback(
     (_: Event, v: number | number[]) => {
       const value = typeof v === 'number' ? v : v[0];
-      viewOptions.setWireframeLineWidth(value);
+      sceneOptions.setWireframeLineWidth(value);
     },
-    [viewOptions.setWireframeLineWidth]
+    [sceneOptions.setWireframeLineWidth]
   );
 
   const onSetSceneCursorVisible = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setSceneCursorVisible(value);
+      sceneOptions.setSceneCursorVisible(value);
     },
-    [viewOptions.setSceneCursorVisible]
+    [sceneOptions.setSceneCursorVisible]
   );
 
   const onSetDisableBackfaceCulling = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setDisableBackfaceCulling(value);
+      sceneOptions.setDisableBackfaceCulling(value);
     },
-    [viewOptions.setDisableBackfaceCulling]
+    [sceneOptions.setDisableBackfaceCulling]
   );
 
   const onSetEnableVertexColors = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setEnableVertexColors(value);
+      sceneOptions.setEnableVertexColors(value);
     },
-    [viewOptions.setEnableVertexColors]
+    [sceneOptions.setEnableVertexColors]
   );
 
   const onSetUvRegionsHighlighted = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setUvRegionsHighlighted(value);
+      sceneOptions.setUvRegionsHighlighted(value);
     },
-    [viewOptions.uvRegionsHighlighted]
+    [sceneOptions.uvRegionsHighlighted]
   );
 
   const onSetDevOptionsVisible = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      viewOptions.setDevOptionsVisible(value);
+      sceneOptions.setDevOptionsVisible(value);
     },
-    [viewOptions.devOptionsVisible]
+    [sceneOptions.devOptionsVisible]
   );
 
   const responsiveSettingsRows = useMemo(() => {
     const settingsItems: (JSX.Element | undefined)[] = [
-      <ViewOptionCheckbox
+      <SceneOptionCheckbox
         key='axes-visibility'
-        checked={viewOptions.axesHelperVisible}
+        checked={sceneOptions.axesHelperVisible}
         tooltipHint='Toggle axes helper visibility'
         icon={<StraightenIcon fontSize='small' />}
         onChange={onSetAxesHelperVisible}
       />,
-      <ViewOptionCheckbox
+      <SceneOptionCheckbox
         key='cursor-visible'
-        checked={viewOptions.sceneCursorVisible}
+        checked={sceneOptions.sceneCursorVisible}
         tooltipHint='Toggle scene cursor visibility'
         icon={<MouseOutlinedIcon fontSize='small' />}
         onChange={onSetSceneCursorVisible}
       />,
-      <ViewOptionCheckbox
+      <SceneOptionCheckbox
         key='disable-backface-culling'
-        checked={viewOptions.disableBackfaceCulling}
+        checked={sceneOptions.disableBackfaceCulling}
         tooltipHint='Disable Backface Culling / Make material visible on both sides of polygons'
         icon={<FlipToBackIcon fontSize='small' />}
         onChange={onSetDisableBackfaceCulling}
       />,
-      <ViewOptionCheckbox
+      <SceneOptionCheckbox
         key='uv-regions-highlighted'
-        checked={viewOptions.uvRegionsHighlighted}
+        checked={sceneOptions.uvRegionsHighlighted}
         tooltipHint={
           'View UV Clipping Regions when selecting a polygon that has an ' +
           'associated texture loaded.'
@@ -123,10 +123,10 @@ export default function GuiPanelViewOptions() {
     ];
 
     settingsItems.push(
-      viewOptions.meshDisplayMode !== 'wireframe' ? (
-        <ViewOptionCheckbox
+      sceneOptions.meshDisplayMode !== 'wireframe' ? (
+        <SceneOptionCheckbox
           key='vertex-colors'
-          checked={viewOptions.enableVertexColors}
+          checked={sceneOptions.enableVertexColors}
           tooltipHint='Enable Vertex Colors; this is usually used for simulating shading and lighting effects.'
           icon={<FormatColorFillIcon fontSize='small' />}
           onChange={onSetEnableVertexColors}
@@ -135,9 +135,9 @@ export default function GuiPanelViewOptions() {
     );
 
     settingsItems.push(
-      <ViewOptionCheckbox
+      <SceneOptionCheckbox
         key='dev-options-visible'
-        checked={viewOptions.devOptionsVisible}
+        checked={sceneOptions.devOptionsVisible}
         tooltipHint='Enable developer/debug option visibility'
         icon={<DataArrayIcon fontSize='small' />}
         onChange={onSetDevOptionsVisible}
@@ -146,7 +146,7 @@ export default function GuiPanelViewOptions() {
 
     const settingsRows: JSX.Element[] = [];
 
-    const settingsPerRow = viewOptions.guiPanelExpansionLevel <= 1 ? 2 : 4;
+    const settingsPerRow = sceneOptions.guiPanelExpansionLevel <= 1 ? 2 : 4;
     for (let i = 0; i < settingsItems.length; i += settingsPerRow) {
       const newRowItems = [];
 
@@ -162,12 +162,12 @@ export default function GuiPanelViewOptions() {
     }
 
     return settingsRows;
-  }, [viewOptions]);
+  }, [sceneOptions]);
 
   return (
-    <GuiPanelSection title='View Options'>
+    <GuiPanelSection title='Scene Options'>
       <Box
-        className='view-options'
+        className='scene-options'
         sx={{
           '& .MuiSlider-root': {
             width: 'calc(100% - 124px)',
@@ -200,13 +200,13 @@ export default function GuiPanelViewOptions() {
         <Grid container className='property-table'>
           <Grid
             className='display-mode'
-            size={viewOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}
+            size={sceneOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}
           >
             <ToggleButtonGroup
               orientation='horizontal'
               size='small'
               color='secondary'
-              value={viewOptions.meshDisplayMode}
+              value={sceneOptions.meshDisplayMode}
               exclusive
               onChange={onSetMeshDisplayMode}
               aria-label='Mesh Display Mode Selection'
@@ -215,11 +215,11 @@ export default function GuiPanelViewOptions() {
               <ToggleButton value='textured'>textured</ToggleButton>
             </ToggleButtonGroup>
           </Grid>
-          <Grid size={viewOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}>
+          <Grid size={sceneOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}>
             <PaletteEditor />
           </Grid>
         </Grid>
-        {viewOptions.meshDisplayMode !== 'wireframe' ? undefined : (
+        {sceneOptions.meshDisplayMode !== 'wireframe' ? undefined : (
           <FormControlLabel
             control={
               <Slider
@@ -229,7 +229,7 @@ export default function GuiPanelViewOptions() {
                 defaultValue={4}
                 aria-label='Small'
                 valueLabelDisplay='auto'
-                value={viewOptions.wireframeLineWidth}
+                value={sceneOptions.wireframeLineWidth}
                 onChange={onSetWireframeLineWidth}
               />
             }
@@ -237,10 +237,10 @@ export default function GuiPanelViewOptions() {
             labelPlacement='start'
           />
         )}
-        {viewOptions.meshDisplayMode !== 'wireframe' ||
-        !viewOptions.devOptionsVisible ? undefined : (
-          <ViewOptionCheckbox
-            checked={viewOptions.objectAddressesVisible}
+        {sceneOptions.meshDisplayMode !== 'wireframe' ||
+        !sceneOptions.devOptionsVisible ? undefined : (
+          <SceneOptionCheckbox
+            checked={sceneOptions.objectAddressesVisible}
             tooltipHint='Toggle selected polygon addresses visibility'
             tooltipPlacement='top-start'
             label={'Addresses'}

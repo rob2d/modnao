@@ -28,11 +28,11 @@ import {
   useObjectUINav,
   useSceneGLTFFileDownloader
 } from '@/modules/object-viewer';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import ModelFileImportButton from './ModelFileImportButton';
 
 export default function GuiPanelModels() {
-  const viewOptions = useContext(ViewOptionsContext);
+  const sceneOptions = useContext(SceneOptionsContext);
   const dispatch = useAppDispatch();
 
   const uiNav = useObjectUINav();
@@ -55,7 +55,7 @@ export default function GuiPanelModels() {
   const model = useAppSelector(selectModel);
 
   const exportSelectionButton = useMemo(() => {
-    if (!viewOptions.devOptionsVisible) {
+    if (!sceneOptions.devOptionsVisible) {
       return undefined;
     }
 
@@ -85,7 +85,7 @@ export default function GuiPanelModels() {
     meshSelectionType,
     objectKey,
     onExportSelectionJson,
-    viewOptions.devOptionsVisible
+    sceneOptions.devOptionsVisible
   ]);
 
   let modelNoAndCount = '--';
@@ -147,7 +147,7 @@ export default function GuiPanelModels() {
   );
 
   const collapsedContentFABs =
-    viewOptions.guiPanelExpansionLevel > 1
+    sceneOptions.guiPanelExpansionLevel > 1
       ? [navButtonLeft, modelNoAndCountEl, navButtonRight]
       : [navButtonLeft, navButtonRight];
 
@@ -173,7 +173,7 @@ export default function GuiPanelModels() {
         </Grid>
         <Grid className='grid-control-label' size={7}>
           <Typography variant='body1' textAlign='right'>
-            {viewOptions.guiPanelExpansionLevel > 1 ? 'Selected ' : ''}
+            {sceneOptions.guiPanelExpansionLevel > 1 ? 'Selected ' : ''}
             Object Key
           </Typography>
         </Grid>
@@ -190,7 +190,7 @@ export default function GuiPanelModels() {
         <Grid size={5}>
           <ToggleButtonGroup
             orientation={
-              viewOptions.guiPanelExpansionLevel <= 1
+              sceneOptions.guiPanelExpansionLevel <= 1
                 ? 'vertical'
                 : 'horizontal'
             }

@@ -6,7 +6,7 @@ import useViewOptionSetting from '@/hooks/useViewOptionSetting';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
 
-export type ViewOptions = {
+export type SceneOptions = {
   axesHelperVisible: boolean;
   sceneCursorVisible: boolean;
   guiPanelExpansionLevel: number;
@@ -36,7 +36,7 @@ export type ViewOptions = {
   setRenderAllModels: (devOptions: boolean) => void;
 };
 
-export const defaultValues: ViewOptions = {
+export const defaultValues: SceneOptions = {
   axesHelperVisible: true,
   sceneCursorVisible: true,
   guiPanelExpansionLevel: 2,
@@ -66,11 +66,11 @@ export const defaultValues: ViewOptions = {
   setRenderAllModels: (_: boolean) => null
 } as const;
 
-const ViewOptionsContext = React.createContext<ViewOptions>(defaultValues);
+const SceneOptionsContext = React.createContext<SceneOptions>(defaultValues);
 
 type Props = { children: ReactNode };
 
-export function ViewOptionsContextProvider({ children }: Props) {
+export function SceneOptionsContextProvider({ children }: Props) {
   const [axesHelperVisible, setAxesHelperVisible] =
     useViewOptionSetting<boolean>(
       defaultValues.axesHelperVisible,
@@ -158,7 +158,7 @@ export function ViewOptionsContextProvider({ children }: Props) {
     }
   }, [scenePalette, isDarkMode]);
 
-  const contextValue = useMemo<ViewOptions>(
+  const contextValue = useMemo<SceneOptions>(
     () => ({
       objectAddressesVisible,
       setObjectAddressesVisible,
@@ -220,10 +220,10 @@ export function ViewOptionsContextProvider({ children }: Props) {
   );
 
   return (
-    <ViewOptionsContext.Provider value={contextValue}>
+    <SceneOptionsContext.Provider value={contextValue}>
       {children}
-    </ViewOptionsContext.Provider>
+    </SceneOptionsContext.Provider>
   );
 }
 
-export default ViewOptionsContext;
+export default SceneOptionsContext;

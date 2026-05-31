@@ -10,7 +10,7 @@ import {
   Tooltip
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import { showDialog } from '@/modules/dialogs';
 import {
@@ -22,7 +22,7 @@ import TextureView from './TextureView';
 import ErrorMessage from './ErrorMessage';
 
 export default function MainView() {
-  const { guiPanelExpansionLevel } = useContext(ViewOptionsContext);
+  const { guiPanelExpansionLevel } = useContext(SceneOptionsContext);
   const dispatch = useAppDispatch();
   const onShowAppInfoDialog = useCallback(() => {
     dispatch(showDialog('app-info'));

@@ -36,7 +36,7 @@ describe('GuiPanel', () => {
       screen.findAllByText('hello-world.pol.bin'),
       screen.findAllByText('Textures (1)'),
       screen.findAllByText('hello-world.tex.bin'),
-      screen.findAllByText('View Options')
+      screen.findAllByText('Scene Options')
     ]);
 
     for (const elements of elementsFound) {
