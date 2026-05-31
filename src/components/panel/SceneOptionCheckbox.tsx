@@ -22,7 +22,7 @@ type Props = {
     | undefined;
   onChange: (_: SyntheticEvent<Element, Event>, checked: boolean) => void;
 };
-export default function ViewOptionCheckbox({
+export default function SceneOptionCheckbox({
   checked,
   onChange,
   icon,

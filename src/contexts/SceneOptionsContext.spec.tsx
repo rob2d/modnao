@@ -1,15 +1,15 @@
 import { render, screen } from '@testing-library/react';
-import ViewOptionsContext, {
+import SceneOptionsContext, {
   defaultValues,
-  ViewOptions,
-  ViewOptionsContextProvider
-} from './ViewOptionsContext';
+  SceneOptions,
+  SceneOptionsContextProvider
+} from './SceneOptionsContext';
 import { useContext } from 'react';
 import React from 'react';
 
-const viewOptionsKeys = Object.keys(defaultValues) as (keyof ViewOptions)[];
-const getOptionRenderKeys = (viewOptions: ViewOptions) =>
-  viewOptionsKeys.filter((k) => typeof viewOptions[k] !== 'function');
+const viewOptionsKeys = Object.keys(defaultValues) as (keyof SceneOptions)[];
+const getOptionRenderKeys = (sceneOptions: SceneOptions) =>
+  viewOptionsKeys.filter((k) => typeof sceneOptions[k] !== 'function');
 
 const booleanSetterKeys = [
   'setSceneCursorVisible',
@@ -23,24 +23,24 @@ const booleanSetterKeys = [
 ] as const;
 
 function TestOptionsContext() {
-  const viewOptions: ViewOptions = useContext(ViewOptionsContext);
+  const sceneOptions: SceneOptions = useContext(SceneOptionsContext);
 
   return (
     <>
-      {getOptionRenderKeys(viewOptions).map((k) => (
-        <p key={k}>{`${k}: ${viewOptions[k]}`}</p>
+      {getOptionRenderKeys(sceneOptions).map((k) => (
+        <p key={k}>{`${k}: ${sceneOptions[k]}`}</p>
       ))}
       {booleanSetterKeys.map((k) => (
         <React.Fragment key={k}>
           <button
             data-testid={`${k}-true`}
             key={`${k}-true`}
-            onClick={() => viewOptions[k](true)}
+            onClick={() => sceneOptions[k](true)}
           >{`setter(${k}, true)`}</button>
           <button
             data-testid={`${k}-false`}
             key={`${k}-false`}
-            onClick={() => viewOptions[k](false)}
+            onClick={() => sceneOptions[k](false)}
           >{`setter(${k}, false)`}</button>
         </React.Fragment>
       ))}
@@ -48,12 +48,12 @@ function TestOptionsContext() {
   );
 }
 
-describe('ViewOptionsContext', () => {
+describe('SceneOptionsContext', () => {
   it('has all values initialized properly', () => {
     render(
-      <ViewOptionsContextProvider>
+      <SceneOptionsContextProvider>
         <TestOptionsContext />
-      </ViewOptionsContextProvider>
+      </SceneOptionsContextProvider>
     );
 
     const displayedDefaults = getOptionRenderKeys(defaultValues).map(

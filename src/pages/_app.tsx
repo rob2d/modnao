@@ -2,9 +2,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import { AppCacheProvider } from '@mui/material-nextjs/v13-pagesRouter';
 import type { AppProps } from 'next/app';
 import '@/theming/globals.css';
+import { publicSans } from '@/theming/themes';
 import useUserTheme from '@/theming/useUserTheme';
 import { wrapper } from '@/store';
-import { ViewOptionsContextProvider } from '@/contexts/ViewOptionsContext';
+import { SceneOptionsContextProvider } from '@/contexts/SceneOptionsContext';
 import { SceneContextProvider } from '@/contexts/SceneContext';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -16,9 +17,11 @@ const ThemedApp = ({ Component, ...props }: ThisAppProps) => {
   const theme = useUserTheme();
 
   return (
-    <ThemeProvider theme={theme}>
-      <Component {...props} />
-    </ThemeProvider>
+    <div className={publicSans.className}>
+      <ThemeProvider theme={theme}>
+        <Component {...props} />
+      </ThemeProvider>
+    </div>
   );
 };
 
@@ -27,7 +30,7 @@ export default function App({ Component, ...theseProps }: ThisAppProps) {
 
   return (
     <AppCacheProvider {...theseProps}>
-      <ViewOptionsContextProvider>
+      <SceneOptionsContextProvider>
         <SceneContextProvider>
           <Provider store={store}>
             <ThemedApp {...props} Component={Component} />
@@ -41,7 +44,7 @@ export default function App({ Component, ...theseProps }: ThisAppProps) {
           />
           {process.env.NODE_ENV === 'production' ? <SpeedInsights /> : null}
         </SceneContextProvider>
-      </ViewOptionsContextProvider>
+      </SceneOptionsContextProvider>
     </AppCacheProvider>
   );
 }

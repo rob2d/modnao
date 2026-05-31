@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei/core/Text';
 import { DoubleSide, FrontSide, Mesh, Texture, Vector3 } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { useTheme } from '@mui/material';
 import RenderedTexturedPolygon from './RenderedTexturedPolygon';
 import RenderedWireframePolygon from './RenderedWireframePolygon';
@@ -27,13 +27,13 @@ export default function RenderedPolygon({
   onSelectObjectKey: (key: string) => void;
   texture: Texture | null;
 }) {
-  const viewOptions = useContext(ViewOptionsContext);
+  const sceneOptions = useContext(SceneOptionsContext);
   const {
     meshDisplayMode,
     objectAddressesVisible,
     wireframeLineWidth,
     disableBackfaceCulling
-  } = viewOptions;
+  } = sceneOptions;
   const textRef = useRef<Mesh>(null);
   const theme = useTheme();
 
@@ -166,7 +166,7 @@ export default function RenderedPolygon({
               indices={indicesRendered}
               colors={colorsRendered}
               materialProps={texturedMaterialProps}
-              viewOptions={viewOptions}
+              sceneOptions={sceneOptions}
             />
           ) : (
             <RenderedWireframePolygon

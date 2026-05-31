@@ -2,7 +2,7 @@ import { useCallback, useContext } from 'react';
 import saveAs from 'file-saver';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { useSceneContext } from '@/contexts/SceneContext';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { selectHasLoadedTextureFile, selectModelIndex } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { showError } from '@/modules/error-messages';
@@ -61,7 +61,7 @@ export default function useSceneGLTFFileDownloader(allModels: boolean) {
     setRenderAllModels,
     meshDisplayMode,
     setMeshDisplayMode
-  } = useContext(ViewOptionsContext);
+  } = useContext(SceneOptionsContext);
   const { scene } = useSceneContext();
   const modelIndex = useAppSelector(selectModelIndex);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);

@@ -5,8 +5,10 @@ import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArro
 import { Divider, Paper } from '@mui/material';
 import { RefObject, useCallback, useContext, useEffect, useRef } from 'react';
 import clsx from 'clsx';
-import ViewOptionsContext, { ViewOptions } from '@/contexts/ViewOptionsContext';
-import GuiPanelViewOptions from './GuiPanelViewOptions';
+import SceneOptionsContext, {
+  SceneOptions
+} from '@/contexts/SceneOptionsContext';
+import GuiPanelViewOptions from './GuiPanelSceneOptions';
 import GuiPanelTextures from './GuiPanelTextures';
 import GuiPanelModels from './GuiPanelModels';
 import {
@@ -34,23 +36,23 @@ function clamp(num: number, min: number, max: number) {
 
 type PanelDragParams = [boolean, RefObject<HTMLDivElement | null>];
 
-const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
+const usePanelDragState = (sceneOptions: SceneOptions): PanelDragParams => {
   const resizeHandle = useRef<HTMLDivElement | null>(null);
   const [dragMouseXY, isMouseDown, resetMouseTracking] =
     useDragMouseOnEl(resizeHandle);
-  const levelAtStart = useRef<number>(viewOptions.guiPanelExpansionLevel);
+  const levelAtStart = useRef<number>(sceneOptions.guiPanelExpansionLevel);
   const hasDragged = useRef<boolean>(false);
 
   useEffect(() => {
     if (isMouseDown) {
-      levelAtStart.current = viewOptions.guiPanelExpansionLevel;
+      levelAtStart.current = sceneOptions.guiPanelExpansionLevel;
     } else {
       hasDragged.current = false;
     }
   }, [isMouseDown]);
 
   useEffect(() => {
-    const { guiPanelExpansionLevel, setGuiPanelExpansionLevel } = viewOptions;
+    const { guiPanelExpansionLevel, setGuiPanelExpansionLevel } = sceneOptions;
 
     if (isMouseDown && !hasDragged.current) {
       const dragStepDelta = Math.round(dragMouseXY.x / PANEL_DRAG_THRESHOLD);
@@ -76,30 +78,30 @@ const usePanelDragState = (viewOptions: ViewOptions): PanelDragParams => {
 };
 
 export default function GuiPanel() {
-  const viewOptions = useContext(ViewOptionsContext);
+  const sceneOptions = useContext(SceneOptionsContext);
   const contentViewMode = useAppSelector(selectContentViewMode);
   const loadTexturesState = useAppSelector(selectLoadTexturesState);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
-  const [resizeMouseDown, resizeHandle] = usePanelDragState(viewOptions);
+  const [resizeMouseDown, resizeHandle] = usePanelDragState(sceneOptions);
   const expansionLevel = clamp(
-    viewOptions.guiPanelExpansionLevel,
+    sceneOptions.guiPanelExpansionLevel,
     contentViewMode === 'welcome' ? 1 : 0,
     2
   );
 
   const onClickResizeHandle = useCallback(() => {
-    switch (viewOptions.guiPanelExpansionLevel) {
+    switch (sceneOptions.guiPanelExpansionLevel) {
       case 0:
-        viewOptions.setGuiPanelExpansionLevel(1);
+        sceneOptions.setGuiPanelExpansionLevel(1);
         break;
       case 1:
-        viewOptions.setGuiPanelExpansionLevel(2);
+        sceneOptions.setGuiPanelExpansionLevel(2);
         break;
       case 2:
-        viewOptions.setGuiPanelExpansionLevel(1);
+        sceneOptions.setGuiPanelExpansionLevel(1);
         break;
     }
-  }, [viewOptions.guiPanelExpansionLevel]);
+  }, [sceneOptions.guiPanelExpansionLevel]);
 
   const ExpandLevelIcon = expandLevelIcons[expansionLevel];
 

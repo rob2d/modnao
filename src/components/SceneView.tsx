@@ -18,7 +18,7 @@ import {
 import { setObjectKey } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { useObjectNavControls } from '@/modules/object-viewer';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { useTheme } from '@mui/material';
 import { SceneContextSetup } from '@/contexts/SceneContext';
 import {
@@ -64,7 +64,7 @@ export default function SceneView() {
   const [textureMap, setTextureMap] =
     useState<Map<string, { texture: DataTexture; bufferKey: string }>>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const viewOptions = useContext(ViewOptionsContext);
+  const sceneOptions = useContext(SceneOptionsContext);
 
   const dispatch = useAppDispatch();
   const objectKey = useAppSelector(selectObjectKey);
@@ -87,9 +87,9 @@ export default function SceneView() {
       left: '0',
       touchAction: 'none',
       background: theme.palette.scene.background,
-      cursor: viewOptions.sceneCursorVisible ? 'default' : 'none'
+      cursor: sceneOptions.sceneCursorVisible ? 'default' : 'none'
     }),
-    [viewOptions.sceneCursorVisible, theme.palette.scene.background]
+    [sceneOptions.sceneCursorVisible, theme.palette.scene.background]
   );
 
   useClientEffect(() => {
@@ -153,12 +153,12 @@ export default function SceneView() {
 
   const renderedModels = useMemo(
     () =>
-      (viewOptions.renderAllModels ? meshes : [selectedMeshes]).map(
+      (sceneOptions.renderAllModels ? meshes : [selectedMeshes]).map(
         (ms, msi) => (
           <mesh
-            key={`meshGroup_${msi}_${viewOptions.renderAllModels ? 1 : 0}`}
+            key={`meshGroup_${msi}_${sceneOptions.renderAllModels ? 1 : 0}`}
             position={
-              !viewOptions.renderAllModels
+              !sceneOptions.renderAllModels
                 ? [0, 0, 0]
                 : [msi * 500, msi * 50, 0]
             }
@@ -183,7 +183,7 @@ export default function SceneView() {
       ),
     [
       model,
-      !viewOptions.renderAllModels ? selectedMeshes : meshes,
+      !sceneOptions.renderAllModels ? selectedMeshes : meshes,
       textureMap,
       objectKey,
       meshSelectionType,
@@ -206,9 +206,9 @@ export default function SceneView() {
     >
       <Selection
         enabled={
-          viewOptions.meshDisplayMode === 'textured' &&
+          sceneOptions.meshDisplayMode === 'textured' &&
           Boolean(objectKey) &&
-          !viewOptions.renderAllModels
+          !sceneOptions.renderAllModels
         }
       >
         <SceneContextSetup />
@@ -222,7 +222,7 @@ export default function SceneView() {
           />
         </EffectComposer>
         <group>
-          {!viewOptions.axesHelperVisible ? undefined : axesHelper}
+          {!sceneOptions.axesHelperVisible ? undefined : axesHelper}
           {renderedModels}
         </group>
         <SceneCameraControls />

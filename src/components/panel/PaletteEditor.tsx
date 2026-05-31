@@ -11,7 +11,7 @@ import {
   useTheme
 } from '@mui/material';
 import clsx from 'clsx';
-import ViewOptionsContext from '@/contexts/ViewOptionsContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 
 const buttonsKeyMap = new Map<string, string>([
   ['background', 'Background'],
@@ -38,7 +38,7 @@ export default function PaletteEditor() {
     (EventTarget & HTMLButtonElement) | null
   >(() => null);
 
-  const viewOptions = useContext(ViewOptionsContext);
+  const sceneOptions = useContext(SceneOptionsContext);
 
   const [buttonsKey, setPaletteKey] = useState<keyof ScenePalette | undefined>(
     () => undefined
@@ -54,7 +54,7 @@ export default function PaletteEditor() {
       if ((buttonsKey && scenePalette[buttonsKey] === hex) || !buttonsKey) {
         return;
       }
-      viewOptions.setScenePalette({
+      sceneOptions.setScenePalette({
         ...scenePalette,
         [buttonsKey]: hex
       });
@@ -151,7 +151,7 @@ export default function PaletteEditor() {
           </Tooltip>
         ))}
         <Tooltip title='Reset or toggle light/dark scene theme'>
-          <IconButton onClick={viewOptions.toggleLightDarkTheme}>
+          <IconButton onClick={sceneOptions.toggleLightDarkTheme}>
             <ContrastIcon fontSize='small' />
           </IconButton>
         </Tooltip>
