@@ -4,7 +4,7 @@ import { Box, Button } from '@mui/material';
 import Contributors from './sections/Contributors';
 import KeyboardShortcuts from './sections/KeyboardShortcuts';
 import SceneNavigationHints from './sections/SceneNavigationHints';
-import DevVlog from './sections/DevVlog';
+import DevLog from './sections/DevLog';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
 import { useScrollEdges } from '@/hooks';
@@ -78,7 +78,7 @@ export default function AppInfo() {
       }}
     >
       <GettingStarted />
-      <DevVlog />
+      <DevLog />
       <Box
         className='app-info-section howto-and-contributions'
         data-scroll-above={howToAndContributionsHasScrollAbove}
