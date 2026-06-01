@@ -13,13 +13,14 @@ import {
   selectMeshSelectionType,
   selectModel,
   selectObjectKey,
+  selectResourceAttribs,
   selectUpdatedTextureDefs
 } from '@/selectors';
 import { setObjectKey } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { useObjectNavControls } from '@/modules/object-viewer';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
-import { useTheme } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import { SceneContextSetup } from '@/contexts/SceneContext';
 import {
   EffectComposer,
@@ -42,6 +43,7 @@ import {
 import RenderedPolygon from './scene/RenderedPolygon';
 import SceneCameraControls from './scene/SceneCameraControls';
 import globalBuffers from '@/utils/data/globalBuffers';
+import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 
 ColorManagement.enabled = true;
 
@@ -65,6 +67,7 @@ export default function SceneView() {
     useState<Map<string, { texture: DataTexture; bufferKey: string }>>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneOptions = useContext(SceneOptionsContext);
+  const resourceAttribs = useAppSelector(selectResourceAttribs);
 
   const dispatch = useAppDispatch();
   const objectKey = useAppSelector(selectObjectKey);
@@ -196,37 +199,56 @@ export default function SceneView() {
   }, []);
 
   return (
-    <Canvas
-      resize={canvasResizeParams}
-      camera={cameraParams}
-      frameloop='demand'
-      style={canvasStyle}
-      ref={canvasRef}
-      onCreated={onSceneCreated}
-    >
-      <Selection
-        enabled={
-          sceneOptions.meshDisplayMode === 'textured' &&
-          Boolean(objectKey) &&
-          !sceneOptions.renderAllModels
-        }
+    <>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 1000,
+          pointerEvents: 'none'
+        }}
       >
-        <SceneContextSetup />
-        <EffectComposer autoClear={false} key={objectKey}>
-          <Outline
-            edgeStrength={30}
-            pulseSpeed={1}
-            blendFunction={BlendFunction.SCREEN}
-            visibleEdgeColor={theme.palette.scene.selected as unknown as number}
-            hiddenEdgeColor={theme.palette.scene.selected as unknown as number}
-          />
-        </EffectComposer>
-        <group>
-          {!sceneOptions.axesHelperVisible ? undefined : axesHelper}
-          {renderedModels}
-        </group>
-        <SceneCameraControls />
-      </Selection>
-    </Canvas>
+        <ModelResourceAttribs />
+      </Box>
+      <Canvas
+        resize={canvasResizeParams}
+        camera={cameraParams}
+        frameloop='demand'
+        style={canvasStyle}
+        ref={canvasRef}
+        onCreated={onSceneCreated}
+      >
+        <Selection
+          enabled={
+            sceneOptions.meshDisplayMode === 'textured' &&
+            Boolean(objectKey) &&
+            !sceneOptions.renderAllModels
+          }
+        >
+          <SceneContextSetup />
+          <EffectComposer autoClear={false} key={objectKey}>
+            <Outline
+              edgeStrength={30}
+              pulseSpeed={1}
+              blendFunction={BlendFunction.SCREEN}
+              visibleEdgeColor={
+                theme.palette.scene.selected as unknown as number
+              }
+              hiddenEdgeColor={
+                theme.palette.scene.selected as unknown as number
+              }
+            />
+          </EffectComposer>
+          <group>
+            {!sceneOptions.axesHelperVisible ? undefined : axesHelper}
+            {renderedModels}
+          </group>
+          <SceneCameraControls />
+        </Selection>
+      </Canvas>
+    </>
   );
 }

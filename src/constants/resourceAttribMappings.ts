@@ -3,6 +3,7 @@ import createTextureDef from '@/utils/textures/createTextureDef';
 import cvs1MenuAttribMappings from './resource-mappings/cvs1MenuAttribMappings';
 import cvs2MenuAttribMappings from './resource-mappings/cvs2MenuAttribMappings';
 import mvc2EffectsAttribMappings from './resource-mappings/mvc2EffectsAttribMappings';
+import mvc2StageAttribMappings from './resource-mappings/mvc2StageAttribMappings';
 
 const mvc2PlFacStructure: Partial<NLUITextureDef>[] = [
   { width: 64, height: 64 },
@@ -51,16 +52,6 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
       })
     ]
   },
-  f6267bcb211d053d6b21b2e224acafd150854f6c: {
-    game: 'MVC2',
-    name: 'Carnival (Night)',
-    identifier: '0x0C',
-    resourceType: 'mvc2-stage',
-    filenamePattern: '^STG0C(.mn)?POL.BIN$',
-    polygonMapped: true,
-    oobReferencable: false,
-    hasLzssTextureFile: false
-  },
   ...mvc2EffectsAttribMappings,
   'cvs2-console-menu': {
     game: 'CVS2',
@@ -73,17 +64,6 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     textureFileType: 'cvs2-console-menu',
     hasLzssTextureFile: true
   },
-  'vs2-stage-file': {
-    game: 'VS2',
-    name: 'Stage Texture File',
-    identifier: 'STXX',
-    resourceType: 'vs2-stage',
-    filenamePattern: '^ST(G)?(E)?[0-9A-Z]{2}TEX(.mn)?.BIN$',
-    polygonMapped: true,
-    oobReferencable: false,
-    textureFileType: 'vs2-stage-file',
-    hasLzssTextureFile: false
-  },
   'vs2-stage-polygon-file': {
     game: 'VS2',
     name: 'Stage Polygon File',
@@ -95,6 +75,18 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     hasLzssTextureFile: false,
     allowFileNameOnlyMatch: true
   },
+  'vs2-stage-file': {
+    game: 'VS2',
+    name: 'Stage Texture File',
+    identifier: 'STXX',
+    resourceType: 'vs2-stage',
+    filenamePattern: '^ST(G)?(E)?[0-9A-Z]{2}TEX(.mn)?.BIN$',
+    polygonMapped: true,
+    oobReferencable: false,
+    textureFileType: 'vs2-stage-file',
+    hasLzssTextureFile: false
+  },
+  ...mvc2StageAttribMappings,
   'vs2-demo-model': {
     game: 'VS2',
     name: 'Demo Model Texture File (unspecified)',

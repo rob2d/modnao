@@ -46,6 +46,6 @@ const cvs1StageAttribMappings = {
     identifier: 'STG0C',
     filenamePattern: '^STG0C(.mn)?POL.BIN$'
   }
-};
+} as const;
 
 export default cvs1StageAttribMappings;

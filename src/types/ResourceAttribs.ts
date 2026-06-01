@@ -22,11 +22,24 @@ export type ResourceAttribs = {
   identifier: string;
   resourceType: ResourceType;
   filenamePattern: string;
-  polygonMapped: boolean;
   oobReferencable: boolean;
   textureFileType?: TextureFileType;
   textureDefsHash?: string;
   hasLzssTextureFile: boolean;
   allowFileNameOnlyMatch?: boolean;
   textureShapesMap?: NLUITextureDef[];
+} & (NonPolygonMapping | PolygonMapping);
+
+export type ModelHint = {
+  name: string;
+  description: string;
+};
+
+export type PolygonMapping = {
+  polygonMapped: true;
+  modelHints?: Record<string, ModelHint>;
+};
+
+export type NonPolygonMapping = {
+  polygonMapped: false;
 };
