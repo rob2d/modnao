@@ -2,6 +2,7 @@ import type { NLUITextureDef, ResourceAttribs, TextureFileType } from '@/types';
 import createTextureDef from '@/utils/textures/createTextureDef';
 import cvs1MenuAttribMappings from './resource-mappings/cvs1MenuAttribMappings';
 import cvs2MenuAttribMappings from './resource-mappings/cvs2MenuAttribMappings';
+import mvc2EffectsAttribMappings from './resource-mappings/mvc2EffectsAttribMappings';
 
 const mvc2PlFacStructure: Partial<NLUITextureDef>[] = [
   { width: 64, height: 64 },
@@ -18,54 +19,9 @@ const fontTextureArgs: Partial<NLUITextureDef> = {
   colorFormatValue: 2
 };
 
-const cvs1StageResourceAttribs = {
-  game: 'CVS1Pro',
-  name: 'Stage File (unspecified)',
-  resourceType: 'cvs1-stage',
-  polygonMapped: true,
-  oobReferencable: false,
-  hasLzssTextureFile: true
-} satisfies Omit<ResourceAttribs, 'identifier' | 'filenamePattern'>;
-
 type ResourceHashKey = TextureFileType | string;
 const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   ...cvs2MenuAttribMappings,
-  '6971c7f91ff9f0f83b771609451e49d7814b5388': {
-    ...cvs1StageResourceAttribs,
-    name: 'Stage 00/0B',
-    identifier: 'STG00/STG0B',
-    filenamePattern: '^STG(00|0B)(.mn)?POL.BIN$'
-  },
-  c914cac667b9d564479b256f378eb7bf95997ec3: {
-    ...cvs1StageResourceAttribs,
-    name: 'Stage 02',
-    identifier: 'STG02',
-    filenamePattern: '^STG02(.mn)?POL.BIN$'
-  },
-  '7a3438fef9b108f5e5c904c51e4b2b29d0be0bff': {
-    ...cvs1StageResourceAttribs,
-    name: 'Stage 04',
-    identifier: 'STG04',
-    filenamePattern: '^STG04(.mn)?POL.BIN$'
-  },
-  a3b52397da2e4011c12939fd4ff59432600434ed: {
-    ...cvs1StageResourceAttribs,
-    name: 'Stage 05',
-    identifier: 'STG05',
-    filenamePattern: '^STG05(.mn)?POL.BIN$'
-  },
-  '076811481292fdea66848bc344bdc9201df7df59': {
-    ...cvs1StageResourceAttribs,
-    name: 'Stage 07',
-    identifier: 'STG07',
-    filenamePattern: '^STG07(.mn)?POL.BIN$'
-  },
-  fd5ff139f281e7a016bb8ece18b70816d3928934: {
-    ...cvs1StageResourceAttribs,
-    name: 'Stage 0C',
-    identifier: 'STG0C',
-    filenamePattern: '^STG0C(.mn)?POL.BIN$'
-  },
   ...cvs1MenuAttribMappings,
   'mvc2-demo-dm0a': {
     game: 'MVC2',
@@ -105,28 +61,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     oobReferencable: false,
     hasLzssTextureFile: false
   },
-  c8fd59b26aed2e4a87af2ed05c851d9b0510b219: {
-    game: 'MVC2',
-    name: 'Special Effects',
-    identifier: 'EFKY',
-    resourceType: 'mvc2-menu',
-    filenamePattern: '^EFKY(.mn)?POL.BIN$',
-    polygonMapped: true,
-    oobReferencable: false,
-    textureFileType: 'mvc2-special-effects',
-    hasLzssTextureFile: false
-  },
-  'mvc2-special-effects': {
-    game: 'MVC2',
-    name: 'Special Effects',
-    identifier: 'EFKY',
-    resourceType: 'mvc2-menu',
-    filenamePattern: '^EFKY(.mn)?TEX.BIN$',
-    polygonMapped: true,
-    oobReferencable: false,
-    textureFileType: 'mvc2-special-effects',
-    hasLzssTextureFile: false
-  },
+  ...mvc2EffectsAttribMappings,
   'cvs2-console-menu': {
     game: 'CVS2',
     name: 'Console Menu',
@@ -140,7 +75,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   },
   'vs2-stage-file': {
     game: 'VS2',
-    name: 'Stage Texture File (unspecified)',
+    name: 'Stage Texture File',
     identifier: 'STXX',
     resourceType: 'vs2-stage',
     filenamePattern: '^ST(G)?(E)?[0-9A-Z]{2}TEX(.mn)?.BIN$',
@@ -151,7 +86,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   },
   'vs2-stage-polygon-file': {
     game: 'VS2',
-    name: 'Stage Polygon File (unspecified)',
+    name: 'Stage Polygon File',
     identifier: 'STXX',
     resourceType: 'vs2-stage',
     filenamePattern: '^ST(G)?(E)?[0-9A-Z]{2}(.mn)?POL.BIN$',
