@@ -166,7 +166,12 @@ const themes = Object.fromEntries(
           fontSize: '0.775rem',
           fontWeight: 600
         },
+        h5: {
+          fontSize: '1.25rem',
+          fontFamily: 'Neue Aachen Pro Medium, sans-serif'
+        },
         h6: {
+          fontSize: '1rem',
           fontFamily: 'Neue Aachen Pro Medium, sans-serif'
         },
         button: {

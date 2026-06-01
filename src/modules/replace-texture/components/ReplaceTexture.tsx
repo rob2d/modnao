@@ -390,7 +390,7 @@ export default function ReplaceTexture() {
           {...getDragProps()}
         >
           <div className='replacement-setup section'>
-            <Typography variant='h6'>Source Image</Typography>
+            <Typography variant='h5'>Source Image</Typography>
             <div className='cropper'>
               <Cropper
                 image={imageDataUrl}
@@ -494,7 +494,7 @@ export default function ReplaceTexture() {
           </div>
           <Divider orientation='vertical' flexItem />
           <div className='original-texture section'>
-            <Typography variant='h6'>Texture Origin</Typography>
+            <Typography variant='h5'>Texture Origin</Typography>
             <div className='original-texture'>
               <div className='texture-img-container'>
                 <ImageBufferCanvas
@@ -534,7 +534,7 @@ export default function ReplaceTexture() {
             </div>
             <Divider flexItem />
             <div className='result'>
-              <Typography variant='h6'>Result Preview</Typography>
+              <Typography variant='h5'>Result Preview</Typography>
               <div className='texture-img-container'>
                 {!previewDataUrl ? (
                   <Skeleton

@@ -15,7 +15,7 @@ export default function OtherProjects() {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
-        '& .MuiTypography-h6': {
+        '& .MuiTypography-h5': {
           mt: 1
         }
       }}
