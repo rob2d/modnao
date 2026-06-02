@@ -1,6 +1,7 @@
 import type { NLUITextureDef, ResourceAttribs, TextureFileType } from '@/types';
 import createTextureDef from '@/utils/textures/createTextureDef';
 import cvs1MenuAttribMappings from './resource-mappings/cvs1MenuAttribMappings';
+import cvs1StageAttribMappings from './resource-mappings/cvs1StageAttribMappings';
 import cvs2MenuAttribMappings from './resource-mappings/cvs2MenuAttribMappings';
 import mvc2EffectsAttribMappings from './resource-mappings/mvc2EffectsAttribMappings';
 import mvc2StageAttribMappings from './resource-mappings/mvc2StageAttribMappings';
@@ -25,6 +26,7 @@ type ResourceHashKey = TextureFileType | string;
 const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   ...cvs2MenuAttribMappings,
   ...cvs1MenuAttribMappings,
+  ...cvs1StageAttribMappings,
   'mvc2-demo-dm0a': {
     game: 'MVC2',
     name: 'Demo Model 0A',
