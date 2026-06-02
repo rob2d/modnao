@@ -33,7 +33,7 @@ export default function ModelResourceAttribs() {
         my: 2,
         p: 1,
         flexGrow: 0,
-        maxWidth: 360
+        maxWidth: 480
       }}
       elevation={3}
     >
