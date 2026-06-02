@@ -4,6 +4,7 @@ import cvs1MenuAttribMappings from './resource-mappings/cvs1MenuAttribMappings';
 import cvs2MenuAttribMappings from './resource-mappings/cvs2MenuAttribMappings';
 import mvc2EffectsAttribMappings from './resource-mappings/mvc2EffectsAttribMappings';
 import mvc2StageAttribMappings from './resource-mappings/mvc2StageAttribMappings';
+import cvs2StageAttribMappings from './resource-mappings/cvs2StageAttribMappings';
 
 const mvc2PlFacStructure: Partial<NLUITextureDef>[] = [
   { width: 64, height: 64 },
@@ -86,6 +87,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     hasLzssTextureFile: false
   },
   ...mvc2StageAttribMappings,
+  ...cvs2StageAttribMappings,
   'vs2-demo-model': {
     game: 'VS2',
     name: 'Demo Model Texture File (unspecified)',
