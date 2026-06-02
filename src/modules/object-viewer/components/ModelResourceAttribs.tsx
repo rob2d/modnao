@@ -60,9 +60,11 @@ export default function ModelResourceAttribs() {
             {modelHints.name}
           </Typography>
 
-          <Typography variant='body1' color='textSecondary'>
-            {modelHints.description}
-          </Typography>
+          {!modelHints.description ? null : (
+            <Typography variant='body1' color='textSecondary'>
+              {modelHints.description}
+            </Typography>
+          )}
         </>
       )}
     </Paper>

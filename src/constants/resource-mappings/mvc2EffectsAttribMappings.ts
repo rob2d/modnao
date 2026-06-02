@@ -37,15 +37,33 @@ const mvc2EffectsAttribMappings = {
         name: 'Push Block #4 /Spark flares end',
         description: 'Shield sparks that end on push block'
       },
-      17: {
+      16: {
         name: 'P1 arrow',
         description:
           "Arrow pointer that faces Player 1 when they\'ve gone off-camera"
+      },
+      17: {
+        name: 'P1-is-below indicator',
+        description: 'Points up towards Player 1 when they are below the camera'
       },
       18: {
         name: 'P2 arrow',
         description:
           "Arrow pointer that faces Player 2 when they\'ve gone off-camera"
+      },
+      19: {
+        name: 'P2-is-below-indicator indicator',
+        description: 'Points up towards Player 2 when they are below the camera'
+      },
+      20: {
+        name: 'P1-assist-indicator',
+        description:
+          "Identifies Player 1's assist character when they jump on-screen"
+      },
+      21: {
+        name: 'P2-assist-indicator',
+        description:
+          "Identifies Player 2's assist character when they jump on-screen"
       }
     }
   }
