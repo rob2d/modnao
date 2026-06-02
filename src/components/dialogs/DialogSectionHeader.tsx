@@ -5,7 +5,7 @@ type Props = { children: ReactNode };
 export default function DialogSectionHeader({ children }: Props) {
   return (
     <Typography
-      variant='h6'
+      variant='h5'
       className='section-header'
       sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}
     >
