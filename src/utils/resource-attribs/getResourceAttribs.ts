@@ -1,7 +1,7 @@
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 
-const filenameOnlyMappings = Object.values(resourceAttribMappings).filter(
-  (attribs) => attribs.allowFileNameOnlyMatch || attribs.textureDefsHash
+const mappingsByFilename = Object.values(resourceAttribMappings).filter(
+  (attribs) => attribs.filenamePattern || attribs.textureDefsHash
 );
 
 export default function getResourceAttribs(hash: string, fileName: string) {
@@ -9,14 +9,23 @@ export default function getResourceAttribs(hash: string, fileName: string) {
 
   const foundResource =
     hashEntry && new RegExp(hashEntry.filenamePattern, 'i').test(fileName);
-
   if (foundResource) {
     return hashEntry;
   }
 
-  return filenameOnlyMappings.find(
+  const fileNameAndHashMatch = Object.values(resourceAttribMappings).find(
     (attribs) =>
-      (!attribs.textureDefsHash || attribs.textureDefsHash === hash) &&
+      attribs.textureDefsHash === hash &&
+      new RegExp(attribs.filenamePattern, 'i').test(fileName)
+  );
+
+  if (fileNameAndHashMatch) {
+    return fileNameAndHashMatch;
+  }
+
+  return mappingsByFilename.find(
+    (attribs) =>
+      !attribs.textureDefsHash &&
       new RegExp(attribs.filenamePattern, 'i').test(fileName)
   );
 }

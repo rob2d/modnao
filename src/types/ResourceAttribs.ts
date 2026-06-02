@@ -26,7 +26,6 @@ export type ResourceAttribs = {
   textureFileType?: TextureFileType;
   textureDefsHash?: string;
   hasLzssTextureFile: boolean;
-  allowFileNameOnlyMatch?: boolean;
   textureShapesMap?: NLUITextureDef[];
 } & (NonPolygonMapping | PolygonMapping);
 

@@ -72,8 +72,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     filenamePattern: '^ST(G)?(E)?[0-9A-Z]{2}(.mn)?POL.BIN$',
     polygonMapped: true,
     oobReferencable: false,
-    hasLzssTextureFile: false,
-    allowFileNameOnlyMatch: true
+    hasLzssTextureFile: false
   },
   'vs2-stage-file': {
     game: 'VS2',
@@ -106,8 +105,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
     filenamePattern: '^DM[0-9A-Z]{2}(E)?(.mn)?POL.BIN$',
     polygonMapped: true,
     oobReferencable: true,
-    hasLzssTextureFile: false,
-    allowFileNameOnlyMatch: true
+    hasLzssTextureFile: false
   },
   'mvc2-stage-preview': {
     game: 'MVC2',
