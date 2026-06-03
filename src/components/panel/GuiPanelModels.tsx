@@ -29,7 +29,7 @@ import {
   useSceneGLTFFileDownloader
 } from '@/modules/object-viewer';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
-import ModelFileImportButton from './ModelFileImportButton';
+import FileImportArea from './FileImportArea';
 
 export default function GuiPanelModels() {
   const sceneOptions = useContext(SceneOptionsContext);
@@ -152,12 +152,12 @@ export default function GuiPanelModels() {
       : [navButtonLeft, navButtonRight];
 
   return !polygonFileName ? (
-    <ModelFileImportButton />
+    <FileImportArea />
   ) : (
     <GuiPanelSection
       title='Models'
       subtitle={polygonFileName}
-      collapsedContent={<ModelFileImportButton />}
+      collapsedContent={<FileImportArea />}
       collapsedContentFABs={collapsedContentFABs}
     >
       <Grid container className='property-table'>
@@ -223,7 +223,7 @@ export default function GuiPanelModels() {
           }
         }}
       >
-        <ModelFileImportButton />
+        <FileImportArea />
         <div className='poly-export-buttons'>
           <GuiPanelButton
             tooltip={

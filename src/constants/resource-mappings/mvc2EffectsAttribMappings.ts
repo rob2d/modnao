@@ -2,7 +2,7 @@ const mvc2EffectsAttribMappings = {
   'mvc2-special-effects': {
     game: 'MVC2',
     name: 'Special Effects',
-    identifier: 'EFKY',
+    identifier: 'EFKYTEX',
     resourceType: 'mvc2-menu',
     filenamePattern: '^EFKY(.mn)?TEX.BIN$',
     polygonMapped: true,
@@ -13,7 +13,7 @@ const mvc2EffectsAttribMappings = {
   c8fd59b26aed2e4a87af2ed05c851d9b0510b219: {
     game: 'MVC2',
     name: 'Special Effects',
-    identifier: 'EFKY',
+    identifier: 'EFKYPOL',
     resourceType: 'mvc2-menu',
     filenamePattern: '^EFKY(.mn)?POL.BIN$',
     polygonMapped: true,
