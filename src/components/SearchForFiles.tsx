@@ -34,7 +34,8 @@ interface ResourceMappingSearchOption extends ResourceSearchOptionBase {
 interface ResourceModelSearchOption extends ResourceSearchOptionBase {
   kind: 'model';
   modelIndex: string;
-  modelDescription: string;
+  modelDescription?: string;
+  modelKeywords?: string[];
 }
 
 type ResourceSearchOption =
@@ -127,7 +128,8 @@ const resourceSearchOptions = Object.entries(resourceAttribMappings)
             attribs.filenamePattern,
             modelIndex,
             modelHint.name,
-            modelHint.description
+            modelHint.description,
+            modelHint.keywords?.join(' ')
           ].join(' ')
         })
       )
@@ -350,10 +352,12 @@ export default function SearchForFiles() {
                     }}
                   >
                     {option.kind === 'model'
-                      ? `${resourceTypeNameMap[option.resourceType]} model ${option.modelIndex} - ${option.resourceName}`
+                      ? `${resourceTypeNameMap[option.resourceType]} model ${option.modelIndex + 1} - ${option.resourceName}`
                       : `${resourceTypeNameMap[option.resourceType]} ${option.identifier}`}
                   </Typography>
-                  {option.kind === 'model' ? (
+                  {!(
+                    option.kind === 'model' && option.modelDescription
+                  ) ? null : (
                     <Typography
                       variant='caption'
                       sx={{
@@ -365,9 +369,9 @@ export default function SearchForFiles() {
                         overflowWrap: 'anywhere'
                       }}
                     >
-                      {option.modelDescription.trim()}
+                      {option.modelDescription?.trim()}
                     </Typography>
-                  ) : null}
+                  )}
                 </Box>
               </Box>
             );

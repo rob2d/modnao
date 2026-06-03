@@ -31,7 +31,8 @@ export type ResourceAttribs = {
 
 export type ModelHint = {
   name: string;
-  description: string;
+  description?: string;
+  keywords?: string[] | ReadonlyArray<string>;
 };
 
 export type PolygonMapping = {
