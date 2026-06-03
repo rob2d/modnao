@@ -1,18 +1,23 @@
+import SearchIcon from '@mui/icons-material/Search';
+import { selectContentViewMode } from '@/selectors';
 import { useSupportedFilePicker } from '@/modules/model-data';
 import { showError } from '@/modules/error-messages';
-import { useAppDispatch } from '@/storeTypings';
-import { Box } from '@mui/material';
+import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { Box, IconButton } from '@mui/material';
 import { JSX, useCallback } from 'react';
 import GuiPanelButton from './GuiPanelButton';
 import FilesSupportedButton from '../FilesSupportedButton';
+import SearchForFiles from '../SearchForFiles';
 
-export default function ModelFileImportButton() {
+export default function FileImportArea() {
   const dispatch = useAppDispatch();
+  const contentViewMode = useAppSelector(selectContentViewMode);
   const onHandleError = useCallback((message: string | JSX.Element) => {
     dispatch(showError({ title: 'Invalid file selection', message }));
   }, []);
   const openFileSelector = useSupportedFilePicker(onHandleError);
 
+  // @TODO lay out in more flexibly/auto-adaptably
   return (
     <Box
       sx={{
@@ -53,7 +58,9 @@ export default function ModelFileImportButton() {
       >
         Import Model/Texture
       </GuiPanelButton>
+
       <FilesSupportedButton className={'supported-files'} />
+      {contentViewMode !== 'welcome' ? null : <SearchForFiles />}
     </Box>
   );
 }
