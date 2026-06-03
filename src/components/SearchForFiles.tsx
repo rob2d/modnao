@@ -44,6 +44,7 @@ type ResourceSearchOption =
 const formatFilenamePattern = (filenamePattern: string) =>
   filenamePattern
     .replace(/\(\.mn\)\?/gi, '')
+    .replace(/\[0-9A-Z\]\{2\}/gi, 'XY')
     .replace(/[()]/g, '')
     .replace(/^\^/, '')
     .replace(/\$$/, '');

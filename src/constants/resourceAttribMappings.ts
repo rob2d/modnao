@@ -145,7 +145,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   'mvc2-character-portraits': {
     game: 'MVC2',
     name: 'Character Portraits',
-    identifier: 'PLXXFAC',
+    identifier: 'PLXYFAC',
     resourceType: 'mvc2-menu',
     filenamePattern: '^PL[0-9A-Z]{2}_FAC(.mn)?.BIN$',
     polygonMapped: false,
@@ -277,7 +277,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   'mvc2-character-win': {
     game: 'MVC2',
     name: 'Character Win Portraits',
-    identifier: 'PLXXWIN',
+    identifier: 'PLXYWIN',
     resourceType: 'mvc2-menu',
     filenamePattern: '^PL[0-9A-Z]{2}_WIN(.mn)?.BIN$',
     polygonMapped: false,
