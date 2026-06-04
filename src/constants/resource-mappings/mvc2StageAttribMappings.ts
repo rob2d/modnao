@@ -1,3 +1,9 @@
+import {
+  mvc2StageCaveWaterModelHints,
+  mvc2StageDesertBlueSkyModelHints,
+  mvc2StageDesertOrangeSkyModelHints
+} from './mvc2StageModelHints';
+
 const mvc2StageAttribBase = {
   game: 'MVC2',
   resourceType: 'mvc2-stage',
@@ -5,11 +11,6 @@ const mvc2StageAttribBase = {
   oobReferencable: false,
   hasLzssTextureFile: false
 } as const;
-
-const flyingTurkeyDesc = `
-Natives to nearly all of the Americas, these large birds appear circling in the \
-background. That circling is probably either a search pattern for prey or a signal\
- to other vultures that an epic battle is unfolding below.`;
 
 const mvc2StageAttribMappings = {
   '1a92b0e5df4882371bd58ff04b3a522341ee25b4': {
@@ -24,70 +25,7 @@ const mvc2StageAttribMappings = {
     name: 'Desert Stage (Orange Sky)',
     identifier: '0x01',
     filenamePattern: '^STG01(.mn)?POL.BIN$',
-    modelHints: {
-      0: {
-        name: 'Desert floor and canyons',
-        description:
-          'The main stage area, featuring a desert landscape with large canyons and rock formations',
-        keywords: ['desert', 'canyon', 'tipi', 'cactus', 'cactii', 'shrubs']
-      },
-      1: {
-        name: 'Skybox (A)',
-        description: 'Continuously scrolling orange sky with clouds',
-        keywords: ['sky', 'clouds', 'orange']
-      },
-      2: {
-        name: 'Skybox (B)',
-        description: 'Continuously scrolling orange sky with clouds',
-        keywords: ['sky', 'clouds', 'orange']
-      },
-      3: {
-        name: 'Sombrero',
-        description:
-          "Sombrero that hangs on a cactus in the background. Maybe it belongs to a friend of Amingo's...",
-        keywords: ['sombrero', 'hat', 'Mexican hat']
-      },
-      5: {
-        name: 'Serape (A)',
-        description: 'Serape drying on a clothesline in the background',
-        keywords: ['serape', 'clothesline', 'background', 'Mexican towel']
-      },
-      6: {
-        name: 'Serape (B)',
-        description: 'Serape drying on a clothesline in the background',
-        keywords: ['Mexican towel']
-      },
-      8: {
-        name: 'Front of hanging-cloth (A)',
-        description: 'Red cloth hanging on a clothesline in the background'
-      },
-      9: {
-        name: 'Front of hanging-cloth (B)',
-        description: 'Red cloth hanging on a clothesline in the background'
-      },
-      10: {
-        name: 'Back of hanging-cloth',
-        description: 'Red cloth hanging on a clothesline in the background'
-      },
-      12: {
-        name: 'Rock (A)',
-        keywords: ['stone']
-      },
-      13: {
-        name: 'Rock (B)',
-        keywords: ['stone']
-      },
-      14: {
-        name: 'Flying turkey vulture (A)',
-        description: flyingTurkeyDesc,
-        keywords: ['buzzard', 'hawk', 'condor', 'eagle']
-      },
-      15: {
-        name: 'Flying turkey vulture (B)',
-        description: flyingTurkeyDesc,
-        keywords: ['buzzard', 'hawk', 'condor', 'eagle']
-      }
-    },
+    modelHints: mvc2StageDesertOrangeSkyModelHints,
     textureDefsHash: 'a3009e0b48cad0ccf66ef9ad9f1d77c0c377cc27'
   },
 
@@ -117,7 +55,8 @@ const mvc2StageAttribMappings = {
     ...mvc2StageAttribBase,
     name: 'Cave Stage (Water)',
     identifier: '0x05',
-    filenamePattern: '^STG05(.mn)?POL.BIN$'
+    filenamePattern: '^STG05(.mn)?POL.BIN$',
+    modelHints: mvc2StageCaveWaterModelHints
   },
   '3eedbba7abec03cfe5955f713ec7f955d61b0470': {
     ...mvc2StageAttribBase,
@@ -154,7 +93,8 @@ const mvc2StageAttribMappings = {
     name: 'Desert Stage (Blue Sky)',
     identifier: '0x0A',
     filenamePattern: '^STG0A(.mn)?POL.BIN$',
-    textureDefsHash: 'a3009e0b48cad0ccf66ef9ad9f1d77c0c377cc27'
+    textureDefsHash: 'a3009e0b48cad0ccf66ef9ad9f1d77c0c377cc27',
+    modelHints: mvc2StageDesertBlueSkyModelHints
   },
   de2532783f8b0f492199474eea4ef7c530dcc682: {
     ...mvc2StageAttribBase,
