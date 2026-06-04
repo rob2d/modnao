@@ -1,3 +1,35 @@
+const desertSkyboxEntry = {
+  name: 'Skybox',
+  description: 'Continuously scrolling orange sky with clouds',
+  keywords: ['clouds', 'orange']
+};
+
+const desertSerapeEntry = {
+  name: 'Serape',
+  description: 'Serape drying on a clothesline in the background',
+  keywords: ['serape', 'clothesline', 'background', 'Mexican towel']
+};
+
+const desertHangingClothEntry = {
+  name: 'Hanging cloth',
+  description: `Red cloth hanging on a clothesline in the background.`,
+  keywords: ['fabric', 'drapery']
+};
+
+const desertRockEntry = {
+  name: 'Rock',
+  keywords: ['stone', 'boulder']
+};
+
+const desertVultureEntry = {
+  name: 'Flying turkey vulture',
+  description: `
+Natives to nearly all of the Americas, these large birds appear circling in the \
+background. That circling is probably either a search pattern for prey or a signal\
+ to other vultures that an epic battle is unfolding below.`,
+  keywords: ['buzzard', 'hawk', 'condor', 'eagle']
+};
+
 export const mvc2StageDesertOrangeSkyModelHints = {
   0: {
     name: 'Desert floor and canyons',
@@ -6,14 +38,12 @@ export const mvc2StageDesertOrangeSkyModelHints = {
     keywords: ['desert', 'canyon', 'tipi', 'cactus', 'cactii', 'shrubs', 'mesa']
   },
   1: {
-    name: 'Skybox (A)',
-    description: 'Continuously scrolling orange sky with clouds',
-    keywords: ['clouds', 'orange']
+    ...desertSkyboxEntry,
+    name: `${desertSkyboxEntry.name} (A)`
   },
   2: {
-    name: 'Skybox (B)',
-    description: 'Continuously scrolling orange sky with clouds',
-    keywords: ['clouds', 'orange']
+    ...desertSkyboxEntry,
+    name: `${desertSkyboxEntry.name} (B)`
   },
   3: {
     name: 'Sombrero',
@@ -22,84 +52,136 @@ export const mvc2StageDesertOrangeSkyModelHints = {
     keywords: ['sombrero', 'hat', 'Mexican hat']
   },
   5: {
-    name: 'Serape (A)',
-    description: 'Serape drying on a clothesline in the background',
-    keywords: ['serape', 'clothesline', 'background', 'Mexican towel']
+    ...desertSerapeEntry,
+    name: `${desertSerapeEntry.name} (A)`
   },
   6: {
-    name: 'Serape (B)',
-    description: 'Serape drying on a clothesline in the background',
-    keywords: ['serape', 'clothesline', 'background', 'Mexican towel']
+    ...desertSerapeEntry,
+    name: `${desertSerapeEntry.name} (B)`
   },
   8: {
-    name: 'Hanging cloth (Front A)',
-    description: `Red cloth hanging on a clothesline in the background.
-The front and back of the cloth are separate polygons,
-so they can have different textures and lighting effects`,
-    keywords: ['fabric', 'drapery']
+    ...desertHangingClothEntry,
+    name: `${desertHangingClothEntry.name} (Front A)`
   },
   9: {
-    name: 'Hanging cloth (Front B)',
-    description: `Red cloth hanging on a clothesline in the background.
-The front and back of the cloth are separate polygons,
-so they can have different textures and lighting effects`,
-    keywords: ['fabric', 'drapery']
+    ...desertHangingClothEntry,
+    name: `${desertHangingClothEntry.name} (Front B)`
   },
   10: {
-    name: 'Hanging cloth (Back A)',
-    description: `Red cloth hanging on a clothesline in the background.
-The front and back of the cloth are separate polygons,
-so they can have different textures and lighting effects`,
-    keywords: ['fabric', 'drapery']
+    ...desertHangingClothEntry,
+    name: `${desertHangingClothEntry.name} (Back A)`
   },
   11: {
-    name: 'Hanging cloth (Back B)',
-    description: `Red cloth hanging on a clothesline in the background.
-The front and back of the cloth are separate polygons,
-so they can have different textures and lighting effects`,
-    keywords: ['fabric', 'drapery']
+    ...desertHangingClothEntry,
+    name: `${desertHangingClothEntry.name} (Back B)`
   },
   12: {
-    name: 'Rock (A)',
-    keywords: ['stone', 'boulder']
+    ...desertRockEntry,
+    name: `${desertRockEntry.name} (A)`
   },
   13: {
-    name: 'Rock (B)',
-    keywords: ['stone', 'boulder']
+    ...desertRockEntry,
+    name: `${desertRockEntry.name} (B)`
   },
   14: {
-    name: 'Flying turkey vulture (A)',
-    description: `
-Natives to nearly all of the Americas, these large birds appear circling in the \
-background. That circling is probably either a search pattern for prey or a signal\
- to other vultures that an epic battle is unfolding below.`,
-    keywords: ['buzzard', 'hawk', 'condor', 'eagle']
+    ...desertVultureEntry,
+    name: `${desertVultureEntry.name} (A)`
   },
   15: {
-    name: 'Flying turkey vulture (B)',
-    description: `
-Natives to nearly all of the Americas, these large birds appear circling in the \
-background. That circling is probably either a search pattern for prey or a signal\
- to other vultures that an epic battle is unfolding below.`,
-    keywords: ['buzzard', 'hawk', 'condor', 'eagle']
+    ...desertVultureEntry,
+    name: `${desertVultureEntry.name} (B)`
   }
 } as const;
+
+const caveWaterEntry = {
+  name: 'Cave water surface',
+  description: 'Surface of the water inside the cave'
+};
+
+const caveCeilingDescription =
+  'Reflection of refracting water surface on a cave ceiling spike';
+
+const ceilingSpikeReflectionEntry = {
+  name: 'Cave ceiling spike',
+  description: caveCeilingDescription,
+  keywords: ['stalactites']
+};
+
+const flyingBatEntry = {
+  name: 'Flying bat',
+  description: 'Bat flying in the background of the cave stage',
+  keywords: ['guano']
+};
+
+const waterSplashEntry = {
+  name: 'Water splash',
+  description: 'Droplet splash'
+};
 
 export const mvc2StageCaveWaterModelHints = {
   0: {
     name: 'Cave interior',
     description:
       'Interior of the cave with an Abyss statue, stalactites and floating rock shelves, and a grave floating in the center. Light of the water surface reflects around',
-    keywords: ['gargoyle']
+    keywords: ['gargoyle', 'pond', 'shrine', 'tombstone', 'crypt']
   },
   1: {
-    name: 'Cave water surface',
-    description: 'Surface of the water inside the cave'
+    ...caveWaterEntry,
+    name: `${caveWaterEntry.name} (A)`
   },
-  9: {
-    name: 'Reflection of refracting water surface on cave ceiling',
-    keywords: ['stalactites']
-  }
+  2: {
+    ...caveWaterEntry,
+    name: `${caveWaterEntry.name} (B)`
+  },
+  3: {
+    name: 'Cave water droplet forming',
+    description: 'Droplet of water forming on the ceiling of the cave'
+  },
+  4: {
+    name: 'Cave water droplet falling',
+    description: 'Droplet of water falling from the ceiling of the cave'
+  },
+  5: {
+    name: 'Circular water ripple',
+    description: 'Circular ripple effect on the water surface'
+  },
+  ...Object.fromEntries(
+    [9, 10, 11, 12, 13, 14, 15, 16].map((i) => {
+      const spikeNumber = Math.floor((i - 9) / 2) + 1;
+      const side = i % 2 === 1 ? 'A' : 'B';
+
+      return [
+        i,
+        {
+          ...ceilingSpikeReflectionEntry,
+          name: `${ceilingSpikeReflectionEntry.name} ${spikeNumber} (${side})`
+        }
+      ];
+    })
+  ),
+  17: {
+    name: "Abyss statue's glowing eyes",
+    description: 'Glowing eyes of the Abyss statue in the center of the cave',
+    keywords: ['red']
+  },
+  ...Object.fromEntries(
+    [18, 19, 20].map((i) => [
+      i,
+      {
+        ...flyingBatEntry,
+        name: `${flyingBatEntry.name} Fr${i - 17}`
+      }
+    ])
+  ),
+  ...Object.fromEntries(
+    [21, 22, 23, 24].map((i) => [
+      i,
+      {
+        ...waterSplashEntry,
+        name: `${waterSplashEntry.name} Fr${i - 20}`
+      }
+    ])
+  )
 } as const;
 
 export const mvc2StageDesertBlueSkyModelHints = {
