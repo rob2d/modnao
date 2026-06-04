@@ -36,6 +36,8 @@ interface ResourceModelSearchOption extends ResourceSearchOptionBase {
   modelIndex: string;
   modelDescription?: string;
   modelKeywords?: string[];
+  modelSearchText: string;
+  resourceSearchText: string;
 }
 
 type ResourceSearchOption =
@@ -49,6 +51,12 @@ const formatFilenamePattern = (filenamePattern: string) =>
     .replace(/[()]/g, '')
     .replace(/^\^/, '')
     .replace(/\$$/, '');
+
+const searchTextMatchesTerm = (searchText: string, term: string) =>
+  searchText
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .some((word) => word.startsWith(term));
 
 function ResourceSearchPopper(props: PopperProps) {
   return (
@@ -69,6 +77,18 @@ const resourceSearchOptions = Object.entries(resourceAttribMappings)
     const displayFilenamePattern = formatFilenamePattern(
       attribs.filenamePattern
     );
+    const resourceSearchText = [
+      resourceKey,
+      attribs.game,
+      gameNameMap[attribs.game],
+      attribs.name,
+      attribs.identifier,
+      attribs.resourceType,
+      resourceTypeNameMap[attribs.resourceType],
+      attribs.filenamePattern,
+      attribs.textureFileType,
+      attribs.textureDefsHash
+    ].join(' ');
 
     const resourceOption: ResourceMappingSearchOption = {
       id: `resource:${resourceKey}`,
@@ -82,18 +102,7 @@ const resourceSearchOptions = Object.entries(resourceAttribMappings)
       displayFilenamePattern,
       treeDepth: 1,
       label: attribs.name,
-      searchText: [
-        resourceKey,
-        attribs.game,
-        gameNameMap[attribs.game],
-        attribs.name,
-        attribs.identifier,
-        attribs.resourceType,
-        resourceTypeNameMap[attribs.resourceType],
-        attribs.filenamePattern,
-        attribs.textureFileType,
-        attribs.textureDefsHash
-      ].join(' ')
+      searchText: resourceSearchText
     };
 
     if (!attribs.polygonMapped || !attribs.modelHints) {
@@ -103,35 +112,33 @@ const resourceSearchOptions = Object.entries(resourceAttribMappings)
     return [
       resourceOption,
       ...Object.entries(attribs.modelHints).map(
-        ([modelIndex, modelHint]): ResourceModelSearchOption => ({
-          id: `model:${resourceKey}:${modelIndex}`,
-          kind: 'model',
-          game: attribs.game,
-          resourceKey,
-          resourceName: attribs.name,
-          resourceType: attribs.resourceType,
-          identifier: attribs.identifier,
-          filenamePattern: attribs.filenamePattern,
-          displayFilenamePattern,
-          treeDepth: 2,
-          modelIndex,
-          modelDescription: modelHint.description,
-          label: modelHint.name,
-          searchText: [
-            resourceKey,
-            attribs.game,
-            gameNameMap[attribs.game],
-            attribs.name,
-            attribs.identifier,
-            attribs.resourceType,
-            resourceTypeNameMap[attribs.resourceType],
-            attribs.filenamePattern,
+        ([modelIndex, modelHint]): ResourceModelSearchOption => {
+          const modelSearchText = [
             modelIndex,
             modelHint.name,
             modelHint.description,
             modelHint.keywords?.join(' ')
-          ].join(' ')
-        })
+          ].join(' ');
+
+          return {
+            id: `model:${resourceKey}:${modelIndex}`,
+            kind: 'model',
+            game: attribs.game,
+            resourceKey,
+            resourceName: attribs.name,
+            resourceType: attribs.resourceType,
+            identifier: attribs.identifier,
+            filenamePattern: attribs.filenamePattern,
+            displayFilenamePattern,
+            treeDepth: 2,
+            modelIndex,
+            modelDescription: modelHint.description,
+            label: modelHint.name,
+            modelSearchText,
+            resourceSearchText,
+            searchText: [resourceSearchText, modelSearchText].join(' ')
+          };
+        }
       )
     ];
   })
@@ -153,11 +160,26 @@ const filterResourceSearchOptions = (
     return options;
   }
 
+  const searchTerms = searchValue.split(/\s+/);
   const matchingOptionIds = new Set<string>();
   const matchingResourceKeys = new Set<string>();
 
   options.forEach((option) => {
-    if (!option.searchText.toLowerCase().includes(searchValue)) {
+    const matchesSearchTerms =
+      option.kind === 'resource'
+        ? searchTerms.every((term) =>
+            searchTextMatchesTerm(option.searchText, term)
+          )
+        : searchTerms.every((term) =>
+            [option.resourceSearchText, option.modelSearchText].some(
+              (searchText) => searchTextMatchesTerm(searchText, term)
+            )
+          ) &&
+          searchTerms.some((term) =>
+            searchTextMatchesTerm(option.modelSearchText, term)
+          );
+
+    if (!matchesSearchTerms) {
       return;
     }
 
@@ -213,6 +235,7 @@ export default function SearchForFiles() {
         <Autocomplete<ResourceSearchOption>
           clearOnBlur={false}
           filterOptions={filterResourceSearchOptions}
+          getOptionKey={(option) => option.id}
           getOptionLabel={(option) => option.label}
           groupBy={(option) => gameNameMap[option.game]}
           inputValue={resourceSearchInput}
@@ -232,7 +255,10 @@ export default function SearchForFiles() {
             popper: ResourceSearchPopper
           }}
           renderGroup={(params) => (
-            <Box key={params.key} sx={{ listStyle: 'none' }}>
+            <Box
+              key={`${params.key}:${resourceSearchInput}`}
+              sx={{ listStyle: 'none' }}
+            >
               <Typography
                 component='div'
                 variant='caption'
@@ -283,6 +309,7 @@ export default function SearchForFiles() {
               <Box
                 component='li'
                 {...props}
+                key={option.id}
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -352,7 +379,7 @@ export default function SearchForFiles() {
                     }}
                   >
                     {option.kind === 'model'
-                      ? `${resourceTypeNameMap[option.resourceType]} model ${option.modelIndex + 1} - ${option.resourceName}`
+                      ? `${resourceTypeNameMap[option.resourceType]} model ${Number(option.modelIndex) + 1} - ${option.resourceName}`
                       : `${resourceTypeNameMap[option.resourceType]} ${option.identifier}`}
                   </Typography>
                   {!(
