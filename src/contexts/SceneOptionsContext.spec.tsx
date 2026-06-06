@@ -13,6 +13,7 @@ const getOptionRenderKeys = (sceneOptions: SceneOptions) =>
 
 const booleanSetterKeys = [
   'setSceneCursorVisible',
+  'setShowBrowsedObjectHints',
   'setAxesHelperVisible',
   'setObjectAddressesVisible',
   'setDevOptionsVisible',

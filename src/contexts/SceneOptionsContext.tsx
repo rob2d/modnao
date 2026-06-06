@@ -9,6 +9,7 @@ export type MeshDisplayMode = 'wireframe' | 'textured';
 export type SceneOptions = {
   axesHelperVisible: boolean;
   sceneCursorVisible: boolean;
+  showBrowsedObjectHints: boolean;
   guiPanelExpansionLevel: number;
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
@@ -22,6 +23,7 @@ export type SceneOptions = {
   renderAllModels: boolean;
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
+  setShowBrowsedObjectHints: (showBrowsedObjectHints: boolean) => void;
   setGuiPanelExpansionLevel: (expansionLevel: number) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setUvRegionsHighlighted: (uvRegionsHighlighted: boolean) => void;
@@ -39,6 +41,7 @@ export type SceneOptions = {
 export const defaultValues: SceneOptions = {
   axesHelperVisible: true,
   sceneCursorVisible: true,
+  showBrowsedObjectHints: true,
   guiPanelExpansionLevel: 2,
   objectAddressesVisible: false,
   meshDisplayMode: 'wireframe',
@@ -52,6 +55,7 @@ export const defaultValues: SceneOptions = {
   renderAllModels: false,
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
+  setShowBrowsedObjectHints: (_: boolean) => null,
   setGuiPanelExpansionLevel: (_: number) => null,
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
@@ -78,6 +82,12 @@ export function SceneOptionsContextProvider({ children }: Props) {
     );
   const [sceneCursorVisible, setSceneCursorVisible] =
     useSceneOptionSetting<boolean>(defaultValues.sceneCursorVisible);
+
+  const [showBrowsedObjectHints, setShowBrowsedObjectHints] =
+    useSceneOptionSetting<boolean>(
+      defaultValues.showBrowsedObjectHints,
+      StorageKeys.SHOW_BROWSED_OBJECT_HINTS
+    );
 
   const [guiPanelExpansionLevel, setGuiPanelExpansionLevel] =
     useSceneOptionSetting<number>(
@@ -164,6 +174,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setObjectAddressesVisible,
       sceneCursorVisible,
       setSceneCursorVisible,
+      showBrowsedObjectHints,
+      setShowBrowsedObjectHints,
       axesHelperVisible,
       setAxesHelperVisible,
       meshDisplayMode,
@@ -193,6 +205,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setObjectAddressesVisible,
       sceneCursorVisible,
       setSceneCursorVisible,
+      showBrowsedObjectHints,
+      setShowBrowsedObjectHints,
       axesHelperVisible,
       setAxesHelperVisible,
       meshDisplayMode,
