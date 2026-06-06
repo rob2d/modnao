@@ -98,12 +98,17 @@ const caveWaterEntry = {
   description: 'Surface of the water inside the cave'
 };
 
-const caveCeilingDescription =
+const caveLavaEntry = {
+  name: 'Cave lava',
+  description: 'Lava spanning the surface of the background of the cave'
+};
+
+const caveCeilingWaterDescription =
   'Reflection of refracting water surface on a cave ceiling spike';
 
 const ceilingSpikeReflectionEntry = {
   name: 'Cave ceiling spike',
-  description: caveCeilingDescription,
+  description: caveCeilingWaterDescription,
   keywords: ['stalactites']
 };
 
@@ -116,6 +121,28 @@ const flyingBatEntry = {
 const waterSplashEntry = {
   name: 'Water splash',
   description: 'Droplet splash'
+};
+
+const lavaSplatterEntry = {
+  name: 'Lava splatter',
+  description: "splatterning of lava on it's surface",
+  keywords: ['magma bubble']
+};
+
+const flyingBatEntries = Object.fromEntries(
+  [18, 19, 20].map((i) => [
+    i,
+    {
+      ...flyingBatEntry,
+      name: `${flyingBatEntry.name} Fr${i - 17}`
+    }
+  ])
+);
+
+const abyssEyesEntry = {
+  name: "Abyss statue's glowing eyes",
+  description: 'Glowing eyes of the Abyss statue in the center of the cave',
+  keywords: ['red']
 };
 
 export const mvc2StageCaveWaterModelHints = {
@@ -159,20 +186,64 @@ export const mvc2StageCaveWaterModelHints = {
       ];
     })
   ),
-  17: {
-    name: "Abyss statue's glowing eyes",
-    description: 'Glowing eyes of the Abyss statue in the center of the cave',
-    keywords: ['red']
-  },
+  17: abyssEyesEntry,
+  ...flyingBatEntries,
   ...Object.fromEntries(
-    [18, 19, 20].map((i) => [
+    [21, 22, 23, 24].map((i) => [
       i,
       {
-        ...flyingBatEntry,
-        name: `${flyingBatEntry.name} Fr${i - 17}`
+        ...lavaSplatterEntry,
+        name: `${lavaSplatterEntry.name} Fr${i - 20}`
       }
     ])
+  )
+} as const;
+
+export const mvc2StageCaveLavaModelHints = {
+  0: {
+    name: 'Cave interior (Lava version)',
+    description:
+      'Interior of the cave with an Abyss statue, stalactites and floating rock shelves, and a grave floating in the center. Light from the lava illuminates the center',
+    keywords: [
+      'gargoyle',
+      'pond',
+      'shrine',
+      'tombstone',
+      'crypt',
+      'volcano',
+      'magma'
+    ]
+  },
+  1: {
+    ...caveLavaEntry,
+    name: `${caveLavaEntry.name} (A)`
+  },
+  2: {
+    ...caveLavaEntry,
+    name: `${caveLavaEntry.name} (B)`
+  },
+  5: {
+    name: 'Circular acid ripple',
+    description:
+      'Circular ripple effect from acid splattering on the lava surface'
+  },
+  ...Object.fromEntries(
+    [9, 10, 11, 12, 13, 14, 15, 16].map((i) => {
+      const spikeNumber = Math.floor((i - 9) / 2) + 1;
+      const side = i % 2 === 1 ? 'A' : 'B';
+
+      return [
+        i,
+        {
+          ...ceilingSpikeReflectionEntry,
+          name: `${ceilingSpikeReflectionEntry.name} ${spikeNumber} (${side})`,
+          description: caveCeilingWaterDescription.replace('water', 'lava')
+        }
+      ];
+    })
   ),
+  ...flyingBatEntries,
+  17: abyssEyesEntry,
   ...Object.fromEntries(
     [21, 22, 23, 24].map((i) => [
       i,
@@ -182,7 +253,7 @@ export const mvc2StageCaveWaterModelHints = {
       }
     ])
   )
-} as const;
+};
 
 export const mvc2StageDesertBlueSkyModelHints = {
   ...mvc2StageDesertOrangeSkyModelHints,

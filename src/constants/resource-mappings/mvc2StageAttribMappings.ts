@@ -1,4 +1,5 @@
 import {
+  mvc2StageCaveLavaModelHints,
   mvc2StageCaveWaterModelHints,
   mvc2StageDesertBlueSkyModelHints,
   mvc2StageDesertOrangeSkyModelHints
@@ -119,7 +120,8 @@ const mvc2StageAttribMappings = {
     ...mvc2StageAttribBase,
     name: 'Cave Stage (Lava)',
     identifier: '0x0E',
-    filenamePattern: '^STG0E(.mn)?POL.BIN$'
+    filenamePattern: '^STG0E(.mn)?POL.BIN$',
+    modelHints: mvc2StageCaveLavaModelHints
   },
   '8a76bc28baa845b935c9d60d8024c03c00a5de7c': {
     ...mvc2StageAttribBase,
