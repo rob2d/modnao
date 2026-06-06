@@ -64,7 +64,7 @@ function notifyStorageKeyListeners(storageKey: string) {
  * creates a hook that allows for the setting of a value
  * with optional local storage persistence
  */
-export default function useViewOptionSetting<T>(
+export default function useSceneOptionSetting<T>(
   defaultValue: T,
   storageKey?: string
 ): [T, (value: T) => void] {

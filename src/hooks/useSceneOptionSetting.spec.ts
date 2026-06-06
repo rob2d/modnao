@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import useViewOptionSetting from './useViewOptionSetting';
+import useSceneOptionSetting from './useSceneOptionSettings';
 
-describe('useViewOptionSetting', () => {
+describe('useSceneOptionSetting', () => {
   beforeEach(() => {
     localStorage.clear();
     jest.useFakeTimers();
@@ -13,7 +13,7 @@ describe('useViewOptionSetting', () => {
   });
 
   it('should return the default value if no storageKey is provided', () => {
-    const { result } = renderHook(() => useViewOptionSetting('default'));
+    const { result } = renderHook(() => useSceneOptionSetting('default'));
 
     expect(result.current[0]).toBe('default');
   });
@@ -21,7 +21,7 @@ describe('useViewOptionSetting', () => {
   it('should return the stored value if storageKey is provided', () => {
     localStorage.setItem('testKey', 'storedValue');
     const { result } = renderHook(() =>
-      useViewOptionSetting('default', 'testKey')
+      useSceneOptionSetting('default', 'testKey')
     );
 
     expect(result.current[0]).toBe('storedValue');
@@ -29,7 +29,7 @@ describe('useViewOptionSetting', () => {
 
   it('should update the value and store it in localStorage', async () => {
     const { result } = renderHook(() =>
-      useViewOptionSetting('default', 'testKey')
+      useSceneOptionSetting('default', 'testKey')
     );
 
     act(() => {
@@ -44,7 +44,7 @@ describe('useViewOptionSetting', () => {
 
   it('should handle number values correctly', async () => {
     localStorage.setItem('numberKey', '42');
-    const { result } = renderHook(() => useViewOptionSetting(0, 'numberKey'));
+    const { result } = renderHook(() => useSceneOptionSetting(0, 'numberKey'));
 
     expect(result.current[0]).toBe(42);
 
@@ -61,7 +61,7 @@ describe('useViewOptionSetting', () => {
   it('should handle boolean values correctly', async () => {
     localStorage.setItem('booleanKey', 'true');
     const { result } = renderHook(() =>
-      useViewOptionSetting(false, 'booleanKey')
+      useSceneOptionSetting(false, 'booleanKey')
     );
 
     expect(result.current[0]).toBe(true);
@@ -79,7 +79,7 @@ describe('useViewOptionSetting', () => {
   it('should handle object values correctly', async () => {
     const storedObject = { key: 'value' };
     localStorage.setItem('objectKey', JSON.stringify(storedObject));
-    const { result } = renderHook(() => useViewOptionSetting({}, 'objectKey'));
+    const { result } = renderHook(() => useSceneOptionSetting({}, 'objectKey'));
 
     expect(result.current[0]).toEqual(storedObject);
 
