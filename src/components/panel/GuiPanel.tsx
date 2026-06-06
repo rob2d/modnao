@@ -262,7 +262,7 @@ export default function GuiPanel() {
             backgroundColor: 'var(--mui-palette-action-selected)'
           },
           '& svg': {
-            color: 'var(--mui-palette-text-hoverHint)',
+            color: 'var(--mui-palette-text-deemphasized)',
             opacity: 0
           },
           '&:hover svg, &.active svg': {

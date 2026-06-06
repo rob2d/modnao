@@ -54,7 +54,7 @@ declare module '@mui/material' {
   }
 
   interface TypeText {
-    hoverHint: CSSProperties['color'];
+    deemphasized: CSSProperties['color'];
   }
 
   interface PaletteOptions {
@@ -239,11 +239,11 @@ const themes = Object.fromEntries(
           contrastText: '#FFF'
         },
         text: {
-          hoverHint: 'rgba(0, 0, 0, 0.3)'
+          deemphasized: 'rgba(0, 0, 0, 0.4)'
         },
         warningBackground: 'rgba(255, 0, 0, 0.1)',
         info: {
-          main: mode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'
+          main: mode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.67)'
         },
         scene: {
           background: mode === 'dark' ? '#1c121c' : '#efefff',

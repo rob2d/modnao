@@ -1,7 +1,8 @@
 import gameNameMap from '@/constants/gameNameMap';
 import { selectModelIndex, selectResourceAttribs } from '@/selectors';
 import { useAppSelector } from '@/storeTypings';
-import { Box, Divider, Paper, Typography } from '@mui/material';
+import { Box, ButtonBase, Divider, Paper, Typography } from '@mui/material';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 export default function ModelResourceAttribs() {
   const resourceAttribs = useAppSelector(selectResourceAttribs);
@@ -16,13 +17,19 @@ export default function ModelResourceAttribs() {
   return (
     <Paper
       sx={{
+        position: 'relative',
+        pointerEvents: 'auto',
         display: 'flex',
         flexDirection: 'column',
         mx: 3,
         my: 2,
         p: 1,
+        pr: 3,
         flexGrow: 0,
-        maxWidth: 440
+        maxWidth: 444,
+        '&:hover .MuiButtonBase-root': {
+          opacity: 1
+        }
       }}
       elevation={3}
     >
@@ -56,6 +63,22 @@ export default function ModelResourceAttribs() {
           )}
         </>
       )}
+      <ButtonBase
+        sx={{
+          position: 'absolute',
+          color: 'var(--mui-palette-text-deemphasized)',
+          top: 0,
+          right: 0,
+          mr: 1,
+          mt: 0.75,
+          opacity: 0,
+          zIndex: 1,
+          transition: (theme) =>
+            `opacity ${theme.transitions.duration.standard}ms ease`
+        }}
+      >
+        <ChevronLeftIcon />
+      </ButtonBase>
     </Paper>
   );
 }
