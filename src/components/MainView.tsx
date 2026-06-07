@@ -1,5 +1,4 @@
 import { useCallback, useContext } from 'react';
-import clsx from 'clsx';
 import GuiPanel from './panel/GuiPanel';
 import SceneView from './SceneView';
 import {
@@ -63,6 +62,7 @@ export default function MainView() {
   const showBrowsedObjectHintsButtonVisible =
     contentViewMode === 'polygons' &&
     (!showBrowsedObjectHints || enableCinematicMode);
+  const sceneButtonHidden = !guiPanelVisible;
 
   switch (contentViewMode) {
     case 'polygons':
@@ -73,9 +73,27 @@ export default function MainView() {
       break;
     default:
       mainScene = (
-        <div className='welcome-panel'>
+        <Box
+          sx={{
+            boxSizing: 'border-box',
+            display: 'flex',
+            py: 1,
+            px: 2,
+            maxHeight: '100vh',
+            maxWidth: '100%',
+            height: '100%',
+            '& > img': {
+              flexShrink: 0
+            },
+            '& > div > .MuiPaper-root': {
+              display: 'flex',
+              px: 0,
+              py: 2
+            }
+          }}
+        >
           <AppInfo />
-        </div>
+        </Box>
       );
       break;
   }
@@ -85,87 +103,24 @@ export default function MainView() {
       <ErrorMessage />
       <Box
         component='main'
-        sx={(theme) => ({
+        sx={{
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
           height: '100vh',
-          flexBasis: '100%',
-          ...(process.env.JEST_WORKER_ID
-            ? {}
-            : {
-                '& > :first-child': {
-                  position: 'relative',
-                  flexGrow: 1,
-                  height: '100%',
-                  display: 'flex'
-                }
-              }),
-          '& .scene-button': {
-            position: 'absolute',
-            right: 0,
-            mr: 1,
-            transition: 'opacity 0.5s ease',
-            opacity: 1,
-            pointerEvents: 'all'
-          },
-          '& .scene-button.hidden': {
-            pointerEvents: 'none',
-            opacity: 0
-          },
-          '& .palette-button': {
-            bottom: 0,
-            mb: 8
-          },
-          '& .info-button': {
-            bottom: 0,
-            mb: 1
-          },
-          '& .cinematic-button': {
-            right: 0,
-            mr: 7,
-            bottom: 0,
-            mb: 1
-          },
-          '& .info-button svg': theme.mixins.sceneIconMixin,
-          '& .cinematic-button svg': theme.mixins.sceneIconMixin,
-          '& .welcome-panel': {
-            boxSizing: 'border-box',
-            display: 'flex',
-            py: 1,
-            px: 2,
-            maxHeight: '100vh',
-            maxWidth: '100%',
-            height: '100%'
-          },
-          '& .welcome-panel > img': {
-            flexShrink: 0
-          },
-          '& .welcome-panel > div > .MuiPaper-root': {
-            display: 'flex',
-            px: 0,
-            py: 2
-          },
-          '& .main-content': {
-            position: 'relative'
-          },
-          '& .main-content.full-view': {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%'
-          }
-        })}
+          flexBasis: '100%'
+        }}
       >
-        <div
-          className={clsx(
-            'main-content',
-            // when gui panel collapsed, take entire view so that
-            // the scene is fully rendered. In this mode, gui panel
-            // is hidden but can be hovered & clicked to expand
-            !guiPanelVisible && 'full-view'
-          )}
+        <Box
+          sx={{
+            position: !guiPanelVisible ? 'absolute' : 'relative',
+            top: !guiPanelVisible ? 0 : undefined,
+            left: !guiPanelVisible ? 0 : undefined,
+            width: !guiPanelVisible ? '100%' : undefined,
+            height: '100%',
+            display: process.env.JEST_WORKER_ID ? undefined : 'flex',
+            flexGrow: process.env.JEST_WORKER_ID ? undefined : 1
+          }}
         >
           {mainScene}
           {contentViewMode === 'welcome' ? undefined : (
@@ -178,17 +133,16 @@ export default function MainView() {
                     left: 0,
                     width: '48px',
                     height: '100%',
-                    '&:hover .browsed-object-hints-button': {
+                    '&:hover > button': {
                       pointerEvents: 'auto'
                     },
-                    '&:hover .browsed-object-hints-button svg': {
+                    '&:hover > button svg': {
                       opacity: 1
                     }
                   }}
                 >
                   <IconButton
                     onClick={onShowBrowsedObjectHints}
-                    className='browsed-object-hints-button'
                     sx={(theme) => ({
                       position: 'absolute',
                       top: 'var(--mui-spacing)',
@@ -212,12 +166,18 @@ export default function MainView() {
               >
                 <IconButton
                   onClick={onShowAppInfoDialog}
-                  className={clsx(
-                    'scene-button',
-                    'info-button',
-                    !guiPanelVisible && 'hidden'
-                  )}
                   color='info'
+                  sx={(theme) => ({
+                    position: 'absolute',
+                    right: 0,
+                    bottom: 0,
+                    mr: 1,
+                    mb: 1,
+                    transition: 'opacity 0.5s ease',
+                    opacity: sceneButtonHidden ? 0 : 1,
+                    pointerEvents: sceneButtonHidden ? 'none' : 'all',
+                    '& svg': theme.mixins.sceneIconMixin
+                  })}
                 >
                   <InfoOutlinedIcon fontSize='medium' />
                 </IconButton>
@@ -229,19 +189,25 @@ export default function MainView() {
               >
                 <IconButton
                   onClick={onEnableCinematicMode}
-                  className={clsx(
-                    'scene-button',
-                    'cinematic-button',
-                    !guiPanelVisible && 'hidden'
-                  )}
                   color='info'
+                  sx={(theme) => ({
+                    position: 'absolute',
+                    right: 0,
+                    bottom: 0,
+                    mr: 7,
+                    mb: 1,
+                    transition: 'opacity 0.5s ease',
+                    opacity: sceneButtonHidden ? 0 : 1,
+                    pointerEvents: sceneButtonHidden ? 'none' : 'all',
+                    '& svg': theme.mixins.sceneIconMixin
+                  })}
                 >
                   <VideoCamIcon fontSize='medium' />
                 </IconButton>
               </Tooltip>
             </>
           )}
-        </div>
+        </Box>
         <GuiPanel />
         <AppDialog />
         <Backdrop
