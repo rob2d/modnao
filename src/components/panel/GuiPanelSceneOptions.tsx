@@ -59,6 +59,13 @@ export default function GuiPanelViewOptions() {
     [sceneOptions.setSceneCursorVisible]
   );
 
+  const onSetShowBrowsedObjectHints = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      sceneOptions.setShowBrowsedObjectHints(value);
+    },
+    [sceneOptions.setShowBrowsedObjectHints]
+  );
+
   const onSetDisableBackfaceCulling = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
       sceneOptions.setDisableBackfaceCulling(value);
@@ -102,6 +109,13 @@ export default function GuiPanelViewOptions() {
         tooltipHint='Toggle scene cursor visibility'
         icon={<MouseOutlinedIcon fontSize='small' />}
         onChange={onSetSceneCursorVisible}
+      />,
+      <SceneOptionCheckbox
+        key='browsed-object-hints'
+        checked={sceneOptions.showBrowsedObjectHints}
+        tooltipHint='Toggle browsed object hints visibility'
+        label='Hints'
+        onChange={onSetShowBrowsedObjectHints}
       />,
       <SceneOptionCheckbox
         key='disable-backface-culling'

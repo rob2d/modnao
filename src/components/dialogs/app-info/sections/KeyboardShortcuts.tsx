@@ -10,7 +10,7 @@ export default function KeyboardShortcuts() {
           <b>Left, Right</b>&nbsp;&nbsp; Toggle Model Viewed
         </Typography>
         <Typography variant={'body1'}>
-          <b>Ctrl + \</b>&nbsp;&nbsp; Toggle Interface Visibility
+          <b>Ctrl + \</b>&nbsp;&nbsp; Toggle &quot;<i>Scorsese Mode</i>&quot;
         </Typography>
       </div>
     </div>

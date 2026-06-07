@@ -33,12 +33,14 @@ interface AppThemeMixins {
   dialogScrollEdgeFrame: AppThemeMixin;
   dialogScrollEdgeScroller: AppThemeMixin;
   fileDragActiveAfter: AppThemeMixin;
+  sceneIconMixin: AppThemeMixin;
 }
 
 interface AppThemeMixinsOptions {
   dialogScrollEdgeFrame?: AppThemeMixin;
   dialogScrollEdgeScroller?: AppThemeMixin;
   fileDragActiveAfter?: AppThemeMixin;
+  sceneIconMixin?: AppThemeMixin;
 }
 
 declare module '@mui/material' {
@@ -118,12 +120,12 @@ const mixins = {
         opacity: 'var(--dialog-scroll-edge-bottom-opacity, 1)'
       }
     }
-  } satisfies AppThemeMixin,
+  },
   dialogScrollEdgeScroller: {
     height: '100%',
     minHeight: 0,
     overflowY: 'auto'
-  } satisfies AppThemeMixin,
+  },
   fileDragActiveAfter: {
     content: "''",
     position: 'absolute',
@@ -136,7 +138,12 @@ const mixins = {
     mixBlendMode: 'hard-light',
     opacity: 0.75,
     pointerEvents: 'none'
-  } satisfies AppThemeMixin
+  },
+  sceneIconMixin: {
+    color: 'var(--mui-palette-common-white)',
+    filter: 'drop-shadow(2px 2px 1px rgba(0,0,0,0.5))',
+    mixBlendMode: 'luminosity'
+  }
 } satisfies AppThemeMixins;
 
 export type AppThemes = {

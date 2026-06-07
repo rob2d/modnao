@@ -7,8 +7,10 @@ import {
   Box,
   Button,
   CircularProgress,
+  IconButton,
   Tooltip
 } from '@mui/material';
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
@@ -22,7 +24,12 @@ import TextureView from './TextureView';
 import ErrorMessage from './ErrorMessage';
 
 export default function MainView() {
-  const { guiPanelExpansionLevel } = useContext(SceneOptionsContext);
+  const {
+    enableCinematicMode,
+    guiPanelExpansionLevel,
+    setShowBrowsedObjectHints,
+    showBrowsedObjectHints
+  } = useContext(SceneOptionsContext);
   const dispatch = useAppDispatch();
   const onShowAppInfoDialog = useCallback(() => {
     dispatch(showDialog('app-info'));
@@ -35,6 +42,9 @@ export default function MainView() {
 
   const guiPanelVisible =
     contentViewMode === 'welcome' || guiPanelExpansionLevel > 0;
+  const showBrowsedObjectHintsButtonVisible =
+    contentViewMode === 'polygons' &&
+    (!showBrowsedObjectHints || enableCinematicMode);
 
   switch (contentViewMode) {
     case 'polygons':
@@ -57,7 +67,7 @@ export default function MainView() {
       <ErrorMessage />
       <Box
         component='main'
-        sx={{
+        sx={(theme) => ({
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
@@ -90,9 +100,7 @@ export default function MainView() {
           '& .info-button': {
             bottom: 'var(--mui-spacing)'
           },
-          '& .info-button svg': {
-            filter: 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))'
-          },
+          '& .info-button svg': theme.mixins.sceneIconMixin,
           '& .welcome-panel': {
             boxSizing: 'border-box',
             display: 'flex',
@@ -120,7 +128,7 @@ export default function MainView() {
             width: '100%',
             height: '100%'
           }
-        }}
+        })}
       >
         <div
           className={clsx(
@@ -133,23 +141,60 @@ export default function MainView() {
         >
           {mainScene}
           {contentViewMode === 'welcome' ? undefined : (
-            <Tooltip
-              title='View app info and usage tips'
-              disableInteractive={!guiPanelVisible}
-              placement='left'
-            >
-              <Button
-                onClick={onShowAppInfoDialog}
-                className={clsx(
-                  'scene-button',
-                  'info-button',
-                  !guiPanelVisible && 'hidden'
-                )}
-                color='info'
+            <>
+              {!showBrowsedObjectHintsButtonVisible ? null : (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '48px',
+                    height: '100%',
+                    '&:hover .browsed-object-hints-button': {
+                      pointerEvents: 'auto'
+                    },
+                    '&:hover .browsed-object-hints-button svg': {
+                      opacity: 1
+                    }
+                  }}
+                >
+                  <IconButton
+                    onClick={() => setShowBrowsedObjectHints(true)}
+                    className='browsed-object-hints-button'
+                    sx={(theme) => ({
+                      position: 'absolute',
+                      top: 'var(--mui-spacing)',
+                      left: 'var(--mui-spacing)',
+                      pointerEvents: 'none',
+                      '& svg': {
+                        ...theme.mixins.sceneIconMixin,
+                        opacity: 0,
+                        transition: 'opacity 0.5s ease'
+                      }
+                    })}
+                  >
+                    <HelpCenterIcon fontSize='medium' />
+                  </IconButton>
+                </Box>
+              )}
+              <Tooltip
+                title='View app info and usage tips'
+                disableInteractive={!guiPanelVisible}
+                placement='left'
               >
-                <InfoOutlinedIcon fontSize='medium' />
-              </Button>
-            </Tooltip>
+                <IconButton
+                  onClick={onShowAppInfoDialog}
+                  className={clsx(
+                    'scene-button',
+                    'info-button',
+                    !guiPanelVisible && 'hidden'
+                  )}
+                  color='info'
+                >
+                  <InfoOutlinedIcon fontSize='medium' />
+                </IconButton>
+              </Tooltip>
+            </>
           )}
         </div>
         <GuiPanel />

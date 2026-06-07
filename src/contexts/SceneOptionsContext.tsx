@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useMemo } from 'react';
+import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
 import { ScenePalette, useMediaQuery } from '@mui/material';
 import themes from '@/theming/themes';
@@ -10,6 +10,7 @@ export type SceneOptions = {
   axesHelperVisible: boolean;
   sceneCursorVisible: boolean;
   showBrowsedObjectHints: boolean;
+  enableCinematicMode: boolean;
   guiPanelExpansionLevel: number;
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
@@ -24,6 +25,7 @@ export type SceneOptions = {
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setShowBrowsedObjectHints: (showBrowsedObjectHints: boolean) => void;
+  setEnableCinematicMode: (enableCinematicMode: boolean) => void;
   setGuiPanelExpansionLevel: (expansionLevel: number) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setUvRegionsHighlighted: (uvRegionsHighlighted: boolean) => void;
@@ -42,6 +44,7 @@ export const defaultValues: SceneOptions = {
   axesHelperVisible: true,
   sceneCursorVisible: true,
   showBrowsedObjectHints: true,
+  enableCinematicMode: false,
   guiPanelExpansionLevel: 2,
   objectAddressesVisible: false,
   meshDisplayMode: 'wireframe',
@@ -56,6 +59,7 @@ export const defaultValues: SceneOptions = {
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
   setShowBrowsedObjectHints: (_: boolean) => null,
+  setEnableCinematicMode: (_: boolean) => null,
   setGuiPanelExpansionLevel: (_: number) => null,
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
@@ -88,6 +92,10 @@ export function SceneOptionsContextProvider({ children }: Props) {
       defaultValues.showBrowsedObjectHints,
       StorageKeys.SHOW_BROWSED_OBJECT_HINTS
     );
+
+  const [enableCinematicMode, setEnableCinematicMode] = useState<boolean>(
+    defaultValues.enableCinematicMode
+  );
 
   const [guiPanelExpansionLevel, setGuiPanelExpansionLevel] =
     useSceneOptionSetting<number>(
@@ -176,6 +184,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setSceneCursorVisible,
       showBrowsedObjectHints,
       setShowBrowsedObjectHints,
+      enableCinematicMode,
+      setEnableCinematicMode,
       axesHelperVisible,
       setAxesHelperVisible,
       meshDisplayMode,
@@ -207,6 +217,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setSceneCursorVisible,
       showBrowsedObjectHints,
       setShowBrowsedObjectHints,
+      enableCinematicMode,
+      setEnableCinematicMode,
       axesHelperVisible,
       setAxesHelperVisible,
       meshDisplayMode,
