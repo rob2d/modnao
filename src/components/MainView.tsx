@@ -5,13 +5,13 @@ import SceneView from './SceneView';
 import {
   Backdrop,
   Box,
-  Button,
   CircularProgress,
   IconButton,
   Tooltip
 } from '@mui/material';
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import VideoCamIcon from '@mui/icons-material/VideoCam';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import { showDialog } from '@/modules/dialogs';
@@ -27,21 +27,39 @@ export default function MainView() {
   const {
     enableCinematicMode,
     guiPanelExpansionLevel,
+    setEnableCinematicMode,
     setShowBrowsedObjectHints,
     showBrowsedObjectHints
   } = useContext(SceneOptionsContext);
+
   const dispatch = useAppDispatch();
+
   const onShowAppInfoDialog = useCallback(() => {
     dispatch(showDialog('app-info'));
   }, [dispatch]);
+
+  const onShowBrowsedObjectHints = useCallback(() => {
+    setShowBrowsedObjectHints(true);
+
+    if (enableCinematicMode) {
+      setEnableCinematicMode(false);
+    }
+  }, [enableCinematicMode, setEnableCinematicMode, setShowBrowsedObjectHints]);
+
+  const onEnableCinematicMode = useCallback(() => {
+    setEnableCinematicMode(true);
+  }, [setEnableCinematicMode]);
 
   const contentViewMode = useAppSelector(selectContentViewMode);
   const processingOverlayShown = useAppSelector(selectProcessingOverlayShown);
 
   let mainScene;
 
+  const effectiveGuiPanelExpansionLevel = enableCinematicMode
+    ? 0
+    : guiPanelExpansionLevel;
   const guiPanelVisible =
-    contentViewMode === 'welcome' || guiPanelExpansionLevel > 0;
+    contentViewMode === 'welcome' || effectiveGuiPanelExpansionLevel > 0;
   const showBrowsedObjectHintsButtonVisible =
     contentViewMode === 'polygons' &&
     (!showBrowsedObjectHints || enableCinematicMode);
@@ -85,7 +103,8 @@ export default function MainView() {
               }),
           '& .scene-button': {
             position: 'absolute',
-            right: 'var(--mui-spacing)',
+            right: 0,
+            mr: 1,
             transition: 'opacity 0.5s ease',
             opacity: 1,
             pointerEvents: 'all'
@@ -95,12 +114,21 @@ export default function MainView() {
             opacity: 0
           },
           '& .palette-button': {
-            bottom: 'calc(var(--mui-spacing) * 8)'
+            bottom: 0,
+            mb: 8
           },
           '& .info-button': {
-            bottom: 'var(--mui-spacing)'
+            bottom: 0,
+            mb: 1
+          },
+          '& .cinematic-button': {
+            right: 0,
+            mr: 7,
+            bottom: 0,
+            mb: 1
           },
           '& .info-button svg': theme.mixins.sceneIconMixin,
+          '& .cinematic-button svg': theme.mixins.sceneIconMixin,
           '& .welcome-panel': {
             boxSizing: 'border-box',
             display: 'flex',
@@ -159,7 +187,7 @@ export default function MainView() {
                   }}
                 >
                   <IconButton
-                    onClick={() => setShowBrowsedObjectHints(true)}
+                    onClick={onShowBrowsedObjectHints}
                     className='browsed-object-hints-button'
                     sx={(theme) => ({
                       position: 'absolute',
@@ -192,6 +220,23 @@ export default function MainView() {
                   color='info'
                 >
                   <InfoOutlinedIcon fontSize='medium' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title='Enter cinematic mode'
+                disableInteractive={!guiPanelVisible}
+                placement='left'
+              >
+                <IconButton
+                  onClick={onEnableCinematicMode}
+                  className={clsx(
+                    'scene-button',
+                    'cinematic-button',
+                    !guiPanelVisible && 'hidden'
+                  )}
+                  color='info'
+                >
+                  <VideoCamIcon fontSize='medium' />
                 </IconButton>
               </Tooltip>
             </>

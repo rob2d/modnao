@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
-import { StorageKeys } from '@/constants/StorageKeys';
 import SceneOptionsContext, {
   SceneOptionsContextProvider
 } from '@/contexts/SceneOptionsContext';
@@ -28,11 +27,11 @@ const pressedKeys = new Set<string>();
 const mockUseKeyPress = jest.mocked(useKeyPress);
 
 function TestHarness() {
-  const { guiPanelExpansionLevel } = useContext(SceneOptionsContext);
+  const { enableCinematicMode } = useContext(SceneOptionsContext);
 
   useObjectNavControls();
 
-  return <p>{`guiPanelExpansionLevel: ${guiPanelExpansionLevel}`}</p>;
+  return <p>{`enableCinematicMode: ${enableCinematicMode}`}</p>;
 }
 
 function renderTestHarness() {
@@ -56,12 +55,10 @@ describe('useObjectNavControls', () => {
     mockUseKeyPress.mockReset();
   });
 
-  it('toggles the gui panel visibility with ctrl and backslash', async () => {
-    localStorage.setItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL, '2');
-
+  it('toggles cinematic mode with ctrl and backslash', async () => {
     const view = renderTestHarness();
 
-    expect(screen.getByText('guiPanelExpansionLevel: 2')).toBeInTheDocument();
+    expect(screen.getByText('enableCinematicMode: false')).toBeInTheDocument();
 
     pressedKeys.add('Control');
     pressedKeys.add('\\');
@@ -72,7 +69,7 @@ describe('useObjectNavControls', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('guiPanelExpansionLevel: 0')).toBeInTheDocument();
+      expect(screen.getByText('enableCinematicMode: true')).toBeInTheDocument();
     });
 
     pressedKeys.clear();
@@ -91,27 +88,9 @@ describe('useObjectNavControls', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('guiPanelExpansionLevel: 2')).toBeInTheDocument();
-    });
-  });
-
-  it('restores a collapsed gui panel to the minimum visible expansion level', async () => {
-    localStorage.setItem(StorageKeys.GUI_PANEL_EXPANSION_LEVEL, '0');
-
-    const view = renderTestHarness();
-
-    expect(screen.getByText('guiPanelExpansionLevel: 0')).toBeInTheDocument();
-
-    pressedKeys.add('Control');
-    pressedKeys.add('\\');
-    view.rerender(
-      <SceneOptionsContextProvider>
-        <TestHarness />
-      </SceneOptionsContextProvider>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('guiPanelExpansionLevel: 1')).toBeInTheDocument();
+      expect(
+        screen.getByText('enableCinematicMode: false')
+      ).toBeInTheDocument();
     });
   });
 });

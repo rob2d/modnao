@@ -6,28 +6,19 @@ import { UnknownAction } from '@reduxjs/toolkit';
 import { useHeldRepetitionTimer } from '@/hooks';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 
-/** controls left/right object nav as well as hides and shows the gui menu */
+/** controls left/right object nav as well as the cinematic mode shortcut */
 export default function useObjectNavControls() {
   const dispatch = useAppDispatch();
-  const { guiPanelExpansionLevel, setGuiPanelExpansionLevel } =
+  const { enableCinematicMode, setEnableCinematicMode } =
     useContext(SceneOptionsContext);
   const isLeftPressed = useKeyPress({ targetKey: 'ArrowLeft' });
   const isRightPressed = useKeyPress({ targetKey: 'ArrowRight' });
   const isControlPressed = useKeyPress({ targetKey: 'Control' });
   const isBackslashPressed = useKeyPress({ targetKey: '\\' });
-  const lastVisibleGuiPanelExpansionLevel = useRef(
-    guiPanelExpansionLevel > 0 ? guiPanelExpansionLevel : 1
-  );
-  const wasGuiPanelTogglePressed = useRef(false);
+  const wasCinematicModeTogglePressed = useRef(false);
 
   const [onStartPrevObjectNav, onStopPrevObjectNav] = useHeldRepetitionTimer();
   const [onStartNextObjectNav, onStopNextObjectNav] = useHeldRepetitionTimer();
-
-  useEffect(() => {
-    if (guiPanelExpansionLevel > 0) {
-      lastVisibleGuiPanelExpansionLevel.current = guiPanelExpansionLevel;
-    }
-  }, [guiPanelExpansionLevel]);
 
   useEffect(() => {
     if (isLeftPressed) {
@@ -50,21 +41,20 @@ export default function useObjectNavControls() {
   }, [isRightPressed]);
 
   useEffect(() => {
-    const isGuiPanelTogglePressed = isControlPressed && isBackslashPressed;
+    const isCinematicModeTogglePressed = isControlPressed && isBackslashPressed;
 
-    if (isGuiPanelTogglePressed && !wasGuiPanelTogglePressed.current) {
-      setGuiPanelExpansionLevel(
-        guiPanelExpansionLevel > 0
-          ? 0
-          : lastVisibleGuiPanelExpansionLevel.current
-      );
+    if (
+      isCinematicModeTogglePressed &&
+      !wasCinematicModeTogglePressed.current
+    ) {
+      setEnableCinematicMode(!enableCinematicMode);
     }
 
-    wasGuiPanelTogglePressed.current = isGuiPanelTogglePressed;
+    wasCinematicModeTogglePressed.current = isCinematicModeTogglePressed;
   }, [
-    guiPanelExpansionLevel,
+    enableCinematicMode,
     isBackslashPressed,
     isControlPressed,
-    setGuiPanelExpansionLevel
+    setEnableCinematicMode
   ]);
 }
