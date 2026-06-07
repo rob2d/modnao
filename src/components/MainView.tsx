@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import VideoCamIcon from '@mui/icons-material/VideoCam';
+import VideocamIcon from '@mui/icons-material/Videocam';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import { showDialog } from '@/modules/dialogs';
@@ -202,7 +202,7 @@ export default function MainView() {
                     '& svg': theme.mixins.sceneIconMixin
                   })}
                 >
-                  <VideoCamIcon fontSize='medium' />
+                  <VideocamIcon fontSize='medium' />
                 </IconButton>
               </Tooltip>
             </>

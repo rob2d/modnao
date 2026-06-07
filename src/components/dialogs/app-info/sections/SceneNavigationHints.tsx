@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import VideoCamIcon from '@mui/icons-material/VideoCam';
+import VideocamIcon from '@mui/icons-material/Videocam';
 import DialogSectionHeader from '../../DialogSectionHeader';
 
 export default function SceneNavigationHints() {
@@ -29,7 +29,7 @@ export default function SceneNavigationHints() {
         >
           <InfoOutlinedIcon fontSize='small' sx={{ mt: '2px' }} />
           <Typography variant={'body1'}>Displays this info.</Typography>
-          <VideoCamIcon fontSize='small' sx={{ mt: '2px' }} />
+          <VideocamIcon fontSize='small' sx={{ mt: '2px' }} />
           <Typography variant={'body1'}>
             Enables &quot;Cinematic Mode&quot; - hides interface and shows hints
             for browsed objects.
