@@ -192,8 +192,8 @@ export const mvc2StageCaveWaterModelHints = {
     [21, 22, 23, 24].map((i) => [
       i,
       {
-        ...lavaSplatterEntry,
-        name: `${lavaSplatterEntry.name} Fr${i - 20}`
+        ...waterSplashEntry,
+        name: `${waterSplashEntry.name} Fr${i - 20}`
       }
     ])
   )
@@ -248,8 +248,8 @@ export const mvc2StageCaveLavaModelHints = {
     [21, 22, 23, 24].map((i) => [
       i,
       {
-        ...waterSplashEntry,
-        name: `${waterSplashEntry.name} Fr${i - 20}`
+        ...lavaSplatterEntry,
+        name: `${lavaSplatterEntry.name} Fr${i - 20}`
       }
     ])
   )
