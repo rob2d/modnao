@@ -33,12 +33,14 @@ interface AppThemeMixins {
   dialogScrollEdgeFrame: AppThemeMixin;
   dialogScrollEdgeScroller: AppThemeMixin;
   fileDragActiveAfter: AppThemeMixin;
+  sceneIconMixin: AppThemeMixin;
 }
 
 interface AppThemeMixinsOptions {
   dialogScrollEdgeFrame?: AppThemeMixin;
   dialogScrollEdgeScroller?: AppThemeMixin;
   fileDragActiveAfter?: AppThemeMixin;
+  sceneIconMixin?: AppThemeMixin;
 }
 
 declare module '@mui/material' {
@@ -54,7 +56,7 @@ declare module '@mui/material' {
   }
 
   interface TypeText {
-    hoverHint: CSSProperties['color'];
+    deemphasized: CSSProperties['color'];
   }
 
   interface PaletteOptions {
@@ -118,12 +120,12 @@ const mixins = {
         opacity: 'var(--dialog-scroll-edge-bottom-opacity, 1)'
       }
     }
-  } satisfies AppThemeMixin,
+  },
   dialogScrollEdgeScroller: {
     height: '100%',
     minHeight: 0,
     overflowY: 'auto'
-  } satisfies AppThemeMixin,
+  },
   fileDragActiveAfter: {
     content: "''",
     position: 'absolute',
@@ -136,7 +138,12 @@ const mixins = {
     mixBlendMode: 'hard-light',
     opacity: 0.75,
     pointerEvents: 'none'
-  } satisfies AppThemeMixin
+  },
+  sceneIconMixin: {
+    color: 'var(--mui-palette-common-white)',
+    filter: 'drop-shadow(2px 2px 1px rgba(0,0,0,0.5))',
+    mixBlendMode: 'luminosity'
+  }
 } satisfies AppThemeMixins;
 
 export type AppThemes = {
@@ -239,11 +246,11 @@ const themes = Object.fromEntries(
           contrastText: '#FFF'
         },
         text: {
-          hoverHint: 'rgba(0, 0, 0, 0.3)'
+          deemphasized: 'rgba(0, 0, 0, 0.4)'
         },
         warningBackground: 'rgba(255, 0, 0, 0.1)',
         info: {
-          main: mode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'
+          main: mode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.67)'
         },
         scene: {
           background: mode === 'dark' ? '#1c121c' : '#efefff',

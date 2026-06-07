@@ -30,6 +30,7 @@ export default function AppInfo() {
   return (
     <Box
       sx={{
+        position: 'relative',
         display: 'grid',
         width: '100%',
         height: '100%',
@@ -94,13 +95,13 @@ export default function AppInfo() {
           <SceneNavigationHints />
           <Contributors />
         </Box>
-        {!isAppInfoDialogShown ? null : (
-          <Button variant='outlined' className='ok-button' onClick={onClose}>
-            OK <KeyboardDoubleArrowRightIcon fontSize='small' />
-          </Button>
-        )}
       </Box>
       <OtherProjects />
+      {!isAppInfoDialogShown ? null : (
+        <Button variant='outlined' className='ok-button' onClick={onClose}>
+          OK <KeyboardDoubleArrowRightIcon fontSize='small' />
+        </Button>
+      )}
     </Box>
   );
 }

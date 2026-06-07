@@ -16,6 +16,23 @@ export default function AppDialog() {
   const dispatch = useAppDispatch();
   const { dialogShown, sx } = useAppSelector((state) => state.dialogs);
   const DialogComponent = dialogShown ? Dialogs[dialogShown] : null;
+  const appInfoDialogSx =
+    dialogShown !== 'app-info'
+      ? undefined
+      : {
+          '& .MuiDialog-paper': {
+            display: 'flex',
+            height: {
+              xs: 'calc(100% - 32px)',
+              sm: 'calc(100% - 64px)'
+            }
+          },
+          '& .MuiDialogContent-root': {
+            flex: '1 1 auto',
+            minHeight: 0,
+            overflow: 'hidden'
+          }
+        };
   const onClose = useCallback(() => {
     switch (dialogShown) {
       // user must explicitly close dialog via content
@@ -38,6 +55,7 @@ export default function AppDialog() {
       maxWidth={'xl'}
       sx={{
         '& .MuiDialogContent-root': { display: 'flex' },
+        ...(appInfoDialogSx ?? {}),
         ...(sx ?? {})
       }}
     >

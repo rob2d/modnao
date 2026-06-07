@@ -52,10 +52,24 @@ const usePanelDragState = (sceneOptions: SceneOptions): PanelDragParams => {
   }, [isMouseDown]);
 
   useEffect(() => {
-    const { guiPanelExpansionLevel, setGuiPanelExpansionLevel } = sceneOptions;
+    const {
+      enableCinematicMode,
+      guiPanelExpansionLevel,
+      setEnableCinematicMode,
+      setGuiPanelExpansionLevel
+    } = sceneOptions;
 
     if (isMouseDown && !hasDragged.current) {
       const dragStepDelta = Math.round(dragMouseXY.x / PANEL_DRAG_THRESHOLD);
+
+      if (enableCinematicMode) {
+        if (dragStepDelta < 0) {
+          setEnableCinematicMode(false);
+          hasDragged.current = true;
+        }
+
+        return;
+      }
 
       const targetLevel = clamp(
         levelAtStart.current - dragStepDelta,
@@ -72,7 +86,15 @@ const usePanelDragState = (sceneOptions: SceneOptions): PanelDragParams => {
         }, 350);
       }
     }
-  }, [isMouseDown && dragMouseXY]);
+  }, [
+    dragMouseXY,
+    isMouseDown,
+    resetMouseTracking,
+    sceneOptions.enableCinematicMode,
+    sceneOptions.guiPanelExpansionLevel,
+    sceneOptions.setEnableCinematicMode,
+    sceneOptions.setGuiPanelExpansionLevel
+  ]);
 
   return [isMouseDown, resizeHandle];
 };
@@ -83,13 +105,20 @@ export default function GuiPanel() {
   const loadTexturesState = useAppSelector(selectLoadTexturesState);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
   const [resizeMouseDown, resizeHandle] = usePanelDragState(sceneOptions);
-  const expansionLevel = clamp(
-    sceneOptions.guiPanelExpansionLevel,
-    contentViewMode === 'welcome' ? 1 : 0,
-    2
-  );
+  const expansionLevel = sceneOptions.enableCinematicMode
+    ? 0
+    : clamp(
+        sceneOptions.guiPanelExpansionLevel,
+        contentViewMode === 'welcome' ? 1 : 0,
+        2
+      );
 
   const onClickResizeHandle = useCallback(() => {
+    if (sceneOptions.enableCinematicMode) {
+      sceneOptions.setEnableCinematicMode(false);
+      return;
+    }
+
     switch (sceneOptions.guiPanelExpansionLevel) {
       case 0:
         sceneOptions.setGuiPanelExpansionLevel(1);
@@ -101,7 +130,12 @@ export default function GuiPanel() {
         sceneOptions.setGuiPanelExpansionLevel(1);
         break;
     }
-  }, [sceneOptions.guiPanelExpansionLevel]);
+  }, [
+    sceneOptions.enableCinematicMode,
+    sceneOptions.guiPanelExpansionLevel,
+    sceneOptions.setEnableCinematicMode,
+    sceneOptions.setGuiPanelExpansionLevel
+  ]);
 
   const ExpandLevelIcon = expandLevelIcons[expansionLevel];
 
@@ -262,7 +296,7 @@ export default function GuiPanel() {
             backgroundColor: 'var(--mui-palette-action-selected)'
           },
           '& svg': {
-            color: 'var(--mui-palette-text-hoverHint)',
+            color: 'var(--mui-palette-text-deemphasized)',
             opacity: 0
           },
           '&:hover svg, &.active svg': {

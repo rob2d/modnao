@@ -153,6 +153,8 @@ export default function SceneView() {
 
   const selectedMeshes = useAppSelector(selectDisplayedMeshes);
   const meshes = useAppSelector(selectAllDisplayedMeshes);
+  const axesHelperVisible =
+    sceneOptions.axesHelperVisible && !sceneOptions.enableCinematicMode;
 
   const renderedModels = useMemo(
     () =>
@@ -207,7 +209,7 @@ export default function SceneView() {
           left: 0,
           width: '100%',
           height: '100%',
-          zIndex: 1000,
+          zIndex: 1,
           pointerEvents: 'none'
         }}
       >
@@ -243,7 +245,7 @@ export default function SceneView() {
             />
           </EffectComposer>
           <group>
-            {!sceneOptions.axesHelperVisible ? undefined : axesHelper}
+            {!axesHelperVisible ? undefined : axesHelper}
             {renderedModels}
           </group>
           <SceneCameraControls />

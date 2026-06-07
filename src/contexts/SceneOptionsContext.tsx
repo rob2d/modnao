@@ -1,14 +1,16 @@
-import React, { ReactNode, useCallback, useMemo } from 'react';
+import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
 import { ScenePalette, useMediaQuery } from '@mui/material';
 import themes from '@/theming/themes';
-import useViewOptionSetting from '@/hooks/useViewOptionSetting';
+import useSceneOptionSetting from '@/hooks/useSceneOptionSettings';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
 
 export type SceneOptions = {
   axesHelperVisible: boolean;
   sceneCursorVisible: boolean;
+  showBrowsedObjectHints: boolean;
+  enableCinematicMode: boolean;
   guiPanelExpansionLevel: number;
   objectAddressesVisible: boolean;
   meshDisplayMode: MeshDisplayMode;
@@ -22,6 +24,8 @@ export type SceneOptions = {
   renderAllModels: boolean;
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
+  setShowBrowsedObjectHints: (showBrowsedObjectHints: boolean) => void;
+  setEnableCinematicMode: (enableCinematicMode: boolean) => void;
   setGuiPanelExpansionLevel: (expansionLevel: number) => void;
   setObjectAddressesVisible: (objectAddressesVisible: boolean) => void;
   setUvRegionsHighlighted: (uvRegionsHighlighted: boolean) => void;
@@ -39,6 +43,8 @@ export type SceneOptions = {
 export const defaultValues: SceneOptions = {
   axesHelperVisible: true,
   sceneCursorVisible: true,
+  showBrowsedObjectHints: true,
+  enableCinematicMode: false,
   guiPanelExpansionLevel: 2,
   objectAddressesVisible: false,
   meshDisplayMode: 'wireframe',
@@ -52,6 +58,8 @@ export const defaultValues: SceneOptions = {
   renderAllModels: false,
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
+  setShowBrowsedObjectHints: (_: boolean) => null,
+  setEnableCinematicMode: (_: boolean) => null,
   setGuiPanelExpansionLevel: (_: number) => null,
   setObjectAddressesVisible: (_: boolean) => null,
   setMeshDisplayMode: (_: MeshDisplayMode) => null,
@@ -72,67 +80,77 @@ type Props = { children: ReactNode };
 
 export function SceneOptionsContextProvider({ children }: Props) {
   const [axesHelperVisible, setAxesHelperVisible] =
-    useViewOptionSetting<boolean>(
+    useSceneOptionSetting<boolean>(
       defaultValues.axesHelperVisible,
       StorageKeys.AXES_HELPER_VISIBLE
     );
   const [sceneCursorVisible, setSceneCursorVisible] =
-    useViewOptionSetting<boolean>(defaultValues.sceneCursorVisible);
+    useSceneOptionSetting<boolean>(defaultValues.sceneCursorVisible);
+
+  const [showBrowsedObjectHints, setShowBrowsedObjectHints] =
+    useSceneOptionSetting<boolean>(
+      defaultValues.showBrowsedObjectHints,
+      StorageKeys.SHOW_BROWSED_OBJECT_HINTS
+    );
+
+  const [enableCinematicMode, setEnableCinematicMode] = useState<boolean>(
+    defaultValues.enableCinematicMode
+  );
 
   const [guiPanelExpansionLevel, setGuiPanelExpansionLevel] =
-    useViewOptionSetting<number>(
+    useSceneOptionSetting<number>(
       defaultValues.guiPanelExpansionLevel,
       StorageKeys.GUI_PANEL_EXPANSION_LEVEL
     );
 
-  const [renderAllModels, setRenderAllModels] = useViewOptionSetting<boolean>(
+  const [renderAllModels, setRenderAllModels] = useSceneOptionSetting<boolean>(
     defaultValues.renderAllModels
   );
 
   const [objectAddressesVisible, setObjectAddressesVisible] =
-    useViewOptionSetting<boolean>(defaultValues.objectAddressesVisible);
+    useSceneOptionSetting<boolean>(defaultValues.objectAddressesVisible);
 
   const [meshDisplayMode, setMeshDisplayMode] =
-    useViewOptionSetting<MeshDisplayMode>(
+    useSceneOptionSetting<MeshDisplayMode>(
       defaultValues.meshDisplayMode,
       StorageKeys.MESH_DISPLAY_MODE
     );
 
   const [disableBackfaceCulling, setDisableBackfaceCulling] =
-    useViewOptionSetting<boolean>(
+    useSceneOptionSetting<boolean>(
       defaultValues.disableBackfaceCulling,
       StorageKeys.DISABLE_BACKFACE_CULLING
     );
 
   const [enableVertexColors, setEnableVertexColors] =
-    useViewOptionSetting<boolean>(
+    useSceneOptionSetting<boolean>(
       defaultValues.enableVertexColors,
       StorageKeys.ENABLE_VERTEX_COLORS
     );
 
   const [wireframeLineWidth, setWireframeLineWidth] =
-    useViewOptionSetting<number>(
+    useSceneOptionSetting<number>(
       defaultValues.wireframeLineWidth,
       StorageKeys.WIREFRAME_LINE_WIDTH
     );
 
   const [uvRegionsHighlighted, setUvRegionsHighlighted] =
-    useViewOptionSetting<boolean>(
+    useSceneOptionSetting<boolean>(
       defaultValues.uvRegionsHighlighted,
       StorageKeys.UV_REGIONS_HIGHLIGHTED
     );
 
   const [devOptionsVisible, setDevOptionsVisible] =
-    useViewOptionSetting<boolean>(
+    useSceneOptionSetting<boolean>(
       defaultValues.devOptionsVisible,
       StorageKeys.DEV_OPTIONS_VISIBLE
     );
 
-  const [themeKey, setThemeKey] = useViewOptionSetting<
+  const [themeKey, setThemeKey] = useSceneOptionSetting<
     'light' | 'dark' | undefined
   >(defaultValues.themeKey, StorageKeys.THEME_KEY);
 
-  const [scenePalette, setScenePalette] = useViewOptionSetting<
+  const [scenePalette, setScenePalette] = useSceneOptionSetting<
     ScenePalette | undefined
   >(defaultValues.scenePalette, StorageKeys.SCENE_PALETTE);
 
@@ -164,6 +182,10 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setObjectAddressesVisible,
       sceneCursorVisible,
       setSceneCursorVisible,
+      showBrowsedObjectHints,
+      setShowBrowsedObjectHints,
+      enableCinematicMode,
+      setEnableCinematicMode,
       axesHelperVisible,
       setAxesHelperVisible,
       meshDisplayMode,
@@ -193,6 +215,10 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setObjectAddressesVisible,
       sceneCursorVisible,
       setSceneCursorVisible,
+      showBrowsedObjectHints,
+      setShowBrowsedObjectHints,
+      enableCinematicMode,
+      setEnableCinematicMode,
       axesHelperVisible,
       setAxesHelperVisible,
       meshDisplayMode,

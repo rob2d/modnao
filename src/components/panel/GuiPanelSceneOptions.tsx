@@ -3,7 +3,8 @@ import DataArrayIcon from '@mui/icons-material/DataArray';
 import FlipToBackIcon from '@mui/icons-material/FlipToBack';
 import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
-import StraightenIcon from '@mui/icons-material/Straighten';
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
+import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import {
   Box,
   FormControlLabel,
@@ -59,6 +60,13 @@ export default function GuiPanelViewOptions() {
     [sceneOptions.setSceneCursorVisible]
   );
 
+  const onSetShowBrowsedObjectHints = useCallback(
+    (_: SyntheticEvent<Element, Event>, value: boolean) => {
+      sceneOptions.setShowBrowsedObjectHints(value);
+    },
+    [sceneOptions.setShowBrowsedObjectHints]
+  );
+
   const onSetDisableBackfaceCulling = useCallback(
     (_: SyntheticEvent<Element, Event>, value: boolean) => {
       sceneOptions.setDisableBackfaceCulling(value);
@@ -92,8 +100,8 @@ export default function GuiPanelViewOptions() {
       <SceneOptionCheckbox
         key='axes-visibility'
         checked={sceneOptions.axesHelperVisible}
-        tooltipHint='Toggle axes helper visibility'
-        icon={<StraightenIcon fontSize='small' />}
+        tooltipHint='Toggle axes/origin helper visibility'
+        icon={<ViewInArIcon fontSize='small' />}
         onChange={onSetAxesHelperVisible}
       />,
       <SceneOptionCheckbox
@@ -102,6 +110,13 @@ export default function GuiPanelViewOptions() {
         tooltipHint='Toggle scene cursor visibility'
         icon={<MouseOutlinedIcon fontSize='small' />}
         onChange={onSetSceneCursorVisible}
+      />,
+      <SceneOptionCheckbox
+        key='browsed-object-hints'
+        checked={sceneOptions.showBrowsedObjectHints}
+        tooltipHint='Toggle browsed object hints visibility'
+        icon={<HelpCenterIcon fontSize='small' />}
+        onChange={onSetShowBrowsedObjectHints}
       />,
       <SceneOptionCheckbox
         key='disable-backface-culling'
