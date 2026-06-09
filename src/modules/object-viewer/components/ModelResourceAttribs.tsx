@@ -22,88 +22,86 @@ export default function ModelResourceAttribs() {
     viewContext.showBrowsedObjectHints && !viewContext.enableCinematicMode;
 
   return (
-    <>
-      <Paper
-        className={clsx(!isShown && 'hidden')}
-        sx={{
-          position: 'relative',
-          pointerEvents: !isShown ? 'none' : 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          mx: 3,
-          my: 2,
-          p: 1,
-          pr: 3,
-          flexGrow: 0,
-          maxWidth: 444,
-          animation: 'fadeIn 500ms ease',
-          animationFillMode: 'both',
-          '&.hidden': {
-            animation: 'fadeOut 500ms ease',
-            animationFillMode: 'both'
-          },
-          '&:hover .MuiButtonBase-root': {
-            opacity: 1
-          },
-          '@keyframes fadeIn': {
-            from: { opacity: 0, left: '-440px' },
-            to: { opacity: 1, left: '0' }
-          },
-          '@keyframes fadeOut': {
-            from: { opacity: 1, left: '0' },
-            to: { opacity: 0, left: '-440px' }
-          }
-        }}
-        elevation={3}
-      >
-        <Box sx={{ display: 'flex' }}>
-          <Typography
-            variant='h5'
-            color='textPrimary'
-            sx={{ display: 'flex', lineHeight: 1 }}
-          >
-            {resourceAttribs.name} <Divider orientation='horizontal' flexItem />
-          </Typography>
-          <Divider flexItem orientation='vertical' sx={{ mx: 1 }} />
-          <Typography
-            variant='h5'
-            color='textSecondary'
-            sx={{ display: 'flex', lineHeight: 1 }}
-          >
-            {gameNameMap[resourceAttribs.game]}
-          </Typography>
-        </Box>
-        {!modelHints ? null : (
-          <>
-            <Typography variant='h6' sx={{ mt: 0.5 }}>
-              {modelHints.name}
-            </Typography>
-
-            {!modelHints.description ? null : (
-              <Typography variant='body1' color='textSecondary'>
-                {modelHints.description}
-              </Typography>
-            )}
-          </>
-        )}
-        <ButtonBase
-          sx={{
-            position: 'absolute',
-            color: 'var(--mui-palette-text-deemphasized)',
-            top: 0,
-            right: 0,
-            mr: 1,
-            mt: 0.75,
-            opacity: 0,
-            zIndex: 1,
-            transition: (theme) =>
-              `opacity ${theme.transitions.duration.standard}ms ease`
-          }}
-          onClick={() => viewContext.setShowBrowsedObjectHints(false)}
+    <Paper
+      className={clsx(!isShown && 'hidden')}
+      sx={{
+        position: 'relative',
+        pointerEvents: !isShown ? 'none' : 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        mx: 3,
+        my: 2,
+        p: 1,
+        pr: 3,
+        flexGrow: 0,
+        maxWidth: 464,
+        animation: 'fadeIn 500ms ease',
+        animationFillMode: 'both',
+        '&.hidden': {
+          animation: 'fadeOut 500ms ease',
+          animationFillMode: 'both'
+        },
+        '&:hover .MuiButtonBase-root': {
+          opacity: 1
+        },
+        '@keyframes fadeIn': {
+          from: { opacity: 0, left: '-440px' },
+          to: { opacity: 1, left: '0' }
+        },
+        '@keyframes fadeOut': {
+          from: { opacity: 1, left: '0' },
+          to: { opacity: 0, left: '-440px' }
+        }
+      }}
+      elevation={3}
+    >
+      <Box sx={{ display: 'flex' }}>
+        <Typography
+          variant='h5'
+          color='textPrimary'
+          sx={{ display: 'flex', lineHeight: 1 }}
         >
-          <ChevronLeftIcon />
-        </ButtonBase>
-      </Paper>
-    </>
+          {resourceAttribs.name} <Divider orientation='horizontal' flexItem />
+        </Typography>
+        <Divider flexItem orientation='vertical' sx={{ mx: 1 }} />
+        <Typography
+          variant='h5'
+          color='textSecondary'
+          sx={{ display: 'flex', lineHeight: 1 }}
+        >
+          {gameNameMap[resourceAttribs.game]}
+        </Typography>
+      </Box>
+      {!modelHints ? null : (
+        <>
+          <Typography variant='h6' sx={{ mt: 0.5 }}>
+            {modelHints.name}
+          </Typography>
+
+          {!modelHints.description ? null : (
+            <Typography variant='body1' color='textSecondary'>
+              {modelHints.description}
+            </Typography>
+          )}
+        </>
+      )}
+      <ButtonBase
+        sx={{
+          position: 'absolute',
+          color: 'var(--mui-palette-text-deemphasized)',
+          top: 0,
+          right: 0,
+          mr: 1,
+          mt: 0.75,
+          opacity: 0,
+          zIndex: 1,
+          transition: (theme) =>
+            `opacity ${theme.transitions.duration.standard}ms ease`
+        }}
+        onClick={() => viewContext.setShowBrowsedObjectHints(false)}
+      >
+        <ChevronLeftIcon />
+      </ButtonBase>
+    </Paper>
   );
 }

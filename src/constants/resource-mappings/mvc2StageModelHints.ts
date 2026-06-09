@@ -4,6 +4,135 @@ const desertSkyboxEntry = {
   keywords: ['clouds', 'orange']
 };
 
+const airshipBackgroundAirshipEntry = {
+  name: 'Background airship',
+  description:
+    "An airship flying above the main ship's topside in the distance along the way"
+};
+
+const airshipCloudEntry = {
+  name: 'Cloud passing through',
+  description:
+    'A cloud passing through from the camera foreground to behind the ship as it travels',
+  keywords: ['cloud', 'fog']
+};
+
+const airshipPropellerEntry = {
+  name: 'Spinning propeller',
+  description:
+    'A spinning propeller sitting on its shaft that sits topside on the ship',
+  keywords: ['axle']
+};
+
+const backgroundAirshipPropellerEntry = {
+  name: 'Background airship spinning propeller',
+  description: "The background flying airship's back-spinning propeller"
+};
+
+const airshipThunderDescription =
+  'Thunder flashes in the clouds behind the airship';
+
+const airshipFlagEntry = {
+  name: 'Skull and crossbones flag',
+  description: 'Flag masted of a skull and crossbones on the main stage airship'
+};
+
+const shootingStarEntry = {
+  name: 'Shooting Star',
+  description: 'Shooting Stars that fall in the night sky',
+  keywords: ['comet']
+};
+
+const nightWavesEntry = {
+  name: 'Night waves',
+  description: 'Surface of the ocean reflecting the night sky'
+};
+
+export const mvc2StageAirshipDayModelHints = {
+  0: {
+    name: 'Ship topside',
+    description:
+      'Ship deck surface, cannons, mast chains, and blue sky background',
+    keywords: ['planks']
+  },
+  1: {
+    ...airshipBackgroundAirshipEntry,
+    name: `${airshipBackgroundAirshipEntry.name} (A)`
+  },
+  2: {
+    ...airshipPropellerEntry,
+    name: `${airshipPropellerEntry.name} (A)`
+  },
+  ...Object.fromEntries(
+    [3, 4, 5, 6].map((i) => [
+      i,
+      {
+        name: `Thunder Fr${i - 2}`,
+        description: airshipThunderDescription
+      }
+    ])
+  ),
+  7: {
+    ...backgroundAirshipPropellerEntry,
+    name: `${backgroundAirshipPropellerEntry.name} (A)`
+  },
+  8: {
+    ...backgroundAirshipPropellerEntry,
+    name: `${backgroundAirshipPropellerEntry.name} (B)`
+  },
+  9: {
+    ...airshipCloudEntry,
+    name: `${airshipCloudEntry.name} (A)`
+  },
+  10: {
+    ...airshipCloudEntry,
+    name: `${airshipCloudEntry.name} (B)`
+  },
+  12: {
+    ...airshipFlagEntry
+  },
+  13: {
+    ...airshipPropellerEntry,
+    name: `${airshipPropellerEntry.name} (B)`
+  },
+  14: {
+    ...airshipBackgroundAirshipEntry,
+    name: `${airshipBackgroundAirshipEntry.name} (B)`
+  }
+} as const;
+
+export const mvc2StageAirshipNightModelHints = {
+  0: {
+    name: 'Ship topside',
+    description:
+      'Ship deck surface, cannons, mast chains, and night sky background',
+    keywords: ['moon', 'stars', 'clouds']
+  },
+  2: {
+    ...airshipPropellerEntry,
+    name: `${airshipPropellerEntry.name} (A)`
+  },
+  12: {
+    ...airshipFlagEntry
+  },
+  13: {
+    ...airshipPropellerEntry,
+    name: `${airshipPropellerEntry.name} (B)`
+  },
+  15: {
+    ...shootingStarEntry
+  },
+  ...Object.fromEntries(
+    [20, 21].map((i) => [
+      i,
+      {
+        ...nightWavesEntry,
+        name: `${nightWavesEntry.name} (${i === 20 ? 'A' : 'B'})`
+      }
+    ])
+  )
+} as const;
+
 const desertSerapeEntry = {
   name: 'Serape',
   description: 'Serape drying on a clothesline in the background',

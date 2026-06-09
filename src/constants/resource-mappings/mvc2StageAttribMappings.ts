@@ -1,4 +1,6 @@
 import {
+  mvc2StageAirshipDayModelHints,
+  mvc2StageAirshipNightModelHints,
   mvc2StageCaveLavaModelHints,
   mvc2StageCaveWaterModelHints,
   mvc2StageDesertBlueSkyModelHints,
@@ -16,9 +18,10 @@ const mvc2StageAttribBase = {
 const mvc2StageAttribMappings = {
   '1a92b0e5df4882371bd58ff04b3a522341ee25b4': {
     ...mvc2StageAttribBase,
-    name: 'Ship Stage (Day)',
+    name: 'Airship Stage (Day, Flying)',
     identifier: '0x00',
-    filenamePattern: '^STG00(.mn)?POL.BIN$'
+    filenamePattern: '^STG00(.mn)?POL.BIN$',
+    modelHints: mvc2StageAirshipDayModelHints
   },
 
   'mvc2-stg-01': {
@@ -79,9 +82,10 @@ const mvc2StageAttribMappings = {
   },
   f36b6c7f9564dc02bc0c12e7766fa5425104f850: {
     ...mvc2StageAttribBase,
-    name: 'Ship Stage (Night)',
+    name: 'Airship Stage (Night, Floating)',
     identifier: '0x09',
-    filenamePattern: '^STG09(.mn)?POL.BIN$'
+    filenamePattern: '^STG09(.mn)?POL.BIN$',
+    modelHints: mvc2StageAirshipNightModelHints
   },
   '688be4ab25143b136e01ef602877151110657b07': {
     ...mvc2StageAttribBase,
