@@ -1,3 +1,4 @@
+import SearchIcon from '@mui/icons-material/Search';
 import gameNameMap from '@/constants/gameNameMap';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import resourceTypeNameMap from '@/constants/resourceTypeNameMap';
@@ -6,6 +7,7 @@ import {
   Autocomplete,
   AutocompleteRenderInputParams,
   Box,
+  InputAdornment,
   Popper,
   PopperProps,
   TextField,
@@ -233,6 +235,7 @@ export default function SearchForFiles() {
         }}
       >
         <Autocomplete<ResourceSearchOption>
+          size='small'
           clearOnBlur={false}
           filterOptions={filterResourceSearchOptions}
           getOptionKey={(option) => option.id}
@@ -415,6 +418,17 @@ export default function SearchForFiles() {
               slotProps={{
                 input: {
                   ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      <InputAdornment position='start'>
+                        <SearchIcon
+                          fontSize='small'
+                          sx={{ color: 'var(--mui-palette-text-secondary)' }}
+                        />
+                      </InputAdornment>
+                      {params.InputProps.startAdornment}
+                    </>
+                  ),
                   sx: { width: '100%' }
                 }
               }}
