@@ -48,6 +48,27 @@ const nightWavesEntry = {
   description: 'Surface of the ocean reflecting the night sky'
 };
 
+const carnivalGhostHouseDoorEntry = {
+  name: 'Ghost house door',
+  description: 'Small wooden door to the small wooden house with a ghoul in it'
+};
+
+const carnivalTriangleFlagEntry = {
+  name: 'Triangle flag',
+  description: 'Hangs off of the lamp post near the large clown'
+};
+
+const carnivalSkyBeamsEntry = {
+  name: 'Sky beams',
+  description:
+    'Moving searchlights that point into the air near the ferris wheel',
+  keywords: ['Sky Trackers', 'Aerial beams', 'Stage lights']
+};
+
+const carnivalPopUpGhoulEntry = {
+  name: 'Pop-up Ghoul',
+  description: 'Ghoul that pops up from the small wooden house near the clown'
+};
 export const mvc2StageAirshipDayModelHints = {
   0: {
     name: 'Ship topside',
@@ -131,6 +152,115 @@ export const mvc2StageAirshipNightModelHints = {
       }
     ])
   )
+} as const;
+
+export const mvc2StageCarnivalModelHints = {
+  0: {
+    name: 'The funhouses and carnival floor',
+    description:
+      'The ghost shop, carnival houses, clown stump, carousel tent, haunted houses and floor with entryway'
+  },
+  1: {
+    name: 'Clown face',
+    description: 'The large clown face in the carnival stage center',
+    keywords: ['laughing', 'smiling']
+  },
+  3: {
+    name: 'Right clown hand',
+    description: 'Large clown hand (right-hand, left side facing players)'
+  },
+  ...Object.fromEntries(
+    [4, 6].map((i) => [
+      i,
+      {
+        ...carnivalGhostHouseDoorEntry,
+        name: `${carnivalGhostHouseDoorEntry.name} (${i === 4 ? 'A' : 'B'})`
+      }
+    ])
+  ),
+  5: {
+    name: 'Left clown hand',
+    description: 'Large clown hand (left-hand, right side facing players)'
+  },
+  ...Object.fromEntries(
+    [7, 8].map((i) => [
+      i,
+      {
+        ...carnivalTriangleFlagEntry,
+        name: `${carnivalTriangleFlagEntry.name} (${i === 7 ? 'A' : 'B'})`
+      }
+    ])
+  ),
+  9: {
+    name: 'Ferris Wheel',
+    description:
+      'Large ferris wheel behind the carousel with CAPCOM spelled out in the center'
+  },
+  10: {
+    name: 'Ferris Wheel Seat',
+    description: 'Seats on the ferris wheel'
+  },
+  11: {
+    name: 'Lamp-post with hanging flag',
+    description: 'Light with a hanging flag',
+    keywords: ['flagpost']
+  },
+  ...Object.fromEntries(
+    [22, 23, 24, 25].map((i) => [
+      i,
+      {
+        ...carnivalSkyBeamsEntry,
+        name: `${carnivalSkyBeamsEntry.name} Fr${i - 21}`
+      }
+    ])
+  ),
+  ...Object.fromEntries(
+    [26, 27].map((i) => [
+      i,
+      {
+        ...carnivalPopUpGhoulEntry,
+        name: `${carnivalPopUpGhoulEntry.name} (${i === 26 ? 'A' : 'B'})`
+      }
+    ])
+  ),
+  28: {
+    name: 'Carousel train-car',
+    description: 'Train-car passing through the track tht circles the carousel'
+  },
+  29: {
+    name: 'Carousel train-car wheels',
+    description:
+      'Wheels of the train-car passing through the track that circles the carousel'
+  },
+  30: {
+    name: 'Big clown FUN hat',
+    description:
+      'Large hat on the clown that appears with the flashing letters on it'
+  },
+  31: {
+    name: '"F" in fun (lit)',
+    description: "The letter F that appears lit up on the big clown's hat"
+  },
+  32: {
+    name: '"U" in fun (lit)',
+    description: "The letter U that appears lit up on the big clown's hat"
+  },
+  33: {
+    name: '"N" in fun (lit)',
+    description: "The letter N that appears lit up on the big clown's hat"
+  },
+  34: {
+    name: '"F" in fun (unlit)',
+    description: "The letter F that appears unlit on the big clown's hat"
+  },
+  35: {
+    name: '"U" in fun (unlit)',
+    description: "The letter U that appears unlit on the big clown's hat"
+  },
+  36: {
+    name: '"N" in fun (unlit)',
+    description: "The letter N that appears unlit on the big clown's hat"
+  }
 } as const;
 
 const desertSerapeEntry = {

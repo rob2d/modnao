@@ -34,7 +34,7 @@ export default function ModelResourceAttribs() {
         p: 1,
         pr: 3,
         flexGrow: 0,
-        maxWidth: 464,
+        maxWidth: 486,
         animation: 'fadeIn 500ms ease',
         animationFillMode: 'both',
         '&.hidden': {
