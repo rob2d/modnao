@@ -10,6 +10,7 @@ import {
 
 const sceneCameraControlParams = {
   baseDollyVelocity: 0.225,
+  boundsFitMargin: 1.15,
   dollyVelocityByDistanceRoot: 0.06,
   flyLookDistance: 1,
   flyTransitionEndDistance: 1,
@@ -42,7 +43,13 @@ interface CameraTouchGesture {
   distance: number;
 }
 
-export default function SceneCameraControls() {
+interface SceneCameraControlsProps {
+  mainBounds?: ModelBounds;
+}
+
+export default function SceneCameraControls({
+  mainBounds
+}: SceneCameraControlsProps) {
   const { camera, gl, invalidate, size } = useThree();
   const dragRef = useRef<CameraPointerDrag | null>(null);
   const touchGestureRef = useRef<CameraTouchGesture | null>(null);
@@ -57,6 +64,79 @@ export default function SceneCameraControls() {
   const targetOffsetRef = useRef(new Vector3());
   const touchPointersRef = useRef(new Map<number, CameraPointerPosition>());
   const sphericalRef = useRef(new Spherical());
+  const boundsTargetRef = useRef(new Vector3());
+  const boundsPanRef = useRef(new Vector3());
+  const autoFitMainBoundsRef = useRef<ModelBounds | undefined>(undefined);
+
+  useEffect(() => {
+    if (!mainBounds) {
+      autoFitMainBoundsRef.current = undefined;
+      return;
+    }
+
+    if (autoFitMainBoundsRef.current === mainBounds) {
+      return;
+    }
+
+    autoFitMainBoundsRef.current = mainBounds;
+
+    const target = targetRef.current;
+    const nextTarget = boundsTargetRef.current.set(
+      mainBounds.center[0],
+      mainBounds.center[1],
+      mainBounds.min[2]
+    );
+    const pan = boundsPanRef.current.subVectors(nextTarget, target);
+
+    camera.position.add(pan);
+    target.copy(nextTarget);
+
+    if (camera instanceof PerspectiveCamera) {
+      const verticalHalfFov = MathUtils.degToRad(camera.fov / 2);
+      const aspectRatio = size.height === 0 ? 1 : size.width / size.height;
+      const verticalTangent = Math.tan(verticalHalfFov);
+      const horizontalTangent = verticalTangent * aspectRatio;
+      const forward = camera.getWorldDirection(forwardRef.current);
+      const right = rightRef.current
+        .set(1, 0, 0)
+        .applyQuaternion(camera.quaternion);
+      const up = upRef.current.set(0, 1, 0).applyQuaternion(camera.quaternion);
+      const fitDistance = Math.max(
+        ...[
+          mainBounds.min,
+          mainBounds.max,
+          [mainBounds.min[0], mainBounds.min[1], mainBounds.max[2]],
+          [mainBounds.min[0], mainBounds.max[1], mainBounds.min[2]],
+          [mainBounds.max[0], mainBounds.min[1], mainBounds.min[2]],
+          [mainBounds.min[0], mainBounds.max[1], mainBounds.max[2]],
+          [mainBounds.max[0], mainBounds.min[1], mainBounds.max[2]],
+          [mainBounds.max[0], mainBounds.max[1], mainBounds.min[2]]
+        ].map((corner) => {
+          const offset = new Vector3(
+            corner[0] - nextTarget.x,
+            corner[1] - nextTarget.y,
+            corner[2] - nextTarget.z
+          );
+          const horizontalDistance =
+            Math.abs(offset.dot(right)) / horizontalTangent;
+          const verticalDistance = Math.abs(offset.dot(up)) / verticalTangent;
+          const depthOffset = offset.dot(forward);
+
+          return Math.max(horizontalDistance, verticalDistance) - depthOffset;
+        }),
+        sceneCameraControlParams.minFocusDistance
+      );
+
+      camera.position
+        .copy(target)
+        .addScaledVector(
+          forward,
+          -fitDistance * sceneCameraControlParams.boundsFitMargin
+        );
+    }
+
+    invalidate();
+  }, [camera, invalidate, mainBounds, size.height, size.width]);
 
   useEffect(() => {
     const domElement = gl.domElement;

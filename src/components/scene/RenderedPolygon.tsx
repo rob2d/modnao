@@ -8,8 +8,6 @@ import RenderedTexturedPolygon from './RenderedTexturedPolygon';
 import RenderedWireframePolygon from './RenderedWireframePolygon';
 import { Select } from '@react-three/postprocessing';
 
-type Point3D = [x: number, y: number, z: number];
-
 export default function RenderedPolygon({
   flags,
   vertexGroupMode,

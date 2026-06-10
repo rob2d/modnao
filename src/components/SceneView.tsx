@@ -248,7 +248,7 @@ export default function SceneView() {
             {!axesHelperVisible ? undefined : axesHelper}
             {renderedModels}
           </group>
-          <SceneCameraControls />
+          <SceneCameraControls mainBounds={model?.mainBounds} />
         </Selection>
       </Canvas>
     </>
