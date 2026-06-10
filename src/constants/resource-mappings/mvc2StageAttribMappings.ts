@@ -1,6 +1,7 @@
 import {
   mvc2StageAirshipDayModelHints,
   mvc2StageAirshipNightModelHints,
+  mvc2StageCarnivalModelHints,
   mvc2StageCaveLavaModelHints,
   mvc2StageCaveWaterModelHints,
   mvc2StageDesertBlueSkyModelHints,
@@ -42,10 +43,11 @@ const mvc2StageAttribMappings = {
 
   'mvc2-stg-03': {
     ...mvc2StageAttribBase,
-    name: 'Carnival Stage (Day)',
+    name: 'Carnival Stage (Summer/Spring)',
     identifier: '0x03',
     filenamePattern: '^STG03(.mn)?POL.BIN$',
-    textureDefsHash: 'f6267bcb211d053d6b21b2e224acafd150854f6c'
+    textureDefsHash: 'f6267bcb211d053d6b21b2e224acafd150854f6c',
+    modelHints: mvc2StageCarnivalModelHints
   },
 
   ec7b71c7ebb3f5d94d9151e8eea39c9b9c71c8ea: {
@@ -107,12 +109,13 @@ const mvc2StageAttribMappings = {
     identifier: '0x0B',
     filenamePattern: '^STG0B(.mn)?POL.BIN$'
   },
-  'mvc2-stg-0C': {
+  'mvc2-stg-0c': {
     ...mvc2StageAttribBase,
-    name: 'Carnival Stage (Night)',
+    name: 'Carnival Stage (Winter/Fall)',
     identifier: '0x0C',
     filenamePattern: '^STG0C(.mn)?POL.BIN$',
-    textureDefsHash: 'f6267bcb211d053d6b21b2e224acafd150854f6c'
+    textureDefsHash: 'f6267bcb211d053d6b21b2e224acafd150854f6c',
+    modelHints: mvc2StageCarnivalModelHints
   },
   f9e79fc060b662ac3c68697d289c4fd6871019c8: {
     ...mvc2StageAttribBase,
