@@ -3,6 +3,30 @@
 exports[`scanModel extracts a test stage file predictably: scan-model-model-data 1`] = `
 {
   "address": 528,
+  "mainBounds": {
+    "center": [
+      0,
+      700,
+      -750.0001525878906,
+    ],
+    "max": [
+      2000.0001220703125,
+      1400,
+      499.99969482421875,
+    ],
+    "min": [
+      -2000.0001220703125,
+      0,
+      -2000,
+    ],
+    "size": [
+      4000.000244140625,
+      1400,
+      2499.9996948242188,
+    ],
+    "totalVertexCount": 24,
+    "vertexCount": 24,
+  },
   "meshes": [
     {
       "address": 552,

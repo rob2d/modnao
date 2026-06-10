@@ -55,17 +55,17 @@ export const BinFileReadOpSizes = new Map<BinFileReadOp, number>([
 
 // while sorting mesh logic, parse undefined
 // positions as 0 to prevent THREE errors
-const parseNLPoint3D = (values: number[]) =>
+const parsePoint3D = (values: number[]) =>
   values.map((v: number) =>
     typeof v !== 'number' || isNaN(v) ? 0 : v
-  ) as NLPoint3D;
+  ) as Point3D;
 
 export const nlModelConversions: NLPropConversion<NLModel>[] = [
   {
     targetOffset: O.Model.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates: (model, values) => {
-      model.position = parseNLPoint3D(values);
+      model.position = parsePoint3D(values);
     }
   },
   {
@@ -160,7 +160,7 @@ export const nlMeshConversions: NLPropConversion<NLMesh>[] = [
     targetOffset: O.Mesh.POSITION,
     readOps: [readFloatLE, readFloatLE, readFloatLE],
     updates(mesh: NLMesh, values: number[]) {
-      mesh.position = parseNLPoint3D(values as NLPoint3D);
+      mesh.position = parsePoint3D(values);
     }
   },
   {
@@ -280,7 +280,7 @@ export const commonVertexConversions: NLPropConversion<NLVertex>[] = [
     updates(vertex, values) {
       if (vertex.addressingMode === 'reference') {
       }
-      vertex.position = parseNLPoint3D(values);
+      vertex.position = parsePoint3D(values);
     }
   },
   {

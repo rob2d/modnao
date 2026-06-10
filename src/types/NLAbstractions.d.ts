@@ -32,12 +32,21 @@ declare global {
   export type NLColor = [r: number, g: number, b: number];
   export type NLColorRGBA = [r: number, g: number, b: number, a: number];
 
-  export type NLPoint3D = [x: number, y: number, z: number];
+  export type Point3D = [x: number, y: number, z: number];
+
+  export type ModelBounds = {
+    min: Point3D;
+    max: Point3D;
+    center: Point3D;
+    size: Point3D;
+    vertexCount: number;
+    totalVertexCount: number;
+  };
 
   export type NLVertex = {
     index: number;
-    position: NLPoint3D;
-    normals: NLPoint3D;
+    position: Point3D;
+    normals: Point3D;
     addressingMode: 'direct' | 'reference'; // TODO: consider indexed mode?
     contentModeValue: number;
     vertexOffset: number;
@@ -51,7 +60,7 @@ declare global {
     baseParams: number;
     textureInstructions: number;
     polygons: NLPolygon[];
-    position: NLPoint3D;
+    position: Point3D;
     color: NLColor;
     alpha: number;
     specularColor: NLColor;
@@ -84,9 +93,10 @@ declare global {
 
   export type NLModel = {
     ramAddress: number;
-    position: NLPoint3D;
+    position: Point3D;
     radius: number;
     meshes: NLMesh[];
+    mainBounds: ModelBounds;
     totalVertexCount: number;
   } & ModNaoMemoryObject;
 }

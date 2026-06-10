@@ -8,11 +8,109 @@ import {
 } from './NLPropConversionDefs';
 import { processNLConversions } from './processNLConversions';
 
+const MAIN_BOUNDS_STANDARD_DEVIATION_LIMIT = 3;
+
 export type ScanModelParams = {
   address: number;
   ramAddress: number;
   buffer: SharedArrayBuffer;
   index: number;
+};
+
+const getMedian = (values: number[]) => {
+  const sortedValues = [...values].sort((a, b) => a - b);
+  const midpoint = Math.floor(sortedValues.length / 2);
+
+  return sortedValues.length % 2 === 0
+    ? (sortedValues[midpoint - 1] + sortedValues[midpoint]) / 2
+    : sortedValues[midpoint];
+};
+
+const getMedianPoint = (points: Point3D[]): Point3D => [
+  getMedian(points.map(([x]) => x)),
+  getMedian(points.map(([, y]) => y)),
+  getMedian(points.map(([, , z]) => z))
+];
+
+const getDistance = ([x, y, z]: Point3D, center: Point3D) =>
+  Math.sqrt(
+    Math.pow(x - center[0], 2) +
+      Math.pow(y - center[1], 2) +
+      Math.pow(z - center[2], 2)
+  );
+
+const getBounds = (
+  points: Point3D[],
+  totalVertexCount: number
+): ModelBounds => {
+  if (points.length === 0) {
+    return {
+      min: [0, 0, 0],
+      max: [0, 0, 0],
+      center: [0, 0, 0],
+      size: [0, 0, 0],
+      vertexCount: 0,
+      totalVertexCount
+    };
+  }
+
+  const min: Point3D = [Infinity, Infinity, Infinity];
+  const max: Point3D = [-Infinity, -Infinity, -Infinity];
+
+  points.forEach((point) => {
+    point.forEach((value, axis) => {
+      min[axis] = Math.min(min[axis], value);
+      max[axis] = Math.max(max[axis], value);
+    });
+  });
+
+  return {
+    min,
+    max,
+    center: [
+      (min[0] + max[0]) / 2,
+      (min[1] + max[1]) / 2,
+      (min[2] + max[2]) / 2
+    ],
+    size: [max[0] - min[0], max[1] - min[1], max[2] - min[2]],
+    vertexCount: points.length,
+    totalVertexCount
+  };
+};
+
+const getMainBounds = (model: NLModel): ModelBounds => {
+  const vertexPositions = model.meshes.flatMap((mesh) =>
+    mesh.polygons.flatMap((polygon) =>
+      polygon.vertices.map((vertex) => vertex.position)
+    )
+  );
+
+  if (vertexPositions.length === 0) {
+    return getBounds(vertexPositions, model.totalVertexCount);
+  }
+
+  const medianPoint = getMedianPoint(vertexPositions);
+  const distances = vertexPositions.map((point) =>
+    getDistance(point, medianPoint)
+  );
+  const meanDistance =
+    distances.reduce((sum, distance) => sum + distance, 0) / distances.length;
+  const standardDeviation = Math.sqrt(
+    distances.reduce(
+      (sum, distance) => sum + Math.pow(distance - meanDistance, 2),
+      0
+    ) / distances.length
+  );
+  const distanceLimit =
+    meanDistance + standardDeviation * MAIN_BOUNDS_STANDARD_DEVIATION_LIMIT;
+  const mainVertexPositions = vertexPositions.filter(
+    (point) => getDistance(point, medianPoint) <= distanceLimit
+  );
+
+  return getBounds(
+    mainVertexPositions.length === 0 ? vertexPositions : mainVertexPositions,
+    vertexPositions.length
+  );
 };
 
 export default function scanModel({
@@ -189,6 +287,8 @@ export default function scanModel({
       error
     );
   }
+
+  model.mainBounds = getMainBounds(model);
 
   return model;
 }
