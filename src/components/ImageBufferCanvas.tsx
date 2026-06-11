@@ -41,7 +41,12 @@ const ImageBufferCanvas = forwardRef<HTMLCanvasElement, Props>(
       if (rgbaBuffer && canvas) {
         const context = canvas.getContext('2d');
         if (context) {
-          if (!rgbaBuffer?.length || width <= 0 || height <= 0) {
+          if (
+            !rgbaBuffer?.length ||
+            width <= 0 ||
+            height <= 0 ||
+            rgbaBuffer.length !== width * height * 4
+          ) {
             context.clearRect(0, 0, width, height);
             return;
           }
