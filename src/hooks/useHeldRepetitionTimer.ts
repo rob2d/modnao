@@ -21,8 +21,8 @@ export default function useHeldRepetitionTimer(): [
         delay -= 50;
       } else if (delay > 50) {
         delay -= 25;
-      } else if (delay > 10) {
-        delay -= 5;
+      } else if (delay > 20) {
+        delay -= 4;
       }
     };
 
