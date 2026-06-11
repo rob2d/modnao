@@ -225,7 +225,7 @@ export const mvc2StageCarnivalModelHints = {
   ),
   28: {
     name: 'Carousel train-car',
-    description: 'Train-car passing through the track tht circles the carousel'
+    description: 'Train-car passing through the track that circles the carousel'
   },
   29: {
     name: 'Carousel train-car wheels',
