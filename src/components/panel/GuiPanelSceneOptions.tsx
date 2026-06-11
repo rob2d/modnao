@@ -236,6 +236,7 @@ export default function GuiPanelViewOptions() {
         </Grid>
         {sceneOptions.meshDisplayMode !== 'wireframe' ? undefined : (
           <FormControlLabel
+            sx={{ width: '100%', maxWidth: 172 }}
             control={
               <Slider
                 size='small'
@@ -246,6 +247,7 @@ export default function GuiPanelViewOptions() {
                 valueLabelDisplay='auto'
                 value={sceneOptions.wireframeLineWidth}
                 onChange={onSetWireframeLineWidth}
+                sx={{ flexGrow: 1 }}
               />
             }
             label='Line Width'
