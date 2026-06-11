@@ -22,6 +22,43 @@ export const selectModelCount = createSelector(
   selectModels,
   (models) => models.length
 );
+
+export const selectRealModelIndexes = createSelector(selectModels, (models) =>
+  models.reduce<number[]>((modelIndexes, model, modelIndex) => {
+    if (model.meshes.length > 0) {
+      modelIndexes.push(modelIndex);
+    }
+
+    return modelIndexes;
+  }, [])
+);
+
+export const selectRealModelIndexLookup = createSelector(
+  selectRealModelIndexes,
+  (modelIndexes) =>
+    modelIndexes.reduce<
+      Map<
+        number,
+        {
+          previousIndex: number;
+          nextIndex: number;
+        }
+      >
+    >((realModelIndexLookup, modelIndex, realIndex) => {
+      const previousIndex =
+        modelIndexes[
+          (realIndex - 1 + modelIndexes.length) % modelIndexes.length
+        ];
+      const nextIndex = modelIndexes[(realIndex + 1) % modelIndexes.length];
+
+      realModelIndexLookup.set(modelIndex, {
+        previousIndex,
+        nextIndex
+      });
+
+      return realModelIndexLookup;
+    }, new Map())
+);
 export const selectMeshSelectionType = (s: AppState) =>
   s.objectViewer.meshSelectionType;
 export const selectTextureDefs = (s: AppState) => s.modelData.textureDefs;
@@ -247,6 +284,22 @@ export const selectObjectCount = createSelector(
         return textureDefs.length;
       default:
         return 0;
+    }
+  }
+);
+
+export const selectCanNavObjects = createSelector(
+  selectContentViewMode,
+  selectObjectCount,
+  selectRealModelIndexes,
+  (viewMode, objectCount, realModelIndexes) => {
+    switch (viewMode) {
+      case 'polygons':
+        return realModelIndexes.length > 1;
+      case 'textures':
+        return objectCount > 1;
+      default:
+        return false;
     }
   }
 );

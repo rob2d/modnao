@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useHeldRepetitionTimer } from '@/hooks';
 import { navToNextObject, navToPrevObject } from '../objectViewerSlice';
-import { selectObjectCount, selectObjectIndex } from '@/selectors';
+import { selectCanNavObjects, selectObjectIndex } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 
 export default function useObjectNavUIControls() {
   const dispatch = useAppDispatch();
   const objectIndex = useAppSelector(selectObjectIndex);
-  const objectCount = useAppSelector(selectObjectCount);
+  const canNavObjects = useAppSelector(selectCanNavObjects);
 
   const [onStartPrevObjectNav, onStopPrevObjectNav] = useHeldRepetitionTimer();
   const [onStartNextObjectNav, onStopNextObjectNav] = useHeldRepetitionTimer();
@@ -37,18 +37,18 @@ export default function useObjectNavUIControls() {
     () => ({
       onMouseDown: onStartPrevObjectClick,
       onMouseUp: onStopPrevObjectNav,
-      disabled: objectIndex === 0
+      disabled: !canNavObjects
     }),
-    [onStartPrevObjectClick, onStopPrevObjectNav, objectIndex]
+    [canNavObjects, onStartPrevObjectClick, onStopPrevObjectNav]
   );
 
   const nextButtonProps = useMemo(
     () => ({
       onMouseDown: onStartNextObjectClick,
       onMouseUp: onStopNextObjectNav,
-      disabled: objectIndex === objectCount - 1
+      disabled: !canNavObjects
     }),
-    [onStartNextObjectClick, onStopNextObjectNav, objectIndex, objectCount]
+    [canNavObjects, onStartNextObjectClick, onStopNextObjectNav]
   );
 
   const returnValue = useMemo(

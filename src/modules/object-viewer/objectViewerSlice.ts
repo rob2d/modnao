@@ -1,6 +1,10 @@
 import { createSlice, UnknownAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { selectContentViewMode } from '@/selectors';
+import {
+  selectContentViewMode,
+  selectRealModelIndexes,
+  selectRealModelIndexLookup
+} from '@/selectors';
 import { createAppAsyncThunk } from '@/storeTypings';
 import { processPolygonFile } from '@/modules/model-data';
 
@@ -22,6 +26,40 @@ export const initialObjectViewerState: ObjectViewerState = {
 
 const sliceName = 'objectViewer';
 
+const getPrevRealModelIndex = (modelIndex: number, modelIndexes: number[]) => {
+  for (let index = modelIndexes.length - 1; index >= 0; index -= 1) {
+    if (modelIndexes[index] < modelIndex) {
+      return modelIndexes[index];
+    }
+  }
+
+  return modelIndexes[modelIndexes.length - 1] ?? modelIndex;
+};
+
+const getNextRealModelIndex = (modelIndex: number, modelIndexes: number[]) => {
+  const nextModelIndex = modelIndexes.find(
+    (realModelIndex) => realModelIndex > modelIndex
+  );
+
+  return nextModelIndex ?? modelIndexes[0] ?? modelIndex;
+};
+
+const getPrevObjectIndex = (objectIndex: number, objectCount: number) => {
+  if (objectCount <= 0) {
+    return -1;
+  }
+
+  return objectIndex > 0 ? objectIndex - 1 : objectCount - 1;
+};
+
+const getNextObjectIndex = (objectIndex: number, objectCount: number) => {
+  if (objectCount <= 0) {
+    return -1;
+  }
+
+  return objectIndex < objectCount - 1 ? objectIndex + 1 : 0;
+};
+
 export const setObjectViewedIndex = createAppAsyncThunk(
   `${sliceName}/setObjectViewedIndex`,
   async (objectIndex: number, { getState }) => {
@@ -40,8 +78,17 @@ export const navToPrevObject = createAppAsyncThunk(
     const contentViewMode = selectContentViewMode(state);
     const indexKey =
       contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
+    const objectsKey =
+      contentViewMode === 'polygons' ? 'models' : 'textureDefs';
+    const objectCount = state.modelData[objectsKey].length;
     const index = state.objectViewer[indexKey];
-    const objectIndex = Math.max(index - 1, 0);
+    const realModelIndexLookup = selectRealModelIndexLookup(state);
+    const realModelIndexes = selectRealModelIndexes(state);
+    const objectIndex =
+      contentViewMode === 'polygons'
+        ? (realModelIndexLookup.get(index)?.previousIndex ??
+          getPrevRealModelIndex(index, realModelIndexes))
+        : getPrevObjectIndex(index, objectCount);
 
     dispatch(setObjectViewedIndex(objectIndex));
   }
@@ -57,10 +104,14 @@ export const navToNextObject = createAppAsyncThunk(
     const objectsKey =
       contentViewMode === 'polygons' ? 'models' : 'textureDefs';
     const objectCount = state.modelData[objectsKey].length;
-    const objectIndex = Math.min(
-      state.objectViewer[indexKey] + 1,
-      objectCount - 1
-    );
+    const index = state.objectViewer[indexKey];
+    const realModelIndexLookup = selectRealModelIndexLookup(state);
+    const realModelIndexes = selectRealModelIndexes(state);
+    const objectIndex =
+      contentViewMode === 'polygons'
+        ? (realModelIndexLookup.get(index)?.nextIndex ??
+          getNextRealModelIndex(index, realModelIndexes))
+        : getNextObjectIndex(index, objectCount);
 
     dispatch(setObjectViewedIndex(objectIndex));
   }
@@ -85,9 +136,13 @@ const objectViewerSlice = createSlice({
     builder.addCase(HYDRATE, (state, { payload }: UnknownAction) =>
       Object.assign(state, payload)
     );
-    builder.addCase(processPolygonFile.fulfilled, (state) => {
+    builder.addCase(processPolygonFile.fulfilled, (state, { payload }) => {
+      const firstRealModelIndex = payload.models.findIndex(
+        (model) => model.meshes.length > 0
+      );
+
       Object.assign(state, {
-        modelIndex: 0,
+        modelIndex: firstRealModelIndex,
         textureIndex: 0,
         objectKey: undefined
       });
