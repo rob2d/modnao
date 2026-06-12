@@ -33,7 +33,7 @@ export default function SceneOptionCheckbox({
   return (
     <Tooltip title={tooltipHint} placement={tooltipPlacement}>
       <FormControlLabel
-        control={<Checkbox checked={checked} />}
+        control={<Checkbox checked={checked} sx={{ p: 0.5 }} />}
         label={
           <>
             {icon ?? undefined}

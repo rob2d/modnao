@@ -2,7 +2,7 @@ import Img from 'next/image';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import { Divider, Paper } from '@mui/material';
+import { Box, Divider, Paper } from '@mui/material';
 import { RefObject, useCallback, useContext, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import SceneOptionsContext, {
@@ -172,57 +172,14 @@ export default function GuiPanel() {
         '&.expanded-2': {
           width: `${PANEL_WIDTHS[3]}px`
         },
-        '& > .content': {
-          containerName: 'panel',
-          containerType: 'normal',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100vh',
-          flexShrink: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          boxSizing: 'border-box',
-          px: 2,
-          py: 0,
-          opacity: 1,
-          transition: `opacity ${TRANSITION_TIME} ease`
-        },
         '&.collapsed:not(.welcome)': {
           position: 'absolute',
           top: 0,
           right: 0
         },
-        '&.collapsed:not(.welcome) > .content': {
-          opacity: 0
-        },
-        '& .content .MuiToggleButtonGroup-root:not(:first-item):not(.display-mode)':
-          {
-            mt: 1
-          },
-        '& .content .MuiToggleButtonGroup-root': {
-          mb: 1
-        },
-        '& .content .MuiToggleButtonGroup-root .MuiButtonBase-root': {
-          width: '100%',
-          justifyContent: 'center'
-        },
-        '& .content > .MuiTypography-subtitle2, & .content > :not(.MuiDivider-root):not(.textures)':
-          {
-            width: '100%'
-          },
-        '&.expanded .content #select-pol-or-tex-button': {
-          mb: 0
-        },
         '& .property-table *:nth-of-type(even)': {
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'flex-end'
-        },
-        '& .settings-row': {
-          display: 'flex',
           justifyContent: 'flex-end'
         },
         '& .textures': {
@@ -264,9 +221,6 @@ export default function GuiPanel() {
           {
             flexBasis: '50%'
           },
-        '& .MuiIconButton-root.model-nav-button': {
-          width: '28px'
-        },
         '& .grid-control-label': {
           display: 'flex',
           justifyContent: 'flex-start',
@@ -313,7 +267,50 @@ export default function GuiPanel() {
       >
         <ExpandLevelIcon fontSize='small' />
       </div>
-      <div className='content'>
+      <Box
+        sx={{
+          '--expansion-level-1': `${PANEL_WIDTHS[1]}px`,
+          containerName: 'panel',
+          containerType: 'inline-size',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100vh',
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          boxSizing: 'border-box',
+          px: 2,
+          py: 0,
+          opacity:
+            expansionLevel === 0 && contentViewMode !== 'welcome' ? 0 : 1,
+          transition: `opacity ${TRANSITION_TIME} ease`,
+          '& .MuiToggleButtonGroup-root:not(:first-item):not(.display-mode)': {
+            mt: 1
+          },
+          '& .MuiToggleButtonGroup-root': {
+            mb: 1
+          },
+          '& .MuiToggleButtonGroup-root .MuiButtonBase-root': {
+            width: '100%',
+            justifyContent: 'center'
+          },
+          '& > .MuiTypography-subtitle2, & > :not(.MuiDivider-root):not(.textures)':
+            {
+              width: '100%'
+            },
+          ...(expansionLevel > 1
+            ? {
+                '& #select-pol-or-tex-button': {
+                  mb: 0
+                }
+              }
+            : undefined)
+        }}
+        className='content'
+      >
         {contentViewMode !== 'welcome' ? undefined : (
           <Img
             alt='logo'
@@ -346,7 +343,7 @@ export default function GuiPanel() {
             <GuiPanelViewOptions />
           </>
         )}
-      </div>
+      </Box>
     </Paper>
   );
 }
