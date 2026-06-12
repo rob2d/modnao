@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import {
   MathUtils,
   OrthographicCamera,
@@ -10,13 +11,14 @@ import {
 
 const sceneCameraControlParams = {
   baseDollyVelocity: 0.225,
-  boundsFitMargin: 1.15,
+  boundsFitMargin: 0.95,
   dollyVelocityByDistanceRoot: 0.06,
   flyLookDistance: 1,
   flyTransitionEndDistance: 1,
   flyTransitionStartDistance: 8,
   minFocusDistance: 1,
   panSpeed: 1,
+  pinchDollySpeed: 2,
   rotateSpeed: 0.005
 };
 const cameraControlMinPolarAngle = 0.000001;
@@ -50,6 +52,7 @@ interface SceneCameraControlsProps {
 export default function SceneCameraControls({
   mainBounds
 }: SceneCameraControlsProps) {
+  const { sceneCamSpeed } = useContext(SceneOptionsContext);
   const { camera, gl, invalidate, size } = useThree();
   const dragRef = useRef<CameraPointerDrag | null>(null);
   const touchGestureRef = useRef<CameraTouchGesture | null>(null);
@@ -69,6 +72,8 @@ export default function SceneCameraControls({
   const autoFitMainBoundsRef = useRef<ModelBounds | undefined>(undefined);
 
   useEffect(() => {
+    const { boundsFitMargin, minFocusDistance } = sceneCameraControlParams;
+
     if (!mainBounds) {
       autoFitMainBoundsRef.current = undefined;
       return;
@@ -124,31 +129,40 @@ export default function SceneCameraControls({
 
           return Math.max(horizontalDistance, verticalDistance) - depthOffset;
         }),
-        sceneCameraControlParams.minFocusDistance
+        minFocusDistance
       );
 
       camera.position
         .copy(target)
-        .addScaledVector(
-          forward,
-          -fitDistance * sceneCameraControlParams.boundsFitMargin
-        );
+        .addScaledVector(forward, -fitDistance * boundsFitMargin);
     }
 
     invalidate();
   }, [camera, invalidate, mainBounds, size.height, size.width]);
 
   useEffect(() => {
+    const {
+      baseDollyVelocity,
+      dollyVelocityByDistanceRoot,
+      flyLookDistance,
+      flyTransitionEndDistance,
+      flyTransitionStartDistance,
+      minFocusDistance,
+      panSpeed,
+      pinchDollySpeed,
+      rotateSpeed
+    } = sceneCameraControlParams;
     const domElement = gl.domElement;
 
     const rotateCamera = (deltaX: number, deltaY: number) => {
       const target = targetRef.current;
       const offset = offsetRef.current.subVectors(camera.position, target);
       const spherical = sphericalRef.current.setFromVector3(offset);
+      const rotateScale = rotateSpeed * sceneCamSpeed;
 
-      spherical.theta -= deltaX * sceneCameraControlParams.rotateSpeed;
+      spherical.theta -= deltaX * rotateScale;
       spherical.phi = MathUtils.clamp(
-        spherical.phi - deltaY * sceneCameraControlParams.rotateSpeed,
+        spherical.phi - deltaY * rotateScale,
         cameraControlMinPolarAngle,
         cameraControlMaxPolarAngle
       );
@@ -163,7 +177,7 @@ export default function SceneCameraControls({
       const target = targetRef.current;
       const focusDistance = Math.max(
         camera.position.distanceTo(target),
-        sceneCameraControlParams.minFocusDistance
+        minFocusDistance
       );
       let worldUnitsPerPixel = focusDistance / size.height;
 
@@ -176,7 +190,7 @@ export default function SceneCameraControls({
           (camera.top - camera.bottom) / camera.zoom / size.height;
       }
 
-      const panScale = worldUnitsPerPixel * sceneCameraControlParams.panSpeed;
+      const panScale = worldUnitsPerPixel * panSpeed * sceneCamSpeed;
       const right = rightRef.current
         .set(1, 0, 0)
         .applyQuaternion(camera.quaternion);
@@ -193,9 +207,8 @@ export default function SceneCameraControls({
     };
 
     const getDollyVelocity = (focusDistance: number) =>
-      sceneCameraControlParams.baseDollyVelocity +
-      Math.sqrt(focusDistance) *
-        sceneCameraControlParams.dollyVelocityByDistanceRoot;
+      baseDollyVelocity +
+      Math.sqrt(focusDistance) * dollyVelocityByDistanceRoot;
 
     const getHybridLookTarget = (target: Vector3, forward: Vector3) => {
       const focusDepth = targetOffsetRef.current
@@ -203,12 +216,12 @@ export default function SceneCameraControls({
         .dot(forward);
       const inspectTargetBlend = MathUtils.smoothstep(
         focusDepth,
-        sceneCameraControlParams.flyTransitionEndDistance,
-        sceneCameraControlParams.flyTransitionStartDistance
+        flyTransitionEndDistance,
+        flyTransitionStartDistance
       );
       const flyLookTarget = flyLookTargetRef.current
         .copy(camera.position)
-        .addScaledVector(forward, sceneCameraControlParams.flyLookDistance);
+        .addScaledVector(forward, flyLookDistance);
 
       return hybridLookTargetRef.current
         .copy(flyLookTarget)
@@ -220,10 +233,10 @@ export default function SceneCameraControls({
       const forward = camera.getWorldDirection(forwardRef.current);
       const focusDistance = Math.max(
         camera.position.distanceTo(target),
-        sceneCameraControlParams.minFocusDistance
+        minFocusDistance
       );
       const dollyVelocity = getDollyVelocity(focusDistance);
-      const moveDistance = -deltaY * dollyVelocity;
+      const moveDistance = -deltaY * dollyVelocity * sceneCamSpeed;
 
       camera.position.addScaledVector(forward, moveDistance);
       camera.lookAt(getHybridLookTarget(target, forward));
@@ -319,7 +332,7 @@ export default function SceneCameraControls({
             }
 
             if (distanceDelta !== 0) {
-              dollyCamera(distanceDelta);
+              dollyCamera(distanceDelta * pinchDollySpeed);
             }
           }
 
@@ -405,7 +418,7 @@ export default function SceneCameraControls({
       domElement.removeEventListener('wheel', onWheel);
       domElement.removeEventListener('contextmenu', onContextMenu);
     };
-  }, [camera, gl, invalidate, size.height]);
+  }, [camera, gl, invalidate, sceneCamSpeed, size.height]);
 
   return null;
 }
