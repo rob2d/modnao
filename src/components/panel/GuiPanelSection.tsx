@@ -68,7 +68,7 @@ export default function GuiPanelSection({
         </div>
         {isExpanded ? undefined : collapsedContentFABs}
         <Tooltip title={`${isExpanded ? 'Collapse' : 'Expand'} section`}>
-          <IconButton onClick={toggleContentExpanded}>
+          <IconButton onClick={toggleContentExpanded} size='small'>
             {!isExpanded ? (
               <UnfoldLessIcon fontSize='small' />
             ) : (
