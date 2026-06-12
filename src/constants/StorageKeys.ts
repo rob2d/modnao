@@ -5,6 +5,7 @@
 export const StorageKeys = {
   MESH_DISPLAY_MODE: 'meshDisplayMode',
   WIREFRAME_LINE_WIDTH: 'wireframeLineWidth',
+  SCENE_CAM_SPEED: 'sceneCamSpeed',
   AXES_HELPER_VISIBLE: 'axesHelperVisible',
   OBJECT_ADDRESSES_VISIBLE: 'objectAddressesVisible',
   THEME_KEY: 'themeKey',
