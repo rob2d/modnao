@@ -18,6 +18,7 @@ export type SceneOptions = {
   enableVertexColors: boolean;
   uvRegionsHighlighted: boolean;
   wireframeLineWidth: number;
+  sceneCamSpeed: number;
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
   devOptionsVisible: boolean;
@@ -33,6 +34,7 @@ export type SceneOptions = {
   setDisableBackfaceCulling: (disableBackfaceCulling: boolean) => void;
   setEnableVertexColors: (enableVertexColors: boolean) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
+  setSceneCamSpeed: (sceneCamSpeed: number) => void;
   setScenePalette: (_: ScenePalette | undefined) => void;
   setThemeKey: (theme: 'light' | 'dark') => void;
   toggleLightDarkTheme: () => void;
@@ -52,6 +54,7 @@ export const defaultValues: SceneOptions = {
   enableVertexColors: false,
   uvRegionsHighlighted: true,
   wireframeLineWidth: 3,
+  sceneCamSpeed: 1,
   themeKey: 'light',
   scenePalette: undefined,
   devOptionsVisible: false,
@@ -67,6 +70,7 @@ export const defaultValues: SceneOptions = {
   setEnableVertexColors: (_: boolean) => null,
   setUvRegionsHighlighted: (_: boolean) => null,
   setWireframeLineWidth: (_: number) => null,
+  setSceneCamSpeed: (_: number) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
   setThemeKey: (_: 'light' | 'dark') => null,
   toggleLightDarkTheme: () => null,
@@ -132,6 +136,12 @@ export function SceneOptionsContextProvider({ children }: Props) {
     useSceneOptionSetting<number>(
       defaultValues.wireframeLineWidth,
       StorageKeys.WIREFRAME_LINE_WIDTH
+    );
+
+  const [sceneCamSpeed, setSceneCamSpeed] =
+    useSceneOptionSetting<number>(
+      defaultValues.sceneCamSpeed,
+      StorageKeys.SCENE_CAM_SPEED
     );
 
   const [uvRegionsHighlighted, setUvRegionsHighlighted] =
@@ -200,6 +210,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setGuiPanelExpansionLevel,
       wireframeLineWidth,
       setWireframeLineWidth,
+      sceneCamSpeed,
+      setSceneCamSpeed,
       scenePalette,
       setScenePalette,
       themeKey,
@@ -231,6 +243,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setUvRegionsHighlighted,
       wireframeLineWidth,
       setWireframeLineWidth,
+      sceneCamSpeed,
+      setSceneCamSpeed,
       guiPanelExpansionLevel,
       setGuiPanelExpansionLevel,
       scenePalette,
