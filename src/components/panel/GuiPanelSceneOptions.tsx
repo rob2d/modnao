@@ -5,13 +5,7 @@ import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
-import {
-  Box,
-  FormControlLabel,
-  Slider,
-  ToggleButton,
-  ToggleButtonGroup
-} from '@mui/material';
+import { Box, Slider, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import GuiPanelSection from './GuiPanelSection';
 import { JSX, SyntheticEvent, useCallback, useContext, useMemo } from 'react';
@@ -20,6 +14,35 @@ import SceneOptionsContext, {
 } from '@/contexts/SceneOptionsContext';
 import PaletteEditor from './PaletteEditor';
 import SceneOptionCheckbox from './SceneOptionCheckbox';
+
+const sceneCamSpeedDisplayMin = 1;
+const sceneCamSpeedDisplayMax = 9;
+const sceneCamSpeedMultiplierMin = 0.1;
+const sceneCamSpeedMultiplierMax = 1;
+
+function getSceneCamSpeedMultiplier(displayValue: number) {
+  const displayRange = sceneCamSpeedDisplayMax - sceneCamSpeedDisplayMin;
+  const multiplierRange =
+    sceneCamSpeedMultiplierMax - sceneCamSpeedMultiplierMin;
+
+  return (
+    sceneCamSpeedMultiplierMin +
+    ((displayValue - sceneCamSpeedDisplayMin) / displayRange) *
+      multiplierRange
+  );
+}
+
+function getSceneCamSpeedDisplayValue(multiplier: number) {
+  const displayRange = sceneCamSpeedDisplayMax - sceneCamSpeedDisplayMin;
+  const multiplierRange =
+    sceneCamSpeedMultiplierMax - sceneCamSpeedMultiplierMin;
+
+  return Math.round(
+    sceneCamSpeedDisplayMin +
+      ((multiplier - sceneCamSpeedMultiplierMin) / multiplierRange) *
+        displayRange
+  );
+}
 
 export default function GuiPanelViewOptions() {
   const sceneOptions = useContext(SceneOptionsContext);
@@ -38,19 +61,20 @@ export default function GuiPanelViewOptions() {
     [sceneOptions.setAxesHelperVisible]
   );
 
-  const onSetObjectAddressesVisible = useCallback(
-    (_: SyntheticEvent<Element, Event>, value: boolean) => {
-      sceneOptions.setObjectAddressesVisible(value);
-    },
-    [sceneOptions.setObjectAddressesVisible]
-  );
-
   const onSetWireframeLineWidth = useCallback(
     (_: Event, v: number | number[]) => {
       const value = typeof v === 'number' ? v : v[0];
       sceneOptions.setWireframeLineWidth(value);
     },
     [sceneOptions.setWireframeLineWidth]
+  );
+
+  const onSetSceneCamSpeed = useCallback(
+    (_: Event, v: number | number[]) => {
+      const value = typeof v === 'number' ? v : v[0];
+      sceneOptions.setSceneCamSpeed(getSceneCamSpeedMultiplier(value));
+    },
+    [sceneOptions.setSceneCamSpeed]
   );
 
   const onSetSceneCursorVisible = useCallback(
@@ -95,7 +119,7 @@ export default function GuiPanelViewOptions() {
     [sceneOptions.devOptionsVisible]
   );
 
-  const responsiveSettingsRows = useMemo(() => {
+  const settingFlagCheckboxes = useMemo(() => {
     const settingsItems: (JSX.Element | undefined)[] = [
       <SceneOptionCheckbox
         key='axes-visibility'
@@ -159,24 +183,9 @@ export default function GuiPanelViewOptions() {
       />
     );
 
-    const settingsRows: JSX.Element[] = [];
-
-    const settingsPerRow = sceneOptions.guiPanelExpansionLevel <= 1 ? 2 : 4;
-    for (let i = 0; i < settingsItems.length; i += settingsPerRow) {
-      const newRowItems = [];
-
-      for (let j = 0; j < settingsPerRow; j++) {
-        newRowItems.push(settingsItems[i + j]);
-      }
-
-      settingsRows.push(
-        <div className='settings-row' key={i}>
-          {newRowItems}
-        </div>
-      );
-    }
-
-    return settingsRows;
+    return settingsItems.filter(
+      (settingsItem): settingsItem is JSX.Element => settingsItem !== undefined
+    );
   }, [sceneOptions]);
 
   return (
@@ -184,10 +193,25 @@ export default function GuiPanelViewOptions() {
       <Box
         className='scene-options'
         sx={{
-          '& .MuiSlider-root': {
-            width: 'calc(100% - 124px)',
-            ml: 2,
-            mr: 1
+          '& .slider-setting': {
+            display: 'inline-flex',
+            flexDirection: 'column',
+            width: '100%',
+            pr: 1,
+          },
+          '& .slider-setting:not(:first-of-type)': {
+            mt: -1
+          },
+          '& .slider-setting-label': {
+            color: 'var(--mui-palette-text-secondary)',
+            fontSize: '0.75rem',
+            lineHeight: 1,
+            transform: 'translateY(5px)'
+          },
+          '& .slider-setting .MuiSlider-root': {
+            width: '100%',
+            ml: 0,
+            mr: 0
           },
           '& .display-mode': {
             display: 'flex',
@@ -196,19 +220,6 @@ export default function GuiPanelViewOptions() {
           },
           '.expanded & .display-mode': {
             mt: 1
-          },
-          '& .settings-row .MuiTypography-root.MuiFormControlLabel-label': {
-            display: 'flex',
-            alignItems: 'center'
-          },
-          '& .settings-row .MuiTypography-root.MuiFormControlLabel-label > svg':
-            {
-              mr: '-2px'
-            },
-          '& .experimental-divider': {
-            width: '100%',
-            height: '1px',
-            borderBottom: '1px dashed var(--mui-palette-error-main)'
           }
         }}
       >
@@ -234,37 +245,78 @@ export default function GuiPanelViewOptions() {
             <PaletteEditor />
           </Grid>
         </Grid>
-        {sceneOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-          <FormControlLabel
-            sx={{ width: '100%', maxWidth: 172 }}
-            control={
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            '@container (max-width: 222px)': {
+              flexDirection: 'column'
+            }
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              justifyContent: 'flex-start',
+              width: '100%',
+            }}
+          >
+            {sceneOptions.meshDisplayMode !== 'wireframe' ? undefined : (
+              <Box className='slider-setting' sx={{ 
+                width: '100%', 
+                '&:nth-of-type(2)': { mt: -1 } 
+                }}>
+                <Box className='slider-setting-label'>Line Width</Box>
+                <Slider
+                  size='small'
+                  min={1}
+                  max={10}
+                  defaultValue={4}
+                  aria-label='Line Width'
+                  valueLabelDisplay='auto'
+                  value={sceneOptions.wireframeLineWidth}
+                  onChange={onSetWireframeLineWidth}
+                />
+              </Box>
+            )}
+            <Box className='slider-setting'>
+              <Box className='slider-setting-label'>Cam Speed</Box>
               <Slider
                 size='small'
-                min={1}
-                max={10}
-                defaultValue={4}
-                aria-label='Small'
+                min={sceneCamSpeedDisplayMin}
+                max={sceneCamSpeedDisplayMax}
+                step={1}
+                defaultValue={sceneCamSpeedDisplayMax}
+                aria-label='Cam Speed'
                 valueLabelDisplay='auto'
-                value={sceneOptions.wireframeLineWidth}
-                onChange={onSetWireframeLineWidth}
-                sx={{ flexGrow: 1 }}
+                value={getSceneCamSpeedDisplayValue(sceneOptions.sceneCamSpeed)}
+                onChange={onSetSceneCamSpeed}
               />
-            }
-            label='Line Width'
-            labelPlacement='start'
-          />
-        )}
-        {sceneOptions.meshDisplayMode !== 'wireframe' ||
-        !sceneOptions.devOptionsVisible ? undefined : (
-          <SceneOptionCheckbox
-            checked={sceneOptions.objectAddressesVisible}
-            tooltipHint='Toggle selected polygon addresses visibility'
-            tooltipPlacement='top-start'
-            label={'Addresses'}
-            onChange={onSetObjectAddressesVisible}
-          />
-        )}
-        {responsiveSettingsRows}
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, auto)',
+              justifyContent: 'end',
+              width: '100%',
+              '@container (max-width: 222px)': {
+                gridTemplateColumns: 'repeat(3, auto)'
+              },
+              '& .MuiTypography-root.MuiFormControlLabel-label': {
+                display: 'flex',
+                alignItems: 'center'
+              },
+              '& .MuiTypography-root.MuiFormControlLabel-label > svg': {
+                mr: '-2px'
+              }
+            }}
+          >
+            {settingFlagCheckboxes}
+          </Box>
+        </Box>
       </Box>
     </GuiPanelSection>
   );
