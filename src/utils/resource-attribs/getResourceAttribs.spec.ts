@@ -76,6 +76,15 @@ describe('getResourceAttribs', () => {
     ['3f4d6f623d3a137ad0f5af8a0a5ded7d6a63618a', 'DC23POL.BIN', 'DC23', true]
   ] as const;
 
+  const mvc2DemoFiles = [
+    ['18251df14af4d9ad18ef4a071c880efd722c2d91', 'DM00POL.BIN', '0x00', false],
+    ['9eb8a91ce83709d1db2a2f86eb14ab388ab75834', 'DM05POL.BIN', '0x05', false],
+    ['36f24126412f66e736346801634d4ba97313bea3', 'DM0APOL.BIN', '0x0A', true],
+    ['36f24126412f66e736346801634d4ba97313bea3', 'DM0EPOL.BIN', '0x0E', true],
+    ['2282a008873bac696ec10a59b3e58b8c1a2a5e90', 'DM12POL.BIN', '0x12', false],
+    ['f886aaa8a434b54719647667b477956e346a8aa8', 'DM14POL.BIN', '0x14', false]
+  ] as const;
+
   it.each(cvs1StageFiles)(
     'resolves %s and %s as a CVS1 stage resource',
     (hash, fileName, identifier) => {
@@ -115,6 +124,22 @@ describe('getResourceAttribs', () => {
         identifier,
         resourceType: 'cvs1-menu',
         polygonMapped: true,
+        hasLzssTextureFile
+      });
+    }
+  );
+
+  it.each(mvc2DemoFiles)(
+    'resolves %s and %s as an MVC2 demo resource',
+    (hash, fileName, identifier, hasLzssTextureFile) => {
+      const resourceAttribs = getResourceAttribs(hash, fileName);
+
+      expect(resourceAttribs).toMatchObject({
+        game: 'MVC2',
+        identifier,
+        resourceType: 'mvc2-menu',
+        polygonMapped: true,
+        oobReferencable: true,
         hasLzssTextureFile
       });
     }
