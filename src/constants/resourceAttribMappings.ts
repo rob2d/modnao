@@ -3,6 +3,7 @@ import createTextureDef from '@/utils/textures/createTextureDef';
 import cvs1MenuAttribMappings from './resource-mappings/cvs1MenuAttribMappings';
 import cvs1StageAttribMappings from './resource-mappings/cvs1StageAttribMappings';
 import cvs2MenuAttribMappings from './resource-mappings/cvs2MenuAttribMappings';
+import mvc2DemoAttribMappings from './resource-mappings/mvc2DemoAttribMappings';
 import mvc2EffectsAttribMappings from './resource-mappings/mvc2EffectsAttribMappings';
 import mvc2StageAttribMappings from './resource-mappings/mvc2StageAttribMappings';
 import cvs2StageAttribMappings from './resource-mappings/cvs2StageAttribMappings';
@@ -27,34 +28,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
   ...cvs2MenuAttribMappings,
   ...cvs1MenuAttribMappings,
   ...cvs1StageAttribMappings,
-  'mvc2-demo-dm0a': {
-    game: 'MVC2',
-    name: 'Demo Model 0A',
-    identifier: '0x0A',
-    resourceType: 'mvc2-menu',
-    textureDefsHash: '36f24126412f66e736346801634d4ba97313bea3',
-    filenamePattern: '^DM0A(.mn)?POL.BIN$',
-    polygonMapped: true,
-    oobReferencable: true,
-    hasLzssTextureFile: true
-  },
-  'mvc2-demo-dm0e': {
-    game: 'MVC2',
-    name: 'Demo Model 0E',
-    identifier: '0x0E',
-    resourceType: 'mvc2-menu',
-    filenamePattern: '^DM0E(.mn)?POL.BIN$',
-    textureDefsHash: '36f24126412f66e736346801634d4ba97313bea3',
-    polygonMapped: true,
-    oobReferencable: true,
-    hasLzssTextureFile: true,
-    textureShapesMap: [
-      createTextureDef({
-        ...fontTextureArgs,
-        baseLocation: 0
-      })
-    ]
-  },
+  ...mvc2DemoAttribMappings,
   ...mvc2EffectsAttribMappings,
   'cvs2-console-menu': {
     game: 'CVS2',
