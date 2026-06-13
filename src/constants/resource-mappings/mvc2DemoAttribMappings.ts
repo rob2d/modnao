@@ -51,19 +51,19 @@ const highScoreRankingTitleEntry = {
 const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
   '18251df14af4d9ad18ef4a071c880efd722c2d91': {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 00',
+    name: 'Game GUI, score and timer fonts',
     identifier: '0x00',
     filenamePattern: '^DM00(.mn)?POL.BIN$'
   },
   '55b5ad26b62e3f70e8ba2b0d83fe3a7c8b74bf94': {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 01',
+    name: 'Character select screen',
     identifier: '0x01',
     filenamePattern: '^DM01(.mn)?POL.BIN$'
   },
   ebac8fe14676aec7cd59a8078fb8f071c8c2e312: {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 02',
+    name: 'VS Tunnel screen',
     identifier: '0x02',
     filenamePattern: '^DM02(.mn)?POL.BIN$'
   },
@@ -76,13 +76,13 @@ const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
   },
   '8ace738f7e62c8b71ef4766826a0e593dad16c0e': {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 04',
+    name: 'Here comes a new challenger screen',
     identifier: '0x04',
     filenamePattern: '^DM04(.mn)?POL.BIN$'
   },
   '9eb8a91ce83709d1db2a2f86eb14ab388ab75834': {
     ...mvc2DemoAttribBase,
-    name: 'Title screen water and ADX logo',
+    name: 'Pre-title screen water and ADX logo',
     identifier: '0x05',
     filenamePattern: '^DM05(.mn)?POL.BIN$',
     modelHints: {
@@ -117,7 +117,7 @@ const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
   },
   '42d8b0fb000700a44741b7c24aceef71ef549e54': {
     ...mvc2DemoAttribBase,
-    name: 'High score screen',
+    name: 'Arcade High score screen',
     identifier: '0x06',
     filenamePattern: '^DM06(.mn)?POL.BIN$',
     modelHints: {
@@ -181,25 +181,25 @@ const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
   },
   a331a8cdb99faab1b664fc4db98738808f8a5f59: {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 07',
+    name: 'MVC2 Title logo fade in',
     identifier: '0x07',
     filenamePattern: '^DM07(.mn)?POL.BIN$'
   },
   '7300aa4fe20ecbaf0323908c6785e259bf5a3d51': {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 08',
+    name: 'Intro reel vs games and features text',
     identifier: '0x08',
     filenamePattern: '^DM08(.mn)?POL.BIN$'
   },
   '8043343c5330e1d74e816ea55182dd962b9f01e6': {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 09',
+    name: 'Intro sky and CAPCOM logo',
     identifier: '0x09',
     filenamePattern: '^DM09(.mn)?POL.BIN$'
   },
   'mvc2-demo-dm0a': {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 0A',
+    name: 'Japanese VMU message screen',
     identifier: '0x0A',
     filenamePattern: '^DM0A(.mn)?POL.BIN$',
     textureDefsHash: '36f24126412f66e736346801634d4ba97313bea3',
@@ -207,19 +207,19 @@ const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
   },
   '5cd0462ccd859814391b2dce2e6794ef9f6f4fec': {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 0B',
+    name: 'Game over screen',
     identifier: '0x0B',
     filenamePattern: '^DM0B(.mn)?POL.BIN$'
   },
   db7aca362e0da437d828b2b1f095b38a67b36f27: {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 0C',
+    name: 'Game mode select menu',
     identifier: '0x0C',
     filenamePattern: '^DM0C(.mn)?POL.BIN$'
   },
   f43a94637c424d4225d199ea5385bb88bcfde07a: {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 0D',
+    name: 'Network mode menu',
     identifier: '0x0D',
     filenamePattern: '^DM0D(.mn)?POL.BIN$'
   },
