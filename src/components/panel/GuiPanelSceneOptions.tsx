@@ -27,8 +27,7 @@ function getSceneCamSpeedMultiplier(displayValue: number) {
 
   return (
     sceneCamSpeedMultiplierMin +
-    ((displayValue - sceneCamSpeedDisplayMin) / displayRange) *
-      multiplierRange
+    ((displayValue - sceneCamSpeedDisplayMin) / displayRange) * multiplierRange
   );
 }
 
@@ -197,7 +196,7 @@ export default function GuiPanelViewOptions() {
             display: 'inline-flex',
             flexDirection: 'column',
             width: '100%',
-            pr: 1,
+            pr: 1
           },
           '& .slider-setting:not(:first-of-type)': {
             mt: -1
@@ -246,13 +245,13 @@ export default function GuiPanelViewOptions() {
           </Grid>
         </Grid>
         <Box
-          sx={{
+          sx={({ mixins }) => ({
             display: 'flex',
             flexDirection: 'row',
-            '@container (max-width: 222px)': {
+            [`@container (max-width: ${mixins.guiPanelExpansionL1W})`]: {
               flexDirection: 'column'
             }
-          }}
+          })}
         >
           <Box
             sx={{
@@ -260,14 +259,17 @@ export default function GuiPanelViewOptions() {
               flexDirection: 'column',
               alignItems: 'flex-end',
               justifyContent: 'flex-start',
-              width: '100%',
+              width: '100%'
             }}
           >
             {sceneOptions.meshDisplayMode !== 'wireframe' ? undefined : (
-              <Box className='slider-setting' sx={{ 
-                width: '100%', 
-                '&:nth-of-type(2)': { mt: -1 } 
-                }}>
+              <Box
+                className='slider-setting'
+                sx={{
+                  width: '100%',
+                  '&:nth-of-type(2)': { mt: -1 }
+                }}
+              >
                 <Box className='slider-setting-label'>Line Width</Box>
                 <Slider
                   size='small'
@@ -297,12 +299,12 @@ export default function GuiPanelViewOptions() {
             </Box>
           </Box>
           <Box
-            sx={{
+            sx={({ mixins }) => ({
               display: 'grid',
               gridTemplateColumns: 'repeat(4, auto)',
               justifyContent: 'end',
               width: '100%',
-              '@container (max-width: 222px)': {
+              [`@container (max-width: ${mixins.guiPanelExpansionL1W})`]: {
                 gridTemplateColumns: 'repeat(3, auto)'
               },
               '& .MuiTypography-root.MuiFormControlLabel-label': {
@@ -312,7 +314,7 @@ export default function GuiPanelViewOptions() {
               '& .MuiTypography-root.MuiFormControlLabel-label > svg': {
                 mr: '-2px'
               }
-            }}
+            })}
           >
             {settingFlagCheckboxes}
           </Box>

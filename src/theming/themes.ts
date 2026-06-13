@@ -33,6 +33,10 @@ interface AppThemeMixins {
   dialogScrollEdgeFrame: AppThemeMixin;
   dialogScrollEdgeScroller: AppThemeMixin;
   fileDragActiveAfter: AppThemeMixin;
+  guiPanelExpansionL0W: CSSProperties['width'];
+  guiPanelExpansionL1W: CSSProperties['width'];
+  guiPanelExpansionL2W: CSSProperties['width'];
+  guiPanelExpansionL3W: CSSProperties['width'];
   sceneIconMixin: AppThemeMixin;
 }
 
@@ -40,6 +44,10 @@ interface AppThemeMixinsOptions {
   dialogScrollEdgeFrame?: AppThemeMixin;
   dialogScrollEdgeScroller?: AppThemeMixin;
   fileDragActiveAfter?: AppThemeMixin;
+  guiPanelExpansionL0W?: CSSProperties['width'];
+  guiPanelExpansionL1W?: CSSProperties['width'];
+  guiPanelExpansionL2W?: CSSProperties['width'];
+  guiPanelExpansionL3W?: CSSProperties['width'];
   sceneIconMixin?: AppThemeMixin;
 }
 
@@ -139,6 +147,10 @@ const mixins = {
     opacity: 0.75,
     pointerEvents: 'none'
   },
+  guiPanelExpansionL0W: '32px',
+  guiPanelExpansionL1W: '222px',
+  guiPanelExpansionL2W: '388px',
+  guiPanelExpansionL3W: '592px',
   sceneIconMixin: {
     color: 'var(--mui-palette-common-white)',
     filter: 'drop-shadow(2px 2px 1px rgba(0,0,0,0.5))',
