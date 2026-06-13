@@ -43,6 +43,11 @@ const highScoreScoreTitleEntry = {
   keywords: ['hiscore', 'score text']
 };
 
+const highScoreRankingTitleEntry = {
+  name: 'High score "SCORE RANKING" RANKING title text',
+  keywords: ['hiscore', 'ranking text']
+};
+
 const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
   '18251df14af4d9ad18ef4a071c880efd722c2d91': {
     ...mvc2DemoAttribBase,
@@ -138,10 +143,15 @@ const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
           }
         ])
       ),
-      10: {
-        name: 'High score "SCORE RANKING" RANKING title text (A)',
-        keywords: ['hiscore', 'ranking text']
-      },
+      ...Object.fromEntries(
+        [10, 11].map((i) => [
+          i,
+          {
+            ...highScoreRankingTitleEntry,
+            name: `${highScoreRankingTitleEntry.name} (${i === 10 ? 'A' : 'B'})`
+          }
+        ])
+      ),
       ...Object.fromEntries(
         [14, 15].map((i) => [
           i,
