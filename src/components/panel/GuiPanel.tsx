@@ -19,7 +19,6 @@ import {
 import { useAppSelector } from '@/storeTypings';
 import { useDragMouseOnEl } from '@/hooks';
 
-const PANEL_WIDTHS = [32, 222, 388, 222 + 174 * 2 + 22];
 const TRANSITION_TIME = `0.32s`;
 
 const expandLevelIcons = [
@@ -150,27 +149,27 @@ export default function GuiPanel() {
         expansionLevel > 1 && 'expanded',
         expansionLevel > 1 && `expanded-${expansionLevel - 1}`
       )}
-      sx={{
+      sx={({ mixins }) => ({
         position: 'relative',
         height: '100vh',
         transition: `opacity ${TRANSITION_TIME} ease, width ${TRANSITION_TIME} ease`,
         opacity: 1,
         pointerEvents: 'all',
         overflow: 'hidden',
-        width: `${PANEL_WIDTHS[1]}px`,
+        width: mixins.guiPanelExpansionL1W,
         flexShrink: 0,
         '&.collapsed:not(.welcome):not(:hover)': {
           opacity: 0
         },
         '&.collapsed': {
-          width: `${PANEL_WIDTHS[0]}px`,
+          width: mixins.guiPanelExpansionL0W,
           flexShrink: 0
         },
         '&.expanded-1': {
-          width: `${PANEL_WIDTHS[2]}px`
+          width: mixins.guiPanelExpansionL2W
         },
         '&.expanded-2': {
-          width: `${PANEL_WIDTHS[3]}px`
+          width: mixins.guiPanelExpansionL3W
         },
         '&.collapsed:not(.welcome)': {
           position: 'absolute',
@@ -258,7 +257,7 @@ export default function GuiPanel() {
             transition: `opacity ${TRANSITION_TIME} ease`
           }
         }
-      }}
+      })}
     >
       <div
         className={clsx('resize-handle', resizeMouseDown && 'active')}
@@ -269,7 +268,6 @@ export default function GuiPanel() {
       </div>
       <Box
         sx={{
-          '--expansion-level-1': `${PANEL_WIDTHS[1]}px`,
           containerName: 'panel',
           containerType: 'inline-size',
           position: 'absolute',
