@@ -1,4 +1,4 @@
-import type { NLUITextureDef, ResourceAttribs } from '@/types';
+import type { ResourceAttribs } from '@/types';
 import createTextureDef from '@/utils/textures/createTextureDef';
 
 const mvc2DemoAttribBase = {
@@ -12,19 +12,35 @@ const mvc2DemoAttribBase = {
 const titleWaterTextureBackgroundEntry = {
   name: 'Water texture background',
   description:
-    'checkered water texture behind the refracted waves on the demo title'
+    'Checkered water texture behind the refracted waves on the demo title'
 };
 
 const titleStaticBlueWaterBackgroundEntry = {
   name: 'Static blue water background',
   description:
-    'static blue water texture behind the refracted waves on the demo title'
+    'Static blue water texture behind the refracted waves on the demo title'
 };
 
 const titleWaterGodRaysEntry = {
   name: 'Title water god-rays',
   description:
-    'volumetric light that appears on the ocean backdrop behind the title screen'
+    'Volumetric light that appears on the ocean backdrop behind the title screen'
+};
+
+const highScoreBgTubeEntry = {
+  name: 'High score background tube',
+  keywords: ['hiscore']
+};
+
+const highScoreScoreBoxSubtitleEntry = {
+  name: 'High score "SCORE" box subtitle text',
+  description:
+    '"Score" text in the box along with the high score or the player\'s score, along with score background'
+};
+
+const highScoreScoreTitleEntry = {
+  name: 'High score "SCORE RANKING" SCORE title text',
+  keywords: ['hiscore', 'score text']
 };
 
 const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
@@ -84,6 +100,11 @@ const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
       9: {
         ...titleWaterGodRaysEntry
       },
+      23: {
+        name: 'CAPCOM logo (white)',
+        description:
+          'Capcom logo faded to white on the initial demo title screen'
+      },
       24: {
         name: 'ADX Logo'
       }
@@ -91,9 +112,62 @@ const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
   },
   '42d8b0fb000700a44741b7c24aceef71ef549e54': {
     ...mvc2DemoAttribBase,
-    name: 'Demo Model 06',
+    name: 'High score screen',
     identifier: '0x06',
-    filenamePattern: '^DM06(.mn)?POL.BIN$'
+    filenamePattern: '^DM06(.mn)?POL.BIN$',
+    modelHints: {
+      ...Object.fromEntries(
+        [0, 1].map((i) => [
+          i,
+          {
+            ...highScoreBgTubeEntry,
+            name: `${highScoreBgTubeEntry.name} (${i === 0 ? 'A' : 'B'})`
+          }
+        ])
+      ),
+      7: {
+        name: 'High score background tube speed streaks',
+        keywords: ['hiscore', 'pink streaks']
+      },
+      ...Object.fromEntries(
+        [8, 9].map((i) => [
+          i,
+          {
+            ...highScoreScoreTitleEntry,
+            name: `${highScoreScoreTitleEntry.name} (${i === 8 ? 'A' : 'B'})`
+          }
+        ])
+      ),
+      10: {
+        name: 'High score "SCORE RANKING" RANKING title text (A)',
+        keywords: ['hiscore', 'ranking text']
+      },
+      ...Object.fromEntries(
+        [14, 15].map((i) => [
+          i,
+          {
+            ...highScoreScoreBoxSubtitleEntry,
+            name: `${highScoreScoreBoxSubtitleEntry.name} (${i === 14 ? 'A' : 'B'})`
+          }
+        ])
+      ),
+      17: {
+        name: '"YOU" score entry marker',
+        description:
+          "Marker that appears next to the player's score entry on the high score screen with a right-carat pointing to the score"
+      },
+      18: {
+        name: '"OUT OF RANKING" marker',
+        description:
+          'Displays "OUT OF RANKING" on the high score screen when the player fails to get a high score'
+      },
+      28: {
+        name: '"1st" score entry marker',
+        description:
+          'Marker that appears next to the top score entry on the high score demo screen with a right-carat pointing to the score',
+        keywords: ['hiscore', 'crown', '1st place']
+      }
+    }
   },
   a331a8cdb99faab1b664fc4db98738808f8a5f59: {
     ...mvc2DemoAttribBase,
