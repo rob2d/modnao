@@ -54,7 +54,7 @@ export const defaultValues: SceneOptions = {
   enableVertexColors: false,
   uvRegionsHighlighted: true,
   wireframeLineWidth: 3,
-  sceneCamSpeed: 1,
+  sceneCamSpeed: 0.6625,
   themeKey: 'light',
   scenePalette: undefined,
   devOptionsVisible: false,
@@ -138,11 +138,10 @@ export function SceneOptionsContextProvider({ children }: Props) {
       StorageKeys.WIREFRAME_LINE_WIDTH
     );
 
-  const [sceneCamSpeed, setSceneCamSpeed] =
-    useSceneOptionSetting<number>(
-      defaultValues.sceneCamSpeed,
-      StorageKeys.SCENE_CAM_SPEED
-    );
+  const [sceneCamSpeed, setSceneCamSpeed] = useSceneOptionSetting<number>(
+    defaultValues.sceneCamSpeed,
+    StorageKeys.SCENE_CAM_SPEED
+  );
 
   const [uvRegionsHighlighted, setUvRegionsHighlighted] =
     useSceneOptionSetting<boolean>(

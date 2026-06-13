@@ -275,7 +275,7 @@ export default function GuiPanelViewOptions() {
                   size='small'
                   min={1}
                   max={10}
-                  defaultValue={4}
+                  defaultValue={3}
                   aria-label='Line Width'
                   valueLabelDisplay='auto'
                   value={sceneOptions.wireframeLineWidth}
@@ -290,7 +290,7 @@ export default function GuiPanelViewOptions() {
                 min={sceneCamSpeedDisplayMin}
                 max={sceneCamSpeedDisplayMax}
                 step={1}
-                defaultValue={sceneCamSpeedDisplayMax}
+                defaultValue={6}
                 aria-label='Cam Speed'
                 valueLabelDisplay='auto'
                 value={getSceneCamSpeedDisplayValue(sceneOptions.sceneCamSpeed)}
