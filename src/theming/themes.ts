@@ -199,6 +199,16 @@ const themes = Object.fromEntries(
       },
       mixins,
       components: {
+        MuiToggleButtonGroup: {
+          styleOverrides: {
+            grouped: {
+              '&.MuiButtonBase-root': {
+                paddingTop: 'calc(var(--mui-spacing) * 0.25)',
+                paddingBottom: 'calc(var(--mui-spacing) * 0.25)'
+              }
+            }
+          }
+        },
         MuiListSubheader: {
           styleOverrides: {
             root: {

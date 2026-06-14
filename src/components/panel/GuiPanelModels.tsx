@@ -31,6 +31,7 @@ import {
 } from '@/modules/object-viewer';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import FileImportArea from './FileImportArea';
+import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
 
 export default function GuiPanelModels() {
   const sceneOptions = useContext(SceneOptionsContext);
@@ -239,25 +240,10 @@ export default function GuiPanelModels() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          columnGap: 1,
-          '.panel.expanded &': {
-            flexDirection: 'row'
-          },
-          '.panel.expanded & .poly-export-buttons': {
-            flex: '1 0 0'
-          },
-          '& .poly-export-buttons': {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'stretch',
-            mb: 1
-          },
-          '& .poly-export-buttons .MuiButton-root': {
-            width: '100%'
-          }
+          columnGap: 1
         }}
       >
-        <div className='poly-export-buttons'>
+        <GuiPanelActionButtonRow>
           <GuiPanelButton
             tooltip={
               'Choose a .gltf export for the current model or all viewable models.'
@@ -271,14 +257,8 @@ export default function GuiPanelModels() {
             open={Boolean(gltfExportAnchorEl)}
             anchorEl={gltfExportAnchorEl}
             onClose={onCloseGltfExportPopover}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left'
-            }}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
           >
             <Box
               sx={{
@@ -310,7 +290,7 @@ export default function GuiPanelModels() {
             </Box>
           </Popover>
           {exportSelectionButton}
-        </div>
+        </GuiPanelActionButtonRow>
       </Box>
     </GuiPanelSection>
   );
