@@ -47,7 +47,7 @@ export default function GuiPanelSection({
     <>
       <ListSubheader
         sx={{
-          mt: 1,
+          mt: 0.5,
           px: 0,
           display: 'flex',
           alignItems: 'center',
@@ -58,7 +58,7 @@ export default function GuiPanelSection({
             flexDirection: 'column'
           },
           '& + .collapsed-content': {
-            mt: 1
+            mt: 0.5
           }
         }}
       >

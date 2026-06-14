@@ -35,13 +35,6 @@ export default function FileImportArea() {
         '.panel:not(.welcome).expanded .collapsed-content &': {
           mb: 0
         },
-        '.panel:not(.welcome).expanded & #select-pol-or-tex-button': {
-          height: '72px'
-        },
-        '.panel:not(.welcome).expanded .collapsed-content & #select-pol-or-tex-button':
-          {
-            height: 'unset'
-          },
         '.expanded .content & .supported-files, .panel:not(.welcome).expanded & .supported-files':
           {
             mt: 0
