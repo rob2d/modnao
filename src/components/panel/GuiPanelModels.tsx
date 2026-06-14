@@ -251,7 +251,7 @@ export default function GuiPanelModels() {
             onClick={onOpenGltfExportPopover}
             color='secondary'
           >
-            Export .GLTF
+            Export GLTF
           </GuiPanelButton>
           <Popover
             open={Boolean(gltfExportAnchorEl)}

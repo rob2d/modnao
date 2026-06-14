@@ -2,6 +2,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import gameNameMap from '@/constants/gameNameMap';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import resourceTypeNameMap from '@/constants/resourceTypeNameMap';
+import { selectPolygonFileName, selectTextureFileName } from '@/selectors';
+import { useAppSelector } from '@/storeTypings';
 import type { ResourceAttribs } from '@/types';
 import {
   Autocomplete,
@@ -10,10 +12,11 @@ import {
   InputAdornment,
   Popper,
   PopperProps,
+  SxProps,
   TextField,
   Typography
 } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 interface ResourceSearchOptionBase {
   id: string;
@@ -24,6 +27,8 @@ interface ResourceSearchOptionBase {
   identifier: string;
   filenamePattern: string;
   displayFilenamePattern: string;
+  textureDefsHash?: string;
+  textureFileType?: ResourceAttribs['textureFileType'];
   treeDepth: number;
   label: string;
   searchText: string;
@@ -45,6 +50,13 @@ interface ResourceModelSearchOption extends ResourceSearchOptionBase {
 type ResourceSearchOption =
   | ResourceMappingSearchOption
   | ResourceModelSearchOption;
+
+export type ResourceNavigatorOption = ResourceSearchOption;
+
+interface ResourceSearchInputState {
+  resetKey: string;
+  value: string;
+}
 
 const formatFilenamePattern = (filenamePattern: string) =>
   filenamePattern
@@ -74,11 +86,35 @@ function ResourceSearchPopper(props: PopperProps) {
   );
 }
 
+const getDisplayFilenamePattern = (attribs: ResourceAttribs) => {
+  const displayFilenamePattern = formatFilenamePattern(attribs.filenamePattern);
+
+  if (!/POL\.BIN$/i.test(attribs.filenamePattern)) {
+    return displayFilenamePattern;
+  }
+
+  const textureAttribs = attribs.textureFileType
+    ? resourceAttribMappings[attribs.textureFileType]
+    : Object.values(resourceAttribMappings).find(
+        (candidate) =>
+          candidate !== attribs &&
+          candidate.game === attribs.game &&
+          candidate.resourceType === attribs.resourceType &&
+          candidate.name === attribs.name &&
+          candidate.identifier === attribs.identifier &&
+          /TEX(?:\(.mn\)\?)?\.BIN\$/i.test(candidate.filenamePattern)
+      );
+
+  if (!textureAttribs) {
+    return displayFilenamePattern;
+  }
+
+  return `${displayFilenamePattern}, ${formatFilenamePattern(textureAttribs.filenamePattern)}`;
+};
+
 const resourceSearchOptions = Object.entries(resourceAttribMappings)
   .flatMap(([resourceKey, attribs]): ResourceSearchOption[] => {
-    const displayFilenamePattern = formatFilenamePattern(
-      attribs.filenamePattern
-    );
+    const displayFilenamePattern = getDisplayFilenamePattern(attribs);
     const resourceSearchText = [
       resourceKey,
       attribs.game,
@@ -102,6 +138,8 @@ const resourceSearchOptions = Object.entries(resourceAttribMappings)
       identifier: attribs.identifier,
       filenamePattern: attribs.filenamePattern,
       displayFilenamePattern,
+      textureDefsHash: attribs.textureDefsHash,
+      textureFileType: attribs.textureFileType,
       treeDepth: 1,
       label: attribs.name,
       searchText: resourceSearchText
@@ -132,6 +170,8 @@ const resourceSearchOptions = Object.entries(resourceAttribMappings)
             identifier: attribs.identifier,
             filenamePattern: attribs.filenamePattern,
             displayFilenamePattern,
+            textureDefsHash: attribs.textureDefsHash,
+            textureFileType: attribs.textureFileType,
             treeDepth: 2,
             modelIndex,
             modelDescription: modelHint.description,
@@ -198,19 +238,107 @@ const filterResourceSearchOptions = (
   });
 };
 
-export default function SearchForFiles() {
+const scopedResourceAttribKeys = [
+  'game',
+  'name',
+  'resourceType',
+  'identifier',
+  'filenamePattern',
+  'textureDefsHash',
+  'textureFileType'
+] as const satisfies ReadonlyArray<keyof ResourceAttribs>;
+
+const getScopedResourceKey = (scope: ResourceAttribs) =>
+  Object.entries(resourceAttribMappings).find(
+    ([, attribs]) =>
+      attribs === scope ||
+      scopedResourceAttribKeys.every((key) => attribs[key] === scope[key])
+  )?.[0];
+
+interface ResourceNavigatorProps {
+  includeSourceResourceOption?: boolean;
+  label?: string;
+  onSelectOption?: (option: ResourceNavigatorOption) => boolean;
+  scope?: ResourceAttribs;
+  sx?: SxProps;
+}
+
+export default function ResourceNavigator({
+  includeSourceResourceOption = true,
+  label = 'Find supported resources',
+  onSelectOption,
+  scope,
+  sx
+}: ResourceNavigatorProps) {
+  const polygonFileName = useAppSelector(selectPolygonFileName);
+  const textureFileName = useAppSelector(selectTextureFileName);
+  const resourceSearchInputResetKey = `${polygonFileName ?? ''}:${textureFileName ?? ''}`;
   const [isResourceSearchOpen, setIsResourceSearchOpen] = useState(false);
-  const [resourceSearchInput, setResourceSearchInput] = useState('');
-  const visibleResourceSearchParentKeys = new Set(
-    filterResourceSearchOptions(resourceSearchOptions, {
-      inputValue: resourceSearchInput
-    })
-      .filter((option) => option.kind === 'resource')
-      .map((option) => option.resourceKey)
+  const [resourceSearchInputState, setResourceSearchInputState] =
+    useState<ResourceSearchInputState>({
+      resetKey: resourceSearchInputResetKey,
+      value: ''
+    });
+  const resourceSearchInput =
+    resourceSearchInputState.resetKey === resourceSearchInputResetKey
+      ? resourceSearchInputState.value
+      : '';
+
+  const scopedResourceKey = useMemo(
+    () => (!scope ? undefined : getScopedResourceKey(scope)),
+    [scope]
+  );
+
+  const scopedResourceSearchOptions = useMemo(
+    () =>
+      !scopedResourceKey
+        ? resourceSearchOptions
+        : resourceSearchOptions.filter(
+            (option) => option.resourceKey === scopedResourceKey
+          ),
+    [scopedResourceKey]
+  );
+
+  const visibleResourceSearchOptions = useMemo(
+    () =>
+      includeSourceResourceOption
+        ? scopedResourceSearchOptions
+        : scopedResourceSearchOptions.filter(
+            (option) => option.kind === 'model'
+          ),
+    [includeSourceResourceOption, scopedResourceSearchOptions]
+  );
+
+  const visibleResourceSearchParentKeys = useMemo(
+    () =>
+      new Set(
+        filterResourceSearchOptions(visibleResourceSearchOptions, {
+          inputValue: resourceSearchInput
+        })
+          .filter((option) => option.kind === 'resource')
+          .map((option) => option.resourceKey)
+      ),
+    [resourceSearchInput, visibleResourceSearchOptions]
+  );
+
+  const onSelectResourceSearchOption = useCallback(
+    (_event: React.SyntheticEvent, option: ResourceSearchOption | null) => {
+      if (!option) {
+        return;
+      }
+
+      const didNavigate = onSelectOption?.(option) ?? false;
+
+      setResourceSearchInputState({
+        resetKey: resourceSearchInputResetKey,
+        value: didNavigate ? '' : option.displayFilenamePattern
+      });
+    },
+    [onSelectOption, resourceSearchInputResetKey]
   );
 
   return (
-    <Box sx={{ position: 'relative', width: '100%' }}>
+    <Box sx={{ position: 'relative', width: '100%', ...sx }}>
       <Box
         aria-hidden
         sx={{
@@ -236,6 +364,7 @@ export default function SearchForFiles() {
       >
         <Autocomplete<ResourceSearchOption>
           size='small'
+          blurOnSelect
           clearOnBlur={false}
           filterOptions={filterResourceSearchOptions}
           getOptionKey={(option) => option.id}
@@ -243,17 +372,22 @@ export default function SearchForFiles() {
           groupBy={(option) => gameNameMap[option.game]}
           inputValue={resourceSearchInput}
           isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={onSelectResourceSearchOption}
           onClose={() => setIsResourceSearchOpen(false)}
           onInputChange={(_event, value, reason) => {
-            if (reason === 'blur') {
+            if (reason === 'blur' || reason === 'reset') {
               return;
             }
 
-            setResourceSearchInput(value);
+            setResourceSearchInputState({
+              resetKey: resourceSearchInputResetKey,
+              value
+            });
           }}
           onOpen={() => setIsResourceSearchOpen(true)}
           openOnFocus
-          options={resourceSearchOptions}
+          options={visibleResourceSearchOptions}
+          value={null}
           slots={{
             popper: ResourceSearchPopper
           }}
@@ -413,14 +547,14 @@ export default function SearchForFiles() {
               variant='outlined'
               {...params}
               fullWidth
-              label='Find supported resources'
+              label={label}
               sx={{ width: '100%' }}
               slotProps={{
                 input: {
                   ...params.InputProps,
                   startAdornment: (
                     <>
-                      <InputAdornment position='start'>
+                      <InputAdornment position='start' sx={{ mr: 0.5 }}>
                         <SearchIcon
                           fontSize='small'
                           sx={{ color: 'var(--mui-palette-text-secondary)' }}
@@ -429,7 +563,12 @@ export default function SearchForFiles() {
                       {params.InputProps.startAdornment}
                     </>
                   ),
-                  sx: { width: '100%' }
+                  sx: {
+                    width: '100%',
+                    '& .MuiAutocomplete-input': {
+                      pl: 0
+                    }
+                  }
                 }
               }}
             />
