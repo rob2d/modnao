@@ -22,6 +22,7 @@ import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 import { Box, Chip, Divider } from '@mui/material';
 import GuiPanelSection from './GuiPanelSection';
+import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
 
 export default function GuiPanelViewOptions() {
   const dispatch = useAppDispatch();
@@ -171,6 +172,12 @@ export default function GuiPanelViewOptions() {
         sx={{
           display: 'block',
           textAlign: 'left',
+          mb: 0.5,
+          width: 'calc(100% + (var(--mui-spacing) * 4))',
+          mx: -2,
+          pl: 2,
+          flexGrow: 2,
+          overflowY: 'auto',
           '& .MuiDivider-root': {
             my: 2
           }
@@ -188,28 +195,24 @@ export default function GuiPanelViewOptions() {
           </>
         )}
       </Box>
-      <div className='texture-export-options'>
+      <GuiPanelActionButtonRow>
         {!canExportTextures ? undefined : (
-          <div className='export-texture-button-container'>
-            <GuiPanelButton
-              tooltip='Download texture ROM binary with replaced images'
-              onClick={onExportTextureFile}
-              color='primary'
-            >
-              Export Textures
-            </GuiPanelButton>
-          </div>
-        )}
-        <div className='export-texture-images'>
           <GuiPanelButton
-            tooltip='Download all available textures as images in a zip file'
-            onClick={onDownloadAllTextureImgs}
-            color='secondary'
+            tooltip='Download texture ROM binary with replaced images'
+            onClick={onExportTextureFile}
+            color='primary'
           >
-            Download All Images
+            Export Textures
           </GuiPanelButton>
-        </div>
-      </div>
+        )}
+        <GuiPanelButton
+          tooltip='Download all available textures as images in a zip file'
+          onClick={onDownloadAllTextureImgs}
+          color='secondary'
+        >
+          Download All Images
+        </GuiPanelButton>
+      </GuiPanelActionButtonRow>
     </GuiPanelSection>
   );
 }

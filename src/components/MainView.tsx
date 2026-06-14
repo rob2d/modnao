@@ -11,6 +11,7 @@ import {
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import VideocamIcon from '@mui/icons-material/Videocam';
+import SearchIcon from '@mui/icons-material/Search';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import { showDialog } from '@/modules/dialogs';
@@ -123,7 +124,24 @@ export default function MainView() {
           }}
         >
           {mainScene}
-          {contentViewMode === 'welcome' ? undefined : (
+          {contentViewMode !== 'polygons' ? null : (
+            <IconButton
+              onClick={onShowBrowsedObjectHints}
+              sx={(theme) => ({
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                mr: 2,
+                mt: 1,
+                '& svg': {
+                  ...theme.mixins.sceneIconMixin
+                }
+              })}
+            >
+              <SearchIcon fontSize='medium' />
+            </IconButton>
+          )}
+          {contentViewMode !== 'polygons' ? null : (
             <>
               {!showBrowsedObjectHintsButtonVisible ? null : (
                 <Box

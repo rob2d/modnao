@@ -209,8 +209,7 @@ export default function GuiPanelViewOptions() {
           },
           '& .slider-setting .MuiSlider-root': {
             width: '100%',
-            ml: 0,
-            mr: 0
+            mx: 0.5
           },
           '& .display-mode': {
             display: 'flex',

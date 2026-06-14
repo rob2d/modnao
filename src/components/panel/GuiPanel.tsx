@@ -181,14 +181,6 @@ export default function GuiPanel() {
           alignItems: 'center',
           justifyContent: 'flex-end'
         },
-        '& .textures': {
-          width: 'calc(100% + (var(--mui-spacing) * 4))',
-          mx: -2,
-          pl: 2,
-          mb: 0,
-          flexGrow: 2,
-          overflowY: 'auto'
-        },
         '& .view-options': {
           display: 'flex',
           flexDirection: 'column',
@@ -198,7 +190,7 @@ export default function GuiPanel() {
         '& .MuiButton-root.MuiButton-outlined': {
           justifyContent: 'center'
         },
-        '& .MuiButton-root.MuiButton-outlined:not(:last-child), &.panel:not(.expanded) .export-texture-button-container:not(:last-child), &.panel:not(.expanded) .export-texture-images:not(:last-child)':
+        '& .MuiButton-root.MuiButton-outlined, &.panel:not(.expanded) .export-texture-button-container:not(:last-child), &.panel:not(.expanded) .export-texture-images:not(:last-child)':
           {
             mb: 1
           },
