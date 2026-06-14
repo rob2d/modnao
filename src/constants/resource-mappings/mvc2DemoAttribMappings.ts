@@ -166,7 +166,7 @@ const mvc2DemoAttribMappings: Record<string, ResourceAttribs> = {
         description:
           "Marker that appears next to the player's score entry on the high score screen with a right-carat pointing to the score"
       },
-      18: {
+      20: {
         name: '"OUT OF RANKING" marker',
         description:
           'Displays "OUT OF RANKING" on the high score screen when the player fails to get a high score'
