@@ -233,6 +233,7 @@ export default function GuiPanelModels() {
           </ToggleButtonGroup>
         </Grid>
       </Grid>
+      <FileImportArea />
       <Box
         sx={{
           display: 'flex',
@@ -241,9 +242,6 @@ export default function GuiPanelModels() {
           columnGap: 1,
           '.panel.expanded &': {
             flexDirection: 'row'
-          },
-          '.panel.expanded & .file-import-area': {
-            flex: '1 0 0'
           },
           '.panel.expanded & .poly-export-buttons': {
             flex: '1 0 0'
@@ -259,7 +257,6 @@ export default function GuiPanelModels() {
           }
         }}
       >
-        <FileImportArea />
         <div className='poly-export-buttons'>
           <GuiPanelButton
             tooltip={
