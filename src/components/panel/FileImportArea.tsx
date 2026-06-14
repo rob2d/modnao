@@ -20,6 +20,7 @@ export default function FileImportArea() {
   // @TODO lay out in more flexibly/auto-adaptably
   return (
     <Box
+      className='file-import-area'
       sx={{
         display: 'flex',
         flexDirection: 'column',

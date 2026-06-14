@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { MouseEventHandler, ReactNode } from 'react';
 import { Button, Tooltip } from '@mui/material';
 
 type Props = {
-  children: React.ReactNode;
-  onClick: () => void;
-  tooltip: React.ReactNode | string;
+  children: ReactNode;
+  onClick: MouseEventHandler<HTMLButtonElement>;
+  tooltip: ReactNode | string;
   color?: 'primary' | 'inherit' | 'secondary';
   id?: string;
 };

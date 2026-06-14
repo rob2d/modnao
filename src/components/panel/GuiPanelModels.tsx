@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   IconButton,
+  Popover,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -12,7 +13,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import Grid from '@mui/material/Grid';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelSection from './GuiPanelSection';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import {
   selectMeshSelectionType,
   selectModel,
@@ -38,10 +39,34 @@ export default function GuiPanelModels() {
   const uiNav = useObjectUINav();
   const objectKey = useAppSelector(selectObjectKey);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
-  const onExportToGLTF = useSceneGLTFFileDownloader(false);
-  const onExportAllToGLTF = useSceneGLTFFileDownloader(true);
+  const [gltfExportAnchorEl, setGltfExportAnchorEl] =
+    useState<HTMLButtonElement | null>(null);
 
   const onExportSelectionJson = useModelSelectionExport();
+  const onExportCurrentModelToGLTF = useSceneGLTFFileDownloader(false);
+  const onExportAllModelsToGLTF = useSceneGLTFFileDownloader(true);
+
+  const onOpenGltfExportPopover = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      setGltfExportAnchorEl(event.currentTarget);
+    },
+    []
+  );
+
+  const onCloseGltfExportPopover = useCallback(() => {
+    setGltfExportAnchorEl(null);
+  }, []);
+
+  const onExportCurrentModelToGLTFClick = useCallback(() => {
+    setGltfExportAnchorEl(null);
+    onExportCurrentModelToGLTF();
+  }, [onExportCurrentModelToGLTF]);
+
+  const onExportAllModelsToGLTFClick = useCallback(() => {
+    setGltfExportAnchorEl(null);
+    onExportAllModelsToGLTF();
+  }, [onExportAllModelsToGLTF]);
+
   const onSetMeshSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
       dispatch(setObjectType(type));
@@ -111,6 +136,7 @@ export default function GuiPanelModels() {
     <IconButton
       className='model-nav-button'
       color='primary'
+      size='small'
       {...uiNav.prevButtonProps}
       disabled={navButtonLeftDisabled}
     >
@@ -131,6 +157,7 @@ export default function GuiPanelModels() {
     <IconButton
       className='model-nav-button'
       color='primary'
+      size='small'
       {...uiNav.nextButtonProps}
       disabled={navButtonRightDisabled}
     >
@@ -211,15 +238,24 @@ export default function GuiPanelModels() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
+          columnGap: 1,
           '.panel.expanded &': {
             flexDirection: 'row'
           },
-          '.panel.expanded & > div:nth-child(2)': {
-            display: 'flex',
-            flexDirection: 'column'
+          '.panel.expanded & .file-import-area': {
+            flex: '1 0 0'
+          },
+          '.panel.expanded & .poly-export-buttons': {
+            flex: '1 0 0'
           },
           '& .poly-export-buttons': {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
             mb: 1
+          },
+          '& .poly-export-buttons .MuiButton-root': {
+            width: '100%'
           }
         }}
       >
@@ -227,24 +263,55 @@ export default function GuiPanelModels() {
         <div className='poly-export-buttons'>
           <GuiPanelButton
             tooltip={
-              'Export a .gltf file representing the currently viewed in-scene model ' +
-              'meshes and textures to import into Maya or Blender.'
+              'Choose a .gltf export for the current model or all viewable models.'
             }
-            onClick={onExportToGLTF}
+            onClick={onOpenGltfExportPopover}
             color='secondary'
           >
-            Export Scene .GLTF
+            Export .GLTF
           </GuiPanelButton>
-          <GuiPanelButton
-            tooltip={
-              'Export a .gltf file representing *all* viewable model ' +
-              'meshes and textures to import into Maya or Blender.'
-            }
-            onClick={onExportAllToGLTF}
-            color='secondary'
+          <Popover
+            open={Boolean(gltfExportAnchorEl)}
+            anchorEl={gltfExportAnchorEl}
+            onClose={onCloseGltfExportPopover}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left'
+            }}
           >
-            Export Models .GLTF
-          </GuiPanelButton>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+                p: 1,
+                minWidth: 200
+              }}
+            >
+              <Button
+                fullWidth
+                color='secondary'
+                onClick={onExportCurrentModelToGLTFClick}
+                size='small'
+                variant='outlined'
+              >
+                Current Model
+              </Button>
+              <Button
+                fullWidth
+                color='secondary'
+                onClick={onExportAllModelsToGLTFClick}
+                size='small'
+                variant='outlined'
+              >
+                All Models
+              </Button>
+            </Box>
+          </Popover>
           {exportSelectionButton}
         </div>
       </Box>
