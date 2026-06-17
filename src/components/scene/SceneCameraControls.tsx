@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import {
@@ -8,6 +8,13 @@ import {
   Spherical,
   Vector3
 } from 'three';
+import {
+  deleteSceneCameraPosition,
+  getSceneCameraPosition,
+  getSceneCameraPositionKey,
+  setSceneCameraPosition
+} from './sceneCameraPositionStore';
+import type { SceneCameraPosition } from './sceneCameraPositionStore';
 
 const sceneCameraControlParams = {
   baseDollyVelocity: 0.225,
@@ -47,10 +54,18 @@ interface CameraTouchGesture {
 
 interface SceneCameraControlsProps {
   mainBounds?: ModelBounds;
+  modelIndex: number;
+  onCameraPositionMovedChange: (cameraPositionMoved: boolean) => void;
+  polygonBufferKey?: string;
+  resetCameraPositionRevision: number;
 }
 
 export default function SceneCameraControls({
-  mainBounds
+  mainBounds,
+  modelIndex,
+  onCameraPositionMovedChange,
+  polygonBufferKey,
+  resetCameraPositionRevision
 }: SceneCameraControlsProps) {
   const { sceneCamSpeed } = useContext(SceneOptionsContext);
   const { camera, gl, invalidate, size } = useThree();
@@ -69,21 +84,94 @@ export default function SceneCameraControls({
   const sphericalRef = useRef(new Spherical());
   const boundsTargetRef = useRef(new Vector3());
   const boundsPanRef = useRef(new Vector3());
-  const autoFitMainBoundsRef = useRef<ModelBounds | undefined>(undefined);
+  const baseCameraPositionRef = useRef<SceneCameraPosition | undefined>(
+    undefined
+  );
+  const cameraPositionKeyRef = useRef<string | undefined>(undefined);
+  const cameraPositionMovedRef = useRef(false);
+  const polygonBufferKeyRef = useRef<string | undefined>(undefined);
+  const resetCameraPositionRevisionRef = useRef(resetCameraPositionRevision);
+
+  const setCameraPositionMoved = useCallback(
+    (cameraPositionMoved: boolean) => {
+      if (cameraPositionMovedRef.current === cameraPositionMoved) {
+        return;
+      }
+
+      cameraPositionMovedRef.current = cameraPositionMoved;
+      onCameraPositionMovedChange(cameraPositionMoved);
+    },
+    [onCameraPositionMovedChange]
+  );
 
   useEffect(() => {
+    if (!baseCameraPositionRef.current) {
+      baseCameraPositionRef.current = {
+        position: camera.position.toArray(),
+        target: targetRef.current.toArray()
+      };
+    }
+
+    const previousCameraPositionKey = cameraPositionKeyRef.current;
+    const previousPolygonBufferKey = polygonBufferKeyRef.current;
+    const resetCameraPositionRequested =
+      resetCameraPositionRevisionRef.current !== resetCameraPositionRevision;
+    resetCameraPositionRevisionRef.current = resetCameraPositionRevision;
+
+    if (
+      previousCameraPositionKey &&
+      cameraPositionMovedRef.current &&
+      !resetCameraPositionRequested
+    ) {
+      setSceneCameraPosition(previousCameraPositionKey, {
+        position: camera.position.toArray(),
+        target: targetRef.current.toArray()
+      });
+    }
+
+    const hasNewPolygonBuffer = previousPolygonBufferKey !== polygonBufferKey;
+    const nextCameraPositionKey = getSceneCameraPositionKey(
+      polygonBufferKey,
+      modelIndex
+    );
+
+    polygonBufferKeyRef.current = polygonBufferKey;
+    cameraPositionKeyRef.current = nextCameraPositionKey;
+
+    if (resetCameraPositionRequested) {
+      deleteSceneCameraPosition(nextCameraPositionKey);
+    }
+
+    const cameraPosition = resetCameraPositionRequested
+      ? undefined
+      : getSceneCameraPosition(nextCameraPositionKey);
+
+    if (cameraPosition) {
+      camera.position.fromArray(cameraPosition.position);
+      targetRef.current.fromArray(cameraPosition.target);
+      camera.lookAt(targetRef.current);
+      setCameraPositionMoved(true);
+      invalidate();
+      return;
+    }
+
+    const baseCameraPosition = baseCameraPositionRef.current;
+
+    if (
+      (hasNewPolygonBuffer || resetCameraPositionRequested) &&
+      baseCameraPosition
+    ) {
+      camera.position.fromArray(baseCameraPosition.position);
+      targetRef.current.fromArray(baseCameraPosition.target);
+      camera.lookAt(targetRef.current);
+    }
+
     const { boundsFitMargin, minFocusDistance } = sceneCameraControlParams;
 
     if (!mainBounds) {
-      autoFitMainBoundsRef.current = undefined;
+      setCameraPositionMoved(false);
       return;
     }
-
-    if (autoFitMainBoundsRef.current === mainBounds) {
-      return;
-    }
-
-    autoFitMainBoundsRef.current = mainBounds;
 
     const target = targetRef.current;
     const nextTarget = boundsTargetRef.current.set(
@@ -137,8 +225,33 @@ export default function SceneCameraControls({
         .addScaledVector(forward, -fitDistance * boundsFitMargin);
     }
 
+    setCameraPositionMoved(false);
     invalidate();
-  }, [camera, invalidate, mainBounds, size.height, size.width]);
+  }, [
+    camera,
+    invalidate,
+    mainBounds,
+    modelIndex,
+    polygonBufferKey,
+    resetCameraPositionRevision,
+    setCameraPositionMoved,
+    size.height,
+    size.width
+  ]);
+
+  useEffect(
+    () => () => {
+      if (!cameraPositionMovedRef.current) {
+        return;
+      }
+
+      setSceneCameraPosition(cameraPositionKeyRef.current, {
+        position: camera.position.toArray(),
+        target: targetRef.current.toArray()
+      });
+    },
+    [camera]
+  );
 
   useEffect(() => {
     const {
@@ -170,6 +283,7 @@ export default function SceneCameraControls({
       offset.setFromSpherical(spherical);
       camera.position.copy(target).add(offset);
       camera.lookAt(target);
+      setCameraPositionMoved(true);
       invalidate();
     };
 
@@ -203,6 +317,7 @@ export default function SceneCameraControls({
       camera.position.add(pan);
       target.add(pan);
       camera.lookAt(target);
+      setCameraPositionMoved(true);
       invalidate();
     };
 
@@ -229,6 +344,10 @@ export default function SceneCameraControls({
     };
 
     const dollyCamera = (deltaY: number) => {
+      if (deltaY === 0) {
+        return;
+      }
+
       const target = targetRef.current;
       const forward = camera.getWorldDirection(forwardRef.current);
       const focusDistance = Math.max(
@@ -240,6 +359,7 @@ export default function SceneCameraControls({
 
       camera.position.addScaledVector(forward, moveDistance);
       camera.lookAt(getHybridLookTarget(target, forward));
+      setCameraPositionMoved(true);
       invalidate();
     };
 
@@ -418,7 +538,14 @@ export default function SceneCameraControls({
       domElement.removeEventListener('wheel', onWheel);
       domElement.removeEventListener('contextmenu', onContextMenu);
     };
-  }, [camera, gl, invalidate, sceneCamSpeed, size.height]);
+  }, [
+    camera,
+    gl,
+    invalidate,
+    sceneCamSpeed,
+    setCameraPositionMoved,
+    size.height
+  ]);
 
   return null;
 }

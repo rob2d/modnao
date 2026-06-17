@@ -129,6 +129,9 @@ export const selectUpdatedTextureDefs = createSelector(
 export const selectPolygonFileName = (s: AppState) =>
   s.modelData.polygonFileName;
 
+export const selectPolygonBufferKey = (s: AppState) =>
+  s.modelData.polygonBufferKey;
+
 export const selectTextureFileName = (s: AppState) =>
   s.modelData.textureFileName;
 

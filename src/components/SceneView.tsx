@@ -12,15 +12,17 @@ import {
   selectDisplayedMeshes,
   selectMeshSelectionType,
   selectModel,
+  selectModelIndex,
   selectObjectKey,
-  selectResourceAttribs,
+  selectPolygonBufferKey,
   selectUpdatedTextureDefs
 } from '@/selectors';
 import { setObjectKey } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { useObjectNavControls } from '@/modules/object-viewer';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
+import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { SceneContextSetup } from '@/contexts/SceneContext';
 import {
   EffectComposer,
@@ -65,9 +67,11 @@ export default function SceneView() {
 
   const [textureMap, setTextureMap] =
     useState<Map<string, { texture: DataTexture; bufferKey: string }>>();
+  const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
+  const [resetCameraPositionRevision, setResetCameraPositionRevision] =
+    useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneOptions = useContext(SceneOptionsContext);
-  const resourceAttribs = useAppSelector(selectResourceAttribs);
 
   const dispatch = useAppDispatch();
   const objectKey = useAppSelector(selectObjectKey);
@@ -78,6 +82,10 @@ export default function SceneView() {
     },
     [objectKey]
   );
+
+  const onResetCameraPosition = useCallback(() => {
+    setResetCameraPositionRevision((revision) => revision + 1);
+  }, []);
 
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const model = useAppSelector(selectModel);
@@ -153,6 +161,8 @@ export default function SceneView() {
 
   const selectedMeshes = useAppSelector(selectDisplayedMeshes);
   const meshes = useAppSelector(selectAllDisplayedMeshes);
+  const modelIndex = useAppSelector(selectModelIndex);
+  const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
   const axesHelperVisible =
     sceneOptions.axesHelperVisible && !sceneOptions.enableCinematicMode;
 
@@ -199,6 +209,8 @@ export default function SceneView() {
   const onSceneCreated = useCallback(({ gl }: { gl: WebGLRenderer }) => {
     gl.outputColorSpace = SRGBColorSpace;
   }, []);
+  const resetCameraPositionButtonHidden =
+    sceneOptions.enableCinematicMode || !cameraPositionMoved;
 
   return (
     <>
@@ -215,6 +227,31 @@ export default function SceneView() {
       >
         <ModelResourceAttribs />
       </Box>
+      <Tooltip
+        title='Reset camera position'
+        disableInteractive={resetCameraPositionButtonHidden}
+        placement='left'
+      >
+        <IconButton
+          aria-label='Reset camera position'
+          color='info'
+          onClick={onResetCameraPosition}
+          sx={(theme) => ({
+            position: 'absolute',
+            right: 0,
+            bottom: 0,
+            mr: 13,
+            mb: 1,
+            zIndex: 1,
+            transition: 'opacity 0.5s ease',
+            opacity: resetCameraPositionButtonHidden ? 0 : 1,
+            pointerEvents: resetCameraPositionButtonHidden ? 'none' : 'all',
+            '& svg': theme.mixins.sceneIconMixin
+          })}
+        >
+          <CenterFocusStrongIcon fontSize='medium' />
+        </IconButton>
+      </Tooltip>
       <Canvas
         resize={canvasResizeParams}
         camera={cameraParams}
@@ -248,7 +285,13 @@ export default function SceneView() {
             {!axesHelperVisible ? undefined : axesHelper}
             {renderedModels}
           </group>
-          <SceneCameraControls mainBounds={model?.mainBounds} />
+          <SceneCameraControls
+            mainBounds={model?.mainBounds}
+            modelIndex={modelIndex}
+            onCameraPositionMovedChange={setCameraPositionMoved}
+            polygonBufferKey={polygonBufferKey}
+            resetCameraPositionRevision={resetCameraPositionRevision}
+          />
         </Selection>
       </Canvas>
     </>
