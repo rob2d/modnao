@@ -321,10 +321,6 @@ export default function SceneCameraControls({
       invalidate();
     };
 
-    const getDollyVelocity = (focusDistance: number) =>
-      baseDollyVelocity +
-      Math.sqrt(focusDistance) * dollyVelocityByDistanceRoot;
-
     const getHybridLookTarget = (target: Vector3, forward: Vector3) => {
       const focusDepth = targetOffsetRef.current
         .subVectors(target, camera.position)
@@ -354,7 +350,9 @@ export default function SceneCameraControls({
         camera.position.distanceTo(target),
         minFocusDistance
       );
-      const dollyVelocity = getDollyVelocity(focusDistance);
+      const dollyVelocity =
+        baseDollyVelocity +
+        Math.sqrt(focusDistance) * dollyVelocityByDistanceRoot;
       const moveDistance = -deltaY * dollyVelocity * sceneCamSpeed;
 
       camera.position.addScaledVector(forward, moveDistance);
