@@ -79,7 +79,7 @@ export default function useTextureOptions(
   const options = useMemo(
     (): TextureOption[] => [
       {
-        label: 'Undo Change',
+        label: 'Undo change',
         icon: <UndoIcon fontSize='small' />,
         tooltip:
           'Undo a previous replace-texture or crop/resize operation; does not include color changes',
@@ -92,7 +92,7 @@ export default function useTextureOptions(
         }
       },
       {
-        label: 'Crop/Rotate',
+        label: 'Crop/rotate',
         icon: <CropFreeIcon fontSize='small' />,
         tooltip:
           'Open image replace dialog with existing image to crop/rotate in-place',
