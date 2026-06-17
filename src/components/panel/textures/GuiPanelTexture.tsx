@@ -150,6 +150,8 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   }, [
     selected && mesh?.polygons,
     selected && mesh?.textureWrappingFlags,
+    textureDef?.width,
+    textureDef?.height,
     polygonIndex,
     isNotPolygonViewMode
   ]);
