@@ -10,9 +10,16 @@ export default function GuiPanelActionButtonRow({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'stretch',
+        '.welcome &': {
+          flexDirection: 'column'
+        },
         columnGap: 1,
         [`@container (max-width: ${theme.mixins.guiPanelExpansionL1W})`]: {
           flexDirection: 'column'
+        },
+        '& > *': {
+          width: '100%',
+          alignSelf: 'stretch'
         }
       })}
     >

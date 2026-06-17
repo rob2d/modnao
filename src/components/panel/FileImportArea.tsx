@@ -10,6 +10,7 @@ import FilesSupportedButton from '../FilesSupportedButton';
 import ResourceNavigator, {
   type ResourceNavigatorOption
 } from '../ResourceNavigator';
+import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
 
 export default function FileImportArea() {
   const dispatch = useAppDispatch();
@@ -36,42 +37,14 @@ export default function FileImportArea() {
   return (
     <Box
       className='file-import-area'
-      sx={({ mixins }) => ({
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'stretch',
-        width: '100%',
-        '& .resource-import-controls': {
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          columnGap: 1,
-          mb: 0,
-          mt: 0
-        },
-        [`@container (min-width: ${mixins.guiPanelExpansionL1W})`]: {
-          '& .resource-import-controls': {
-            flexDirection: 'row'
-          },
-          '& .supported-files': {
-            p: 0,
-            mt: 0,
-            pt: 0
-          }
-        },
-        '& .resource-import-controls > *': {
-          flex: '1 1 0'
-        },
-        '& .supported-files': {
-          fontSize: '8pt',
-          alignSelf: 'stretch'
-        },
-        '.content & .supported-files': {
-          width: '100%'
-        }
-      })}
+        width: '100%'
+      }}
     >
-      <Box className='resource-import-controls'>
+      <GuiPanelActionButtonRow>
         <GuiPanelButton
           id='select-pol-or-tex-button'
           tooltip='Select MVC2, CVS1, or CVS2 POL.BIN and/or TEX.BIN files'
@@ -80,8 +53,8 @@ export default function FileImportArea() {
           Import Model/Texture
         </GuiPanelButton>
 
-        <FilesSupportedButton className={'supported-files'} />
-      </Box>
+        <FilesSupportedButton />
+      </GuiPanelActionButtonRow>
 
       <ResourceNavigator
         includeSourceResourceOption={contentViewMode === 'welcome'}

@@ -125,23 +125,6 @@ export default function MainView() {
         >
           {mainScene}
           {contentViewMode !== 'polygons' ? null : (
-            <IconButton
-              onClick={onShowBrowsedObjectHints}
-              sx={(theme) => ({
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                mr: 2,
-                mt: 1,
-                '& svg': {
-                  ...theme.mixins.sceneIconMixin
-                }
-              })}
-            >
-              <SearchIcon fontSize='medium' />
-            </IconButton>
-          )}
-          {contentViewMode !== 'polygons' ? null : (
             <>
               {!showBrowsedObjectHintsButtonVisible ? null : (
                 <Box
