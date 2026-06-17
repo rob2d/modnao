@@ -130,6 +130,17 @@ const objectViewerSlice = createSlice({
         objectKey: undefined,
         meshSelectionType
       });
+    },
+
+    setModelMeshSelection(
+      state,
+      { payload }: { payload: { modelIndex: number; meshIndex: number } }
+    ) {
+      Object.assign(state, {
+        modelIndex: payload.modelIndex,
+        objectKey: `${payload.meshIndex}`,
+        meshSelectionType: 'mesh'
+      });
     }
   },
   extraReducers: (builder) => {
@@ -160,6 +171,7 @@ const objectViewerSlice = createSlice({
   }
 });
 
-export const { setObjectKey, setObjectType } = objectViewerSlice.actions;
+export const { setModelMeshSelection, setObjectKey, setObjectType } =
+  objectViewerSlice.actions;
 
 export default objectViewerSlice;
