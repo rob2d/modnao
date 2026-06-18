@@ -34,6 +34,18 @@ describe('uvToClipPathPoint', () => {
     });
   });
 
+  it('preserves sub-texel edge overflow when repeat is enabled', () => {
+    expect(
+      uvToClipPathPoint([0.9381817579269409, -0.0011112691136077046], 512, 512, {
+        ...defaultWrappingFlags,
+        vRepeat: true
+      })
+    ).toEqual({
+      x: 480.34906005859375,
+      y: 512.5689697861671
+    });
+  });
+
   it('preserves out-of-bounds UV coordinates when repeat is disabled', () => {
     expect(
       uvToClipPathPoint(
