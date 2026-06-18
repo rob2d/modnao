@@ -11,7 +11,7 @@ import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import globalBuffers from '@/utils/data/globalBuffers';
-import { uvToClipPathPoint } from '@/utils/textures';
+import { createUvClipPaths } from '@/utils/textures';
 
 const IMG_SIZE = '174px';
 
@@ -129,20 +129,18 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     for (let pIndex = 0; pIndex < polygons.length; pIndex++) {
       const p = polygons[pIndex];
       for (let i = 0; i < p.triIndices.length; i += 4) {
-        const path: ClipPath = [];
-        for (let j = i; j < i + 4; j++) {
-          const { uv } = p.vertices[p.triIndices[j]];
+        const uvs = p.triIndices
+          .slice(i, i + 3)
+          .map((triIndex) => p.vertices[triIndex].uv);
 
-          path.push(
-            uvToClipPathPoint(
-              uv,
-              textureDef.width,
-              textureDef.height,
-              mesh.textureWrappingFlags
-            )
-          );
-        }
-        paths.push(path);
+        paths.push(
+          ...createUvClipPaths(
+            uvs,
+            textureDef.width,
+            textureDef.height,
+            mesh.textureWrappingFlags
+          )
+        );
       }
     }
 
