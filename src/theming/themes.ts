@@ -203,8 +203,9 @@ const themes = Object.fromEntries(
           styleOverrides: {
             grouped: {
               '&.MuiButtonBase-root': {
-                paddingTop: 'calc(var(--mui-spacing) * 0.25)',
-                paddingBottom: 'calc(var(--mui-spacing) * 0.25)'
+                lineHeight: '1.0',
+                paddingTop: 'calc(var(--mui-spacing) * 0.5)',
+                paddingBottom: 'calc(var(--mui-spacing) * 0.5)'
               }
             }
           }
