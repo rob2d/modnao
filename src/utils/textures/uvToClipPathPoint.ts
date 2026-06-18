@@ -4,17 +4,20 @@ export default function uvToClipPathPoint(
   height: number,
   flags: TextureWrappingFlags
 ) {
-  // Flip Y-axis before handling repeating logic
+  // flip Y-axis before handling repeating logic
   v = 1.0 - v;
 
-  if (flags.hRepeat && (u < 0 || u > 1)) {
+  const hRepeatOverflow = u < 0 ? -u : u > 1 ? u - 1 : 0;
+  const vRepeatOverflow = v < 0 ? -v : v > 1 ? v - 1 : 0;
+
+  if (flags.hRepeat && hRepeatOverflow > 1 / width) {
     u -= Math.floor(u);
   }
-  if (flags.vRepeat && (v < 0 || v > 1)) {
+  if (flags.vRepeat && vRepeatOverflow > 1 / height) {
     v -= Math.floor(v);
   }
 
-  // Flip after applying the repeat/clamp logic
+  // flip after applying the repeat/clamp logic
   if (flags.hFlip) {
     u = 1.0 - u;
   }
@@ -22,7 +25,7 @@ export default function uvToClipPathPoint(
     v = 1.0 - v;
   }
 
-  // Convert UVs to pixel coordinates
+  // convert UVs to pixel coordinates
   return {
     x: u * width,
     y: v * height
