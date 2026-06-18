@@ -122,7 +122,7 @@ export default function TextureView() {
 
   return (
     <Box
-      sx={(theme) => ({
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
@@ -168,34 +168,8 @@ export default function TextureView() {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center'
-        },
-        '& .texture-preview': {
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 'var(--size)',
-          height: 'var(--size)'
-        },
-        '& .texture-preview > div': {
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transform: 'rotate(-90deg)'
-        },
-        '& .texture-preview-canvas': {
-          width: 'var(--size)',
-          height: 'var(--size)'
-        },
-        '& .game-aspect-ratio .texture-preview-canvas': {
-          height: 'calc(var(--size) * var(--aspect-ratio))'
-        },
-        '& .texture-preview > *': {
-          position: 'relative'
-        },
-        '& .texture-preview > div.file-drag-active:after':
-          theme.mixins.fileDragActiveAfter
-      })}
+        }
+      }}
     >
       <div className='main'>
         {textureAspectRatioSelection}
@@ -207,7 +181,6 @@ export default function TextureView() {
         <div className='center-section'>
           <div
             className={clsx(
-              'texture-preview',
               viewInGameRatio && hasAspectRatio && 'game-aspect-ratio'
             )}
             {...getDragProps()}
@@ -220,19 +193,47 @@ export default function TextureView() {
               } as React.CSSProperties
             }
           >
-            {!textureBufferKey ? (
-              <Skeleton variant='rectangular' width={size} height={size} />
-            ) : (
-              <div className={clsx(isDragActive && 'file-drag-active')}>
-                <ImageBufferCanvas
-                  alt='texture preview'
-                  width={textureDefs[textureIndex].width}
-                  height={textureDefs[textureIndex].height}
-                  rgbaBuffer={textureBuffer}
-                  className='texture-preview-canvas'
-                />
-              </div>
-            )}
+            <Box
+              sx={(theme) => ({
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 'var(--size)',
+                height: 'var(--size)',
+                '& > div': {
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transform: 'rotate(-90deg)'
+                },
+                '& canvas': {
+                  width: 'var(--size)',
+                  height:
+                    viewInGameRatio && hasAspectRatio
+                      ? 'calc(var(--size) * var(--aspect-ratio))'
+                      : 'var(--size)'
+                },
+                '& > *': {
+                  position: 'relative'
+                },
+                '& > div.file-drag-active:after':
+                  theme.mixins.fileDragActiveAfter
+              })}
+            >
+              {!textureBufferKey ? (
+                <Skeleton variant='rectangular' width={size} height={size} />
+              ) : (
+                <div className={clsx(isDragActive && 'file-drag-active')}>
+                  <ImageBufferCanvas
+                    alt='texture preview'
+                    width={textureDefs[textureIndex].width}
+                    height={textureDefs[textureIndex].height}
+                    rgbaBuffer={textureBuffer}
+                  />
+                </div>
+              )}
+            </Box>
           </div>
           <div className='texture-controls'>
             <div>

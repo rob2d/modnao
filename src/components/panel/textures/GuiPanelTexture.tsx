@@ -227,23 +227,29 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
           context.rotate((90 * Math.PI) / 180);
           context.translate(-canvas.width / 2, -canvas.height / 2);
 
-          context.beginPath();
           uvClipPaths.forEach((points) => {
-            if (points.length > 0) {
-              context.moveTo(points[0].x, points[0].y);
-              for (let i = 1; i < points.length; i++) {
-                context.lineTo(points[i].x, points[i].y);
-              }
+            if (points.length === 0) {
+              return;
             }
+
+            context.save();
+            context.beginPath();
+            context.moveTo(points[0].x, points[0].y);
+
+            for (let i = 1; i < points.length; i++) {
+              context.lineTo(points[i].x, points[i].y);
+            }
+
+            context.closePath();
+            context.clip();
+
+            context.translate(canvas.width / 2, canvas.height / 2);
+            context.rotate((-90 * Math.PI) / 180);
+            context.translate(-canvas.width / 2, -canvas.height / 2);
+
+            context.drawImage(srcTextureBitmap, 0, 0);
+            context.restore();
           });
-          context.closePath();
-          context.clip();
-
-          context.translate(canvas.width / 2, canvas.height / 2);
-          context.rotate((-90 * Math.PI) / 180);
-          context.translate(-canvas.width / 2, -canvas.height / 2);
-
-          context.drawImage(srcTextureBitmap, 0, 0);
           context.restore();
         }
       }

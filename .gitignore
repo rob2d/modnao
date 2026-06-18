@@ -43,3 +43,6 @@ next-env.d.ts
 
 # local file samples for RE experiments
 .tmp
+
+# working scribbles
+.dev-notes
