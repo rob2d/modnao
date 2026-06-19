@@ -9,11 +9,19 @@ import {
   createB64ImgFromTextureDef,
   TextureImageBufferKeys
 } from '@/utils/textures';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useFilePicker } from 'use-file-picker';
 import saveAs from 'file-saver';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { useKeyPressEffect } from '@/hooks';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 
 interface TextureOption {
   label: string;
@@ -53,14 +61,28 @@ export default function useTextureOptions(
   onSelectOption?: () => void
 ) {
   const dispatch = useAppDispatch();
+  const { textureViewMode } = useContext(SceneOptionsContext);
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
   const textureFileName = useAppSelector(selectTextureFileName);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+  const textureViewModeRef = useRef(textureViewMode);
 
   // when menu is open, toggle translucent download as hotkey is pressed
   const [wantsTranslucentDownload, setWantsTranslucentDownload] = useState(
-    () => false
+    () => textureViewMode === 'transparent'
   );
+
+  useEffect(() => {
+    textureViewModeRef.current = textureViewMode;
+  }, [textureViewMode]);
+
+  useEffect(() => {
+    if (ignoreKeyboardFunctions) {
+      return;
+    }
+
+    setWantsTranslucentDownload(textureViewModeRef.current === 'transparent');
+  }, [ignoreKeyboardFunctions]);
 
   useKeyPressEffect(
     't',

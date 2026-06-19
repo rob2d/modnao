@@ -103,8 +103,8 @@ export default function PaletteEditor() {
           '& .color-box': {
             borderWidth: '2px',
             borderStyle: 'solid',
-            width: 'calc(var(--mui-spacing) * 4)',
-            height: 'calc(var(--mui-spacing) * 4)'
+            width: 'calc(var(--mui-spacing) * 2.5)',
+            height: 'calc(var(--mui-spacing) * 2.5)'
           }
         },
         '& .MuiDivider': {
@@ -151,7 +151,10 @@ export default function PaletteEditor() {
           </Tooltip>
         ))}
         <Tooltip title='Reset or toggle light/dark scene theme'>
-          <IconButton onClick={sceneOptions.toggleLightDarkTheme}>
+          <IconButton
+            onClick={sceneOptions.toggleLightDarkTheme}
+            sx={{ my: -1 }}
+          >
             <ContrastIcon fontSize='small' />
           </IconButton>
         </Tooltip>

@@ -140,6 +140,7 @@ export default function GuiPanelModels() {
       size='small'
       {...uiNav.prevButtonProps}
       disabled={navButtonLeftDisabled}
+      sx={{ my: -1 }}
     >
       <KeyboardArrowLeftIcon fontSize='small' />
     </IconButton>
@@ -161,6 +162,7 @@ export default function GuiPanelModels() {
       size='small'
       {...uiNav.nextButtonProps}
       disabled={navButtonRightDisabled}
+      sx={{ my: -1 }}
     >
       <KeyboardArrowRightIcon fontSize='small' />
     </IconButton>
@@ -217,6 +219,7 @@ export default function GuiPanelModels() {
         </Grid>
         <Grid size={5}>
           <ToggleButtonGroup
+            exclusive
             orientation={
               sceneOptions.guiPanelExpansionLevel <= 1
                 ? 'vertical'
@@ -225,9 +228,9 @@ export default function GuiPanelModels() {
             color='secondary'
             value={meshSelectionType}
             size='small'
-            exclusive
             onChange={onSetMeshSelectionType}
             aria-label='text alignment'
+            sx={{ mb: 0.5 }}
           >
             <ToggleButton value='mesh'>mesh</ToggleButton>
             <ToggleButton value='polygon'>polygon</ToggleButton>

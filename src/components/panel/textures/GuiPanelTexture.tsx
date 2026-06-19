@@ -110,14 +110,11 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   } = props;
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
-  const sceneOptions = useContext(SceneOptionsContext);
-  const isNotPolygonViewMode = contentViewMode !== 'polygons';
+  const { textureViewMode, uvRegionsHighlighted } =
+    useContext(SceneOptionsContext);
 
   const uvClipPaths = useMemo<ClipPath[]>(() => {
-    if (
-      !(selected && mesh?.polygons.length) ||
-      contentViewMode !== 'polygons'
-    ) {
+    if (!(selected && mesh?.polygons.length)) {
       return [];
     }
 
@@ -150,8 +147,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     selected && mesh?.textureWrappingFlags,
     textureDef?.width,
     textureDef?.height,
-    polygonIndex,
-    isNotPolygonViewMode
+    polygonIndex
   ]);
 
   const { getDragProps, isDragActive, onSelectNewImageFile } =
@@ -159,10 +155,8 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
 
   const { width = 0, height = 0 } = textureDef || {};
 
-  // if there's a currently selected mesh and it's opaque, prioritize opaque,
-  // otherwise fallback to actionable buffer
   const imageBufferKey =
-    (selected && mesh?.isOpaque
+    (textureViewMode === 'opaque'
       ? textureDef?.bufferKeys?.opaque || textureDef?.bufferKeys?.translucent
       : textureDef?.bufferKeys?.translucent ||
         textureDef?.bufferKeys?.opaque) || '';
@@ -206,7 +200,8 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       if (canvas && srcTextureBitmap) {
         const context = canvas.getContext('2d');
         if (context) {
-          const showUvArea = contentViewMode !== 'textures' && selected;
+          const showUvArea =
+            uvRegionsHighlighted && selected && uvClipPaths.length > 0;
           context.clearRect(0, 0, width, height);
           context.globalAlpha = showUvArea ? 0.25 : 1;
           context.filter = `saturate(${showUvArea ? '0' : '1'})`;
@@ -254,7 +249,13 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     };
 
     requestAnimationFrame(draw);
-  }, [srcTextureBitmap, uvClipPaths, selected, contentViewMode]);
+  }, [
+    srcTextureBitmap,
+    uvClipPaths,
+    selected,
+    contentViewMode,
+    uvRegionsHighlighted
+  ]);
 
   const isSelectable = contentViewMode === 'textures' && !selected;
 
@@ -265,7 +266,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
         'image-area',
         selected && 'selected',
         isDragActive && 'file-drag-active',
-        sceneOptions.uvRegionsHighlighted
+        uvRegionsHighlighted
       ),
       ...getDragProps(),
       ...(!isSelectable
@@ -275,13 +276,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
             tabIndex: 0
           })
     }),
-    [
-      isDragActive,
-      sceneOptions.uvRegionsHighlighted,
-      selected,
-      textureIndex,
-      isSelectable
-    ]
+    [isDragActive, uvRegionsHighlighted, selected, textureIndex, isSelectable]
   );
 
   if (!imageBufferKey) {
@@ -319,7 +314,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       className={clsx(
         `mode-${contentViewMode}`,
         isSelectable && 'selectable',
-        sceneOptions.uvRegionsHighlighted && 'uvs-enabled'
+        uvRegionsHighlighted && 'uvs-enabled'
       )}
       sx={panelTextureSx}
     >

@@ -5,6 +5,7 @@ import themes from '@/theming/themes';
 import useSceneOptionSetting from '@/hooks/useSceneOptionSettings';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
+export type TextureViewMode = 'opaque' | 'transparent';
 
 export type SceneOptions = {
   axesHelperVisible: boolean;
@@ -19,6 +20,7 @@ export type SceneOptions = {
   uvRegionsHighlighted: boolean;
   wireframeLineWidth: number;
   sceneCamSpeed: number;
+  textureViewMode: TextureViewMode;
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
   devOptionsVisible: boolean;
@@ -35,6 +37,7 @@ export type SceneOptions = {
   setEnableVertexColors: (enableVertexColors: boolean) => void;
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
   setSceneCamSpeed: (sceneCamSpeed: number) => void;
+  setTextureViewMode: (textureViewMode: TextureViewMode) => void;
   setScenePalette: (_: ScenePalette | undefined) => void;
   setThemeKey: (theme: 'light' | 'dark') => void;
   toggleLightDarkTheme: () => void;
@@ -55,6 +58,7 @@ export const defaultValues: SceneOptions = {
   uvRegionsHighlighted: true,
   wireframeLineWidth: 3,
   sceneCamSpeed: 0.6625,
+  textureViewMode: 'opaque',
   themeKey: 'light',
   scenePalette: undefined,
   devOptionsVisible: false,
@@ -71,6 +75,7 @@ export const defaultValues: SceneOptions = {
   setUvRegionsHighlighted: (_: boolean) => null,
   setWireframeLineWidth: (_: number) => null,
   setSceneCamSpeed: (_: number) => null,
+  setTextureViewMode: (_: TextureViewMode) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
   setThemeKey: (_: 'light' | 'dark') => null,
   toggleLightDarkTheme: () => null,
@@ -143,6 +148,12 @@ export function SceneOptionsContextProvider({ children }: Props) {
     StorageKeys.SCENE_CAM_SPEED
   );
 
+  const [textureViewMode, setTextureViewMode] =
+    useSceneOptionSetting<TextureViewMode>(
+      defaultValues.textureViewMode,
+      StorageKeys.TEXTURE_VIEW_MODE
+    );
+
   const [uvRegionsHighlighted, setUvRegionsHighlighted] =
     useSceneOptionSetting<boolean>(
       defaultValues.uvRegionsHighlighted,
@@ -211,6 +222,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setWireframeLineWidth,
       sceneCamSpeed,
       setSceneCamSpeed,
+      textureViewMode,
+      setTextureViewMode,
       scenePalette,
       setScenePalette,
       themeKey,
@@ -244,6 +257,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setWireframeLineWidth,
       sceneCamSpeed,
       setSceneCamSpeed,
+      textureViewMode,
+      setTextureViewMode,
       guiPanelExpansionLevel,
       setGuiPanelExpansionLevel,
       scenePalette,
