@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { Box } from '@mui/material';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import {
@@ -10,13 +11,14 @@ import {
 } from '@mui/material';
 import type { AsyncState } from '@/types';
 
-type Props = {
+type GuiPanelSectionProps = {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
   subtitleLoadingState?: AsyncState;
   collapsedContent?: React.ReactNode;
   collapsedContentFABs?: React.ReactNode[];
+  headerActions?: React.ReactNode;
 };
 
 export default function GuiPanelSection({
@@ -25,14 +27,13 @@ export default function GuiPanelSection({
   subtitle,
   subtitleLoadingState,
   collapsedContent,
-  collapsedContentFABs
-}: Props) {
+  collapsedContentFABs,
+  headerActions
+}: GuiPanelSectionProps) {
   const [isExpanded, setExpanded] = useState(true);
 
-  const toggleContentExpanded = useCallback(
-    () => setExpanded((prevExpanded) => !prevExpanded),
-    []
-  );
+  const toggleContentExpanded = () =>
+    setExpanded((prevExpanded) => !prevExpanded);
 
   let subtitleDisplayed =
     subtitleLoadingState === 'pending' ? (
@@ -43,6 +44,8 @@ export default function GuiPanelSection({
     subtitleDisplayed = <Typography variant='caption'>{subtitle}</Typography>;
   }
 
+  const FoldIcon = isExpanded ? UnfoldLessIcon : UnfoldMoreIcon;
+
   return (
     <>
       <ListSubheader
@@ -52,34 +55,24 @@ export default function GuiPanelSection({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          lineHeight: 1.5,
-          '& .header-text': {
-            display: 'flex',
-            flexDirection: 'column'
-          },
-          '& + .collapsed-content': {
-            mt: 0.5
-          }
+          lineHeight: 1.5
         }}
       >
-        <div className='header-text'>
-          <Typography variant='subtitle2'>{title}</Typography>
-          {subtitleDisplayed}
-        </div>
-        {isExpanded ? undefined : collapsedContentFABs}
+        <Box sx={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+            <Typography variant='subtitle2'>{title}</Typography>
+            {subtitleDisplayed}
+          </Box>
+          {isExpanded ? undefined : collapsedContentFABs}
+          {headerActions}
+        </Box>
         <Tooltip title={`${isExpanded ? 'Collapse' : 'Expand'} section`}>
           <IconButton onClick={toggleContentExpanded} size='small'>
-            {!isExpanded ? (
-              <UnfoldLessIcon fontSize='small' />
-            ) : (
-              <UnfoldMoreIcon fontSize='small' />
-            )}
+            <FoldIcon fontSize='small' />
           </IconButton>
         </Tooltip>
       </ListSubheader>
-      {!isExpanded ? (
-        <div className='collapsed-content'>{collapsedContent}</div>
-      ) : undefined}
+      {!isExpanded ? <Box sx={{ mt: 0.5 }}>{collapsedContent}</Box> : undefined}
       {!isExpanded ? undefined : children}
     </>
   );
