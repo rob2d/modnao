@@ -234,6 +234,7 @@ export default function GuiPanelViewOptions() {
               exclusive
               onChange={onSetMeshDisplayMode}
               aria-label='Mesh Display Mode Selection'
+              sx={{ mb: 0.5 }}
             >
               <ToggleButton value='wireframe'>wireframe</ToggleButton>
               <ToggleButton value='textured'>textured</ToggleButton>

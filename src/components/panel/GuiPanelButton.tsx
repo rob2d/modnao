@@ -7,7 +7,7 @@ type Props = {
   tooltip: ReactNode | string;
   color?: 'primary' | 'inherit' | 'secondary';
   id?: string;
-  sx: BoxProps['sx'];
+  sx?: BoxProps['sx'];
 };
 
 export default function GuiPanelButton({

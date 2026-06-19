@@ -15,5 +15,6 @@ export const StorageKeys = {
   DEV_OPTIONS_VISIBLE: 'devOptionsVisible',
   ENABLE_VERTEX_COLORS: 'enableVertexColors',
   GUI_PANEL_EXPANSION_LEVEL: 'guiPanelExpansionLevel',
-  SHOW_BROWSED_OBJECT_HINTS: 'showBrowsedObjectHints'
+  SHOW_BROWSED_OBJECT_HINTS: 'showBrowsedObjectHints',
+  TEXTURE_VIEW_MODE: 'textureViewMode'
 } as const;

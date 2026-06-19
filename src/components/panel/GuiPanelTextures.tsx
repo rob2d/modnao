@@ -1,4 +1,11 @@
-import { JSX, useCallback, useEffect, useMemo } from 'react';
+import {
+  JSX,
+  MouseEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo
+} from 'react';
 import { saveAs } from 'file-saver';
 import dayjs from 'dayjs';
 import JSZip from 'jszip';
@@ -20,11 +27,26 @@ import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { createB64ImgFromTextureDef } from '@/utils/textures';
 import GuiPanelButton from './GuiPanelButton';
 import GuiPanelTexture from './textures/GuiPanelTexture';
-import { Box, Chip, Divider } from '@mui/material';
+import {
+  Box,
+  Chip,
+  Divider,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography
+} from '@mui/material';
+import { mdiSquare, mdiSquareOpacity } from '@mdi/js';
 import GuiPanelSection from './GuiPanelSection';
 import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
+import MdiSvgIcon from '../MdiSvgIcon';
+import SceneOptionsContext, {
+  TextureViewMode
+} from '@/contexts/SceneOptionsContext';
 
 export default function GuiPanelViewOptions() {
+  const { textureViewMode, setTextureViewMode } =
+    useContext(SceneOptionsContext);
   const dispatch = useAppDispatch();
   const model = useAppSelector(selectModel);
   const meshIndex = useAppSelector(selectObjectMeshIndex);
@@ -38,6 +60,7 @@ export default function GuiPanelViewOptions() {
   const models = useAppSelector(selectModels);
 
   const polygonIndex = useAppSelector(selectObjectPolygonIndex);
+  const textureViewAsTranslucent = textureViewMode === 'transparent';
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
@@ -52,13 +75,24 @@ export default function GuiPanelViewOptions() {
     dispatch(downloadTextureFile());
   }, [dispatch]);
 
+  const onSetTextureViewMode = useCallback(
+    (_: MouseEvent<HTMLElement>, mode: TextureViewMode | null) => {
+      if (!mode) {
+        return;
+      }
+
+      setTextureViewMode(mode);
+    },
+    [setTextureViewMode]
+  );
+
   const onDownloadAllTextureImgs = useCallback(() => {
     const zip = new JSZip();
 
     const imgPromises = textureDefs.map((textureDef) => {
       const base64 = createB64ImgFromTextureDef({
         textureDef,
-        asTranslucent: false
+        asTranslucent: textureViewAsTranslucent
       }).then((str) => str.replace(/^data:image\/(png|jpeg);base64,/, ''));
 
       return base64;
@@ -80,7 +114,7 @@ export default function GuiPanelViewOptions() {
           `${filename}mn.${dayjs().format('YYMMDDHHmmss')}.zip`
         );
       });
-  }, [dispatch, textureDefs, textureFileName]);
+  }, [textureViewAsTranslucent, textureDefs, textureFileName]);
 
   const [textures, offsceneTextures] = useMemo(() => {
     if (loadTexturesState === 'pending') {
@@ -166,6 +200,38 @@ export default function GuiPanelViewOptions() {
       }`}
       subtitle={textureFileName}
       subtitleLoadingState={loadTexturesState}
+      headerActions={
+        <ToggleButtonGroup
+          exclusive
+          orientation='horizontal'
+          size='small'
+          value={textureViewMode}
+          onChange={onSetTextureViewMode}
+          aria-label='Texture view mode'
+        >
+          <Tooltip title='View and download RGBA with alpha'>
+            <ToggleButton value='transparent' aria-label='Transparent images'>
+              <MdiSvgIcon path={mdiSquareOpacity} fontSize='small' />
+            </ToggleButton>
+          </Tooltip>
+          <Tooltip
+            title={
+              <Box>
+                <Typography variant='body2'>
+                  View and download opaque RGB.
+                </Typography>
+                <Typography variant='caption'>
+                  There may be colors hidden under zero alpha.
+                </Typography>
+              </Box>
+            }
+          >
+            <ToggleButton value='opaque' aria-label='Opaque images'>
+              <MdiSvgIcon path={mdiSquare} fontSize='small' />
+            </ToggleButton>
+          </Tooltip>
+        </ToggleButtonGroup>
+      }
     >
       <Box
         className='textures'
@@ -178,9 +244,7 @@ export default function GuiPanelViewOptions() {
           pl: 2,
           flexGrow: 2,
           overflowY: 'auto',
-          '& .MuiDivider-root': {
-            my: 2
-          }
+          '& .MuiDivider-root': { my: 2 }
         }}
       >
         {textures}

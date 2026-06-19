@@ -277,16 +277,7 @@ export default function GuiPanel() {
           opacity:
             expansionLevel === 0 && contentViewMode !== 'welcome' ? 0 : 1,
           transition: `opacity ${TRANSITION_TIME} ease`,
-          '& .MuiToggleButtonGroup-root:not(:first-item):not(.display-mode)': {
-            mt: 1
-          },
-          '& .MuiToggleButtonGroup-root': {
-            mb: 1
-          },
-          '& .MuiToggleButtonGroup-root .MuiButtonBase-root': {
-            width: '100%',
-            justifyContent: 'center'
-          },
+
           '& > .MuiTypography-subtitle2, & > :not(.MuiDivider-root):not(.textures)':
             {
               width: '100%'
