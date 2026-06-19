@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import clsx from 'clsx';
 import Cropper, { Area } from 'react-easy-crop';
 import { Image } from 'image-js';
 import Img from 'next/image';
@@ -41,7 +40,7 @@ import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 const DEFAULT_FLIP_STATE = { horizontal: false, vertical: false };
 
 const optionAppliedCheckmark = (
-  <CheckIcon className='icon-check' fontSize='small' />
+  <CheckIcon fontSize='small' sx={{ position: 'absolute', right: 0, top: 0 }} />
 );
 
 export default function ReplaceTexture() {
@@ -270,26 +269,8 @@ export default function ReplaceTexture() {
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
-          '& .MuiTypography-h5': {
-            mb: 2
-          },
-          '& .content': {
-            display: 'flex',
-            flexDirection: 'row',
-            flexGrow: 1
-          },
-          '& .content.file-drag-active:after': theme.mixins.fileDragActiveAfter,
-          '& .section': {
-            display: 'flex',
-            flexDirection: 'column'
-          },
-          '& .replacement-setup': {
-            flexGrow: 6
-          },
-          '& .original-texture': {
-            flexShrink: 0,
-            maxWidth: { xs: '280px', md: 'none' }
-          },
+          height: '100%',
+          minHeight: 0,
           '& .texture-img-container': {
             position: 'relative',
             width: '100%',
@@ -311,73 +292,16 @@ export default function ReplaceTexture() {
             backgroundColor: 'var(--mui-palette-scene-background)'
           },
           '& .texture-img-container > *': {
-            zIndex: 1
-          },
-          '& .cropper': {
-            flexGrow: 1,
-            position: 'relative',
-            width: '100%',
-            mb: 2,
-            overflow: 'hidden',
-            backgroundColor: 'var(--mui-palette-scene-background)'
-          },
-          '& .controls': {
-            display: 'flex',
-            justifyContent: 'space-between'
-          },
-          '& .controls .button-group': {
-            display: 'inline-flex'
-          },
-          '& .controls .button-group .MuiButtonBase-root.MuiButton-root': {
-            minWidth: '60px'
-          },
-          '& .controls .MuiSlider-root': {
-            minWidth: '120px',
-            ml: 2
-          },
-          '& .controls .MuiFormControlLabel-label': {
-            display: 'flex',
-            alignItems: 'center'
-          },
-          '& .original-texture.section .MuiFormControlLabel-labelPlacementEnd':
-            {
-              display: 'block'
-            },
-          '& .controls > .MuiButton-root': {
-            minWidth: '48px',
-            ml: 1
+            zIndex: 1,
+            maxWidth: '100%',
+            maxHeight: 'min(180px, 20vh)',
+            objectFit: 'contain'
           },
           '& .MuiDivider-vertical': {
             mx: 2
           },
           '& .MuiDivider-root:not(.MuiDivider-vertical)': {
-            my: 2
-          },
-          '& .MuiButton-root .icon-check': {
-            position: 'absolute',
-            right: 0,
-            top: 0
-          },
-          '& .origin-metadata': {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr'
-          },
-          '& .origin-metadata > .MuiTypography-root': {
-            display: 'flex',
-            alignItems: 'center'
-          },
-          '& .origin-metadata > :nth-child(even)': {
-            justifyContent: 'flex-end'
-          },
-          '& .result': {
-            flexGrow: 1
-          },
-          '& .dialog-actions': {
-            display: 'flex',
-            justifyContent: 'flex-end'
-          },
-          '& .dialog-actions > .MuiButton-root:not(:last-child)': {
-            mr: 2
+            my: 1
           },
           '& .MuiButtonBase-root.MuiCheckbox-root': {
             pt: 0,
@@ -385,13 +309,45 @@ export default function ReplaceTexture() {
           }
         })}
       >
-        <div
-          className={clsx('content', isDragActive && 'file-drag-active')}
+        <Box
           {...getDragProps()}
+          sx={(theme) => ({
+            display: 'flex',
+            flexDirection: 'row',
+            flexGrow: 1,
+            minHeight: 0,
+            overflow: 'hidden',
+            maxHeight: '100%',
+            ...(isDragActive
+              ? {
+                  '&::after': theme.mixins.fileDragActiveAfter
+                }
+              : {})
+          })}
         >
-          <div className='replacement-setup section'>
-            <Typography variant='h5'>Source Image</Typography>
-            <div className='cropper'>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              flexGrow: 6,
+              minWidth: 0,
+              minHeight: 0
+            }}
+          >
+            <Typography variant='h5' sx={{ mb: 1 }}>
+              Source Image
+            </Typography>
+            <Box
+              sx={{
+                flexGrow: 1,
+                position: 'relative',
+                width: '100%',
+                minHeight: 0,
+                mb: 2,
+                overflow: 'hidden',
+                backgroundColor: 'var(--mui-palette-scene-background)'
+              }}
+            >
               <Cropper
                 image={imageDataUrl}
                 crop={crop}
@@ -404,8 +360,28 @@ export default function ReplaceTexture() {
                 onCropComplete={onCropComplete}
                 onZoomChange={setZoom}
               />
-            </div>
-            <div className='controls'>
+            </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexShrink: 0,
+                '& .button-group': {
+                  display: 'inline-flex'
+                },
+                '& .button-group .MuiButtonBase-root.MuiButton-root': {
+                  minWidth: '60px'
+                },
+                '& .MuiSlider-root': {
+                  minWidth: '120px',
+                  ml: 2
+                },
+                '& .MuiFormControlLabel-label': {
+                  display: 'flex',
+                  alignItems: 'center'
+                }
+              }}
+            >
               <div>
                 <div className='button-group'>
                   <FormControlLabel
@@ -426,11 +402,7 @@ export default function ReplaceTexture() {
                     }
                   />
                   <Tooltip title='Reset zoom to 1x'>
-                    <Button
-                      color='primary'
-                      className='sub-control'
-                      onClick={onResetZoom}
-                    >
+                    <Button color='primary' onClick={onResetZoom}>
                       <RefreshIcon fontSize='small' />
                     </Button>
                   </Tooltip>
@@ -454,11 +426,7 @@ export default function ReplaceTexture() {
                     }
                   />
                   <Tooltip title='Reset rotation to zero degrees'>
-                    <Button
-                      color='primary'
-                      className='sub-control'
-                      onClick={onResetRotation}
-                    >
+                    <Button color='primary' onClick={onResetRotation}>
                       <RefreshIcon fontSize='small' />
                     </Button>
                   </Tooltip>
@@ -490,12 +458,27 @@ export default function ReplaceTexture() {
                   </Button>
                 </Tooltip>
               </div>
-            </div>
-          </div>
+            </Box>
+          </Box>
           <Divider orientation='vertical' flexItem />
-          <div className='original-texture section'>
-            <Typography variant='h5'>Texture Origin</Typography>
-            <div className='original-texture'>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateRows:
+                'auto minmax(0, 1fr) auto minmax(0, 1fr) auto auto',
+              flexShrink: 0,
+              maxWidth: { xs: '280px', md: 'none' },
+              minHeight: 0,
+              overflow: 'hidden',
+              '& .MuiFormControlLabel-labelPlacementEnd': {
+                display: 'block'
+              }
+            }}
+          >
+            <Typography variant='h5' sx={{ mb: 1 }}>
+              Texture Origin
+            </Typography>
+            <Box sx={{ minHeight: 0, overflow: 'hidden' }}>
               <div className='texture-img-container'>
                 <ImageBufferCanvas
                   rgbaBuffer={originTextureBuffer ?? undefined}
@@ -504,7 +487,19 @@ export default function ReplaceTexture() {
                   height={originalHeight}
                 />
               </div>
-              <div className='origin-metadata'>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  '& > .MuiTypography-root': {
+                    display: 'flex',
+                    alignItems: 'center'
+                  },
+                  '& > :nth-child(even)': {
+                    justifyContent: 'flex-end'
+                  }
+                }}
+              >
                 <Typography variant='subtitle1'>Dimensions</Typography>
                 <Typography variant='body2'>
                   <b>{originalWidth}</b>&nbsp;x&nbsp;<b>{originalHeight}</b>
@@ -517,7 +512,7 @@ export default function ReplaceTexture() {
                 <Typography variant='body2'>
                   <b>{textureFormat}</b>
                 </Typography>
-              </div>
+              </Box>
               <Tooltip
                 title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
                 placement='left-start'
@@ -531,16 +526,18 @@ export default function ReplaceTexture() {
                   }
                 />
               </Tooltip>
-            </div>
+            </Box>
             <Divider flexItem />
-            <div className='result'>
-              <Typography variant='h5'>Result Preview</Typography>
+            <Box sx={{ minHeight: 0, overflow: 'hidden' }}>
+              <Typography variant='h5' sx={{ mb: 1 }}>
+                Result Preview
+              </Typography>
               <div className='texture-img-container'>
                 {!previewDataUrl ? (
                   <Skeleton
                     variant='rectangular'
-                    width={originalWidth}
-                    height={originalHeight}
+                    width={referenceTextureStyle.width}
+                    height={referenceTextureStyle.height}
                   />
                 ) : (
                   <Img
@@ -579,9 +576,18 @@ export default function ReplaceTexture() {
                   onChange={() => setPreserveOriginAlpha(!preserveOriginAlpha)}
                 />
               </Tooltip>
-            </div>
+            </Box>
             <Divider flexItem />
-            <div className='dialog-actions'>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                flexShrink: 0,
+                '& > .MuiButton-root:not(:last-child)': {
+                  mr: 2
+                }
+              }}
+            >
               <Button
                 color='secondary'
                 variant='outlined'
@@ -596,9 +602,9 @@ export default function ReplaceTexture() {
               >
                 Apply
               </Button>
-            </div>
-          </div>
-        </div>
+            </Box>
+          </Box>
+        </Box>
       </Box>
     </>
   );
