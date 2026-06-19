@@ -23,18 +23,10 @@ const panelTextureSx: SxProps<Theme> = (theme) => ({
   flexDirection: 'column',
   width: IMG_SIZE,
   backgroundColor: 'var(--mui-palette-panelTexture-background, transparent)',
-  '& .image-area': {
-    position: 'relative',
-    display: 'flex',
-    width: '100%'
-  },
-  '& .image-area.file-drag-active:after': theme.mixins.fileDragActiveAfter,
+  '& .file-drag-active:after': theme.mixins.fileDragActiveAfter,
   '& .img': {
     width: IMG_SIZE,
     height: IMG_SIZE,
-    borderColor: 'transparent',
-    borderWidth: '3px',
-    borderStyle: 'solid',
     opacity: 1,
     transform: 'rotate(-90deg)'
   },
@@ -167,49 +159,77 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     [imageBufferKey]
   );
 
-  const [srcTextureBitmap, setSrcTextureBitmap] = useState<null | ImageBitmap>(
-    null
+  const showUvHighlight =
+    uvRegionsHighlighted && selected && uvClipPaths.length > 0;
+  const uvHighlightBufferKey = showUvHighlight
+    ? textureDef?.bufferKeys?.opaque
+    : undefined;
+  const shouldUseSeparateUvHighlightBuffer =
+    uvHighlightBufferKey && uvHighlightBufferKey !== imageBufferKey;
+  const uvHighlightRgbaBuffer = useMemo(
+    () =>
+      shouldUseSeparateUvHighlightBuffer
+        ? globalBuffers.get(uvHighlightBufferKey)
+        : undefined,
+    [shouldUseSeparateUvHighlightBuffer, uvHighlightBufferKey]
   );
 
-  useEffect(() => {
-    (async () => {
-      if (
-        !rgbaBuffer?.length ||
-        !width ||
-        !height ||
-        rgbaBuffer.length !== width * height * 4
-      ) {
-        return;
-      }
-      const imageData = new ImageData(
-        new Uint8ClampedArray(rgbaBuffer),
-        width,
-        height
-      );
+  const [textureBitmaps, setTextureBitmaps] = useState<{
+    source: ImageBitmap | null;
+    highlight: ImageBitmap | null;
+  }>({
+    source: null,
+    highlight: null
+  });
 
-      const bitmap = await createImageBitmap(imageData);
-      setSrcTextureBitmap(bitmap);
-    })();
-  }, [rgbaBuffer, width, height]);
+  useEffect(() => {
+    let active = true;
+
+    Promise.all(
+      [rgbaBuffer, uvHighlightRgbaBuffer].map((buffer) => {
+        if (
+          !buffer?.length ||
+          !width ||
+          !height ||
+          buffer.length !== width * height * 4
+        ) {
+          return null;
+        }
+
+        return createImageBitmap(
+          new ImageData(new Uint8ClampedArray(buffer), width, height)
+        );
+      })
+    ).then(([source, highlight]) => {
+      if (active) {
+        setTextureBitmaps({ source, highlight });
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [rgbaBuffer, uvHighlightRgbaBuffer, width, height]);
 
   const imgCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const draw = () => {
       const canvas = imgCanvasRef.current;
-      if (canvas && srcTextureBitmap) {
+      if (canvas && textureBitmaps.source) {
         const context = canvas.getContext('2d');
         if (context) {
-          const showUvArea =
-            uvRegionsHighlighted && selected && uvClipPaths.length > 0;
           context.clearRect(0, 0, width, height);
-          context.globalAlpha = showUvArea ? 0.25 : 1;
-          context.filter = `saturate(${showUvArea ? '0' : '1'})`;
-          context.drawImage(srcTextureBitmap, 0, 0);
+          context.globalAlpha = showUvHighlight ? 0.25 : 1;
+          context.filter = `saturate(${showUvHighlight ? '0' : '1'})`;
+          context.drawImage(textureBitmaps.source, 0, 0);
 
-          if (!showUvArea) {
+          if (!showUvHighlight) {
             return;
           }
+
+          const highlightTextureBitmap =
+            textureBitmaps.highlight ?? textureBitmaps.source;
 
           context.globalAlpha = 1;
           context.filter = 'saturate(1)';
@@ -240,7 +260,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
             context.rotate((-90 * Math.PI) / 180);
             context.translate(-canvas.width / 2, -canvas.height / 2);
 
-            context.drawImage(srcTextureBitmap, 0, 0);
+            context.drawImage(highlightTextureBitmap, 0, 0);
             context.restore();
           });
           context.restore();
@@ -249,13 +269,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     };
 
     requestAnimationFrame(draw);
-  }, [
-    srcTextureBitmap,
-    uvClipPaths,
-    selected,
-    contentViewMode,
-    uvRegionsHighlighted
-  ]);
+  }, [textureBitmaps, uvClipPaths, showUvHighlight]);
 
   const isSelectable = contentViewMode === 'textures' && !selected;
 
@@ -263,7 +277,6 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     () => ({
       id: `gui-panel-t-${textureIndex}`,
       className: clsx(
-        'image-area',
         selected && 'selected',
         isDragActive && 'file-drag-active',
         uvRegionsHighlighted
@@ -309,6 +322,12 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     />
   );
 
+  const imgAreaProps = {
+    component: isSelectable ? 'button' : 'div',
+    sx: { position: 'relative', display: 'flex', width: '100%' },
+    ...mainContentProps
+  };
+
   return (
     <Box
       className={clsx(
@@ -319,10 +338,10 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       sx={panelTextureSx}
     >
       {!isSelectable ? (
-        <div {...mainContentProps}>{content}</div>
+        <Box {...imgAreaProps}>{content}</Box>
       ) : (
         <Tooltip title='Select this texture'>
-          <ButtonBase {...mainContentProps}>{content}</ButtonBase>
+          <ButtonBase {...imgAreaProps}>{content}</ButtonBase>
         </Tooltip>
       )}
       {textureDef ? (

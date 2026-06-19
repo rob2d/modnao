@@ -265,7 +265,7 @@ export default function ReplaceTexture() {
   return (
     <>
       <Box
-        sx={(theme) => ({
+        sx={{
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
@@ -307,7 +307,7 @@ export default function ReplaceTexture() {
             pt: 0,
             pb: 0
           }
-        })}
+        }}
       >
         <Box
           {...getDragProps()}

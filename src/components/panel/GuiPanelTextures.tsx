@@ -236,15 +236,16 @@ export default function GuiPanelViewOptions() {
       <Box
         className='textures'
         sx={{
-          display: 'block',
-          textAlign: 'left',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 0.5,
           mb: 0.5,
           width: 'calc(100% + (var(--mui-spacing) * 4))',
           mx: -2,
           pl: 2,
           flexGrow: 2,
           overflowY: 'auto',
-          '& .MuiDivider-root': { my: 2 }
+          '& .MuiDivider-root': { my: 2, width: '100%' }
         }}
       >
         {textures}
