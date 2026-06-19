@@ -31,10 +31,7 @@ export default function FilesSupportedButton({
       size='small'
       variant='text'
       className={clsx(className)}
-      sx={{
-        fontSize: '8pt',
-        px: 0
-      }}
+      sx={{ fontSize: '8pt', px: 0 }}
     >
       What Files Are Supported?
     </Button>

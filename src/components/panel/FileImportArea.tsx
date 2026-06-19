@@ -49,6 +49,7 @@ export default function FileImportArea() {
           id='select-pol-or-tex-button'
           tooltip='Select MVC2, CVS1, or CVS2 POL.BIN and/or TEX.BIN files'
           onClick={openFileSelector}
+          sx={{ '&&&': { mb: 0 } }}
         >
           Import Model/Texture
         </GuiPanelButton>

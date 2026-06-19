@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, ReactNode } from 'react';
-import { Button, Tooltip } from '@mui/material';
+import { type BoxProps, Button, Tooltip } from '@mui/material';
 
 type Props = {
   children: ReactNode;
@@ -7,6 +7,7 @@ type Props = {
   tooltip: ReactNode | string;
   color?: 'primary' | 'inherit' | 'secondary';
   id?: string;
+  sx: BoxProps['sx'];
 };
 
 export default function GuiPanelButton({
@@ -14,7 +15,8 @@ export default function GuiPanelButton({
   tooltip,
   color = 'primary',
   onClick,
-  children
+  children,
+  sx
 }: Props) {
   return (
     <Tooltip title={tooltip}>
@@ -25,6 +27,7 @@ export default function GuiPanelButton({
         fullWidth
         size='small'
         variant='outlined'
+        sx={sx}
       >
         {children}
       </Button>
