@@ -165,6 +165,10 @@ export default function SceneView() {
   const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
   const axesHelperVisible =
     sceneOptions.axesHelperVisible && !sceneOptions.enableCinematicMode;
+  const selectionEnabled =
+    sceneOptions.meshDisplayMode === 'textured' &&
+    Boolean(objectKey) &&
+    !sceneOptions.renderAllModels;
 
   const renderedModels = useMemo(
     () =>
@@ -260,15 +264,9 @@ export default function SceneView() {
         ref={canvasRef}
         onCreated={onSceneCreated}
       >
-        <Selection
-          enabled={
-            sceneOptions.meshDisplayMode === 'textured' &&
-            Boolean(objectKey) &&
-            !sceneOptions.renderAllModels
-          }
-        >
+        <Selection enabled={selectionEnabled}>
           <SceneContextSetup />
-          <EffectComposer autoClear={false} key={objectKey}>
+          <EffectComposer autoClear={false} enabled={selectionEnabled}>
             <Outline
               edgeStrength={30}
               pulseSpeed={1}
