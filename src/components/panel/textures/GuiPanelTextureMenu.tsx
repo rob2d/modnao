@@ -18,12 +18,8 @@ import { setModelMeshSelection } from '@/modules/object-viewer';
 import { selectModelIndex } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 
-/**
- * menu sits on a Popper, so it is a bit cleaner
- * to keep things modular and just use style constant here
- */
-const MENU_OFFSET_STYLE = { transform: 'translateX(-200px)' } as const;
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
+const MENU_TRANSFORM_ORIGIN = { vertical: 'top', horizontal: 'right' } as const;
 
 export default function GuiPanelTextureMenu({
   textureIndex,
@@ -111,11 +107,11 @@ export default function GuiPanelTextureMenu({
         <MoreVertIcon fontSize='small' />
       </IconButton>
       <Menu
-        style={MENU_OFFSET_STYLE}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         anchorOrigin={MENU_ANCHOR_ORIGIN}
+        transformOrigin={MENU_TRANSFORM_ORIGIN}
         sx={{
           'li.MuiMenuItem-root > svg': {
             mr: 2
@@ -152,11 +148,7 @@ export default function GuiPanelTextureMenu({
           onClose={handleCloseReferences}
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-          sx={{
-            'li.MuiMenuItem-root': {
-              minWidth: 190
-            }
-          }}
+          sx={{ 'li.MuiMenuItem-root': { minWidth: 190 } }}
         >
           {modelReferences.map((reference: TextureModelReference) => (
             <MenuItem
