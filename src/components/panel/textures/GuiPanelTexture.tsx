@@ -4,7 +4,9 @@ import { Box, ButtonBase, Skeleton, Tooltip } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material/styles';
 import type { ContentViewMode, NLUITextureDef } from '@/types';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
-import { selectMesh } from '@/selectors';
+import GuiPanelTextureModelOptionsMenu from './GuiPanelTextureModelOptionsMenu';
+import type { TextureModelReference } from '@/modules/model-data';
+import { selectMesh, selectModels } from '@/selectors';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
@@ -14,6 +16,16 @@ import globalBuffers from '@/utils/data/globalBuffers';
 import { createUvClipPaths } from '@/utils/textures';
 
 const IMG_SIZE = '174px';
+const HOVERED_MODEL_UV_PULSE_MS = 2000;
+const HOVERED_MODEL_UV_MAX_ALPHA = 0.275;
+const HOVERED_MODEL_UV_COLORS: HoveredModelUvColor[] = [
+  [255, 209, 102],
+  [6, 214, 160],
+  [17, 138, 178],
+  [239, 71, 111],
+  [131, 56, 236],
+  [251, 133, 0]
+];
 
 const panelTextureSx: SxProps<Theme> = (theme) => ({
   position: 'relative',
@@ -72,6 +84,9 @@ const panelTextureSx: SxProps<Theme> = (theme) => ({
     textShadow: '1px 1px 1px black',
     filter: 'drop-shadow(3px 3px 1px black)',
     userSelect: 'none'
+  },
+  '&:hover .MuiIconButton-root': {
+    opacity: 1
   }
 });
 
@@ -91,6 +106,11 @@ export type GuiPanelTextureProps =
       contentViewMode: undefined;
     };
 type ClipPath = { x: number; y: number }[];
+type HoveredModelUvColor = [red: number, green: number, blue: number];
+interface ClipPathGroup {
+  paths: ClipPath[];
+  color?: HoveredModelUvColor;
+}
 
 export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   const {
@@ -102,16 +122,66 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   } = props;
   const dispatch = useAppDispatch();
   const mesh = useAppSelector(selectMesh);
+  const models = useAppSelector(selectModels);
+  const [hoveredModelReference, setHoveredModelReference] =
+    useState<TextureModelReference>();
   const { textureViewMode, uvRegionsHighlighted } =
     useContext(SceneOptionsContext);
 
-  const uvClipPaths = useMemo<ClipPath[]>(() => {
+  const uvClipPathGroups = useMemo<ClipPathGroup[]>(() => {
+    if (!textureDef) {
+      return [];
+    }
+
+    if (hoveredModelReference) {
+      const hoveredModel = models[hoveredModelReference.modelIndex];
+      const pathGroups: ClipPathGroup[] = [];
+
+      hoveredModelReference.meshIndexes.forEach((meshIndex, referenceIndex) => {
+        const hoveredMesh = hoveredModel?.meshes[meshIndex];
+
+        if (!hoveredMesh?.polygons.length) {
+          return;
+        }
+
+        const paths: ClipPath[] = [];
+
+        hoveredMesh.polygons.forEach((p) => {
+          for (let i = 0; i < p.triIndices.length; i += 4) {
+            const uvs = p.triIndices
+              .slice(i, i + 3)
+              .map((triIndex) => p.vertices[triIndex].uv);
+
+            paths.push(
+              ...createUvClipPaths(
+                uvs,
+                textureDef.width,
+                textureDef.height,
+                hoveredMesh.textureWrappingFlags
+              )
+            );
+          }
+        });
+
+        if (paths.length) {
+          pathGroups.push({
+            paths,
+            color:
+              HOVERED_MODEL_UV_COLORS[
+                referenceIndex % HOVERED_MODEL_UV_COLORS.length
+              ]
+          });
+        }
+      });
+
+      return pathGroups;
+    }
+
     if (!(selected && mesh?.polygons.length)) {
       return [];
     }
 
     const paths: ClipPath[] = [];
-
     const polygons =
       polygonIndex !== -1 ? [mesh.polygons[polygonIndex]] : mesh.polygons;
 
@@ -133,14 +203,13 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       }
     }
 
-    return paths;
-  }, [
-    selected && mesh?.polygons,
-    selected && mesh?.textureWrappingFlags,
-    textureDef?.width,
-    textureDef?.height,
-    polygonIndex
-  ]);
+    return [{ paths }];
+  }, [hoveredModelReference, mesh, models, polygonIndex, selected, textureDef]);
+
+  const uvClipPaths = useMemo(
+    () => uvClipPathGroups.flatMap(({ paths }) => paths),
+    [uvClipPathGroups]
+  );
 
   const { getDragProps, isDragActive, onSelectNewImageFile } =
     useTextureReplaceDropzone(textureIndex);
@@ -159,8 +228,13 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     [imageBufferKey]
   );
 
-  const showUvHighlight =
-    uvRegionsHighlighted && selected && uvClipPaths.length > 0;
+  const showUvHighlight = Boolean(
+    uvClipPaths.length &&
+    (hoveredModelReference || (uvRegionsHighlighted && selected))
+  );
+  const shouldPulseUvColorOverlay = Boolean(
+    hoveredModelReference && showUvHighlight
+  );
   const uvHighlightBufferKey = showUvHighlight
     ? textureDef?.bufferKeys?.opaque
     : undefined;
@@ -214,6 +288,8 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
   const imgCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    let animationFrameId = 0;
+
     const draw = () => {
       const canvas = imgCanvasRef.current;
       if (canvas && textureBitmaps.source) {
@@ -230,6 +306,14 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
 
           const highlightTextureBitmap =
             textureBitmaps.highlight ?? textureBitmaps.source;
+          const colorOverlayAlpha = shouldPulseUvColorOverlay
+            ? HOVERED_MODEL_UV_MAX_ALPHA *
+              ((Math.cos(
+                (performance.now() / HOVERED_MODEL_UV_PULSE_MS) * Math.PI * 2
+              ) +
+                1) /
+                2)
+            : HOVERED_MODEL_UV_MAX_ALPHA;
 
           context.globalAlpha = 1;
           context.filter = 'saturate(1)';
@@ -240,36 +324,56 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
           context.rotate((90 * Math.PI) / 180);
           context.translate(-canvas.width / 2, -canvas.height / 2);
 
-          uvClipPaths.forEach((points) => {
-            if (points.length === 0) {
-              return;
-            }
+          uvClipPathGroups.forEach(({ paths, color }) => {
+            paths.forEach((points) => {
+              if (points.length === 0) {
+                return;
+              }
 
-            context.save();
-            context.beginPath();
-            context.moveTo(points[0].x, points[0].y);
+              context.save();
+              context.beginPath();
+              context.moveTo(points[0].x, points[0].y);
 
-            for (let i = 1; i < points.length; i++) {
-              context.lineTo(points[i].x, points[i].y);
-            }
+              for (let i = 1; i < points.length; i++) {
+                context.lineTo(points[i].x, points[i].y);
+              }
 
-            context.closePath();
-            context.clip();
+              context.closePath();
+              context.clip();
 
-            context.translate(canvas.width / 2, canvas.height / 2);
-            context.rotate((-90 * Math.PI) / 180);
-            context.translate(-canvas.width / 2, -canvas.height / 2);
+              context.translate(canvas.width / 2, canvas.height / 2);
+              context.rotate((-90 * Math.PI) / 180);
+              context.translate(-canvas.width / 2, -canvas.height / 2);
 
-            context.drawImage(highlightTextureBitmap, 0, 0);
-            context.restore();
+              context.drawImage(highlightTextureBitmap, 0, 0);
+
+              if (color) {
+                const [red, green, blue] = color;
+                context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${colorOverlayAlpha})`;
+                context.fillRect(0, 0, canvas.width, canvas.height);
+              }
+
+              context.restore();
+            });
           });
           context.restore();
         }
       }
+
+      if (shouldPulseUvColorOverlay) {
+        animationFrameId = requestAnimationFrame(draw);
+      }
     };
 
-    requestAnimationFrame(draw);
-  }, [textureBitmaps, uvClipPaths, showUvHighlight]);
+    animationFrameId = requestAnimationFrame(draw);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [
+    textureBitmaps,
+    uvClipPathGroups,
+    showUvHighlight,
+    shouldPulseUvColorOverlay
+  ]);
 
   const isSelectable = contentViewMode === 'textures' && !selected;
 
@@ -345,11 +449,17 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
         </Tooltip>
       )}
       {textureDef ? (
-        <GuiPanelTextureMenu
-          textureIndex={textureIndex}
-          pixelBufferKeys={textureDef.bufferKeys}
-          onReplaceImageFile={onSelectNewImageFile}
-        />
+        <>
+          <GuiPanelTextureMenu
+            textureIndex={textureIndex}
+            pixelBufferKeys={textureDef.bufferKeys}
+            onReplaceImageFile={onSelectNewImageFile}
+          />
+          <GuiPanelTextureModelOptionsMenu
+            textureIndex={textureIndex}
+            onModelReferenceHover={setHoveredModelReference}
+          />
+        </>
       ) : undefined}
     </Box>
   );
