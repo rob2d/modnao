@@ -4,7 +4,9 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 import { Box } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
 import DialogSectionContentCards from '../../DialogSectionContentCards';
-import DevUpdateCard from '../DevUpdateCard';
+import XUpdateCard from '../XUpdateCard';
+import YTUpdateCard from '../YTUpdateCard';
+import { type XUpdate, xUpdates } from '../devUpdates';
 import { useClientEffect } from '@/hooks';
 import { useScrollEdges } from '@/hooks';
 dayjs.extend(advancedFormat);
@@ -18,6 +20,20 @@ type Vlog = {
   thumbnailUrl: string;
   publishedAt: string;
 };
+
+interface VlogTimelineItem {
+  kind: 'vlog';
+  publishedAt: string;
+  vlog: Vlog;
+}
+
+interface XUpdateTimelineItem {
+  kind: 'xUpdate';
+  publishedAt: string;
+  update: XUpdate;
+}
+
+type TimelineItem = VlogTimelineItem | XUpdateTimelineItem;
 
 const origin =
   typeof window !== 'undefined' && window.location.origin
@@ -51,26 +67,59 @@ export default function DevLog() {
   const { containerRef, hasScrollAbove, hasScrollBelow, scrollEdgeStyle } =
     useScrollEdges<HTMLDivElement>();
 
-  const vlogContent = vlogApiError
+  const timelineItems: TimelineItem[] = [
+    ...xUpdates.map(
+      (update): TimelineItem => ({
+        kind: 'xUpdate',
+        publishedAt: update.publishedAt,
+        update
+      })
+    ),
+    ...vlogs.map(
+      (vlog): TimelineItem => ({
+        kind: 'vlog',
+        publishedAt: vlog.publishedAt,
+        vlog
+      })
+    )
+  ].sort(
+    (firstUpdate, secondUpdate) =>
+      dayjs(secondUpdate.publishedAt).valueOf() -
+      dayjs(firstUpdate.publishedAt).valueOf()
+  );
+
+  const timelineContent = vlogApiError
     ? 'Failed to fetch vlogs'
-    : !vlogs?.length
+    : !vlogs.length
       ? Array(10)
           .fill(0)
           .map((_, i) => (
-            <DevUpdateCard key={i} loadingState='pending' showImage />
+            <YTUpdateCard key={i} loadingState='pending' showImage />
           ))
-      : (vlogs || []).map((v: Vlog) => (
-          <DevUpdateCard
-            key={v.id}
-            imageAlt={`Watch ${v.vlogNumber} now`}
-            imageUrl={v.thumbnailUrl}
-            onClick={() =>
-              window.open(`http://www.youtube.com/watch?v=${v.id}`, 'new')
-            }
-            subtitle={dayjs(v.publishedAt).format('MMM Do, YYYY')}
-            title={v.title}
-          />
-        ));
+      : timelineItems.map((timelineItem) =>
+          timelineItem.kind === 'xUpdate' ? (
+            <XUpdateCard
+              key={`${timelineItem.publishedAt}-${timelineItem.update.parts[0]?.url}`}
+              {...timelineItem.update}
+            />
+          ) : (
+            <YTUpdateCard
+              key={timelineItem.vlog.id}
+              imageAlt={`Watch ${timelineItem.vlog.vlogNumber} now`}
+              imageUrl={timelineItem.vlog.thumbnailUrl}
+              onClick={() =>
+                window.open(
+                  `http://www.youtube.com/watch?v=${timelineItem.vlog.id}`,
+                  'new'
+                )
+              }
+              subtitle={dayjs(timelineItem.vlog.publishedAt).format(
+                'MMM Do, YYYY'
+              )}
+              title={timelineItem.vlog.title}
+            />
+          )
+        );
 
   return (
     <Box
@@ -88,7 +137,7 @@ export default function DevLog() {
         hasScrollBelow={hasScrollBelow}
         scrollEdgeStyle={scrollEdgeStyle}
       >
-        {vlogContent}
+        {timelineContent}
       </DialogSectionContentCards>
     </Box>
   );

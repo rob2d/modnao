@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import type { AsyncState } from '@/types';
 
-export interface DevUpdateCardProps {
+export interface YTUpdateCardProps {
   imageAlt?: string;
   imageUrl?: string;
   loadingState?: AsyncState;
@@ -19,7 +19,7 @@ export interface DevUpdateCardProps {
   title?: string;
 }
 
-export default function DevUpdateCard({
+export default function YTUpdateCard({
   imageAlt,
   imageUrl,
   loadingState,
@@ -27,7 +27,7 @@ export default function DevUpdateCard({
   showImage,
   subtitle,
   title
-}: DevUpdateCardProps) {
+}: YTUpdateCardProps) {
   const shouldShowImage = showImage ?? Boolean(imageUrl);
   const isLoading = loadingState === 'pending';
 
@@ -47,6 +47,7 @@ export default function DevUpdateCard({
         variant={!isLoading ? 'body2' : 'subtitle1'}
         color='text.secondary'
         component='div'
+        sx={{ fontWeight: 700 }}
       >
         {!isLoading ? subtitle : <Skeleton />}
       </Typography>
