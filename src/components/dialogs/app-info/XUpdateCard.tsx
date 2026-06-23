@@ -112,13 +112,17 @@ export default function XUpdateCard({ parts, publishedAt }: XUpdate) {
           }}
         >
           {!hasImages ? null : (
-            <Icon path={mdiImageOutline} size={0.65} title='Contains images' />
+            <Icon
+              path={mdiImageOutline}
+              size={0.65}
+              title='Contains image(s)'
+            />
           )}
           {!hasVideo ? null : (
             <Icon
               path={mdiPlayCircleOutline}
               size={0.65}
-              title='Contains video'
+              title='Contains video(s)'
             />
           )}
           <IconButton
