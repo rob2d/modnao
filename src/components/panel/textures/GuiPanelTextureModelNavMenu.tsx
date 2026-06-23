@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '@/storeTypings';
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 const MENU_TRANSFORM_ORIGIN = { vertical: 'top', horizontal: 'right' } as const;
 
-export default function GuiPanelTextureModelOptionsMenu({
+export default function GuiPanelTextureModelNavMenu({
   textureIndex,
   onModelReferenceHover
 }: {

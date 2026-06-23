@@ -4,7 +4,7 @@ import { Box, ButtonBase, Skeleton, Tooltip } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material/styles';
 import type { ContentViewMode, NLUITextureDef } from '@/types';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
-import GuiPanelTextureModelOptionsMenu from './GuiPanelTextureModelOptionsMenu';
+import GuiPanelTextureModelNavMenu from './GuiPanelTextureModelNavMenu';
 import type { TextureModelReference } from '@/modules/model-data';
 import { selectMesh, selectModels } from '@/selectors';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
@@ -18,14 +18,14 @@ import { createUvClipPaths } from '@/utils/textures';
 const IMG_SIZE = '174px';
 const HOVERED_MODEL_UV_PULSE_MS = 2000;
 const HOVERED_MODEL_UV_MAX_ALPHA = 0.275;
-const HOVERED_MODEL_UV_COLORS: HoveredModelUvColor[] = [
+const HOVERED_MODEL_UV_COLORS = [
   [255, 209, 102],
   [6, 214, 160],
   [17, 138, 178],
   [239, 71, 111],
   [131, 56, 236],
   [251, 133, 0]
-];
+] as const;
 
 const panelTextureSx: SxProps<Theme> = (theme) => ({
   position: 'relative',
@@ -105,11 +105,11 @@ export type GuiPanelTextureProps =
       polygonIndex: undefined;
       contentViewMode: undefined;
     };
+
 type ClipPath = { x: number; y: number }[];
-type HoveredModelUvColor = [red: number, green: number, blue: number];
 interface ClipPathGroup {
   paths: ClipPath[];
-  color?: HoveredModelUvColor;
+  color?: Readonly<[r: number, g: number, b: number]>;
 }
 
 export default function GuiPanelTexture(props: GuiPanelTextureProps) {
@@ -455,7 +455,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
             pixelBufferKeys={textureDef.bufferKeys}
             onReplaceImageFile={onSelectNewImageFile}
           />
-          <GuiPanelTextureModelOptionsMenu
+          <GuiPanelTextureModelNavMenu
             textureIndex={textureIndex}
             onModelReferenceHover={setHoveredModelReference}
           />
