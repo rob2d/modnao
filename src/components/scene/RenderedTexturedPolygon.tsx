@@ -1,5 +1,6 @@
 import { SceneOptions } from '@/contexts/SceneOptionsContext';
 import { ThreeElements } from '@react-three/fiber';
+import RainbowSkeletonMaterial from './RainbowSkeletonMaterial';
 
 type Props = {
   vertexPositions: Float32Array;
@@ -22,11 +23,11 @@ export default function RenderedTexturePolygon({
 }: Props) {
   return (
     <>
-      <meshBasicMaterial
-        attach='material'
-        vertexColors={sceneOptions.enableVertexColors}
-        {...materialProps}
-      />
+      {sceneOptions.enableVertexColors ? (
+        <RainbowSkeletonMaterial side={materialProps.side} />
+      ) : (
+        <meshBasicMaterial attach='material' {...materialProps} />
+      )}
       <bufferGeometry attach='geometry'>
         {/* Fixed bufferAttributes */}
         <bufferAttribute

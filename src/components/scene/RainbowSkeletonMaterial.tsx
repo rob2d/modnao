@@ -1,13 +1,12 @@
 import { shaderMaterial } from '@react-three/drei';
-import { extend, ShaderMaterialProps, useFrame } from '@react-three/fiber';
+import { extend, ThreeElements, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import React, { useRef } from 'react';
 
-// Extend the existing ShaderMaterialProps interface
-interface RainbowSkeletonMaterialProps extends ShaderMaterialProps {
+type RainbowSkeletonMaterialProps = ThreeElements['shaderMaterial'] & {
   uDepthSensitivity?: number;
   uColorSpeed?: number;
-}
+};
 
 // Declare the custom element
 declare module '@react-three/fiber' {
@@ -77,7 +76,8 @@ extend({ RainbowSkeletonMaterial });
 
 function RainbowSkeletonMaterialComponent({
   uDepthSensitivity = 0.005,
-  uColorSpeed = 0.75
+  uColorSpeed = 0.75,
+  ...materialProps
 }: RainbowSkeletonMaterialProps) {
   const materialRef = useRef<
     THREE.ShaderMaterial & RainbowSkeletonMaterialUniforms
@@ -96,6 +96,7 @@ function RainbowSkeletonMaterialComponent({
       attach='material'
       uDepthSensitivity={uDepthSensitivity}
       uColorSpeed={uColorSpeed}
+      {...materialProps}
     />
   );
 }
