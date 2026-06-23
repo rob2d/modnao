@@ -21,6 +21,9 @@ function parseStoredValue<T>(defaultValue: T, storedValue: string): T {
 
 function writeStoredValue<T>(storageKey: string, value: T) {
   switch (typeof value) {
+    case 'undefined':
+      localStorage.removeItem(storageKey);
+      break;
     case 'string':
       localStorage.setItem(storageKey, value);
       break;

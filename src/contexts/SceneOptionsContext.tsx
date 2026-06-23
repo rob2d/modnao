@@ -1,7 +1,6 @@
 import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
 import { ScenePalette, useMediaQuery } from '@mui/material';
-import themes from '@/theming/themes';
 import useSceneOptionSetting from '@/hooks/useSceneOptionSettings';
 
 export type MeshDisplayMode = 'wireframe' | 'textured';
@@ -181,20 +180,11 @@ export function SceneOptionsContextProvider({ children }: Props) {
    * if the theme has been edited by the user
    */
   const toggleLightDarkTheme = useCallback(() => {
-    const currentSceneTheme =
-      themes[isDarkMode ? 'dark' : 'light'].palette.scene;
-    const altSceneTheme = themes[isDarkMode ? 'light' : 'dark'].palette.scene;
-    const isThemeCurrent = scenePalette === currentSceneTheme;
-    const isThemeAlt = scenePalette === altSceneTheme;
+    const currentThemeKey = themeKey ?? (isDarkMode ? 'dark' : 'light');
 
-    if ((!isThemeCurrent && !isThemeAlt) || isThemeAlt) {
-      setScenePalette(currentSceneTheme);
-      setThemeKey(isDarkMode ? 'dark' : 'light');
-    } else {
-      setScenePalette(altSceneTheme);
-      setThemeKey(isDarkMode ? 'light' : 'dark');
-    }
-  }, [scenePalette, isDarkMode]);
+    setScenePalette(undefined);
+    setThemeKey(currentThemeKey === 'dark' ? 'light' : 'dark');
+  }, [themeKey, isDarkMode]);
 
   const contextValue = useMemo<SceneOptions>(
     () => ({

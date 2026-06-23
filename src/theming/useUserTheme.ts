@@ -4,10 +4,10 @@ import { createTheme, ScenePalette, Theme, useMediaQuery } from '@mui/material';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 
 const setupThemeOptions = (
-  isDarkMode: boolean,
+  themeKey: 'light' | 'dark',
   scenePalette: Partial<ScenePalette> | undefined
 ) => {
-  const theme = themes[isDarkMode ? 'dark' : 'light'];
+  const theme = themes[themeKey];
   return {
     cssVariables: true,
     ...theme,
@@ -25,10 +25,11 @@ export default function useUserTheme() {
   const sceneOptions = useContext(SceneOptionsContext);
   const { scenePalette, themeKey } = sceneOptions;
   const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const activeThemeKey = themeKey ?? (isDarkMode ? 'dark' : 'light');
 
   const themeApplied = useMemo<Theme>(
-    () => createTheme(setupThemeOptions(isDarkMode, scenePalette ?? {})),
-    [scenePalette, themeKey, isDarkMode]
+    () => createTheme(setupThemeOptions(activeThemeKey, scenePalette ?? {})),
+    [scenePalette, activeThemeKey]
   );
 
   return themeApplied;
