@@ -15,6 +15,7 @@ import {
   selectModelIndex,
   selectObjectKey,
   selectPolygonBufferKey,
+  selectSelectedObjectIds,
   selectUpdatedTextureDefs
 } from '@/selectors';
 import { setObjectKey } from '@/modules/object-viewer';
@@ -75,6 +76,7 @@ export default function SceneView() {
 
   const dispatch = useAppDispatch();
   const objectKey = useAppSelector(selectObjectKey);
+  const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const onSelectObjectKey = useCallback(
     (key: string | undefined) => {
@@ -191,9 +193,10 @@ export default function SceneView() {
                   objectKey={
                     meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
                   }
-                  selectedObjectKey={objectKey}
+                  selectedObjectIds={selectedObjectIds}
                   onSelectObjectKey={onSelectObjectKey}
                   texture={texture}
+                  vertexSelectionMode={meshSelectionType === 'vertex'}
                 />
               ));
             })}
@@ -205,6 +208,7 @@ export default function SceneView() {
       !sceneOptions.renderAllModels ? selectedMeshes : meshes,
       textureMap,
       objectKey,
+      selectedObjectIds,
       meshSelectionType,
       onSelectObjectKey
     ]

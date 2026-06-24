@@ -4,7 +4,9 @@ import { AppState } from './storeTypings';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 export const selectTextureIndex = (s: AppState) => s.objectViewer.textureIndex;
-export const selectObjectKey = (s: AppState) => s.objectViewer.objectKey;
+export const selectObjectKey = (s: AppState) => s.objectViewer.activeObjectKey;
+export const selectSelectedObjectIds = (s: AppState) =>
+  s.objectViewer.selectedIds;
 export const selectModels = (s: AppState) => s.modelData.models;
 export const selectResourceAttribs = (s: AppState) =>
   s.modelData.resourceAttribs;

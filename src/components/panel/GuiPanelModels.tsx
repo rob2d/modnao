@@ -23,6 +23,7 @@ import {
   selectPolygonFileName
 } from '@/selectors';
 import { setObjectType } from '@/modules/object-viewer';
+import type { MeshSelectionType } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import {
   useModelSelectionExport,
@@ -69,10 +70,14 @@ export default function GuiPanelModels() {
   }, [onExportAllModelsToGLTF]);
 
   const onSetMeshSelectionType = useCallback(
-    (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
+    (_: React.MouseEvent<HTMLElement>, type: MeshSelectionType | null) => {
+      if (!type) {
+        return;
+      }
+
       dispatch(setObjectType(type));
     },
-    [meshSelectionType]
+    [dispatch]
   );
 
   const polygonFileName = useAppSelector(selectPolygonFileName);
@@ -88,9 +93,13 @@ export default function GuiPanelModels() {
     let title = 'Export Model JSON';
 
     if (objectKey) {
-      title = `Export ${
-        meshSelectionType === 'mesh' ? 'Mesh' : 'Polygon'
-      } JSON`;
+      const exportTypeLabels: Record<MeshSelectionType, string> = {
+        mesh: 'Mesh',
+        polygon: 'Polygon',
+        vertex: 'Vertex'
+      };
+
+      title = `Export ${exportTypeLabels[meshSelectionType]} JSON`;
     }
 
     return !model ? undefined : (
@@ -221,7 +230,7 @@ export default function GuiPanelModels() {
           <ToggleButtonGroup
             exclusive
             orientation={
-              sceneOptions.guiPanelExpansionLevel <= 1
+              sceneOptions.guiPanelExpansionLevel <= 2
                 ? 'vertical'
                 : 'horizontal'
             }
@@ -229,11 +238,12 @@ export default function GuiPanelModels() {
             value={meshSelectionType}
             size='small'
             onChange={onSetMeshSelectionType}
-            aria-label='text alignment'
+            aria-label='Object selection mode'
             sx={{ mb: 0.5 }}
           >
             <ToggleButton value='mesh'>mesh</ToggleButton>
             <ToggleButton value='polygon'>polygon</ToggleButton>
+            <ToggleButton value='vertex'>vertex</ToggleButton>
           </ToggleButtonGroup>
         </Grid>
       </Grid>

@@ -16,14 +16,16 @@ export default function RenderedPolygon({
   triIndices,
   address,
   objectKey,
-  selectedObjectKey,
+  selectedObjectIds,
   onSelectObjectKey,
-  texture
+  texture,
+  vertexSelectionMode
 }: NLPolygon & {
   objectKey: string;
-  selectedObjectKey?: string;
+  selectedObjectIds: Record<string, true>;
   onSelectObjectKey: (key: string) => void;
   texture: Texture | null;
+  vertexSelectionMode: boolean;
 }) {
   const sceneOptions = useContext(SceneOptionsContext);
   const {
@@ -38,7 +40,7 @@ export default function RenderedPolygon({
   const { scene: colors } = theme.palette;
   let color: React.CSSProperties['color'];
 
-  const isSelected = objectKey === selectedObjectKey;
+  const isSelected = selectedObjectIds[objectKey] === true;
 
   if (meshDisplayMode === 'wireframe') {
     color = isSelected ? colors.selected : colors.default;
@@ -165,6 +167,7 @@ export default function RenderedPolygon({
               colors={colorsRendered}
               materialProps={texturedMaterialProps}
               sceneOptions={sceneOptions}
+              vertexSelectionMode={vertexSelectionMode}
             />
           ) : (
             <RenderedWireframePolygon
