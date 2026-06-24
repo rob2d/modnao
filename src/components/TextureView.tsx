@@ -28,27 +28,6 @@ import globalBuffers from '@/utils/data/globalBuffers';
 import ImageBufferCanvas from './ImageBufferCanvas';
 import { useSelector } from 'react-redux';
 
-function TextureViewControlsButton({
-  onClick,
-  icon,
-  label,
-  disabled = false
-}: {
-  onClick: () => void;
-  icon: ReactNode;
-  label: string;
-  disabled?: boolean;
-}) {
-  return (
-    <div>
-      <IconButton color='primary' onClick={onClick} disabled={disabled}>
-        {icon}
-        <Typography variant='button'>{label}</Typography>
-      </IconButton>
-    </div>
-  );
-}
-
 export default function TextureView() {
   useObjectNavControls();
   const uiControls = useObjectUINav();
@@ -244,8 +223,16 @@ export default function TextureView() {
             </div>
             <Divider flexItem />
             <div>
-              {options.map((o) => (
-                <TextureViewControlsButton key={o.label} {...o} />
+              {options.map(({ onClick, icon, label, disabled }) => (
+                <Button
+                  key={label}
+                  color='primary'
+                  onClick={onClick}
+                  disabled={disabled}
+                >
+                  {icon}
+                  <Typography variant='button'>{label}</Typography>
+                </Button>
               ))}
             </div>
           </div>
