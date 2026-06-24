@@ -145,6 +145,30 @@ describe('getResourceAttribs', () => {
     }
   );
 
+  it('annotates MVC2 portrait files with the character hex slot and name', () => {
+    const resourceAttribs = getResourceAttribs('unknown', 'PL0D_FAC.BIN');
+
+    expect(resourceAttribs).toMatchObject({
+      game: 'MVC2',
+      name: 'Character Portraits - Hulk',
+      identifier: '0x0D',
+      resourceType: 'mvc2-menu',
+      textureFileType: 'mvc2-character-portraits'
+    });
+  });
+
+  it('annotates MVC2 win portrait files with the character hex slot and name', () => {
+    const resourceAttribs = getResourceAttribs('unknown', 'PL1B_WIN.BIN');
+
+    expect(resourceAttribs).toMatchObject({
+      game: 'MVC2',
+      name: 'Character Win Portraits - Chun-Li',
+      identifier: '0x1B',
+      resourceType: 'mvc2-menu',
+      textureFileType: 'mvc2-character-win'
+    });
+  });
+
   it('keeps unknown stage polygon files on the generic stage fallback', () => {
     const resourceAttribs = getResourceAttribs('unknown', 'STG03POL.BIN');
 
