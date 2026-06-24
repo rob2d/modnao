@@ -15,7 +15,6 @@ import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { createUvClipPaths } from '@/utils/textures';
 
-const IMG_SIZE = '174px';
 const HOVERED_MODEL_UV_PULSE_MS = 2000;
 const HOVERED_MODEL_UV_MAX_ALPHA = 0.275;
 const HOVERED_MODEL_UV_COLORS = [
@@ -33,12 +32,13 @@ const panelTextureSx: SxProps<Theme> = (theme) => ({
   alignItems: 'center',
   justifyContent: 'center',
   flexDirection: 'column',
-  width: IMG_SIZE,
+  width: '174px',
+  flex: '0 0 auto',
   backgroundColor: 'var(--mui-palette-panelTexture-background, transparent)',
   '& .file-drag-active:after': theme.mixins.fileDragActiveAfter,
   '& .img': {
-    width: IMG_SIZE,
-    height: IMG_SIZE,
+    width: '100%',
+    height: '100%',
     opacity: 1,
     transform: 'rotate(-90deg)'
   },
@@ -61,8 +61,8 @@ const panelTextureSx: SxProps<Theme> = (theme) => ({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: IMG_SIZE,
-    height: IMG_SIZE,
+    width: '100%',
+    height: '100%',
     border: '3px solid transparent',
     pointerEvents: 'none'
   },
@@ -428,8 +428,14 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
 
   const imgAreaProps = {
     component: isSelectable ? 'button' : 'div',
-    sx: { position: 'relative', display: 'flex', width: '100%' },
-    ...mainContentProps
+    sx: {
+      width: '100%',
+      position: 'relative',
+      display: 'flex',
+      aspectRatio: '1 / 1'
+    },
+    ...mainContentProps,
+    className: mainContentProps.className
   };
 
   return (
