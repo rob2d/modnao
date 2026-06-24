@@ -11,7 +11,6 @@ import { processPolygonFile } from '@/modules/model-data';
 export interface ObjectViewerState {
   modelIndex: number;
   textureIndex: number;
-  activeObjectKey?: string;
   selectedIds: Record<string, true>;
   meshSelectionType: MeshSelectionType;
   meshDisplayMode: 'wireframe' | 'textured';
@@ -22,16 +21,12 @@ export type MeshSelectionType = 'mesh' | 'polygon' | 'vertex';
 export const initialObjectViewerState: ObjectViewerState = {
   modelIndex: -1,
   textureIndex: -1,
-  activeObjectKey: undefined,
   selectedIds: {},
   meshSelectionType: 'mesh',
   meshDisplayMode: 'textured'
 };
 
 const sliceName = 'objectViewer';
-
-const getSelectedIds = (objectKey: string | undefined) =>
-  !objectKey ? {} : { [objectKey]: true };
 
 const getPrevRealModelIndex = (modelIndex: number, modelIndexes: number[]) => {
   for (let index = modelIndexes.length - 1; index >= 0; index -= 1) {
@@ -130,14 +125,12 @@ const objectViewerSlice = createSlice({
   reducers: {
     setObjectKey(state, { payload: objectKey }) {
       Object.assign(state, {
-        activeObjectKey: objectKey,
-        selectedIds: getSelectedIds(objectKey)
+        selectedIds: !objectKey ? {} : { [objectKey]: true }
       });
     },
 
     setObjectType(state, { payload: meshSelectionType }) {
       Object.assign(state, {
-        activeObjectKey: undefined,
         selectedIds: {},
         meshSelectionType
       });
@@ -149,7 +142,6 @@ const objectViewerSlice = createSlice({
     ) {
       Object.assign(state, {
         modelIndex: payload.modelIndex,
-        activeObjectKey: `${payload.meshIndex}`,
         selectedIds: { [`${payload.meshIndex}`]: true },
         meshSelectionType: 'mesh'
       });
@@ -167,7 +159,6 @@ const objectViewerSlice = createSlice({
       Object.assign(state, {
         modelIndex: firstRealModelIndex,
         textureIndex: 0,
-        activeObjectKey: undefined,
         selectedIds: {}
       });
     });
@@ -177,7 +168,6 @@ const objectViewerSlice = createSlice({
       (state, { payload: { objectIndex, indexKey } }) => {
         Object.assign(state, {
           [indexKey]: objectIndex,
-          activeObjectKey: undefined,
           selectedIds: {}
         });
       }

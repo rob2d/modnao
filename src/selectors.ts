@@ -4,9 +4,24 @@ import { AppState } from './storeTypings';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 export const selectTextureIndex = (s: AppState) => s.objectViewer.textureIndex;
-export const selectObjectKey = (s: AppState) => s.objectViewer.activeObjectKey;
 export const selectSelectedObjectIds = (s: AppState) =>
   s.objectViewer.selectedIds;
+
+// selects the key of the currently selected object
+// NOTE: this is temporary as it is a bridge to single-select
+// before multi-select UX mechanisms exist
+export const selectObjectKey = createSelector(
+  selectSelectedObjectIds,
+  (selectedIds) => {
+    for (const objectKey in selectedIds) {
+      if (selectedIds[objectKey]) {
+        return objectKey;
+      }
+    }
+
+    return undefined;
+  }
+);
 export const selectModels = (s: AppState) => s.modelData.models;
 export const selectResourceAttribs = (s: AppState) =>
   s.modelData.resourceAttribs;
