@@ -281,6 +281,8 @@ export default function GuiPanelViewOptions() {
         sx={{
           display: 'flex',
           flexWrap: 'wrap',
+          alignContent: 'flex-start',
+          alignItems: 'flex-start',
           gap: 0.5,
           mb: 0.5,
           width: 'calc(100% + (var(--mui-spacing) * 4))',

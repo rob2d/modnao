@@ -1,4 +1,5 @@
 import type { NLUITextureDef, ResourceAttribs, TextureFileType } from '@/types';
+import mvc2CharacterIds from '@/constants/mvc2CharacterIds';
 import createTextureDef from '@/utils/textures/createTextureDef';
 import cvs1MenuAttribMappings from './resource-mappings/cvs1MenuAttribMappings';
 import cvs1StageAttribMappings from './resource-mappings/cvs1StageAttribMappings';
@@ -22,6 +23,63 @@ const fontTextureArgs: Partial<NLUITextureDef> = {
   colorFormat: 'ARGB4444',
   colorFormatValue: 2
 };
+
+const mvc2CharacterPortraitEntries = Object.fromEntries(
+  Object.entries(mvc2CharacterIds).map(([slot, characterName]) => [
+    `mvc2-character-portrait-${slot.toLowerCase()}`,
+    {
+      game: 'MVC2',
+      name: `Character Portraits - ${characterName}`,
+      identifier: `0x${slot}`,
+      resourceType: 'mvc2-menu',
+      filenamePattern: `^PL${slot}_FAC(.mn)?.BIN$`,
+      polygonMapped: false,
+      oobReferencable: true,
+      textureFileType: 'mvc2-character-portraits',
+      hasLzssTextureFile: false,
+      textureShapesMap: mvc2PlFacStructure.map((t, i) =>
+        createTextureDef({
+          ...t,
+          colorFormat: 'RGB565',
+          colorFormatValue: 1,
+          baseLocation: 0,
+          displayedAspectRatio: {
+            0: undefined,
+            1: 0.6,
+            2: undefined,
+            3: undefined
+          }[i]
+        })
+      )
+    } satisfies ResourceAttribs
+  ])
+);
+
+const mvc2CharacterWinEntries = Object.fromEntries(
+  Object.entries(mvc2CharacterIds).map(([slot, characterName]) => [
+    `mvc2-character-win-${slot.toLowerCase()}`,
+    {
+      game: 'MVC2',
+      name: `Character Win Portraits - ${characterName}`,
+      identifier: `0x${slot}`,
+      resourceType: 'mvc2-menu',
+      filenamePattern: `^PL${slot}_WIN(.mn)?.BIN$`,
+      polygonMapped: false,
+      oobReferencable: true,
+      textureFileType: 'mvc2-character-win',
+      hasLzssTextureFile: true,
+      textureShapesMap: [
+        createTextureDef({
+          width: 256,
+          height: 256,
+          colorFormat: 'ARGB4444',
+          colorFormatValue: 2,
+          displayedAspectRatio: 1.33
+        })
+      ]
+    } satisfies ResourceAttribs
+  ])
+);
 
 type ResourceHashKey = TextureFileType | string;
 const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
@@ -116,6 +174,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
       })
     ]
   },
+  ...mvc2CharacterPortraitEntries,
   'mvc2-character-portraits': {
     game: 'MVC2',
     name: 'Character Portraits',
@@ -248,6 +307,7 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
       })
     ]
   },
+  ...mvc2CharacterWinEntries,
   'mvc2-character-win': {
     game: 'MVC2',
     name: 'Character Win Portraits',

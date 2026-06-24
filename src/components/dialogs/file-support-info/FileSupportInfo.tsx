@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid';
+import ResourceNavigator from '@/components/ResourceNavigator';
 import DialogSectionHeader from '../DialogSectionHeader';
 import clsx from 'clsx';
 
@@ -342,7 +343,27 @@ export default function FileSupportInfo() {
         }
       }}
     >
-      <DialogSectionHeader>Supported Files</DialogSectionHeader>
+      <Box
+        sx={{
+          alignItems: { xs: 'stretch', md: 'flex-start' },
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 1,
+          justifyContent: 'space-between',
+          mb: 0.5
+        }}
+      >
+        <DialogSectionHeader>Supported Files</DialogSectionHeader>
+        <ResourceNavigator
+          label='Find supported resources'
+          sx={{
+            maxWidth: { xs: '100%', md: 420 },
+            minWidth: { xs: '100%', md: 320 },
+            mt: -0.5,
+            width: '100%'
+          }}
+        />
+      </Box>
       <div className='data-grid-container'>
         <DataGrid
           rows={rows}
