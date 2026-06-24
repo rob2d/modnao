@@ -15,10 +15,10 @@ import {
   selectContentViewMode,
   selectHasLoadedTextureFile,
   selectLoadTexturesState,
+  selectMeshSelectionType,
   selectModel,
   selectModels,
-  selectObjectMeshIndex,
-  selectObjectPolygonIndex,
+  selectSelectedObjectIds,
   selectSelectedTexture,
   selectTextureFileName,
   selectUpdatedTextureDefs
@@ -49,18 +49,61 @@ export default function GuiPanelViewOptions() {
     useContext(SceneOptionsContext);
   const dispatch = useAppDispatch();
   const model = useAppSelector(selectModel);
-  const meshIndex = useAppSelector(selectObjectMeshIndex);
   const canExportTextures = useAppSelector(selectCanExportTextures);
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const textureFileName = useAppSelector(selectTextureFileName);
   const selectedTexture = useAppSelector(selectSelectedTexture);
+  const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
+  const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const contentViewMode = useAppSelector(selectContentViewMode);
   const loadTexturesState = useAppSelector(selectLoadTexturesState);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const models = useAppSelector(selectModels);
-
-  const polygonIndex = useAppSelector(selectObjectPolygonIndex);
   const textureViewAsTranslucent = textureViewMode === 'transparent';
+
+  const selectedTextureReferences = useMemo(() => {
+    const references = new Map<
+      number,
+      { meshIndex: number; polygonIndexes?: number[] }[]
+    >();
+
+    for (const objectKey in selectedObjectIds) {
+      if (!selectedObjectIds[objectKey]) {
+        continue;
+      }
+
+      const [meshIndexPart, polygonIndexPart] = objectKey.split('_');
+      const meshIndex = Number(meshIndexPart);
+      const polygonIndex = Number(polygonIndexPart);
+      const mesh = model?.meshes[meshIndex];
+
+      if (!mesh) {
+        continue;
+      }
+
+      const textureRefs = references.get(mesh.textureIndex) ?? [];
+      let textureRef = textureRefs.find((ref) => ref.meshIndex === meshIndex);
+
+      if (!textureRef) {
+        textureRef = {
+          meshIndex,
+          polygonIndexes: meshSelectionType === 'mesh' ? undefined : []
+        };
+        textureRefs.push(textureRef);
+        references.set(mesh.textureIndex, textureRefs);
+      }
+
+      if (
+        textureRef.polygonIndexes &&
+        Number.isFinite(polygonIndex) &&
+        !textureRef.polygonIndexes.includes(polygonIndex)
+      ) {
+        textureRef.polygonIndexes.push(polygonIndex);
+      }
+    }
+
+    return references;
+  }, [meshSelectionType, model, selectedObjectIds]);
 
   // when selecting a texture, scroll to the item
   useEffect(() => {
@@ -126,7 +169,7 @@ export default function GuiPanelViewOptions() {
               key={i}
               textureDef={undefined}
               textureIndex={undefined}
-              polygonIndex={undefined}
+              selectedTextureReferences={undefined}
               selected={undefined}
               contentViewMode={undefined}
             />
@@ -154,8 +197,10 @@ export default function GuiPanelViewOptions() {
               key={`${m.textureIndex}_${i}`}
               textureDef={textureDef}
               textureIndex={m.textureIndex}
-              polygonIndex={polygonIndex}
-              selected={selectedTexture === m.textureIndex}
+              selectedTextureReferences={
+                selectedTextureReferences.get(m.textureIndex) ?? []
+              }
+              selected={selectedTextureReferences.has(m.textureIndex)}
               contentViewMode={contentViewMode}
             />
           );
@@ -174,8 +219,8 @@ export default function GuiPanelViewOptions() {
             key={i}
             textureDef={textureDef}
             textureIndex={i}
-            polygonIndex={polygonIndex}
-            selected={i === selectedTexture}
+            selectedTextureReferences={selectedTextureReferences.get(i) ?? []}
+            selected={selectedTextureReferences.has(i)}
             contentViewMode={contentViewMode}
           />
         );
@@ -185,10 +230,8 @@ export default function GuiPanelViewOptions() {
     return [pTextures, opTextures];
   }, [
     model,
-    meshIndex,
     textureDefs,
-    selectedTexture,
-    polygonIndex,
+    selectedTextureReferences,
     contentViewMode,
     loadTexturesState
   ]);

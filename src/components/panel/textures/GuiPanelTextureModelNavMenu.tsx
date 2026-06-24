@@ -44,7 +44,13 @@ export default function GuiPanelTextureModelNavMenu({
     modelIndex,
     meshIndexes
   }: TextureModelReference) {
-    dispatch(setModelMeshSelection({ modelIndex, meshIndex: meshIndexes[0] }));
+    dispatch(
+      setModelMeshSelection({
+        modelIndex,
+        meshIndex: meshIndexes[0],
+        textureIndex
+      })
+    );
     handleClose();
   }
 

@@ -13,12 +13,15 @@ import {
   selectMeshSelectionType,
   selectModel,
   selectModelIndex,
-  selectObjectKey,
   selectPolygonBufferKey,
   selectSelectedObjectIds,
   selectUpdatedTextureDefs
 } from '@/selectors';
-import { setObjectKey } from '@/modules/object-viewer';
+import {
+  addObjectKey,
+  setObjectKey,
+  setSelectedTextureIndex
+} from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { useObjectNavControls } from '@/modules/object-viewer';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
@@ -75,14 +78,23 @@ export default function SceneView() {
   const sceneOptions = useContext(SceneOptionsContext);
 
   const dispatch = useAppDispatch();
-  const objectKey = useAppSelector(selectObjectKey);
   const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const onSelectObjectKey = useCallback(
-    (key: string | undefined) => {
-      dispatch(setObjectKey(objectKey !== key ? key : undefined));
+    (key: string, textureIndex: number, additive: boolean) => {
+      const selectedObjectCount = Object.keys(selectedObjectIds).length;
+      const isOnlySelectedObject =
+        selectedObjectCount === 1 && selectedObjectIds[key] === true;
+
+      if (additive) {
+        dispatch(addObjectKey(key));
+      } else {
+        dispatch(setObjectKey(isOnlySelectedObject ? undefined : key));
+      }
+
+      dispatch(setSelectedTextureIndex(textureIndex));
     },
-    [objectKey]
+    [dispatch, selectedObjectIds]
   );
 
   const onResetCameraPosition = useCallback(() => {
@@ -169,7 +181,7 @@ export default function SceneView() {
     sceneOptions.axesHelperVisible && !sceneOptions.enableCinematicMode;
   const selectionEnabled =
     sceneOptions.meshDisplayMode === 'textured' &&
-    Boolean(objectKey) &&
+    Object.keys(selectedObjectIds).length > 0 &&
     !sceneOptions.renderAllModels;
 
   const renderedModels = useMemo(
@@ -193,6 +205,7 @@ export default function SceneView() {
                   objectKey={
                     meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
                   }
+                  textureIndex={m.textureIndex}
                   selectedObjectIds={selectedObjectIds}
                   onSelectObjectKey={onSelectObjectKey}
                   texture={texture}
@@ -207,7 +220,6 @@ export default function SceneView() {
       model,
       !sceneOptions.renderAllModels ? selectedMeshes : meshes,
       textureMap,
-      objectKey,
       selectedObjectIds,
       meshSelectionType,
       onSelectObjectKey

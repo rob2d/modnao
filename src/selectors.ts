@@ -256,17 +256,21 @@ export const selectContentViewMode = createSelector(
 
 export const selectSelectedTexture = createSelector(
   selectContentViewMode,
-  selectModel,
-  selectObjectMeshIndex,
+  selectSelectedObjectIds,
   selectTextureIndex,
-  (contentViewMode, model, meshIndex, textureIndex) => {
+  (contentViewMode, selectedObjectIds, textureIndex) => {
     switch (contentViewMode) {
       case 'textures': {
         return textureIndex;
       }
       case 'polygons': {
-        const textureIndex = model?.meshes?.[meshIndex]?.textureIndex;
-        return typeof textureIndex === 'number' ? textureIndex : -1;
+        for (const objectKey in selectedObjectIds) {
+          if (selectedObjectIds[objectKey]) {
+            return textureIndex;
+          }
+        }
+
+        return -1;
       }
       default:
       case 'welcome': {

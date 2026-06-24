@@ -129,6 +129,21 @@ const objectViewerSlice = createSlice({
       });
     },
 
+    addObjectKey(state, { payload: objectKey }: { payload: string }) {
+      Object.assign(state, {
+        selectedIds: {
+          ...state.selectedIds,
+          [objectKey]: true
+        }
+      });
+    },
+
+    setSelectedTextureIndex(state, { payload }: { payload: number }) {
+      Object.assign(state, {
+        textureIndex: payload
+      });
+    },
+
     setObjectType(state, { payload: meshSelectionType }) {
       Object.assign(state, {
         selectedIds: {},
@@ -138,10 +153,19 @@ const objectViewerSlice = createSlice({
 
     setModelMeshSelection(
       state,
-      { payload }: { payload: { modelIndex: number; meshIndex: number } }
+      {
+        payload
+      }: {
+        payload: {
+          modelIndex: number;
+          meshIndex: number;
+          textureIndex?: number;
+        };
+      }
     ) {
       Object.assign(state, {
         modelIndex: payload.modelIndex,
+        textureIndex: payload.textureIndex ?? state.textureIndex,
         selectedIds: { [`${payload.meshIndex}`]: true },
         meshSelectionType: 'mesh'
       });
@@ -175,7 +199,12 @@ const objectViewerSlice = createSlice({
   }
 });
 
-export const { setModelMeshSelection, setObjectKey, setObjectType } =
-  objectViewerSlice.actions;
+export const {
+  addObjectKey,
+  setModelMeshSelection,
+  setObjectKey,
+  setObjectType,
+  setSelectedTextureIndex
+} = objectViewerSlice.actions;
 
 export default objectViewerSlice;

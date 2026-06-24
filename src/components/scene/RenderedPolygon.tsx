@@ -16,14 +16,20 @@ export default function RenderedPolygon({
   triIndices,
   address,
   objectKey,
+  textureIndex,
   selectedObjectIds,
   onSelectObjectKey,
   texture,
   vertexSelectionMode
 }: NLPolygon & {
   objectKey: string;
+  textureIndex: number;
   selectedObjectIds: Record<string, true>;
-  onSelectObjectKey: (key: string) => void;
+  onSelectObjectKey: (
+    key: string,
+    textureIndex: number,
+    additive: boolean
+  ) => void;
   texture: Texture | null;
   vertexSelectionMode: boolean;
 }) {
@@ -143,9 +149,9 @@ export default function RenderedPolygon({
     (e: ThreeEvent<MouseEvent>) => {
       e.nativeEvent.stopPropagation();
       e.stopPropagation();
-      onSelectObjectKey(objectKey);
+      onSelectObjectKey(objectKey, textureIndex, e.nativeEvent.shiftKey);
     },
-    [onSelectObjectKey, objectKey]
+    [onSelectObjectKey, objectKey, textureIndex]
   );
 
   return (
