@@ -158,15 +158,23 @@ const objectViewerSlice = createSlice({
       }: {
         payload: {
           modelIndex: number;
-          meshIndex: number;
+          meshIndexes: number[];
           textureIndex?: number;
         };
       }
     ) {
+      const selectedIds = payload.meshIndexes.reduce<Record<string, true>>(
+        (selectedMeshIds, meshIndex) => {
+          selectedMeshIds[`${meshIndex}`] = true;
+          return selectedMeshIds;
+        },
+        {}
+      );
+
       Object.assign(state, {
         modelIndex: payload.modelIndex,
         textureIndex: payload.textureIndex ?? state.textureIndex,
-        selectedIds: { [`${payload.meshIndex}`]: true },
+        selectedIds,
         meshSelectionType: 'mesh'
       });
     }
