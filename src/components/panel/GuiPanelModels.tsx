@@ -19,8 +19,8 @@ import {
   selectModel,
   selectModelCount,
   selectModelIndex,
-  selectObjectKey,
-  selectPolygonFileName
+  selectPolygonFileName,
+  selectSelectedObjectIds
 } from '@/selectors';
 import { setObjectType } from '@/modules/object-viewer';
 import type { MeshSelectionType } from '@/modules/object-viewer';
@@ -39,7 +39,7 @@ export default function GuiPanelModels() {
   const dispatch = useAppDispatch();
 
   const uiNav = useObjectUINav();
-  const objectKey = useAppSelector(selectObjectKey);
+  const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const [gltfExportAnchorEl, setGltfExportAnchorEl] =
     useState<HTMLButtonElement | null>(null);
@@ -84,6 +84,21 @@ export default function GuiPanelModels() {
   const modelIndex = useAppSelector(selectModelIndex);
   const modelCount = useAppSelector(selectModelCount);
   const model = useAppSelector(selectModel);
+  const selectedObjectKeys = useMemo(
+    () =>
+      Object.keys(selectedObjectIds).filter(
+        (objectKey) => selectedObjectIds[objectKey]
+      ),
+    [selectedObjectIds]
+  );
+  const selectedObjectCount = selectedObjectKeys.length;
+  let selectionSummary = '--';
+
+  if (selectedObjectCount === 1) {
+    selectionSummary = selectedObjectKeys[0];
+  } else if (selectedObjectCount > 1) {
+    selectionSummary = `${selectedObjectCount} selected`;
+  }
 
   const exportSelectionButton = useMemo(() => {
     if (!sceneOptions.devOptionsVisible) {
@@ -92,7 +107,7 @@ export default function GuiPanelModels() {
 
     let title = 'Export Model JSON';
 
-    if (objectKey) {
+    if (selectedObjectCount > 0) {
       const exportTypeLabels: Record<MeshSelectionType, string> = {
         mesh: 'Mesh',
         polygon: 'Polygon',
@@ -118,7 +133,7 @@ export default function GuiPanelModels() {
   }, [
     model,
     meshSelectionType,
-    objectKey,
+    selectedObjectCount,
     onExportSelectionJson,
     sceneOptions.devOptionsVisible
   ]);
@@ -212,13 +227,16 @@ export default function GuiPanelModels() {
         </Grid>
         <Grid className='grid-control-label' size={7}>
           <Typography variant='body1' textAlign='right'>
-            {sceneOptions.guiPanelExpansionLevel > 1 ? 'Selected ' : ''}
-            Object Key
+            Selection
           </Typography>
         </Grid>
         <Grid size={5}>
-          <Typography variant='button' textAlign='right'>
-            {!objectKey ? '--' : objectKey}
+          <Typography
+            variant='button'
+            textAlign='right'
+            sx={{ textTransform: 'none' }}
+          >
+            {selectionSummary}
           </Typography>
         </Grid>
         <Grid className='grid-control-label' size={7}>
