@@ -248,7 +248,7 @@ export default function GuiPanelModels() {
           <ToggleButtonGroup
             exclusive
             orientation={
-              sceneOptions.guiPanelExpansionLevel <= 2
+              sceneOptions.guiPanelExpansionLevel < 2
                 ? 'vertical'
                 : 'horizontal'
             }

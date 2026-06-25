@@ -180,7 +180,7 @@ export default function SceneView() {
   const axesHelperVisible =
     sceneOptions.axesHelperVisible && !sceneOptions.enableCinematicMode;
   const selectionEnabled =
-    sceneOptions.meshDisplayMode === 'textured' &&
+    sceneOptions.meshDisplayMode !== 'wireframe' &&
     Object.keys(selectedObjectIds).length > 0 &&
     !sceneOptions.renderAllModels;
 

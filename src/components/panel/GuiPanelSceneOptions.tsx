@@ -5,13 +5,22 @@ import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
-import { Box, Slider, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { mdiCubeUnfolded, mdiFormatColorFill, mdiTextureBox } from '@mdi/js';
+import {
+  Box,
+  Slider,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import Grid from '@mui/material/Grid';
 import GuiPanelSection from './GuiPanelSection';
 import { JSX, SyntheticEvent, useCallback, useContext, useMemo } from 'react';
 import SceneOptionsContext, {
   MeshDisplayMode
 } from '@/contexts/SceneOptionsContext';
+import MdiSvgIcon from '../MdiSvgIcon';
 import PaletteEditor from './PaletteEditor';
 import SceneOptionCheckbox from './SceneOptionCheckbox';
 
@@ -165,7 +174,7 @@ export default function GuiPanelViewOptions() {
         <SceneOptionCheckbox
           key='vertex-colors'
           checked={sceneOptions.enableVertexColors}
-          tooltipHint='Enable Vertex Colors; this is usually used for simulating shading and lighting effects.'
+          tooltipHint='Enable Vertex Colors while using textured view mode.'
           icon={<FormatColorFillIcon fontSize='small' />}
           onChange={onSetEnableVertexColors}
         />
@@ -210,22 +219,41 @@ export default function GuiPanelViewOptions() {
           '& .slider-setting .MuiSlider-root': {
             width: '100%',
             mx: 0.5
-          },
-          '& .display-mode': {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end'
-          },
-          '.expanded & .display-mode': {
-            mt: 1
           }
         }}
       >
-        <Grid container className='property-table'>
-          <Grid
-            className='display-mode'
-            size={sceneOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}
+        <Box
+          sx={({ mixins }) => ({
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            columnGap: 1,
+            mb: 0.5,
+            [`@container (max-width: ${mixins.guiPanelExpansionL1W})`]: {
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              rowGap: 1
+            }
+          })}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              width: 'fit-content',
+              alignItems: 'center',
+              columnGap: 1
+            }}
           >
+            <Typography
+              variant='caption'
+              sx={{
+                color: 'var(--mui-palette-text-secondary)',
+                lineHeight: 1,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              View Mode
+            </Typography>
             <ToggleButtonGroup
               orientation='horizontal'
               size='small'
@@ -234,16 +262,28 @@ export default function GuiPanelViewOptions() {
               exclusive
               onChange={onSetMeshDisplayMode}
               aria-label='Mesh Display Mode Selection'
-              sx={{ mb: 0.5 }}
             >
-              <ToggleButton value='wireframe'>wireframe</ToggleButton>
-              <ToggleButton value='textured'>textured</ToggleButton>
+              <Tooltip title='Wireframe view'>
+                <ToggleButton value='wireframe' aria-label='Wireframe view'>
+                  <MdiSvgIcon path={mdiCubeUnfolded} fontSize='small' />
+                </ToggleButton>
+              </Tooltip>
+              <Tooltip title='Textured view'>
+                <ToggleButton value='textured' aria-label='Textured view'>
+                  <MdiSvgIcon path={mdiTextureBox} fontSize='small' />
+                </ToggleButton>
+              </Tooltip>
+              <Tooltip title='Vertex color visualization view'>
+                <ToggleButton value='colors' aria-label='Vertex color view'>
+                  <MdiSvgIcon path={mdiFormatColorFill} fontSize='small' />
+                </ToggleButton>
+              </Tooltip>
             </ToggleButtonGroup>
-          </Grid>
-          <Grid size={sceneOptions.guiPanelExpansionLevel <= 1 ? 12 : 6}>
+          </Box>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <PaletteEditor />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
         <Box
           sx={({ mixins }) => ({
             display: 'flex',

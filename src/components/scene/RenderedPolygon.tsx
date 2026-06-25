@@ -105,7 +105,7 @@ export default function RenderedPolygon({
   const meshAddressText = useMemo(() => {
     if (
       !isSelected ||
-      meshDisplayMode === 'textured' ||
+      meshDisplayMode !== 'wireframe' ||
       !objectAddressesVisible
     ) {
       return undefined;
@@ -164,7 +164,7 @@ export default function RenderedPolygon({
           }`}
           onClick={handleClick}
         >
-          {meshDisplayMode === 'textured' ? (
+          {meshDisplayMode !== 'wireframe' ? (
             <RenderedTexturedPolygon
               vertexPositions={vertexPositions}
               normals={normals}

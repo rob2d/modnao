@@ -3,7 +3,7 @@ import { StorageKeys } from '@/constants/StorageKeys';
 import { ScenePalette, useMediaQuery } from '@mui/material';
 import useSceneOptionSetting from '@/hooks/useSceneOptionSettings';
 
-export type MeshDisplayMode = 'wireframe' | 'textured';
+export type MeshDisplayMode = 'wireframe' | 'textured' | 'colors';
 export type TextureViewMode = 'opaque' | 'transparent';
 
 export type SceneOptions = {

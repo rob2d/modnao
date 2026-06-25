@@ -24,12 +24,14 @@ export default function RenderedTexturePolygon({
   sceneOptions,
   vertexSelectionMode
 }: Props) {
-  const colorsRendered = sceneOptions.enableVertexColors || vertexSelectionMode;
+  const colorModeEnabled = sceneOptions.meshDisplayMode === 'colors';
+  const colorsRendered =
+    colorModeEnabled || sceneOptions.enableVertexColors || vertexSelectionMode;
 
   return (
     <>
-      {vertexSelectionMode ? (
-        <VertexColorShaderMaterial side={materialProps.side} />
+      {colorModeEnabled ? (
+        <VertexColorShaderMaterial {...materialProps} />
       ) : (
         <meshBasicMaterial
           attach='material'
