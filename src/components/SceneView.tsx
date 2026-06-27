@@ -75,6 +75,7 @@ const axesHelper = <axesHelper args={[50]} />;
 
 const textureTypes = ['opaque', 'translucent'] as const;
 
+// temporary until introducing general icons for cursor variants
 const $selectionMergeIndicatorPosition = signal({
   pointerX: -100,
   pointerY: -100
@@ -198,6 +199,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
       top: '0',
       left: '0',
       touchAction: 'none',
+      userSelect: 'none' as const,
       background: theme.palette.scene.background,
       cursor
     };
@@ -502,6 +504,8 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
           top: 0,
           left: 0,
           zIndex: 2,
+          width: 0,
+          height: 0,
           display: selectionMergeIndicatorVisible ? 'flex' : 'none',
           alignItems: 'center',
           justifyContent: 'center',
@@ -511,6 +515,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
           fontWeight: 700,
           lineHeight: 1,
           transform: 'translate(-100px, -100px)',
+          whiteSpace: 'nowrap',
           userSelect: 'none'
         }}
       >

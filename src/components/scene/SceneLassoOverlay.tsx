@@ -19,7 +19,11 @@ export default function SceneLassoOverlay({
         position: 'absolute',
         inset: 0,
         zIndex: 1,
-        pointerEvents: 'none'
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        '& > svg': {
+          display: 'block'
+        }
       }}
     >
       <svg width='100%' height='100%' aria-hidden='true'>

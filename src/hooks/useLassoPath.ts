@@ -87,6 +87,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
         return;
       }
 
+      event.preventDefault();
       const bounds = element.getBoundingClientRect();
       const nextPoint = {
         x: event.clientX - bounds.left,
@@ -112,6 +113,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
       }
 
       element.releasePointerCapture(event.pointerId);
+      event.preventDefault();
       onComplete?.([...lassoPointsRef.current], selectionMergeModeRef.current);
       resetLasso();
     };
@@ -121,6 +123,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
         element.releasePointerCapture(event.pointerId);
       }
 
+      event.preventDefault();
       resetLasso();
     };
 
