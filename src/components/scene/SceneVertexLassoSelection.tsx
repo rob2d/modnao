@@ -9,13 +9,15 @@ import {
 } from '@/utils/interaction';
 
 interface SceneVertexLassoSelectionProps {
+  additiveSelection: boolean;
   lassoPoints: InteractionPoint[] | undefined;
   meshGroups: DisplayedMesh[][];
   renderAllModels: boolean;
-  onSelectVertexKeys: (vertexKeys: string[]) => void;
+  onSelectVertexKeys: (vertexKeys: string[], additive: boolean) => void;
 }
 
 export default function SceneVertexLassoSelection({
+  additiveSelection,
   lassoPoints,
   meshGroups,
   renderAllModels,
@@ -71,8 +73,9 @@ export default function SceneVertexLassoSelection({
       });
     });
 
-    onSelectVertexKeys(selectedVertexKeys);
+    onSelectVertexKeys(selectedVertexKeys, additiveSelection);
   }, [
+    additiveSelection,
     camera,
     lassoPoints,
     meshGroups,

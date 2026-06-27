@@ -10,7 +10,7 @@ import {
 interface UseLassoPathOptions {
   enabled?: boolean;
   minPointDistance?: number;
-  onComplete?: (points: InteractionPoint[]) => void;
+  onComplete?: (points: InteractionPoint[], additive: boolean) => void;
 }
 
 interface UseLassoPathResult {
@@ -31,6 +31,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
   const [isLassoActive, setIsLassoActive] = useState(false);
   const [lassoPoints, setLassoPoints] = useState<InteractionPoint[]>([]);
   const lassoPointsRef = useRef<InteractionPoint[]>([]);
+  const additiveRef = useRef(false);
   const lassoBounds = useMemo(
     () => getInteractionBounds(lassoPoints),
     [lassoPoints]
@@ -39,6 +40,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
   const resetLasso = useCallback(() => {
     setIsLassoActive(false);
     lassoPointsRef.current = [];
+    additiveRef.current = false;
     setLassoPoints([]);
   }, []);
 
@@ -64,6 +66,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
       };
 
       lassoPointsRef.current = [firstPoint];
+      additiveRef.current = event.shiftKey;
       setIsLassoActive(true);
       setLassoPoints([firstPoint]);
     };
@@ -99,7 +102,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
 
       element.releasePointerCapture(event.pointerId);
       setIsLassoActive(false);
-      onComplete?.(lassoPointsRef.current);
+      onComplete?.(lassoPointsRef.current, additiveRef.current);
     };
 
     const handlePointerCancel = (event: PointerEvent) => {

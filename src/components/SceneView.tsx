@@ -18,8 +18,7 @@ import {
   selectUpdatedTextureDefs
 } from '@/selectors';
 import {
-  addObjectKey,
-  setObjectKey,
+  addObjectKeys,
   setObjectKeys,
   setSelectedTextureIndex
 } from '@/modules/object-viewer';
@@ -84,8 +83,11 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
   const [resetCameraPositionRevision, setResetCameraPositionRevision] =
     useState(0);
-  const [completedLassoPoints, setCompletedLassoPoints] =
-    useState<InteractionPoint[]>();
+  const [completedLassoSelection, setCompletedLassoSelection] = useState<{
+    additive: boolean;
+    points: InteractionPoint[];
+  }>();
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneOptions = useContext(SceneOptionsContext);
 
@@ -98,11 +100,11 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
       const isOnlySelectedObject =
         selectedObjectCount === 1 && selectedObjectIds[key] === true;
 
-      if (additive) {
-        dispatch(addObjectKey(key));
-      } else {
-        dispatch(setObjectKey(isOnlySelectedObject ? undefined : key));
-      }
+      dispatch(
+        additive
+          ? addObjectKeys([key])
+          : setObjectKeys(isOnlySelectedObject ? [] : [key])
+      );
 
       dispatch(setSelectedTextureIndex(textureIndex));
     },
@@ -117,17 +119,57 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const model = useAppSelector(selectModel);
   const theme = useTheme();
 
-  const canvasStyle = useMemo(
-    () => ({
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') {
+        setIsShiftPressed(true);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') {
+        setIsShiftPressed(false);
+      }
+    };
+
+    const handleWindowBlur = () => {
+      setIsShiftPressed(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleWindowBlur);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, []);
+
+  const canvasStyle = useMemo(() => {
+    let cursor = 'default';
+
+    if (!sceneOptions.sceneCursorVisible) {
+      cursor = 'none';
+    } else if (isShiftPressed && Object.keys(selectedObjectIds).length) {
+      cursor = 'copy';
+    }
+
+    return {
       position: 'absolute' as const,
       top: '0',
       left: '0',
       touchAction: 'none',
       background: theme.palette.scene.background,
-      cursor: sceneOptions.sceneCursorVisible ? 'default' : 'none'
-    }),
-    [sceneOptions.sceneCursorVisible, theme.palette.scene.background]
-  );
+      cursor
+    };
+  }, [
+    isShiftPressed,
+    sceneOptions.sceneCursorVisible,
+    selectedObjectIds,
+    theme.palette.scene.background
+  ]);
 
   useClientEffect(() => {
     const nextMap = new Map<
@@ -192,13 +234,17 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const lassoEnabled =
     meshSelectionType === 'vertex' && vertexInteractionMode === 'select';
   const onCompleteLasso = useCallback(
-    (points: InteractionPoint[]) => setCompletedLassoPoints([...points]),
+    (points: InteractionPoint[], additive: boolean) =>
+      setCompletedLassoSelection({ additive, points: [...points] }),
     []
   );
   const onSelectVertexKeys = useCallback(
-    (vertexKeys: string[]) => {
-      dispatch(setObjectKeys(vertexKeys));
-      setCompletedLassoPoints(undefined);
+    (vertexKeys: string[], additive: boolean) => {
+      dispatch(
+        additive ? addObjectKeys(vertexKeys) : setObjectKeys(vertexKeys)
+      );
+
+      setCompletedLassoSelection(undefined);
     },
     [dispatch]
   );
@@ -336,7 +382,8 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
             resetCameraPositionRevision={resetCameraPositionRevision}
           />
           <SceneVertexLassoSelection
-            lassoPoints={completedLassoPoints}
+            additiveSelection={completedLassoSelection?.additive ?? false}
+            lassoPoints={completedLassoSelection?.points}
             meshGroups={renderedMeshGroups}
             renderAllModels={sceneOptions.renderAllModels}
             onSelectVertexKeys={onSelectVertexKeys}

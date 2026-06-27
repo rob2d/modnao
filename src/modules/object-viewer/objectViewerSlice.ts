@@ -123,18 +123,9 @@ const objectViewerSlice = createSlice({
   name: 'objectViewer',
   initialState: initialObjectViewerState,
   reducers: {
-    setObjectKey(state, { payload: objectKey }) {
-      Object.assign(state, {
-        selectedIds: !objectKey ? {} : { [objectKey]: true }
-      });
-    },
-
-    addObjectKey(state, { payload: objectKey }: { payload: string }) {
-      Object.assign(state, {
-        selectedIds: {
-          ...state.selectedIds,
-          [objectKey]: true
-        }
+    addObjectKeys(state, { payload: objectKeys }: { payload: string[] }) {
+      objectKeys.forEach((objectKey) => {
+        state.selectedIds[objectKey] = true;
       });
     },
 
@@ -222,9 +213,8 @@ const objectViewerSlice = createSlice({
 });
 
 export const {
-  addObjectKey,
+  addObjectKeys,
   navToTextureModelUsage,
-  setObjectKey,
   setObjectKeys,
   setObjectType,
   setSelectedTextureIndex
