@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material';
 import RenderedTexturedPolygon from './RenderedTexturedPolygon';
 import RenderedWireframePolygon from './RenderedWireframePolygon';
 import { Select } from '@react-three/postprocessing';
+import type { NodeSelectionMergeMode } from '@/types';
 
 export default function RenderedPolygon({
   flags,
@@ -28,7 +29,7 @@ export default function RenderedPolygon({
   onSelectObjectKey: (
     key: string,
     textureIndex: number,
-    additive: boolean
+    selectionMergeMode: NodeSelectionMergeMode
   ) => void;
   texture: Texture | null;
   vertexSelectionMode: boolean;
@@ -168,7 +169,15 @@ export default function RenderedPolygon({
         return;
       }
 
-      onSelectObjectKey(objectKey, textureIndex, e.nativeEvent.shiftKey);
+      let selectionMergeMode: NodeSelectionMergeMode = 'replace';
+
+      if (e.nativeEvent.altKey) {
+        selectionMergeMode = 'remove';
+      } else if (e.nativeEvent.shiftKey) {
+        selectionMergeMode = 'add';
+      }
+
+      onSelectObjectKey(objectKey, textureIndex, selectionMergeMode);
     },
     [onSelectObjectKey, objectKey, textureIndex, vertexSelectionMode]
   );

@@ -5,6 +5,7 @@ export type {
   NLTextureDef,
   NLUITextureDef
 } from './NLAbstractions';
+export type { default as NodeSelectionMergeMode } from './NodeSelectionMergeMode';
 export type { ResourceAttribs } from './ResourceAttribs';
 export type { default as TextureFileType } from './TextureFileType';
 export type { default as TransferrableBuffer } from './TransferrableBuffer';

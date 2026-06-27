@@ -129,6 +129,12 @@ const objectViewerSlice = createSlice({
       });
     },
 
+    removeObjectKeys(state, { payload: objectKeys }: { payload: string[] }) {
+      objectKeys.forEach((objectKey) => {
+        delete state.selectedIds[objectKey];
+      });
+    },
+
     setObjectKeys(state, { payload: objectKeys }: { payload: string[] }) {
       const selectedIds = objectKeys.reduce<Record<string, true>>(
         (selectedObjectIds, objectKey) => {
@@ -215,6 +221,7 @@ const objectViewerSlice = createSlice({
 export const {
   addObjectKeys,
   navToTextureModelUsage,
+  removeObjectKeys,
   setObjectKeys,
   setObjectType,
   setSelectedTextureIndex

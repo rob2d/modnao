@@ -1,4 +1,5 @@
 import {
+  type PointerEvent as ReactPointerEvent,
   useCallback,
   useContext,
   useEffect,
@@ -6,6 +7,7 @@ import {
   useRef,
   useState
 } from 'react';
+import { signal, effect as signalEffect } from '@preact/signals-react';
 import { Canvas } from '@react-three/fiber';
 import {
   selectAllDisplayedMeshes,
@@ -19,6 +21,7 @@ import {
 } from '@/selectors';
 import {
   addObjectKeys,
+  removeObjectKeys,
   setObjectKeys,
   setSelectedTextureIndex
 } from '@/modules/object-viewer';
@@ -54,6 +57,7 @@ import SceneVertexLassoSelection from './scene/SceneVertexLassoSelection';
 import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
+import type { NodeSelectionMergeMode } from '@/types';
 import type { InteractionPoint } from '@/utils/interaction';
 
 ColorManagement.enabled = true;
@@ -71,6 +75,11 @@ const axesHelper = <axesHelper args={[50]} />;
 
 const textureTypes = ['opaque', 'translucent'] as const;
 
+const $selectionMergeIndicatorPosition = signal({
+  pointerX: -100,
+  pointerY: -100
+});
+
 interface SceneViewProps {
   vertexInteractionMode: SceneVertexInteractionMode;
 }
@@ -84,29 +93,42 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const [resetCameraPositionRevision, setResetCameraPositionRevision] =
     useState(0);
   const [completedLassoSelection, setCompletedLassoSelection] = useState<{
-    additive: boolean;
     points: InteractionPoint[];
+    selectionMergeMode: NodeSelectionMergeMode;
   }>();
+  const [isAltPressed, setIsAltPressed] = useState(false);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
+  const [isScenePointerInside, setIsScenePointerInside] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const selectionMergeIndicatorRef = useRef<HTMLDivElement>(null);
+  const isScenePointerInsideRef = useRef(false);
+  const sceneBoundsRef = useRef<DOMRect | undefined>(undefined);
   const sceneOptions = useContext(SceneOptionsContext);
 
   const dispatch = useAppDispatch();
   const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const onSelectObjectKey = useCallback(
-    (key: string, textureIndex: number, additive: boolean) => {
+    (
+      key: string,
+      textureIndex: number,
+      selectionMergeMode: NodeSelectionMergeMode
+    ) => {
       const selectedObjectCount = Object.keys(selectedObjectIds).length;
       const isOnlySelectedObject =
         selectedObjectCount === 1 && selectedObjectIds[key] === true;
 
-      dispatch(
-        additive
-          ? addObjectKeys([key])
-          : setObjectKeys(isOnlySelectedObject ? [] : [key])
-      );
+      if (selectionMergeMode === 'remove') {
+        dispatch(removeObjectKeys([key]));
+      } else if (selectionMergeMode === 'add') {
+        dispatch(addObjectKeys([key]));
+      } else {
+        dispatch(setObjectKeys(isOnlySelectedObject ? [] : [key]));
+      }
 
-      dispatch(setSelectedTextureIndex(textureIndex));
+      if (selectionMergeMode !== 'remove') {
+        dispatch(setSelectedTextureIndex(textureIndex));
+      }
     },
     [dispatch, selectedObjectIds]
   );
@@ -121,18 +143,35 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Alt') {
+        if (isScenePointerInsideRef.current) {
+          event.preventDefault();
+        }
+
+        setIsAltPressed(true);
+      }
+
       if (event.key === 'Shift') {
         setIsShiftPressed(true);
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Alt') {
+        if (isScenePointerInsideRef.current) {
+          event.preventDefault();
+        }
+
+        setIsAltPressed(false);
+      }
+
       if (event.key === 'Shift') {
         setIsShiftPressed(false);
       }
     };
 
     const handleWindowBlur = () => {
+      setIsAltPressed(false);
       setIsShiftPressed(false);
     };
 
@@ -152,8 +191,6 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
 
     if (!sceneOptions.sceneCursorVisible) {
       cursor = 'none';
-    } else if (isShiftPressed && Object.keys(selectedObjectIds).length) {
-      cursor = 'copy';
     }
 
     return {
@@ -164,12 +201,68 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
       background: theme.palette.scene.background,
       cursor
     };
-  }, [
-    isShiftPressed,
-    sceneOptions.sceneCursorVisible,
-    selectedObjectIds,
-    theme.palette.scene.background
-  ]);
+  }, [sceneOptions.sceneCursorVisible, theme.palette.scene.background]);
+
+  useEffect(
+    () =>
+      signalEffect(() => {
+        const indicator = selectionMergeIndicatorRef.current;
+
+        if (!indicator) {
+          return;
+        }
+
+        const { pointerX, pointerY } = $selectionMergeIndicatorPosition.value;
+        indicator.style.transform = `translate(${pointerX + 6}px, ${pointerY + 4}px)`;
+      }),
+    []
+  );
+
+  const onScenePointerEnter = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const sceneBounds = event.currentTarget.getBoundingClientRect();
+      const pointerX = event.clientX - sceneBounds.left;
+      const pointerY = event.clientY - sceneBounds.top;
+
+      sceneBoundsRef.current = sceneBounds;
+      $selectionMergeIndicatorPosition.value = { pointerX, pointerY };
+
+      isScenePointerInsideRef.current = true;
+      setIsScenePointerInside(true);
+    },
+    []
+  );
+
+  const onScenePointerLeave = useCallback(() => {
+    isScenePointerInsideRef.current = false;
+    setIsScenePointerInside(false);
+  }, []);
+
+  const onScenePointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const sceneBounds =
+        sceneBoundsRef.current ?? event.currentTarget.getBoundingClientRect();
+      const pointerX = event.clientX - sceneBounds.left;
+      const pointerY = event.clientY - sceneBounds.top;
+
+      $selectionMergeIndicatorPosition.value = { pointerX, pointerY };
+    },
+    []
+  );
+
+  const hasSelectedObjects = Object.keys(selectedObjectIds).length > 0;
+  let selectionMergeIndicatorText: string | undefined;
+
+  if (isAltPressed && hasSelectedObjects) {
+    selectionMergeIndicatorText = '-';
+  } else if (isShiftPressed && hasSelectedObjects) {
+    selectionMergeIndicatorText = '+';
+  }
+
+  const selectionMergeIndicatorVisible =
+    isScenePointerInside &&
+    sceneOptions.sceneCursorVisible &&
+    selectionMergeIndicatorText !== undefined;
 
   useClientEffect(() => {
     const nextMap = new Map<
@@ -234,15 +327,22 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const lassoEnabled =
     meshSelectionType === 'vertex' && vertexInteractionMode === 'select';
   const onCompleteLasso = useCallback(
-    (points: InteractionPoint[], additive: boolean) =>
-      setCompletedLassoSelection({ additive, points: [...points] }),
+    (points: InteractionPoint[], selectionMergeMode: NodeSelectionMergeMode) =>
+      setCompletedLassoSelection({
+        points: [...points],
+        selectionMergeMode
+      }),
     []
   );
   const onSelectVertexKeys = useCallback(
-    (vertexKeys: string[], additive: boolean) => {
-      dispatch(
-        additive ? addObjectKeys(vertexKeys) : setObjectKeys(vertexKeys)
-      );
+    (vertexKeys: string[], selectionMergeMode: NodeSelectionMergeMode) => {
+      if (selectionMergeMode === 'remove') {
+        dispatch(removeObjectKeys(vertexKeys));
+      } else if (selectionMergeMode === 'add') {
+        dispatch(addObjectKeys(vertexKeys));
+      } else {
+        dispatch(setObjectKeys(vertexKeys));
+      }
 
       setCompletedLassoSelection(undefined);
     },
@@ -352,6 +452,9 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
         frameloop='demand'
         style={canvasStyle}
         ref={canvasRef}
+        onPointerEnter={onScenePointerEnter}
+        onPointerLeave={onScenePointerLeave}
+        onPointerMove={onScenePointerMove}
         onCreated={onSceneCreated}
       >
         <Selection enabled={selectionEnabled}>
@@ -382,14 +485,37 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
             resetCameraPositionRevision={resetCameraPositionRevision}
           />
           <SceneVertexLassoSelection
-            additiveSelection={completedLassoSelection?.additive ?? false}
             lassoPoints={completedLassoSelection?.points}
             meshGroups={renderedMeshGroups}
             renderAllModels={sceneOptions.renderAllModels}
+            selectionMergeMode={
+              completedLassoSelection?.selectionMergeMode ?? 'replace'
+            }
             onSelectVertexKeys={onSelectVertexKeys}
           />
         </Selection>
       </Canvas>
+      <Box
+        ref={selectionMergeIndicatorRef}
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          zIndex: 2,
+          display: selectionMergeIndicatorVisible ? 'flex' : 'none',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          color: 'var(--mui-palette-secondary-light)',
+          fontSize: 14,
+          fontWeight: 700,
+          lineHeight: 1,
+          transform: 'translate(-100px, -100px)',
+          userSelect: 'none'
+        }}
+      >
+        {selectionMergeIndicatorText}
+      </Box>
       {!lassoEnabled ? null : (
         <SceneLassoOverlay isActive={isLassoActive} points={lassoPoints} />
       )}

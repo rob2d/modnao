@@ -6,11 +6,15 @@ import {
   type InteractionBounds,
   type InteractionPoint
 } from '@/utils/interaction';
+import type { NodeSelectionMergeMode } from '@/types';
 
 interface UseLassoPathOptions {
   enabled?: boolean;
   minPointDistance?: number;
-  onComplete?: (points: InteractionPoint[], additive: boolean) => void;
+  onComplete?: (
+    points: InteractionPoint[],
+    selectionMergeMode: NodeSelectionMergeMode
+  ) => void;
 }
 
 interface UseLassoPathResult {
@@ -31,7 +35,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
   const [isLassoActive, setIsLassoActive] = useState(false);
   const [lassoPoints, setLassoPoints] = useState<InteractionPoint[]>([]);
   const lassoPointsRef = useRef<InteractionPoint[]>([]);
-  const additiveRef = useRef(false);
+  const selectionMergeModeRef = useRef<NodeSelectionMergeMode>('replace');
   const lassoBounds = useMemo(
     () => getInteractionBounds(lassoPoints),
     [lassoPoints]
@@ -40,7 +44,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
   const resetLasso = useCallback(() => {
     setIsLassoActive(false);
     lassoPointsRef.current = [];
-    additiveRef.current = false;
+    selectionMergeModeRef.current = 'replace';
     setLassoPoints([]);
   }, []);
 
@@ -66,7 +70,14 @@ export default function useLassoPath<TElement extends HTMLElement>(
       };
 
       lassoPointsRef.current = [firstPoint];
-      additiveRef.current = event.shiftKey;
+      if (event.altKey) {
+        selectionMergeModeRef.current = 'remove';
+      } else if (event.shiftKey) {
+        selectionMergeModeRef.current = 'add';
+      } else {
+        selectionMergeModeRef.current = 'replace';
+      }
+
       setIsLassoActive(true);
       setLassoPoints([firstPoint]);
     };
@@ -101,7 +112,7 @@ export default function useLassoPath<TElement extends HTMLElement>(
       }
 
       element.releasePointerCapture(event.pointerId);
-      onComplete?.([...lassoPointsRef.current], additiveRef.current);
+      onComplete?.([...lassoPointsRef.current], selectionMergeModeRef.current);
       resetLasso();
     };
 

@@ -2,25 +2,26 @@ import { useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
 import { Vector3 } from 'three';
 import type { DisplayedMesh } from '@/selectors';
-import {
-  getInteractionBounds,
-  type InteractionPoint,
-  isPointInLasso
-} from '@/utils/interaction';
+import type { NodeSelectionMergeMode } from '@/types';
+import { getInteractionBounds, isPointInLasso } from '@/utils/interaction';
+import type { InteractionPoint } from '@/utils/interaction';
 
 interface SceneVertexLassoSelectionProps {
-  additiveSelection: boolean;
   lassoPoints: InteractionPoint[] | undefined;
   meshGroups: DisplayedMesh[][];
   renderAllModels: boolean;
-  onSelectVertexKeys: (vertexKeys: string[], additive: boolean) => void;
+  selectionMergeMode: NodeSelectionMergeMode;
+  onSelectVertexKeys: (
+    vertexKeys: string[],
+    selectionMergeMode: NodeSelectionMergeMode
+  ) => void;
 }
 
 export default function SceneVertexLassoSelection({
-  additiveSelection,
   lassoPoints,
   meshGroups,
   renderAllModels,
+  selectionMergeMode,
   onSelectVertexKeys
 }: SceneVertexLassoSelectionProps) {
   const { camera, size } = useThree();
@@ -73,14 +74,14 @@ export default function SceneVertexLassoSelection({
       });
     });
 
-    onSelectVertexKeys(selectedVertexKeys, additiveSelection);
+    onSelectVertexKeys(selectedVertexKeys, selectionMergeMode);
   }, [
-    additiveSelection,
     camera,
     lassoPoints,
     meshGroups,
     onSelectVertexKeys,
     renderAllModels,
+    selectionMergeMode,
     size
   ]);
 
