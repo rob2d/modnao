@@ -36,13 +36,15 @@ const circleFragmentShader = `
     // Check if the current fragment is within the outline thickness
     if (dist > radius) discard; // Outside the circle
     else if (dist > radius - outlineThickness) {
-      gl_FragColor = vec4(vColor.rgb, alpha); // Inverted outline color with dynamic alpha
+      float outlineAlpha = vSelected > 0.5 ? vColor.a : alpha;
+
+      gl_FragColor = vec4(vColor.rgb, outlineAlpha); // Inverted outline color with dynamic alpha
     } else if (vSelected > 0.5) {
       float centerRadius = radius - outlineThickness;
       float glowStrength = 1.0 - smoothstep(0.0, centerRadius, dist);
       vec3 glowColor = mix(selectedColor, vec3(1.0), glowStrength * 0.45);
 
-      gl_FragColor = vec4(glowColor, 1.0);
+      gl_FragColor = vec4(glowColor, vColor.a);
     } else {
       gl_FragColor = vec4(invertedColor, 0.03); // Fill color with dynamic alpha
     }
