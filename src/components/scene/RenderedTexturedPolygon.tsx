@@ -7,9 +7,11 @@ type Props = {
   vertexPositions: Float32Array;
   indices: Uint16Array;
   colors: Float32Array;
+  selectedVertices: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
   materialProps: Partial<ThreeElements['meshBasicMaterial']>;
+  selectedColor: string;
   sceneOptions: SceneOptions;
   vertexSelectionMode: boolean;
 };
@@ -20,7 +22,9 @@ export default function RenderedTexturePolygon({
   normals,
   indices,
   colors,
+  selectedVertices,
   materialProps,
+  selectedColor,
   sceneOptions,
   vertexSelectionMode
 }: Props) {
@@ -58,13 +62,20 @@ export default function RenderedTexturePolygon({
 
       {vertexSelectionMode ? (
         <points>
-          <CircleVertexShaderMaterial side={materialProps.side} />
+          <CircleVertexShaderMaterial
+            selectedColor={selectedColor}
+            side={materialProps.side}
+          />
           <bufferGeometry attach='geometry'>
             <bufferAttribute
               attach='attributes-position'
               args={[vertexPositions, 3]}
             />
             <bufferAttribute attach='attributes-color' args={[colors, 4]} />
+            <bufferAttribute
+              attach='attributes-selected'
+              args={[selectedVertices, 1]}
+            />
           </bufferGeometry>
         </points>
       ) : undefined}

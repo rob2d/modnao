@@ -54,6 +54,7 @@ interface CameraTouchGesture {
 
 interface SceneCameraControlsProps {
   mainBounds?: ModelBounds;
+  controlSceneCamera?: boolean;
   modelIndex: number;
   onCameraPositionMovedChange: (cameraPositionMoved: boolean) => void;
   polygonBufferKey?: string;
@@ -62,6 +63,7 @@ interface SceneCameraControlsProps {
 
 export default function SceneCameraControls({
   mainBounds,
+  controlSceneCamera = false,
   modelIndex,
   onCameraPositionMovedChange,
   polygonBufferKey,
@@ -396,6 +398,10 @@ export default function SceneCameraControls({
         return;
       }
 
+      if (!controlSceneCamera) {
+        return;
+      }
+
       if (event.pointerType === 'touch') {
         touchPointersRef.current.set(event.pointerId, {
           clientX: event.clientX,
@@ -511,6 +517,10 @@ export default function SceneCameraControls({
     };
 
     const onWheel = (event: WheelEvent) => {
+      if (!controlSceneCamera) {
+        return;
+      }
+
       dollyCamera(getWheelDeltaY(event));
       event.preventDefault();
     };
@@ -538,6 +548,7 @@ export default function SceneCameraControls({
     };
   }, [
     camera,
+    controlSceneCamera,
     gl,
     invalidate,
     sceneCamSpeed,

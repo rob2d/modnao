@@ -20,6 +20,7 @@ import {
 import {
   addObjectKey,
   setObjectKey,
+  setObjectKeys,
   setSelectedTextureIndex
 } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
@@ -28,6 +29,7 @@ import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { SceneContextSetup } from '@/contexts/SceneContext';
+import { useLassoPath } from '@/hooks';
 import {
   EffectComposer,
   Outline,
@@ -47,9 +49,13 @@ import {
   WebGLRenderer
 } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
+import SceneLassoOverlay from './scene/SceneLassoOverlay';
 import SceneCameraControls from './scene/SceneCameraControls';
+import SceneVertexLassoSelection from './scene/SceneVertexLassoSelection';
+import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
+import type { InteractionPoint } from '@/utils/interaction';
 
 ColorManagement.enabled = true;
 
@@ -66,7 +72,11 @@ const axesHelper = <axesHelper args={[50]} />;
 
 const textureTypes = ['opaque', 'translucent'] as const;
 
-export default function SceneView() {
+interface SceneViewProps {
+  vertexInteractionMode: SceneVertexInteractionMode;
+}
+
+export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   useObjectNavControls();
 
   const [textureMap, setTextureMap] =
@@ -74,6 +84,8 @@ export default function SceneView() {
   const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
   const [resetCameraPositionRevision, setResetCameraPositionRevision] =
     useState(0);
+  const [completedLassoPoints, setCompletedLassoPoints] =
+    useState<InteractionPoint[]>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneOptions = useContext(SceneOptionsContext);
 
@@ -177,6 +189,26 @@ export default function SceneView() {
   const meshes = useAppSelector(selectAllDisplayedMeshes);
   const modelIndex = useAppSelector(selectModelIndex);
   const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
+  const lassoEnabled =
+    meshSelectionType === 'vertex' && vertexInteractionMode === 'select';
+  const onCompleteLasso = useCallback(
+    (points: InteractionPoint[]) => setCompletedLassoPoints([...points]),
+    []
+  );
+  const onSelectVertexKeys = useCallback(
+    (vertexKeys: string[]) => {
+      dispatch(setObjectKeys(vertexKeys));
+      setCompletedLassoPoints(undefined);
+    },
+    [dispatch]
+  );
+  const { isLassoActive, lassoPoints } = useLassoPath(canvasRef, {
+    enabled: lassoEnabled,
+    onComplete: onCompleteLasso
+  });
+  const renderedMeshGroups = sceneOptions.renderAllModels
+    ? meshes
+    : [selectedMeshes];
   const axesHelperVisible =
     sceneOptions.axesHelperVisible && !sceneOptions.enableCinematicMode;
   const selectionEnabled =
@@ -186,39 +218,35 @@ export default function SceneView() {
 
   const renderedModels = useMemo(
     () =>
-      (sceneOptions.renderAllModels ? meshes : [selectedMeshes]).map(
-        (ms, msi) => (
-          <mesh
-            key={`meshGroup_${msi}_${sceneOptions.renderAllModels ? 1 : 0}`}
-            position={
-              !sceneOptions.renderAllModels
-                ? [0, 0, 0]
-                : [msi * 500, msi * 50, 0]
-            }
-          >
-            {ms.map((m, i) => {
-              const texture = textureMap?.get(m.textureHash)?.texture || null;
-              return m.polygons.map((p, pIndex) => (
-                <RenderedPolygon
-                  {...p}
-                  key={`${m.address}_${p.address}`}
-                  objectKey={
-                    meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
-                  }
-                  textureIndex={m.textureIndex}
-                  selectedObjectIds={selectedObjectIds}
-                  onSelectObjectKey={onSelectObjectKey}
-                  texture={texture}
-                  vertexSelectionMode={meshSelectionType === 'vertex'}
-                />
-              ));
-            })}
-          </mesh>
-        )
-      ),
+      renderedMeshGroups.map((ms, msi) => (
+        <mesh
+          key={`meshGroup_${msi}_${sceneOptions.renderAllModels ? 1 : 0}`}
+          position={
+            !sceneOptions.renderAllModels ? [0, 0, 0] : [msi * 500, msi * 50, 0]
+          }
+        >
+          {ms.map((m, i) => {
+            const texture = textureMap?.get(m.textureHash)?.texture || null;
+            return m.polygons.map((p, pIndex) => (
+              <RenderedPolygon
+                {...p}
+                key={`${m.address}_${p.address}`}
+                objectKey={
+                  meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
+                }
+                textureIndex={m.textureIndex}
+                selectedObjectIds={selectedObjectIds}
+                onSelectObjectKey={onSelectObjectKey}
+                texture={texture}
+                vertexSelectionMode={meshSelectionType === 'vertex'}
+              />
+            ));
+          })}
+        </mesh>
+      )),
     [
       model,
-      !sceneOptions.renderAllModels ? selectedMeshes : meshes,
+      renderedMeshGroups,
       textureMap,
       selectedObjectIds,
       meshSelectionType,
@@ -304,10 +332,20 @@ export default function SceneView() {
             modelIndex={modelIndex}
             onCameraPositionMovedChange={setCameraPositionMoved}
             polygonBufferKey={polygonBufferKey}
+            controlSceneCamera={vertexInteractionMode === 'camera'}
             resetCameraPositionRevision={resetCameraPositionRevision}
+          />
+          <SceneVertexLassoSelection
+            lassoPoints={completedLassoPoints}
+            meshGroups={renderedMeshGroups}
+            renderAllModels={sceneOptions.renderAllModels}
+            onSelectVertexKeys={onSelectVertexKeys}
           />
         </Selection>
       </Canvas>
+      {!lassoEnabled ? null : (
+        <SceneLassoOverlay isActive={isLassoActive} points={lassoPoints} />
+      )}
     </>
   );
 }

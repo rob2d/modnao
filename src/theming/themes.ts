@@ -59,6 +59,12 @@ declare module '@mui/material' {
     flagged: CSSProperties['color'];
   };
 
+  interface SceneControlPalette {
+    background: CSSProperties['color'];
+    selectedBackground: CSSProperties['color'];
+    foreground: CSSProperties['color'];
+  }
+
   interface PanelTexturePalette {
     background: CSSProperties['color'];
   }
@@ -70,6 +76,7 @@ declare module '@mui/material' {
   interface PaletteOptions {
     warningBackground: CSSProperties['color'];
     scene: ScenePalette;
+    sceneControl: SceneControlPalette;
     panelTexture: PanelTexturePalette;
   }
 
@@ -77,6 +84,7 @@ declare module '@mui/material' {
   interface Palette {
     warningBackground: CSSProperties['color'];
     scene: ScenePalette;
+    sceneControl: SceneControlPalette;
     panelTexture: PanelTexturePalette;
   }
 }
@@ -153,7 +161,8 @@ const mixins = {
   guiPanelExpansionL3W: '592px',
   sceneIconMixin: {
     color: 'var(--mui-palette-common-white)',
-    filter: 'drop-shadow(2px 2px 1px rgba(0,0,0,0.5))',
+    filter:
+      'drop-shadow(2px 2px 1px color-mix(in srgb, var(--mui-palette-common-black) 50%, transparent))',
     mixBlendMode: 'luminosity'
   }
 } satisfies AppThemeMixins;
@@ -278,8 +287,15 @@ const themes = Object.fromEntries(
         scene: {
           background: mode === 'dark' ? '#1c121c' : '#efefff',
           default: mode === 'dark' ? '#683C62' : '#AAC',
-          selected: '#FF00F2',
+          selected: 'var(--mui-palette-secondary-light)',
           flagged: '#9BF'
+        },
+        sceneControl: {
+          background:
+            'color-mix(in srgb, var(--mui-palette-background-paper) 72%, transparent)',
+          selectedBackground:
+            'color-mix(in srgb, var(--mui-palette-secondary-main) 28%, transparent)',
+          foreground: 'var(--mui-palette-common-white)'
         },
         panelTexture: {
           background: mode === 'dark' ? '#1d1b1d' : '#efefff'

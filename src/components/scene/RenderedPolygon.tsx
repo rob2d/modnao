@@ -145,13 +145,32 @@ export default function RenderedPolygon({
     [texture, disableBackfaceCulling || !flags.culling]
   );
 
+  const selectedVertices = useMemo(() => {
+    const selectedVertexFlags = new Float32Array(vertices.length);
+
+    vertices.forEach((_, vertexIndex) => {
+      if (!selectedObjectIds[`${objectKey}_${vertexIndex}`]) {
+        return;
+      }
+
+      selectedVertexFlags[vertexIndex] = 1;
+    });
+
+    return selectedVertexFlags;
+  }, [objectKey, selectedObjectIds, vertices]);
+
   const handleClick = useCallback(
     (e: ThreeEvent<MouseEvent>) => {
       e.nativeEvent.stopPropagation();
       e.stopPropagation();
+
+      if (vertexSelectionMode) {
+        return;
+      }
+
       onSelectObjectKey(objectKey, textureIndex, e.nativeEvent.shiftKey);
     },
-    [onSelectObjectKey, objectKey, textureIndex]
+    [onSelectObjectKey, objectKey, textureIndex, vertexSelectionMode]
   );
 
   return (
@@ -171,7 +190,9 @@ export default function RenderedPolygon({
               uvs={uvs}
               indices={indicesRendered}
               colors={colorsRendered}
+              selectedVertices={selectedVertices}
               materialProps={texturedMaterialProps}
+              selectedColor={theme.palette.primary.main}
               sceneOptions={sceneOptions}
               vertexSelectionMode={vertexSelectionMode}
             />

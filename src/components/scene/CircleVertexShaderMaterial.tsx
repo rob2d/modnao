@@ -1,11 +1,18 @@
 import { type ThreeElements, useFrame, useThree } from '@react-three/fiber';
-import { useMemo } from 'react';
-import { ShaderMaterial, Vector3 } from 'three';
+import { useEffect, useMemo } from 'react';
+import {
+  Color,
+  type ColorRepresentation,
+  ShaderMaterial,
+  Vector3
+} from 'three';
 
 const circleFragmentShader = `
   varying vec4 vColor;
+  varying float vSelected;
   varying float vDistance; // The distance to the camera
   uniform float pointSize; // To access the point size
+  uniform vec3 selectedColor;
 
   void main() {
     // Get the distance from the center of the point
@@ -30,20 +37,28 @@ const circleFragmentShader = `
     if (dist > radius) discard; // Outside the circle
     else if (dist > radius - outlineThickness) {
       gl_FragColor = vec4(vColor.rgb, alpha); // Inverted outline color with dynamic alpha
+    } else if (vSelected > 0.5) {
+      float centerRadius = radius - outlineThickness;
+      float glowStrength = 1.0 - smoothstep(0.0, centerRadius, dist);
+      vec3 glowColor = mix(selectedColor, vec3(1.0), glowStrength * 0.45);
+
+      gl_FragColor = vec4(glowColor, 1.0);
     } else {
       gl_FragColor = vec4(invertedColor, 0.03); // Fill color with dynamic alpha
     }
   }
 `;
 
-// Circle Shader for points
 const circleVertexShader = `
+  attribute float selected;
   varying vec4 vColor;
+  varying float vSelected;
   varying float vDistance; // Pass the distance to the fragment shader
   uniform float pointSize; // To access the point size
 
   void main() {
     vColor = color;
+    vSelected = selected;
 
     // Calculate the distance from the vertex position to the camera position
     vec4 worldPosition = modelMatrix * vec4(position, 1.0);
@@ -54,16 +69,24 @@ const circleVertexShader = `
   }
 `;
 
-export default function CircleVertexShaderMaterial(
-  props: Partial<ThreeElements['meshBasicMaterial']>
-) {
+interface CircleVertexShaderMaterialProps extends Partial<
+  ThreeElements['meshBasicMaterial']
+> {
+  selectedColor: ColorRepresentation;
+}
+
+export default function CircleVertexShaderMaterial({
+  selectedColor,
+  ...props
+}: CircleVertexShaderMaterialProps) {
   const { camera } = useThree();
   const circleVertexShaderMaterial = useMemo(
     () =>
       new ShaderMaterial({
         uniforms: {
           pointSize: { value: 16.0 },
-          cameraPosition: { value: new Vector3() }
+          cameraPosition: { value: new Vector3() },
+          selectedColor: { value: new Color(selectedColor) }
         },
         vertexShader: circleVertexShader,
         fragmentShader: circleFragmentShader,
@@ -74,6 +97,10 @@ export default function CircleVertexShaderMaterial(
       }),
     []
   );
+
+  useEffect(() => {
+    circleVertexShaderMaterial.uniforms.selectedColor.value.set(selectedColor);
+  }, [circleVertexShaderMaterial, selectedColor]);
 
   useFrame(() => {
     circleVertexShaderMaterial.uniforms.cameraPosition.value.copy(
