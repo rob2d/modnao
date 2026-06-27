@@ -1,7 +1,8 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
 import { dialogsSlice } from '@/modules/dialogs';
-import { objectViewerSlice } from '@/modules/object-viewer';
+import objectViewerListenerMiddleware from '@/modules/object-viewer/objectViewerListeners';
+import objectViewerSlice from '@/modules/object-viewer/objectViewerSlice';
 import { modelDataSlice } from '@/modules/model-data';
 import { replaceTextureSlice } from '@/modules/replace-texture';
 import { errorMessagesSlice } from '@/modules/error-messages';
@@ -19,6 +20,8 @@ export const setupStore = (preloadedState?: AppState) =>
   configureStore({
     preloadedState,
     reducer: rootReducer,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().prepend(objectViewerListenerMiddleware.middleware),
     devTools: process.env.NODE_ENV === 'development'
   });
 
