@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { Box, ListSubheader, Tooltip } from '@mui/material';
 import { useTextureModelReferences } from '@/modules/model-data';
 import type { TextureModelReference } from '@/modules/model-data';
-import { setModelMeshSelection } from '@/modules/object-viewer';
+import { navToTextureModelUsage } from '@/modules/object-viewer';
 import { selectModelIndex } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 
@@ -45,7 +45,7 @@ export default function GuiPanelTextureModelNavMenu({
     meshIndexes
   }: TextureModelReference) {
     dispatch(
-      setModelMeshSelection({
+      navToTextureModelUsage({
         modelIndex,
         meshIndexes,
         textureIndex
