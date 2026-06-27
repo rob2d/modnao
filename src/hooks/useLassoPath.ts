@@ -101,8 +101,8 @@ export default function useLassoPath<TElement extends HTMLElement>(
       }
 
       element.releasePointerCapture(event.pointerId);
-      setIsLassoActive(false);
-      onComplete?.(lassoPointsRef.current, additiveRef.current);
+      onComplete?.([...lassoPointsRef.current], additiveRef.current);
+      resetLasso();
     };
 
     const handlePointerCancel = (event: PointerEvent) => {
