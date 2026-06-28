@@ -225,12 +225,12 @@ export default function GuiPanelModels() {
           {modelNoAndCountEl}
           {navButtonRight}
         </Grid>
-        <Grid className='grid-control-label' size={7}>
+        <Grid className='grid-control-label' size={6}>
           <Typography variant='body1' textAlign='right'>
             Selection
           </Typography>
         </Grid>
-        <Grid size={5}>
+        <Grid size={6}>
           <Typography
             variant='button'
             textAlign='right'
