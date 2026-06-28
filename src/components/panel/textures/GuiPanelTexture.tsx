@@ -6,7 +6,7 @@ import type { ContentViewMode, NLUITextureDef } from '@/types';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import GuiPanelTextureModelNavMenu from './GuiPanelTextureModelNavMenu';
 import type { TextureModelReference } from '@/modules/model-data';
-import { selectMesh, selectModels } from '@/selectors';
+import { selectModel, selectModels } from '@/selectors';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
@@ -95,14 +95,17 @@ export type GuiPanelTextureProps =
       selected: boolean;
       textureDef: NLUITextureDef;
       textureIndex: number;
-      polygonIndex: number;
+      selectedTextureReferences: {
+        meshIndex: number;
+        polygonIndexes?: number[];
+      }[];
       contentViewMode: ContentViewMode;
     }
   | {
       selected: undefined;
       textureDef: undefined;
       textureIndex: undefined;
-      polygonIndex: undefined;
+      selectedTextureReferences: undefined;
       contentViewMode: undefined;
     };
 
@@ -117,11 +120,11 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     selected,
     textureDef,
     textureIndex = -1,
-    polygonIndex = -1,
+    selectedTextureReferences = [],
     contentViewMode = 'textures'
   } = props;
   const dispatch = useAppDispatch();
-  const mesh = useAppSelector(selectMesh);
+  const model = useAppSelector(selectModel);
   const models = useAppSelector(selectModels);
   const [hoveredModelReference, setHoveredModelReference] =
     useState<TextureModelReference>();
@@ -177,34 +180,58 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       return pathGroups;
     }
 
-    if (!(selected && mesh?.polygons.length)) {
+    if (!(selected && selectedTextureReferences.length)) {
       return [];
     }
 
     const paths: ClipPath[] = [];
-    const polygons =
-      polygonIndex !== -1 ? [mesh.polygons[polygonIndex]] : mesh.polygons;
+    for (
+      let referenceIndex = 0;
+      referenceIndex < selectedTextureReferences.length;
+      referenceIndex++
+    ) {
+      const { meshIndex, polygonIndexes } =
+        selectedTextureReferences[referenceIndex];
+      const mesh = model?.meshes[meshIndex];
 
-    for (let pIndex = 0; pIndex < polygons.length; pIndex++) {
-      const p = polygons[pIndex];
-      for (let i = 0; i < p.triIndices.length; i += 4) {
-        const uvs = p.triIndices
-          .slice(i, i + 3)
-          .map((triIndex) => p.vertices[triIndex].uv);
+      if (!mesh?.polygons.length) {
+        continue;
+      }
 
-        paths.push(
-          ...createUvClipPaths(
-            uvs,
-            textureDef.width,
-            textureDef.height,
-            mesh.textureWrappingFlags
-          )
-        );
+      const polygons = !polygonIndexes?.length
+        ? mesh.polygons
+        : polygonIndexes
+            .map((selectedPolygonIndex) => mesh.polygons[selectedPolygonIndex])
+            .filter(Boolean);
+
+      for (let pIndex = 0; pIndex < polygons.length; pIndex++) {
+        const p = polygons[pIndex];
+        for (let i = 0; i < p.triIndices.length; i += 4) {
+          const uvs = p.triIndices
+            .slice(i, i + 3)
+            .map((triIndex) => p.vertices[triIndex].uv);
+
+          paths.push(
+            ...createUvClipPaths(
+              uvs,
+              textureDef.width,
+              textureDef.height,
+              mesh.textureWrappingFlags
+            )
+          );
+        }
       }
     }
 
     return [{ paths }];
-  }, [hoveredModelReference, mesh, models, polygonIndex, selected, textureDef]);
+  }, [
+    hoveredModelReference,
+    model,
+    models,
+    selected,
+    selectedTextureReferences,
+    textureDef
+  ]);
 
   const uvClipPaths = useMemo(
     () => uvClipPathGroups.flatMap(({ paths }) => paths),

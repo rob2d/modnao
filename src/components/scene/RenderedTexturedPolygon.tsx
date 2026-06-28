@@ -1,14 +1,19 @@
 import { SceneOptions } from '@/contexts/SceneOptionsContext';
 import { ThreeElements } from '@react-three/fiber';
+import CircleVertexShaderMaterial from './CircleVertexShaderMaterial';
+import VertexColorShaderMaterial from './VertexColorShaderMaterial';
 
 type Props = {
   vertexPositions: Float32Array;
   indices: Uint16Array;
   colors: Float32Array;
+  selectedVertices: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
   materialProps: Partial<ThreeElements['meshBasicMaterial']>;
+  selectedColor: string;
   sceneOptions: SceneOptions;
+  vertexSelectionMode: boolean;
 };
 
 export default function RenderedTexturePolygon({
@@ -17,16 +22,27 @@ export default function RenderedTexturePolygon({
   normals,
   indices,
   colors,
+  selectedVertices,
   materialProps,
-  sceneOptions
+  selectedColor,
+  sceneOptions,
+  vertexSelectionMode
 }: Props) {
+  const colorModeEnabled = sceneOptions.meshDisplayMode === 'colors';
+  const colorsRendered =
+    colorModeEnabled || sceneOptions.enableVertexColors || vertexSelectionMode;
+
   return (
     <>
-      <meshBasicMaterial
-        attach='material'
-        vertexColors={sceneOptions.enableVertexColors}
-        {...materialProps}
-      />
+      {colorModeEnabled ? (
+        <VertexColorShaderMaterial {...materialProps} />
+      ) : (
+        <meshBasicMaterial
+          attach='material'
+          vertexColors={sceneOptions.enableVertexColors}
+          {...materialProps}
+        />
+      )}
       <bufferGeometry attach='geometry'>
         {/* Fixed bufferAttributes */}
         <bufferAttribute
@@ -36,13 +52,33 @@ export default function RenderedTexturePolygon({
         <bufferAttribute attach='attributes-uv' args={[uvs, 2]} />
         <bufferAttribute attach='attributes-normal' args={[normals, 3]} />
 
-        {sceneOptions.enableVertexColors ? (
+        {colorsRendered ? (
           <bufferAttribute attach='attributes-color' args={[colors, 4]} />
         ) : undefined}
 
         {/* Fixed index buffer */}
         <bufferAttribute attach='index' args={[indices, 1]} />
       </bufferGeometry>
+
+      {vertexSelectionMode ? (
+        <points>
+          <CircleVertexShaderMaterial
+            selectedColor={selectedColor}
+            side={materialProps.side}
+          />
+          <bufferGeometry attach='geometry'>
+            <bufferAttribute
+              attach='attributes-position'
+              args={[vertexPositions, 3]}
+            />
+            <bufferAttribute attach='attributes-color' args={[colors, 4]} />
+            <bufferAttribute
+              attach='attributes-selected'
+              args={[selectedVertices, 1]}
+            />
+          </bufferGeometry>
+        </points>
+      ) : undefined}
     </>
   );
 }

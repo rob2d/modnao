@@ -11,15 +11,17 @@ import { processPolygonFile } from '@/modules/model-data';
 export interface ObjectViewerState {
   modelIndex: number;
   textureIndex: number;
-  objectKey?: string;
-  meshSelectionType: 'mesh' | 'polygon';
+  selectedIds: Record<string, true>;
+  meshSelectionType: MeshSelectionType;
   meshDisplayMode: 'wireframe' | 'textured';
 }
+
+export type MeshSelectionType = 'mesh' | 'polygon' | 'vertex';
 
 export const initialObjectViewerState: ObjectViewerState = {
   modelIndex: -1,
   textureIndex: -1,
-  objectKey: undefined,
+  selectedIds: {},
   meshSelectionType: 'mesh',
   meshDisplayMode: 'textured'
 };
@@ -121,24 +123,69 @@ const objectViewerSlice = createSlice({
   name: 'objectViewer',
   initialState: initialObjectViewerState,
   reducers: {
-    setObjectKey(state, { payload: objectKey }) {
-      Object.assign(state, { objectKey });
+    addObjectKeys(state, { payload: objectKeys }: { payload: string[] }) {
+      objectKeys.forEach((objectKey) => {
+        state.selectedIds[objectKey] = true;
+      });
+    },
+
+    removeObjectKeys(state, { payload: objectKeys }: { payload: string[] }) {
+      objectKeys.forEach((objectKey) => {
+        delete state.selectedIds[objectKey];
+      });
+    },
+
+    setObjectKeys(state, { payload: objectKeys }: { payload: string[] }) {
+      const selectedIds = objectKeys.reduce<Record<string, true>>(
+        (selectedObjectIds, objectKey) => {
+          selectedObjectIds[objectKey] = true;
+          return selectedObjectIds;
+        },
+        {}
+      );
+
+      Object.assign(state, {
+        selectedIds
+      });
+    },
+
+    setSelectedTextureIndex(state, { payload }: { payload: number }) {
+      Object.assign(state, {
+        textureIndex: payload
+      });
     },
 
     setObjectType(state, { payload: meshSelectionType }) {
       Object.assign(state, {
-        objectKey: undefined,
+        selectedIds: {},
         meshSelectionType
       });
     },
 
-    setModelMeshSelection(
+    navToTextureModelUsage(
       state,
-      { payload }: { payload: { modelIndex: number; meshIndex: number } }
+      {
+        payload
+      }: {
+        payload: {
+          modelIndex: number;
+          meshIndexes: number[];
+          textureIndex?: number;
+        };
+      }
     ) {
+      const selectedIds = payload.meshIndexes.reduce<Record<string, true>>(
+        (selectedMeshIds, meshIndex) => {
+          selectedMeshIds[`${meshIndex}`] = true;
+          return selectedMeshIds;
+        },
+        {}
+      );
+
       Object.assign(state, {
         modelIndex: payload.modelIndex,
-        objectKey: `${payload.meshIndex}`,
+        textureIndex: payload.textureIndex ?? state.textureIndex,
+        selectedIds,
         meshSelectionType: 'mesh'
       });
     }
@@ -155,7 +202,7 @@ const objectViewerSlice = createSlice({
       Object.assign(state, {
         modelIndex: firstRealModelIndex,
         textureIndex: 0,
-        objectKey: undefined
+        selectedIds: {}
       });
     });
 
@@ -164,14 +211,20 @@ const objectViewerSlice = createSlice({
       (state, { payload: { objectIndex, indexKey } }) => {
         Object.assign(state, {
           [indexKey]: objectIndex,
-          objectKey: undefined
+          selectedIds: {}
         });
       }
     );
   }
 });
 
-export const { setModelMeshSelection, setObjectKey, setObjectType } =
-  objectViewerSlice.actions;
+export const {
+  addObjectKeys,
+  navToTextureModelUsage,
+  removeObjectKeys,
+  setObjectKeys,
+  setObjectType,
+  setSelectedTextureIndex
+} = objectViewerSlice.actions;
 
 export default objectViewerSlice;

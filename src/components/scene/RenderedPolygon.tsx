@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material';
 import RenderedTexturedPolygon from './RenderedTexturedPolygon';
 import RenderedWireframePolygon from './RenderedWireframePolygon';
 import { Select } from '@react-three/postprocessing';
+import type { NodeSelectionMergeMode } from '@/types';
 
 export default function RenderedPolygon({
   flags,
@@ -16,14 +17,22 @@ export default function RenderedPolygon({
   triIndices,
   address,
   objectKey,
-  selectedObjectKey,
+  textureIndex,
+  selectedObjectIds,
   onSelectObjectKey,
-  texture
+  texture,
+  vertexSelectionMode
 }: NLPolygon & {
   objectKey: string;
-  selectedObjectKey?: string;
-  onSelectObjectKey: (key: string) => void;
+  textureIndex: number;
+  selectedObjectIds: Record<string, true>;
+  onSelectObjectKey: (
+    key: string,
+    textureIndex: number,
+    selectionMergeMode: NodeSelectionMergeMode
+  ) => void;
   texture: Texture | null;
+  vertexSelectionMode: boolean;
 }) {
   const sceneOptions = useContext(SceneOptionsContext);
   const {
@@ -38,7 +47,7 @@ export default function RenderedPolygon({
   const { scene: colors } = theme.palette;
   let color: React.CSSProperties['color'];
 
-  const isSelected = objectKey === selectedObjectKey;
+  const isSelected = selectedObjectIds[objectKey] === true;
 
   if (meshDisplayMode === 'wireframe') {
     color = isSelected ? colors.selected : colors.default;
@@ -97,7 +106,7 @@ export default function RenderedPolygon({
   const meshAddressText = useMemo(() => {
     if (
       !isSelected ||
-      meshDisplayMode === 'textured' ||
+      meshDisplayMode !== 'wireframe' ||
       !objectAddressesVisible
     ) {
       return undefined;
@@ -137,13 +146,40 @@ export default function RenderedPolygon({
     [texture, disableBackfaceCulling || !flags.culling]
   );
 
+  const selectedVertices = useMemo(() => {
+    const selectedVertexFlags = new Float32Array(vertices.length);
+
+    vertices.forEach((_, vertexIndex) => {
+      if (!selectedObjectIds[`${objectKey}_${vertexIndex}`]) {
+        return;
+      }
+
+      selectedVertexFlags[vertexIndex] = 1;
+    });
+
+    return selectedVertexFlags;
+  }, [objectKey, selectedObjectIds, vertices]);
+
   const handleClick = useCallback(
     (e: ThreeEvent<MouseEvent>) => {
       e.nativeEvent.stopPropagation();
       e.stopPropagation();
-      onSelectObjectKey(objectKey);
+
+      if (vertexSelectionMode) {
+        return;
+      }
+
+      let selectionMergeMode: NodeSelectionMergeMode = 'replace';
+
+      if (e.nativeEvent.altKey) {
+        selectionMergeMode = 'remove';
+      } else if (e.nativeEvent.shiftKey) {
+        selectionMergeMode = 'add';
+      }
+
+      onSelectObjectKey(objectKey, textureIndex, selectionMergeMode);
     },
-    [onSelectObjectKey, objectKey]
+    [onSelectObjectKey, objectKey, textureIndex, vertexSelectionMode]
   );
 
   return (
@@ -156,15 +192,18 @@ export default function RenderedPolygon({
           }`}
           onClick={handleClick}
         >
-          {meshDisplayMode === 'textured' ? (
+          {meshDisplayMode !== 'wireframe' ? (
             <RenderedTexturedPolygon
               vertexPositions={vertexPositions}
               normals={normals}
               uvs={uvs}
               indices={indicesRendered}
               colors={colorsRendered}
+              selectedVertices={selectedVertices}
               materialProps={texturedMaterialProps}
+              selectedColor={theme.palette.primary.main}
               sceneOptions={sceneOptions}
+              vertexSelectionMode={vertexSelectionMode}
             />
           ) : (
             <RenderedWireframePolygon
