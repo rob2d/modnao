@@ -55,6 +55,7 @@ import SceneLassoOverlay from './scene/SceneLassoOverlay';
 import SceneCameraControls from './scene/SceneCameraControls';
 import SceneVertexLassoSelection from './scene/SceneVertexLassoSelection';
 import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
+import VertexControlPanel from './scene/VertexControlPanel';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
@@ -253,6 +254,8 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   );
 
   const hasSelectedObjects = Object.keys(selectedObjectIds).length > 0;
+  const vertexControlPanelVisible =
+    hasSelectedObjects && meshSelectionType === 'vertex';
   let selectionMergeIndicatorText: string | undefined;
 
   if (isAltPressed && hasSelectedObjects) {
@@ -524,6 +527,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
       {!lassoEnabled ? null : (
         <SceneLassoOverlay isActive={isLassoActive} points={lassoPoints} />
       )}
+      {!vertexControlPanelVisible ? null : <VertexControlPanel />}
     </>
   );
 }

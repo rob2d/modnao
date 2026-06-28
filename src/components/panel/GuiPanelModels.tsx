@@ -261,6 +261,7 @@ export default function GuiPanelModels() {
           >
             <ToggleButton value='mesh'>mesh</ToggleButton>
             <ToggleButton value='polygon'>polygon</ToggleButton>
+            <ToggleButton value='vertex'>vertex</ToggleButton>
           </ToggleButtonGroup>
         </Grid>
       </Grid>
