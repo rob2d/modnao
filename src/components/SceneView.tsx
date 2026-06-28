@@ -22,7 +22,6 @@ import {
 import {
   addObjectKeys,
   removeObjectKeys,
-  selectObjectKeys,
   setObjectKeys,
   setSelectedTextureIndex
 } from '@/modules/object-viewer';
@@ -43,9 +42,7 @@ import { ColorManagement, SRGBColorSpace, WebGLRenderer } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
 import SceneLassoOverlay from './scene/SceneLassoOverlay';
 import SceneCameraControls from './scene/SceneCameraControls';
-import SceneVertexLassoSelection from './scene/SceneVertexLassoSelection';
 import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
-import useSceneVertexLassoSelection from './scene/useSceneVertexLassoSelection';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
 
@@ -200,29 +197,6 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const meshes = useAppSelector(selectAllDisplayedMeshes);
   const modelIndex = useAppSelector(selectModelIndex);
   const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
-  const onSelectVertices = useCallback(
-    (objectKeys: string[], selectionMergeMode: NodeSelectionMergeMode) => {
-      dispatch(
-        selectObjectKeys({
-          objectKeys,
-          selectionMergeMode
-        })
-      );
-    },
-    [dispatch]
-  );
-  const {
-    completedLassoSelection,
-    isLassoActive,
-    lassoEnabled,
-    lassoPoints,
-    onSelectLassoVertices
-  } = useSceneVertexLassoSelection({
-    canvasRef,
-    meshSelectionType,
-    onSelectVertices,
-    vertexInteractionMode
-  });
   const renderedMeshGroups = sceneOptions.renderAllModels
     ? meshes
     : [selectedMeshes];
@@ -356,14 +330,12 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
             controlSceneCamera={vertexInteractionMode === 'camera'}
             resetCameraPositionRevision={resetCameraPositionRevision}
           />
-          <SceneVertexLassoSelection
-            lassoPoints={completedLassoSelection?.points}
+          <SceneLassoOverlay
+            canvasRef={canvasRef}
             meshGroups={renderedMeshGroups}
+            meshSelectionType={meshSelectionType}
             renderAllModels={sceneOptions.renderAllModels}
-            selectionMergeMode={
-              completedLassoSelection?.selectionMergeMode ?? 'replace'
-            }
-            onSelectVertices={onSelectLassoVertices}
+            vertexInteractionMode={vertexInteractionMode}
           />
         </Selection>
       </Canvas>
@@ -391,9 +363,6 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
       >
         {selectionMergeIndicatorText}
       </Box>
-      {!lassoEnabled ? null : (
-        <SceneLassoOverlay isActive={isLassoActive} points={lassoPoints} />
-      )}
     </>
   );
 }
