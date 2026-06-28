@@ -1,8 +1,7 @@
 import { mdiCameraControl, mdiLasso } from '@mdi/js';
 import { Box, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
+import type { SceneVertexInteractionMode } from '@/modules/object-viewer';
 import MdiSvgIcon from '../MdiSvgIcon';
-
-export type SceneVertexInteractionMode = 'camera' | 'select';
 
 interface SceneVertexModeControlsProps {
   value: SceneVertexInteractionMode;
@@ -50,12 +49,12 @@ export default function SceneVertexModeControls({
           }
         }}
       >
-        <Tooltip title='Move camera'>
+        <Tooltip title='Move camera (⌨&nbsp;C)'>
           <ToggleButton value='camera' aria-label='Move camera'>
             <MdiSvgIcon path={mdiCameraControl} fontSize='small' />
           </ToggleButton>
         </Tooltip>
-        <Tooltip title='Draw vertex selection area'>
+        <Tooltip title='Draw vertex selection area (⌨&nbsp;V)'>
           <ToggleButton value='select' aria-label='Draw vertex selection area'>
             <MdiSvgIcon path={mdiLasso} fontSize='small' />
           </ToggleButton>

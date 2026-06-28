@@ -54,12 +54,13 @@ import RenderedPolygon from './scene/RenderedPolygon';
 import SceneLassoOverlay from './scene/SceneLassoOverlay';
 import SceneCameraControls from './scene/SceneCameraControls';
 import SceneVertexLassoSelection from './scene/SceneVertexLassoSelection';
-import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
+import SceneVertexModeControls from './scene/SceneVertexModeControls';
 import VertexControlPanel from './scene/VertexControlPanel';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
 import type { InteractionPoint } from '@/utils/interaction';
+import { useVertexInteractionMode } from '@/modules/object-viewer';
 
 ColorManagement.enabled = true;
 
@@ -82,11 +83,7 @@ const $selectionMergeIndicatorPosition = signal({
   pointerY: -100
 });
 
-interface SceneViewProps {
-  vertexInteractionMode: SceneVertexInteractionMode;
-}
-
-export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
+export default function SceneView() {
   useObjectNavControls();
 
   const [textureMap, setTextureMap] =
@@ -110,6 +107,9 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const dispatch = useAppDispatch();
   const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
+  const vertexModeEnabled = meshSelectionType === 'vertex';
+  const { vertexInteractionMode, setVertexInteractionMode } =
+    useVertexInteractionMode(vertexModeEnabled);
   const onSelectObjectKey = useCallback(
     (
       key: string,
@@ -254,8 +254,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   );
 
   const hasSelectedObjects = Object.keys(selectedObjectIds).length > 0;
-  const vertexControlPanelVisible =
-    hasSelectedObjects && meshSelectionType === 'vertex';
+  const vertexControlPanelVisible = hasSelectedObjects && vertexModeEnabled;
   let selectionMergeIndicatorText: string | undefined;
 
   if (isAltPressed && hasSelectedObjects) {
@@ -329,8 +328,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const meshes = useAppSelector(selectAllDisplayedMeshes);
   const modelIndex = useAppSelector(selectModelIndex);
   const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
-  const lassoEnabled =
-    meshSelectionType === 'vertex' && vertexInteractionMode === 'select';
+  const lassoEnabled = vertexModeEnabled && vertexInteractionMode === 'select';
   const onCompleteLasso = useCallback(
     (points: InteractionPoint[], selectionMergeMode: NodeSelectionMergeMode) =>
       setCompletedLassoSelection({
@@ -526,6 +524,12 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
       </Box>
       {!lassoEnabled ? null : (
         <SceneLassoOverlay isActive={isLassoActive} points={lassoPoints} />
+      )}
+      {!vertexModeEnabled ? null : (
+        <SceneVertexModeControls
+          value={vertexInteractionMode}
+          onChange={setVertexInteractionMode}
+        />
       )}
       {!vertexControlPanelVisible ? null : <VertexControlPanel />}
     </>
