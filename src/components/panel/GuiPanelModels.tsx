@@ -69,10 +69,14 @@ export default function GuiPanelModels() {
   }, [onExportAllModelsToGLTF]);
 
   const onSetMeshSelectionType = useCallback(
-    (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon') => {
+    (_: React.MouseEvent<HTMLElement>, type: 'mesh' | 'polygon' | null) => {
+      if (type === null) {
+        return;
+      }
+
       dispatch(setObjectType(type));
     },
-    [meshSelectionType]
+    [dispatch]
   );
 
   const polygonFileName = useAppSelector(selectPolygonFileName);
