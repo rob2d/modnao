@@ -5,7 +5,7 @@ import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
-import { mdiCubeUnfolded, mdiFormatColorFill, mdiTextureBox } from '@mdi/js';
+import { mdiCubeUnfolded, mdiPaletteAdvanced, mdiTextureBox } from '@mdi/js';
 import {
   Box,
   Slider,
@@ -14,7 +14,6 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import Grid from '@mui/material/Grid';
 import GuiPanelSection from './GuiPanelSection';
 import { JSX, SyntheticEvent, useCallback, useContext, useMemo } from 'react';
 import SceneOptionsContext, {
@@ -174,11 +173,11 @@ export default function GuiPanelViewOptions() {
     ];
 
     settingsItems.push(
-      sceneOptions.meshDisplayMode !== 'wireframe' ? (
+      sceneOptions.meshDisplayMode === 'textured' ? (
         <SceneOptionCheckbox
           key='vertex-colors'
           checked={sceneOptions.enableVertexColors}
-          tooltipHint='Enable Vertex Colors while using textured view mode.'
+          tooltipHint='Enable vertex colors while in Texture-view mode.'
           icon={<FormatColorFillIcon fontSize='small' />}
           onChange={onSetEnableVertexColors}
         />
@@ -279,7 +278,7 @@ export default function GuiPanelViewOptions() {
               </Tooltip>
               <Tooltip title='Vertex color visualization view'>
                 <ToggleButton value='colors' aria-label='Vertex color view'>
-                  <MdiSvgIcon path={mdiFormatColorFill} fontSize='small' />
+                  <MdiSvgIcon path={mdiPaletteAdvanced} fontSize='small' />
                 </ToggleButton>
               </Tooltip>
             </ToggleButtonGroup>
