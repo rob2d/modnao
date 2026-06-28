@@ -11,7 +11,7 @@ interface SceneVertexLassoSelectionProps {
   meshGroups: DisplayedMesh[][];
   renderAllModels: boolean;
   selectionMergeMode: NodeSelectionMergeMode;
-  onSelectVertexKeys: (
+  onSelectVertices: (
     vertexKeys: string[],
     selectionMergeMode: NodeSelectionMergeMode
   ) => void;
@@ -22,7 +22,7 @@ export default function SceneVertexLassoSelection({
   meshGroups,
   renderAllModels,
   selectionMergeMode,
-  onSelectVertexKeys
+  onSelectVertices
 }: SceneVertexLassoSelectionProps) {
   const { camera, size } = useThree();
 
@@ -74,12 +74,12 @@ export default function SceneVertexLassoSelection({
       });
     });
 
-    onSelectVertexKeys(selectedVertexKeys, selectionMergeMode);
+    onSelectVertices(selectedVertexKeys, selectionMergeMode);
   }, [
     camera,
     lassoPoints,
     meshGroups,
-    onSelectVertexKeys,
+    onSelectVertices,
     renderAllModels,
     selectionMergeMode,
     size

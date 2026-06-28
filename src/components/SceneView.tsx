@@ -22,6 +22,7 @@ import {
 import {
   addObjectKeys,
   removeObjectKeys,
+  selectObjectKeys,
   setObjectKeys,
   setSelectedTextureIndex
 } from '@/modules/object-viewer';
@@ -31,11 +32,7 @@ import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { SceneContextSetup } from '@/contexts/SceneContext';
-import {
-  useLassoPath,
-  useSceneTextureMapCache,
-  useSelectionMergeModeKeys
-} from '@/hooks';
+import { useSceneTextureMapCache, useSelectionMergeModeKeys } from '@/hooks';
 import {
   EffectComposer,
   Outline,
@@ -48,9 +45,9 @@ import SceneLassoOverlay from './scene/SceneLassoOverlay';
 import SceneCameraControls from './scene/SceneCameraControls';
 import SceneVertexLassoSelection from './scene/SceneVertexLassoSelection';
 import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
+import useSceneVertexLassoSelection from './scene/useSceneVertexLassoSelection';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
-import type { InteractionPoint } from '@/utils/interaction';
 
 ColorManagement.enabled = true;
 
@@ -75,10 +72,6 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
   const [resetCameraPositionRevision, setResetCameraPositionRevision] =
     useState(0);
-  const [completedLassoSelection, setCompletedLassoSelection] = useState<{
-    points: InteractionPoint[];
-    selectionMergeMode: NodeSelectionMergeMode;
-  }>();
   const [isScenePointerInside, setIsScenePointerInside] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectionMergeIndicatorRef = useRef<HTMLDivElement>(null);
@@ -207,33 +200,28 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const meshes = useAppSelector(selectAllDisplayedMeshes);
   const modelIndex = useAppSelector(selectModelIndex);
   const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
-  const lassoEnabled =
-    meshSelectionType === 'vertex' && vertexInteractionMode === 'select';
-  const onCompleteLasso = useCallback(
-    (points: InteractionPoint[], selectionMergeMode: NodeSelectionMergeMode) =>
-      setCompletedLassoSelection({
-        points: [...points],
-        selectionMergeMode
-      }),
-    []
-  );
-  const onSelectVertexKeys = useCallback(
-    (vertexKeys: string[], selectionMergeMode: NodeSelectionMergeMode) => {
-      if (selectionMergeMode === 'remove') {
-        dispatch(removeObjectKeys(vertexKeys));
-      } else if (selectionMergeMode === 'add') {
-        dispatch(addObjectKeys(vertexKeys));
-      } else {
-        dispatch(setObjectKeys(vertexKeys));
-      }
-
-      setCompletedLassoSelection(undefined);
+  const onSelectVertices = useCallback(
+    (objectKeys: string[], selectionMergeMode: NodeSelectionMergeMode) => {
+      dispatch(
+        selectObjectKeys({
+          objectKeys,
+          selectionMergeMode
+        })
+      );
     },
     [dispatch]
   );
-  const { isLassoActive, lassoPoints } = useLassoPath(canvasRef, {
-    enabled: lassoEnabled,
-    onComplete: onCompleteLasso
+  const {
+    completedLassoSelection,
+    isLassoActive,
+    lassoEnabled,
+    lassoPoints,
+    onSelectLassoVertices
+  } = useSceneVertexLassoSelection({
+    canvasRef,
+    meshSelectionType,
+    onSelectVertices,
+    vertexInteractionMode
   });
   const renderedMeshGroups = sceneOptions.renderAllModels
     ? meshes
@@ -375,7 +363,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
             selectionMergeMode={
               completedLassoSelection?.selectionMergeMode ?? 'replace'
             }
-            onSelectVertexKeys={onSelectVertexKeys}
+            onSelectVertices={onSelectLassoVertices}
           />
         </Selection>
       </Canvas>

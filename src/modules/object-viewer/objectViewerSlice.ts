@@ -5,8 +5,9 @@ import {
   selectRealModelIndexes,
   selectRealModelIndexLookup
 } from '@/selectors';
-import { createAppAsyncThunk } from '@/storeTypings';
+import { type AppThunk, createAppAsyncThunk } from '@/storeTypings';
 import { processPolygonFile } from '@/modules/model-data';
+import type { NodeSelectionMergeMode } from '@/types';
 
 export interface ObjectViewerState {
   modelIndex: number;
@@ -118,6 +119,24 @@ export const navToNextObject = createAppAsyncThunk(
     dispatch(setObjectViewedIndex(objectIndex));
   }
 );
+
+export const selectObjectKeys =
+  ({
+    objectKeys,
+    selectionMergeMode
+  }: {
+    objectKeys: string[];
+    selectionMergeMode: NodeSelectionMergeMode;
+  }): AppThunk =>
+  (dispatch) => {
+    if (selectionMergeMode === 'remove') {
+      dispatch(removeObjectKeys(objectKeys));
+    } else if (selectionMergeMode === 'add') {
+      dispatch(addObjectKeys(objectKeys));
+    } else {
+      dispatch(setObjectKeys(objectKeys));
+    }
+  };
 
 const objectViewerSlice = createSlice({
   name: 'objectViewer',
