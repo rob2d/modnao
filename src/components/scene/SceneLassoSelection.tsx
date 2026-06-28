@@ -15,7 +15,7 @@ import { getInteractionBounds, isPointInLasso } from '@/utils/interaction';
 import type { InteractionPoint } from '@/utils/interaction';
 import type { SceneVertexInteractionMode } from './SceneVertexModeControls';
 
-interface SceneLassoOverlayProps {
+interface SceneLassoSelectionProps {
   canvasRef: RefObject<HTMLCanvasElement | null>;
   meshGroups: DisplayedMesh[][];
   meshSelectionType: MeshSelectionType;
@@ -23,13 +23,13 @@ interface SceneLassoOverlayProps {
   vertexInteractionMode: SceneVertexInteractionMode;
 }
 
-export default function SceneLassoOverlay({
+export default function SceneLassoSelection({
   canvasRef,
   meshGroups,
   meshSelectionType,
   renderAllModels,
   vertexInteractionMode
-}: SceneLassoOverlayProps) {
+}: SceneLassoSelectionProps) {
   const { camera, size } = useThree();
   const dispatch = useAppDispatch();
   const lassoEnabled =

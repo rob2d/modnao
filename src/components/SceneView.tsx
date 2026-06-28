@@ -40,7 +40,7 @@ import {
 import { BlendFunction } from 'postprocessing';
 import { ColorManagement, SRGBColorSpace, WebGLRenderer } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
-import SceneLassoOverlay from './scene/SceneLassoOverlay';
+import SceneLassoSelection from './scene/SceneLassoSelection';
 import SceneCameraControls from './scene/SceneCameraControls';
 import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
@@ -330,7 +330,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
             controlSceneCamera={vertexInteractionMode === 'camera'}
             resetCameraPositionRevision={resetCameraPositionRevision}
           />
-          <SceneLassoOverlay
+          <SceneLassoSelection
             canvasRef={canvasRef}
             meshGroups={renderedMeshGroups}
             meshSelectionType={meshSelectionType}
