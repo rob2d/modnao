@@ -31,31 +31,19 @@ import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { SceneContextSetup } from '@/contexts/SceneContext';
-import { useLassoPath } from '@/hooks';
+import { useLassoPath, useSceneTextureMapCache } from '@/hooks';
 import {
   EffectComposer,
   Outline,
   Selection
 } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
-import {
-  ClampToEdgeWrapping,
-  ColorManagement,
-  DataTexture,
-  RepeatWrapping,
-  RGBAFormat,
-  SRGBColorSpace,
-  Texture,
-  UnsignedByteType,
-  Vector2,
-  WebGLRenderer
-} from 'three';
+import { ColorManagement, SRGBColorSpace, WebGLRenderer } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
 import SceneLassoOverlay from './scene/SceneLassoOverlay';
 import SceneCameraControls from './scene/SceneCameraControls';
 import SceneVertexLassoSelection from './scene/SceneVertexLassoSelection';
 import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
-import globalBuffers from '@/utils/data/globalBuffers';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
 import type { InteractionPoint } from '@/utils/interaction';
@@ -65,15 +53,7 @@ ColorManagement.enabled = true;
 const cameraParams = { near: 0.1, far: 5000000 };
 const canvasResizeParams = { debounce: 125 };
 
-const TEXTURE_ROTATION = 1.5708;
-const TEXTURE_CENTER = new Vector2(0.5, 0.5);
-
-const useClientEffect =
-  typeof window !== 'undefined' ? useEffect : () => undefined;
-
 const axesHelper = <axesHelper args={[50]} />;
-
-const textureTypes = ['opaque', 'translucent'] as const;
 
 // temporary until introducing general icons for cursor variants
 const $selectionMergeIndicatorPosition = signal({
@@ -88,8 +68,6 @@ interface SceneViewProps {
 export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   useObjectNavControls();
 
-  const [textureMap, setTextureMap] =
-    useState<Map<string, { texture: DataTexture; bufferKey: string }>>();
   const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
   const [resetCameraPositionRevision, setResetCameraPositionRevision] =
     useState(0);
@@ -139,6 +117,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   }, []);
 
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+  const textureCacheMap = useSceneTextureMapCache(textureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
 
@@ -266,62 +245,6 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
     sceneOptions.sceneCursorVisible &&
     selectionMergeIndicatorText !== undefined;
 
-  useClientEffect(() => {
-    const nextMap = new Map<
-      string,
-      { texture: DataTexture; bufferKey: string }
-    >();
-
-    for (const textureDef of textureDefs) {
-      textureTypes.forEach((type: 'opaque' | 'translucent') => {
-        const bufferKey = textureDef.bufferKeys[type];
-        if (!bufferKey) {
-          return;
-        }
-
-        [true, false].forEach((hRepeat) =>
-          [true, false].forEach((vRepeat) => {
-            const mapKey = `${bufferKey}-${Number(hRepeat)}-${Number(vRepeat)}`;
-
-            if (!textureMap?.has(mapKey)) {
-              const pixels = globalBuffers.get(bufferKey);
-              const texture = new DataTexture(
-                pixels,
-                textureDef.width,
-                textureDef.height,
-                RGBAFormat,
-                UnsignedByteType,
-                Texture.DEFAULT_MAPPING,
-                hRepeat ? RepeatWrapping : ClampToEdgeWrapping,
-                vRepeat ? RepeatWrapping : ClampToEdgeWrapping,
-                undefined,
-                undefined,
-                undefined,
-                SRGBColorSpace
-              );
-              texture.rotation = TEXTURE_ROTATION;
-              texture.center = TEXTURE_CENTER;
-              texture.repeat.y = -1;
-              texture.flipY = false;
-              texture.needsUpdate = true;
-              nextMap.set(mapKey, { texture, bufferKey });
-            } else {
-              nextMap.set(
-                mapKey,
-                textureMap.get(mapKey) as {
-                  texture: DataTexture;
-                  bufferKey: string;
-                }
-              );
-            }
-          })
-        );
-      });
-    }
-
-    setTextureMap(nextMap);
-  }, [textureDefs]);
-
   const selectedMeshes = useAppSelector(selectDisplayedMeshes);
   const meshes = useAppSelector(selectAllDisplayedMeshes);
   const modelIndex = useAppSelector(selectModelIndex);
@@ -374,7 +297,8 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
           }
         >
           {ms.map((m, i) => {
-            const texture = textureMap?.get(m.textureHash)?.texture || null;
+            const texture =
+              textureCacheMap?.get(m.textureHash)?.texture || null;
             return m.polygons.map((p, pIndex) => (
               <RenderedPolygon
                 {...p}
@@ -395,7 +319,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
     [
       model,
       renderedMeshGroups,
-      textureMap,
+      textureCacheMap,
       selectedObjectIds,
       meshSelectionType,
       onSelectObjectKey
