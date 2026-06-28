@@ -1,13 +1,9 @@
 import { type RefObject, useEffect, useState } from 'react';
-
-interface SelectionMergeModeKeys {
-  isAltPressed: boolean;
-  isShiftPressed: boolean;
-}
+import type { NodeSelectionMergeMode } from '@/types';
 
 export default function useSelectionMergeModeKeys(
   isScenePointerInsideRef: RefObject<boolean>
-): SelectionMergeModeKeys {
+): NodeSelectionMergeMode {
   const [isAltPressed, setIsAltPressed] = useState(false);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
 
@@ -56,5 +52,13 @@ export default function useSelectionMergeModeKeys(
     };
   }, [isScenePointerInsideRef]);
 
-  return { isAltPressed, isShiftPressed };
+  if (isAltPressed) {
+    return 'remove';
+  }
+
+  if (isShiftPressed) {
+    return 'add';
+  }
+
+  return 'replace';
 }

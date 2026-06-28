@@ -122,9 +122,7 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const textureCacheMap = useSceneTextureMapCache(textureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
-  const { isAltPressed, isShiftPressed } = useSelectionMergeModeKeys(
-    isScenePointerInsideRef
-  );
+  const selectionMergeMode = useSelectionMergeModeKeys(isScenePointerInsideRef);
 
   const canvasStyle = useMemo(() => {
     let cursor = 'default';
@@ -194,9 +192,9 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const hasSelectedObjects = Object.keys(selectedObjectIds).length > 0;
   let selectionMergeIndicatorText: string | undefined;
 
-  if (isAltPressed && hasSelectedObjects) {
+  if (selectionMergeMode === 'remove' && hasSelectedObjects) {
     selectionMergeIndicatorText = '-';
-  } else if (isShiftPressed && hasSelectedObjects) {
+  } else if (selectionMergeMode === 'add' && hasSelectedObjects) {
     selectionMergeIndicatorText = '+';
   }
 
