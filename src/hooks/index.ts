@@ -7,3 +7,5 @@ export { default as useKeyPressEffect } from './useKeyPressEffect';
 export { default as useResizeObserverSize } from './useResizeObserverSize';
 export { default as useScrollEdges } from './useScrollEdges';
 export { default as useSceneOptionSetting } from './useSceneOptionSettings';
+export { default as useSceneTextureMapCache } from './useSceneTextureMapCache';
+export { default as useSelectionMergeModeKeys } from './useSelectionMergeModeKeys';

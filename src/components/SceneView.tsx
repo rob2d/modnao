@@ -31,51 +31,27 @@ import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { SceneContextSetup } from '@/contexts/SceneContext';
-import { useLassoPath } from '@/hooks';
+import { useSceneTextureMapCache, useSelectionMergeModeKeys } from '@/hooks';
 import {
   EffectComposer,
   Outline,
   Selection
 } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
-import {
-  ClampToEdgeWrapping,
-  ColorManagement,
-  DataTexture,
-  RepeatWrapping,
-  RGBAFormat,
-  SRGBColorSpace,
-  Texture,
-  UnsignedByteType,
-  Vector2,
-  WebGLRenderer
-} from 'three';
+import { ColorManagement, SRGBColorSpace, WebGLRenderer } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
-import SceneLassoOverlay from './scene/SceneLassoOverlay';
+import SceneLassoSelection from './scene/SceneLassoSelection';
 import SceneCameraControls from './scene/SceneCameraControls';
-import SceneVertexLassoSelection from './scene/SceneVertexLassoSelection';
-import SceneVertexModeControls from './scene/SceneVertexModeControls';
-import VertexControlPanel from './scene/VertexControlPanel';
-import globalBuffers from '@/utils/data/globalBuffers';
+import { useVertexInteractionMode } from '@/modules/object-viewer';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
-import type { InteractionPoint } from '@/utils/interaction';
-import { useVertexInteractionMode } from '@/modules/object-viewer';
 
 ColorManagement.enabled = true;
 
 const cameraParams = { near: 0.1, far: 5000000 };
 const canvasResizeParams = { debounce: 125 };
 
-const TEXTURE_ROTATION = 1.5708;
-const TEXTURE_CENTER = new Vector2(0.5, 0.5);
-
-const useClientEffect =
-  typeof window !== 'undefined' ? useEffect : () => undefined;
-
 const axesHelper = <axesHelper args={[50]} />;
-
-const textureTypes = ['opaque', 'translucent'] as const;
 
 // temporary until introducing general icons for cursor variants
 const $selectionMergeIndicatorPosition = signal({
@@ -86,17 +62,9 @@ const $selectionMergeIndicatorPosition = signal({
 export default function SceneView() {
   useObjectNavControls();
 
-  const [textureMap, setTextureMap] =
-    useState<Map<string, { texture: DataTexture; bufferKey: string }>>();
   const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
   const [resetCameraPositionRevision, setResetCameraPositionRevision] =
     useState(0);
-  const [completedLassoSelection, setCompletedLassoSelection] = useState<{
-    points: InteractionPoint[];
-    selectionMergeMode: NodeSelectionMergeMode;
-  }>();
-  const [isAltPressed, setIsAltPressed] = useState(false);
-  const [isShiftPressed, setIsShiftPressed] = useState(false);
   const [isScenePointerInside, setIsScenePointerInside] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectionMergeIndicatorRef = useRef<HTMLDivElement>(null);
@@ -140,53 +108,10 @@ export default function SceneView() {
   }, []);
 
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+  const textureCacheMap = useSceneTextureMapCache(textureDefs);
   const model = useAppSelector(selectModel);
   const theme = useTheme();
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Alt') {
-        if (isScenePointerInsideRef.current) {
-          event.preventDefault();
-        }
-
-        setIsAltPressed(true);
-      }
-
-      if (event.key === 'Shift') {
-        setIsShiftPressed(true);
-      }
-    };
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === 'Alt') {
-        if (isScenePointerInsideRef.current) {
-          event.preventDefault();
-        }
-
-        setIsAltPressed(false);
-      }
-
-      if (event.key === 'Shift') {
-        setIsShiftPressed(false);
-      }
-    };
-
-    const handleWindowBlur = () => {
-      setIsAltPressed(false);
-      setIsShiftPressed(false);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    window.addEventListener('blur', handleWindowBlur);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-      window.removeEventListener('blur', handleWindowBlur);
-    };
-  }, []);
+  const selectionMergeMode = useSelectionMergeModeKeys(isScenePointerInsideRef);
 
   const canvasStyle = useMemo(() => {
     let cursor = 'default';
@@ -257,9 +182,9 @@ export default function SceneView() {
   const vertexControlPanelVisible = hasSelectedObjects && vertexModeEnabled;
   let selectionMergeIndicatorText: string | undefined;
 
-  if (isAltPressed && hasSelectedObjects) {
+  if (selectionMergeMode === 'remove' && hasSelectedObjects) {
     selectionMergeIndicatorText = '-';
-  } else if (isShiftPressed && hasSelectedObjects) {
+  } else if (selectionMergeMode === 'add' && hasSelectedObjects) {
     selectionMergeIndicatorText = '+';
   }
 
@@ -268,93 +193,10 @@ export default function SceneView() {
     sceneOptions.sceneCursorVisible &&
     selectionMergeIndicatorText !== undefined;
 
-  useClientEffect(() => {
-    const nextMap = new Map<
-      string,
-      { texture: DataTexture; bufferKey: string }
-    >();
-
-    for (const textureDef of textureDefs) {
-      textureTypes.forEach((type: 'opaque' | 'translucent') => {
-        const bufferKey = textureDef.bufferKeys[type];
-        if (!bufferKey) {
-          return;
-        }
-
-        [true, false].forEach((hRepeat) =>
-          [true, false].forEach((vRepeat) => {
-            const mapKey = `${bufferKey}-${Number(hRepeat)}-${Number(vRepeat)}`;
-
-            if (!textureMap?.has(mapKey)) {
-              const pixels = globalBuffers.get(bufferKey);
-              const texture = new DataTexture(
-                pixels,
-                textureDef.width,
-                textureDef.height,
-                RGBAFormat,
-                UnsignedByteType,
-                Texture.DEFAULT_MAPPING,
-                hRepeat ? RepeatWrapping : ClampToEdgeWrapping,
-                vRepeat ? RepeatWrapping : ClampToEdgeWrapping,
-                undefined,
-                undefined,
-                undefined,
-                SRGBColorSpace
-              );
-              texture.rotation = TEXTURE_ROTATION;
-              texture.center = TEXTURE_CENTER;
-              texture.repeat.y = -1;
-              texture.flipY = false;
-              texture.needsUpdate = true;
-              nextMap.set(mapKey, { texture, bufferKey });
-            } else {
-              nextMap.set(
-                mapKey,
-                textureMap.get(mapKey) as {
-                  texture: DataTexture;
-                  bufferKey: string;
-                }
-              );
-            }
-          })
-        );
-      });
-    }
-
-    setTextureMap(nextMap);
-  }, [textureDefs]);
-
   const selectedMeshes = useAppSelector(selectDisplayedMeshes);
   const meshes = useAppSelector(selectAllDisplayedMeshes);
   const modelIndex = useAppSelector(selectModelIndex);
   const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
-  const lassoEnabled = vertexModeEnabled && vertexInteractionMode === 'select';
-  const onCompleteLasso = useCallback(
-    (points: InteractionPoint[], selectionMergeMode: NodeSelectionMergeMode) =>
-      setCompletedLassoSelection({
-        points: [...points],
-        selectionMergeMode
-      }),
-    []
-  );
-  const onSelectVertexKeys = useCallback(
-    (vertexKeys: string[], selectionMergeMode: NodeSelectionMergeMode) => {
-      if (selectionMergeMode === 'remove') {
-        dispatch(removeObjectKeys(vertexKeys));
-      } else if (selectionMergeMode === 'add') {
-        dispatch(addObjectKeys(vertexKeys));
-      } else {
-        dispatch(setObjectKeys(vertexKeys));
-      }
-
-      setCompletedLassoSelection(undefined);
-    },
-    [dispatch]
-  );
-  const { isLassoActive, lassoPoints } = useLassoPath(canvasRef, {
-    enabled: lassoEnabled,
-    onComplete: onCompleteLasso
-  });
   const renderedMeshGroups = sceneOptions.renderAllModels
     ? meshes
     : [selectedMeshes];
@@ -375,7 +217,8 @@ export default function SceneView() {
           }
         >
           {ms.map((m, i) => {
-            const texture = textureMap?.get(m.textureHash)?.texture || null;
+            const texture =
+              textureCacheMap?.get(m.textureHash)?.texture || null;
             return m.polygons.map((p, pIndex) => (
               <RenderedPolygon
                 {...p}
@@ -396,7 +239,7 @@ export default function SceneView() {
     [
       model,
       renderedMeshGroups,
-      textureMap,
+      textureCacheMap,
       selectedObjectIds,
       meshSelectionType,
       onSelectObjectKey
@@ -487,14 +330,12 @@ export default function SceneView() {
             controlSceneCamera={vertexInteractionMode === 'camera'}
             resetCameraPositionRevision={resetCameraPositionRevision}
           />
-          <SceneVertexLassoSelection
-            lassoPoints={completedLassoSelection?.points}
+          <SceneLassoSelection
+            canvasRef={canvasRef}
             meshGroups={renderedMeshGroups}
+            meshSelectionType={meshSelectionType}
             renderAllModels={sceneOptions.renderAllModels}
-            selectionMergeMode={
-              completedLassoSelection?.selectionMergeMode ?? 'replace'
-            }
-            onSelectVertexKeys={onSelectVertexKeys}
+            vertexInteractionMode={vertexInteractionMode}
           />
         </Selection>
       </Canvas>
@@ -522,16 +363,6 @@ export default function SceneView() {
       >
         {selectionMergeIndicatorText}
       </Box>
-      {!lassoEnabled ? null : (
-        <SceneLassoOverlay isActive={isLassoActive} points={lassoPoints} />
-      )}
-      {!vertexModeEnabled ? null : (
-        <SceneVertexModeControls
-          value={vertexInteractionMode}
-          onChange={setVertexInteractionMode}
-        />
-      )}
-      {!vertexControlPanelVisible ? null : <VertexControlPanel />}
     </>
   );
 }

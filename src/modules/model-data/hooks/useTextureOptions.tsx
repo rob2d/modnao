@@ -101,7 +101,7 @@ export default function useTextureOptions(
   const options = useMemo(
     (): TextureOption[] => [
       {
-        label: 'Undo change',
+        label: 'Undo source change',
         icon: <UndoIcon fontSize='small' />,
         tooltip:
           'Undo a previous replace-texture or crop/resize operation; does not include color changes',
