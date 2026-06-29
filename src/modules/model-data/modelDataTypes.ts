@@ -71,6 +71,11 @@ export interface ApplySelectedVertexColorResult {
   vertexColorUpdates: VertexColorUpdate[];
 }
 
+export interface ApplySelectedVertexHslPayload {
+  baseVertexColors: VertexColorUpdate[];
+  hsl: HslValues;
+}
+
 export interface ModelDataState {
   models: NLModel[];
   textureDefs: NLUITextureDef[];

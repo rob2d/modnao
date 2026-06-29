@@ -44,7 +44,12 @@ import SceneLassoSelection from './scene/SceneLassoSelection';
 import SceneCameraControls from './scene/SceneCameraControls';
 import SceneVertexModeControls from './scene/SceneVertexModeControls';
 import VertexControlPanel from './scene/VertexControlPanel';
-import { applySelectedVertexColor } from '@/modules/model-data';
+import {
+  applySelectedVertexColor,
+  applySelectedVertexHsl,
+  type ApplySelectedVertexHslPayload,
+  type VertexColorUpdate
+} from '@/modules/model-data';
 import { useVertexInteractionMode } from '@/modules/object-viewer';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
@@ -113,6 +118,13 @@ export default function SceneView() {
   const onPickVertexColor = useCallback(
     (hexColor: string) => {
       dispatch(applySelectedVertexColor({ hexColor }));
+    },
+    [dispatch]
+  );
+
+  const onAdjustSelectedVertexHsl = useCallback(
+    (payload: ApplySelectedVertexHslPayload) => {
+      dispatch(applySelectedVertexHsl(payload));
     },
     [dispatch]
   );
@@ -190,6 +202,47 @@ export default function SceneView() {
 
   const hasSelectedObjects = Object.keys(selectedObjectIds).length > 0;
   const vertexControlPanelVisible = hasSelectedObjects && vertexModeEnabled;
+  const selectedVertexColors = useMemo<VertexColorUpdate[]>(() => {
+    if (!model) {
+      return [];
+    }
+
+    return Object.keys(selectedObjectIds).flatMap((objectKey) => {
+      if (!selectedObjectIds[objectKey]) {
+        return [];
+      }
+
+      const indexes = objectKey.split('_').map(Number);
+
+      if (indexes.length !== 3 || !indexes.every(Number.isInteger)) {
+        return [];
+      }
+
+      const [meshIndex, polygonIndex, vertexIndex] = indexes;
+      const mesh = model.meshes[meshIndex];
+
+      if (!mesh?.hasColoredVertices) {
+        return [];
+      }
+
+      const vertex = mesh.polygons[polygonIndex]?.vertices[vertexIndex];
+
+      if (!vertex?.colors) {
+        return [];
+      }
+
+      return [
+        {
+          contentAddress: vertex.contentAddress,
+          color: vertex.colors
+        }
+      ];
+    });
+  }, [model, selectedObjectIds]);
+  const selectedVertexSelectionKey = Object.keys(selectedObjectIds)
+    .filter((objectKey) => selectedObjectIds[objectKey])
+    .sort()
+    .join('|');
   let selectionMergeIndicatorText: string | undefined;
 
   if (selectionMergeMode === 'remove' && hasSelectedObjects) {
@@ -380,7 +433,12 @@ export default function SceneView() {
         />
       )}
       {!vertexControlPanelVisible ? null : (
-        <VertexControlPanel onPickColor={onPickVertexColor} />
+        <VertexControlPanel
+          key={selectedVertexSelectionKey}
+          selectedVertexColors={selectedVertexColors}
+          onAdjustHsl={onAdjustSelectedVertexHsl}
+          onPickColor={onPickVertexColor}
+        />
       )}
     </>
   );

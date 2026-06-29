@@ -10,6 +10,7 @@ import {
   LoadTextureFileWorkerPayload,
   LoadTextureFileWorkerResult
 } from '@/workers/loadTextureFileWorker';
+import { hslToRgb, rgbToHsl } from '@/utils/color-conversions';
 import {
   LoadPolygonFileWorkerPayload,
   LoadPolygonFileWorkerResult
@@ -34,6 +35,7 @@ import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefR
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import {
   ApplySelectedVertexColorResult,
+  ApplySelectedVertexHslPayload,
   LoadPolygonsPayload,
   LoadTexturesPayload,
   LoadTexturesResultPayload
@@ -75,6 +77,23 @@ const writeVertexColorToBuffer = (
   polygonBuffer[colorOffset + 1] = normalizedColorChannelToByte(color[1]);
   polygonBuffer[colorOffset + 2] = normalizedColorChannelToByte(color[0]);
   polygonBuffer[colorOffset + 3] = normalizedColorChannelToByte(color[3]);
+};
+
+const adjustNormalizedColorHsl = (
+  color: NLColorRGBA,
+  hsl: HslValues
+): NLColorRGBA => {
+  const { h, s, l } = rgbToHsl(
+    normalizedColorChannelToByte(color[0]),
+    normalizedColorChannelToByte(color[1]),
+    normalizedColorChannelToByte(color[2])
+  );
+  const adjustedH = (h + hsl.h + 360) % 360;
+  const adjustedS = Math.max(0, Math.min(s + hsl.s, 100));
+  const adjustedL = Math.max(0, Math.min(l + hsl.l, 100));
+  const { r, g, b } = hslToRgb(adjustedH, adjustedS, adjustedL);
+
+  return [r / 0xff, g / 0xff, b / 0xff, color[3]];
 };
 
 const decompressLzssSection = (
@@ -283,6 +302,37 @@ export const applySelectedVertexColor = createAppAsyncThunk(
           color: vertexColor
         })
       )
+    };
+  }
+);
+
+export const applySelectedVertexHsl = createAppAsyncThunk(
+  `${sliceName}/applySelectedVertexHsl`,
+  async (
+    { baseVertexColors, hsl }: ApplySelectedVertexHslPayload,
+    { getState }
+  ): Promise<ApplySelectedVertexColorResult> => {
+    const state = getState();
+    const { modelIndex } = state.objectViewer;
+    const vertexColorUpdates = baseVertexColors.map(
+      ({ contentAddress, color }) => ({
+        contentAddress,
+        color: adjustNormalizedColorHsl(color, hsl)
+      })
+    );
+    const { polygonBufferKey } = state.modelData;
+
+    if (polygonBufferKey) {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+
+      vertexColorUpdates.forEach(({ contentAddress, color }) => {
+        writeVertexColorToBuffer(polygonBuffer, contentAddress, color);
+      });
+    }
+
+    return {
+      modelIndex,
+      vertexColorUpdates
     };
   }
 );
