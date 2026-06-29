@@ -3,6 +3,7 @@ import { HYDRATE } from 'next-redux-wrapper';
 import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
 import { LoadTexturesResultPayload, ModelDataState } from './modelDataTypes';
 import {
+  applySelectedVertexColor,
   downloadTextureFile,
   loadCharacterPortraitsFile,
   processAdjustedTextureHsl,
@@ -166,6 +167,47 @@ const modelDataSlice = createSlice({
         state.textureBufferKey = undefined;
         state.textureDefs = [];
         state.textureHistory = {};
+      }
+    );
+
+    builder.addCase(
+      applySelectedVertexColor.fulfilled,
+      (
+        state: ModelDataState,
+        { payload: { modelIndex, vertexColorUpdates } }
+      ) => {
+        const model = state.models[modelIndex];
+
+        if (!model || vertexColorUpdates.length === 0) {
+          return;
+        }
+
+        const vertexColorUpdatesByAddress = new Map(
+          vertexColorUpdates.map(({ contentAddress, color }) => [
+            contentAddress,
+            color
+          ])
+        );
+
+        model.meshes.forEach((mesh) => {
+          if (!mesh.hasColoredVertices) {
+            return;
+          }
+
+          mesh.polygons.forEach((polygon) => {
+            polygon.vertices.forEach((vertex) => {
+              const color = vertexColorUpdatesByAddress.get(
+                vertex.contentAddress
+              );
+
+              if (!color) {
+                return;
+              }
+
+              vertex.colors = color;
+            });
+          });
+        });
       }
     );
 

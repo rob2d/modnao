@@ -42,6 +42,9 @@ import { ColorManagement, SRGBColorSpace, WebGLRenderer } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
 import SceneLassoSelection from './scene/SceneLassoSelection';
 import SceneCameraControls from './scene/SceneCameraControls';
+import SceneVertexModeControls from './scene/SceneVertexModeControls';
+import VertexControlPanel from './scene/VertexControlPanel';
+import { applySelectedVertexColor } from '@/modules/model-data';
 import { useVertexInteractionMode } from '@/modules/object-viewer';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
@@ -106,6 +109,13 @@ export default function SceneView() {
   const onResetCameraPosition = useCallback(() => {
     setResetCameraPositionRevision((revision) => revision + 1);
   }, []);
+
+  const onPickVertexColor = useCallback(
+    (hexColor: string) => {
+      dispatch(applySelectedVertexColor({ hexColor }));
+    },
+    [dispatch]
+  );
 
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const textureCacheMap = useSceneTextureMapCache(textureDefs);
@@ -363,6 +373,15 @@ export default function SceneView() {
       >
         {selectionMergeIndicatorText}
       </Box>
+      {!vertexModeEnabled ? null : (
+        <SceneVertexModeControls
+          value={vertexInteractionMode}
+          onChange={setVertexInteractionMode}
+        />
+      )}
+      {!vertexControlPanelVisible ? null : (
+        <VertexControlPanel onPickColor={onPickVertexColor} />
+      )}
     </>
   );
 }

@@ -8,11 +8,17 @@ import {
   Typography
 } from '@mui/material';
 
-type VertexColorEditMode = 'hslAdjustment' | 'setValue' | 'applyGradient';
+type VertexColorEditMode = 'editHsl' | 'pickColor' | 'pickGradient';
 
-export default function VertexControlPanel() {
+interface VertexControlPanelProps {
+  onPickColor: (hexColor: string) => void;
+}
+
+export default function VertexControlPanel({
+  onPickColor
+}: VertexControlPanelProps) {
   const [colorEditMode, setColorEditMode] =
-    useState<VertexColorEditMode>('hslAdjustment');
+    useState<VertexColorEditMode>('editHsl');
   const [selectedColor, setSelectedColor] = useState('#ffffff');
 
   return (
@@ -47,17 +53,18 @@ export default function VertexControlPanel() {
           aria-label='Vertex color edit mode'
           sx={{ mt: 1 }}
         >
-          <ToggleButton value='hslAdjustment'>Edit HSL</ToggleButton>
-          <ToggleButton value='setValue'>Pick Color</ToggleButton>
-          <ToggleButton value='applyGradient'>Pick Gradient</ToggleButton>
+          <ToggleButton value='editHsl'>Edit HSL</ToggleButton>
+          <ToggleButton value='pickColor'>Pick Color</ToggleButton>
+          <ToggleButton value='pickGradient'>Pick Gradient</ToggleButton>
         </ToggleButtonGroup>
         <Box sx={{ mt: 1 }}>
-          {colorEditMode !== 'setValue' ? (
+          {colorEditMode !== 'pickColor' ? (
             'PLACEHOLDER'
           ) : (
             <SketchPicker
               color={selectedColor}
               onChange={({ hex }: { hex: string }) => setSelectedColor(hex)}
+              onChangeComplete={({ hex }: { hex: string }) => onPickColor(hex)}
             />
           )}
         </Box>

@@ -5,6 +5,7 @@ import { HslValues } from '@/utils/textures';
 import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
 import { ClientThread } from '@/utils/threads';
 import globalBuffers from '@/utils/data/globalBuffers';
+import O from '@/constants/StructOffsets';
 import {
   LoadTextureFileWorkerPayload,
   LoadTextureFileWorkerResult
@@ -32,6 +33,7 @@ import {
 import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefRegionWorker';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import {
+  ApplySelectedVertexColorResult,
   LoadPolygonsPayload,
   LoadTexturesPayload,
   LoadTexturesResultPayload
@@ -40,6 +42,40 @@ import {
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
 export const sliceName = 'modelData';
+
+const hexToNormalizedColor = (hexColor: string): NLColor | undefined => {
+  const hex = hexColor.replace(/^#/, '');
+
+  if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
+    return undefined;
+  }
+
+  return [
+    parseInt(hex.slice(0, 2), 16) / 0xff,
+    parseInt(hex.slice(2, 4), 16) / 0xff,
+    parseInt(hex.slice(4, 6), 16) / 0xff
+  ];
+};
+
+const normalizedColorChannelToByte = (channel: number) =>
+  Math.round(Math.min(Math.max(channel, 0), 1) * 0xff);
+
+const writeVertexColorToBuffer = (
+  polygonBuffer: Uint8Array,
+  contentAddress: number,
+  color: NLColorRGBA
+) => {
+  const colorOffset = contentAddress + O.Vertex.COLORS;
+
+  if (colorOffset + 3 >= polygonBuffer.length) {
+    return;
+  }
+
+  polygonBuffer[colorOffset] = normalizedColorChannelToByte(color[2]);
+  polygonBuffer[colorOffset + 1] = normalizedColorChannelToByte(color[1]);
+  polygonBuffer[colorOffset + 2] = normalizedColorChannelToByte(color[0]);
+  polygonBuffer[colorOffset + 3] = normalizedColorChannelToByte(color[3]);
+};
 
 const decompressLzssSection = (
   section: Buffer | Buffer<ArrayBuffer>,
@@ -175,6 +211,78 @@ export const processPolygonFile = createAppAsyncThunk(
     return {
       ...result,
       polygonBufferKey: globalBuffers.add(polygonBuffer)
+    };
+  }
+);
+
+export const applySelectedVertexColor = createAppAsyncThunk(
+  `${sliceName}/applySelectedVertexColor`,
+  async (
+    { hexColor }: { hexColor: string },
+    { getState }
+  ): Promise<ApplySelectedVertexColorResult> => {
+    const state = getState();
+    const { modelIndex, selectedIds } = state.objectViewer;
+    const model = state.modelData.models[modelIndex];
+    const color = hexToNormalizedColor(hexColor);
+
+    if (!model || !color) {
+      return { modelIndex, vertexColorUpdates: [] };
+    }
+
+    const vertexColorUpdatesByAddress = new Map<number, NLColorRGBA>();
+
+    Object.keys(selectedIds).forEach((objectKey) => {
+      if (!selectedIds[objectKey]) {
+        return;
+      }
+
+      const indexes = objectKey.split('_').map(Number);
+
+      if (indexes.length !== 3 || !indexes.every(Number.isInteger)) {
+        return;
+      }
+
+      const [meshIndex, polygonIndex, vertexIndex] = indexes;
+      const mesh = model.meshes[meshIndex];
+
+      if (!mesh?.hasColoredVertices) {
+        return;
+      }
+
+      const vertex = mesh.polygons[polygonIndex]?.vertices[vertexIndex];
+
+      if (!vertex) {
+        return;
+      }
+
+      vertexColorUpdatesByAddress.set(vertex.contentAddress, [
+        color[0],
+        color[1],
+        color[2],
+        vertex.colors?.[3] ?? 1
+      ]);
+    });
+
+    const { polygonBufferKey } = state.modelData;
+
+    if (polygonBufferKey) {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+
+      vertexColorUpdatesByAddress.forEach((vertexColor, contentAddress) => {
+        writeVertexColorToBuffer(polygonBuffer, contentAddress, vertexColor);
+      });
+    }
+
+    return {
+      modelIndex,
+      vertexColorUpdates: Array.from(
+        vertexColorUpdatesByAddress.entries(),
+        ([contentAddress, vertexColor]) => ({
+          contentAddress,
+          color: vertexColor
+        })
+      )
     };
   }
 );

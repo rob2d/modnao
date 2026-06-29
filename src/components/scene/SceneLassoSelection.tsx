@@ -13,7 +13,15 @@ import { useAppDispatch } from '@/storeTypings';
 import type { NodeSelectionMergeMode } from '@/types';
 import { getInteractionBounds, isPointInLasso } from '@/utils/interaction';
 import type { InteractionPoint } from '@/utils/interaction';
-import type { SceneVertexInteractionMode } from './SceneVertexModeControls';
+import type { SceneVertexInteractionMode } from '@/modules/object-viewer';
+
+const calculateFullscreenOverlayPosition = (
+  _object: unknown,
+  _camera: unknown,
+  size: { width: number; height: number }
+) => [size.width / 2, size.height / 2];
+
+const MIN_LASSO_BOUNDS_SIZE = 8;
 
 interface SceneLassoSelectionProps {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -46,6 +54,13 @@ export default function SceneLassoSelection({
       const lassoBounds = getInteractionBounds(points);
 
       if (!lassoBounds) {
+        return;
+      }
+
+      if (
+        lassoBounds.maxX - lassoBounds.minX < MIN_LASSO_BOUNDS_SIZE ||
+        lassoBounds.maxY - lassoBounds.minY < MIN_LASSO_BOUNDS_SIZE
+      ) {
         return;
       }
 
@@ -108,7 +123,11 @@ export default function SceneLassoSelection({
   const fillOpacity = isLassoActive ? 0.16 : 0.08;
 
   return (
-    <Html fullscreen style={{ pointerEvents: 'none' }}>
+    <Html
+      fullscreen
+      calculatePosition={calculateFullscreenOverlayPosition}
+      style={{ pointerEvents: 'none' }}
+    >
       <Box
         sx={{
           position: 'absolute',

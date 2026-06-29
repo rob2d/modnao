@@ -61,6 +61,16 @@ export type AdjustTextureHslPayload = {
   hsl: HslValues;
 };
 
+export interface VertexColorUpdate {
+  contentAddress: number;
+  color: NLColorRGBA;
+}
+
+export interface ApplySelectedVertexColorResult {
+  modelIndex: number;
+  vertexColorUpdates: VertexColorUpdate[];
+}
+
 export interface ModelDataState {
   models: NLModel[];
   textureDefs: NLUITextureDef[];
