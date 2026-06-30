@@ -3,6 +3,7 @@ import {
   MouseEvent,
   useCallback,
   useMemo,
+  useRef,
   useState
 } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -27,11 +28,14 @@ export default function GuiPanelTextureMenu({
   selectedUvClipPaths: UvClipPath[];
   onReplaceImageFile: (file: File | SharedArrayBuffer) => void;
 }) {
+  const menuButtonContainerRef = useRef<HTMLDivElement>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
   const handleClick = useCallback((event: MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(
+      menuButtonContainerRef.current?.parentElement ?? event.currentTarget
+    );
   }, []);
 
   const handleClose = useCallback(() => {
@@ -73,6 +77,7 @@ export default function GuiPanelTextureMenu({
 
   return (
     <Box
+      ref={menuButtonContainerRef}
       sx={{
         position: 'absolute',
         top: 0,
@@ -88,7 +93,12 @@ export default function GuiPanelTextureMenu({
         }
       }}
     >
-      <IconButton color='primary' aria-haspopup='true' onClick={handleClick}>
+      <IconButton
+        color='primary'
+        aria-haspopup='true'
+        onClick={handleClick}
+        sx={{ visibility: open ? 'hidden' : 'visible' }}
+      >
         <MoreVertIcon fontSize='small' />
       </IconButton>
       <Menu

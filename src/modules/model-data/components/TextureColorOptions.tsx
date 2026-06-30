@@ -254,7 +254,7 @@ export default function TextureColorOptions({
                   size='small'
                 />
               }
-              label='Whole texture'
+              label='Edit full texture'
             />
           </Tooltip>
         </ListItem>
