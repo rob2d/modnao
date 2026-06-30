@@ -45,6 +45,15 @@ const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
 export const sliceName = 'modelData';
 
+interface TextureHslAdjustmentPayload {
+  textureIndex: number;
+  hsl: HslValues;
+  uvPixelByteIndexes?: number[];
+}
+
+const getUvPixelByteIndexesKey = (uvPixelByteIndexes: number[] | undefined) =>
+  !uvPixelByteIndexes?.length ? undefined : uvPixelByteIndexes.join(',');
+
 const hexToNormalizedColor = (hexColor: string): NLColor | undefined => {
   const hex = hexColor.replace(/^#/, '');
 
@@ -569,10 +578,7 @@ export const processTextureFile = createAppAsyncThunk(
 
 export const adjustTextureHsl = createAppAsyncThunk(
   `${sliceName}/adjustTextureHsl`,
-  async (
-    payload: { textureIndex: number; hsl: HslValues },
-    { getState, dispatch }
-  ) => {
+  async (payload: TextureHslAdjustmentPayload, { getState, dispatch }) => {
     const state = getState();
 
     const prevEditedTexture =
@@ -580,12 +586,14 @@ export const adjustTextureHsl = createAppAsyncThunk(
 
     // abort processing in reducer if no hsl change & edited
     const { hsl } = payload;
+    const uvClipPathKey = getUvPixelByteIndexesKey(payload.uvPixelByteIndexes);
     if (prevEditedTexture) {
       const prevHsl = prevEditedTexture?.hsl;
       if (
         prevHsl?.h === hsl.h &&
         prevHsl?.s === hsl.s &&
-        prevHsl?.l === hsl.l
+        prevHsl?.l === hsl.l &&
+        prevEditedTexture.uvClipPathKey === uvClipPathKey
       ) {
         return;
       }
@@ -613,7 +621,7 @@ export const adjustTextureHsl = createAppAsyncThunk(
 export const processAdjustedTextureHsl = createAppAsyncThunk(
   `${sliceName}/processAdjustedTextureHsl`,
   async (
-    { textureIndex, hsl }: { textureIndex: number; hsl: HslValues },
+    { textureIndex, hsl, uvPixelByteIndexes }: TextureHslAdjustmentPayload,
     { getState }
   ) => {
     const state = getState();
@@ -627,6 +635,7 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
           AdjustTextureHslWorkerResult
         >('adjustTextureHsl', {
           hsl,
+          uvPixelByteIndexes,
           buffer: globalBuffers.getShared(bufferKey)
         })
       )
@@ -638,7 +647,8 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
         translucent: globalBuffers.add(translucentRgbaBuffer)
       },
       textureIndex,
-      hsl
+      hsl,
+      uvClipPathKey: getUvPixelByteIndexesKey(uvPixelByteIndexes)
     };
   }
 );

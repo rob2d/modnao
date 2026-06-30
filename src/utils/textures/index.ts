@@ -7,6 +7,15 @@ export * from './HslValues';
 export * from './serialize';
 export * from './parse';
 export * from './files';
+export type {
+  UvClipPath,
+  UvClipPathBounds,
+  UvClipPathPoint
+} from './createUvClipPaths';
+export {
+  getUvClipPathBounds,
+  getUvClipPathPixelByteIndexes
+} from './createUvClipPaths';
 export { default as getTextureDefDataLength } from './getTextureDefDataLength';
 export { default as createUvClipPaths } from './createUvClipPaths';
 export { default as createTextureDef } from './createTextureDef';

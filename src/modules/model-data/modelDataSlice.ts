@@ -227,14 +227,15 @@ const modelDataSlice = createSlice({
       processAdjustedTextureHsl.fulfilled,
       (
         state: ModelDataState,
-        { payload: { textureIndex, bufferKeys, hsl } }
+        { payload: { textureIndex, bufferKeys, hsl, uvClipPathKey } }
       ) => {
         const { width, height } = state.textureDefs[textureIndex];
         state.editedTextures[textureIndex] = {
           width,
           height,
           bufferKeys,
-          hsl
+          hsl,
+          uvClipPathKey
         };
         state.hasEditedTextures =
           state.hasEditedTextures ||

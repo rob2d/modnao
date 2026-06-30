@@ -4,13 +4,18 @@ import type {
   ResourceAttribs,
   TextureFileType
 } from '@/types';
-import { HslValues, TextureImageBufferKeys } from '@/utils/textures';
+import {
+  HslValues,
+  TextureImageBufferKeys,
+  UvClipPath
+} from '@/utils/textures';
 
 export type EditedTexture = {
   width: number;
   height: number;
   bufferKeys: TextureImageBufferKeys;
   hsl: HslValues;
+  uvClipPathKey?: string;
 };
 
 export interface LoadTexturesBasePayload {
@@ -59,6 +64,7 @@ export type AdjustTextureHslPayload = {
   textureIndex: number;
   bufferKeys: TextureImageBufferKeys;
   hsl: HslValues;
+  uvClipPaths?: UvClipPath[];
 };
 
 export interface VertexColorUpdate {

@@ -136,7 +136,12 @@ export default function NumericSliderInput({
           inputRef={inputRef}
           inputMode='numeric'
         />
-        <IconButton size='small' color='secondary' onClick={onResetValue}>
+        <IconButton
+          size='small'
+          color='secondary'
+          onClick={onResetValue}
+          aria-label={`Reset ${label}`}
+        >
           <RefreshIcon fontSize='small' />
         </IconButton>
       </div>
