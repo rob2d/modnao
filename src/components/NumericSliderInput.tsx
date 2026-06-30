@@ -1,5 +1,6 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {
+  BoxProps,
   IconButton,
   ListItem,
   Slider,
@@ -17,6 +18,7 @@ type Props = {
   defaultValue: number;
   labelTooltip: string;
   onChange: (value: number) => void;
+  sx?: BoxProps['sx'];
 };
 
 /**
@@ -30,7 +32,8 @@ export default function NumericSliderInput({
   value,
   label,
   labelTooltip,
-  onChange
+  onChange,
+  sx
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -70,6 +73,7 @@ export default function NumericSliderInput({
   return (
     <ListItem
       sx={{
+        ...sx,
         display: 'flex',
         flexDirection: 'column',
         '& .slider': {
