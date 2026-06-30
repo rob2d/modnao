@@ -110,7 +110,6 @@ export default function VertexControlPanel({
         >
           <ToggleButton value='editHsl'>Edit HSL</ToggleButton>
           <ToggleButton value='pickColor'>Pick Color</ToggleButton>
-          <ToggleButton value='pickGradient'>Pick Gradient</ToggleButton>
         </ToggleButtonGroup>
         <Box sx={{ mt: 1 }}>
           {colorEditMode === 'editHsl' ? (

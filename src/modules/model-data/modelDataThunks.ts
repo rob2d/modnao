@@ -337,6 +337,60 @@ export const applySelectedVertexHsl = createAppAsyncThunk(
   }
 );
 
+export const downloadPolygonFile = createAppAsyncThunk(
+  `${sliceName}/downloadPolygonFile`,
+  async (_, { getState, dispatch }) => {
+    const state = getState();
+    const { polygonBufferKey, polygonFileName } = state.modelData;
+
+    if (!polygonBufferKey || !polygonFileName) {
+      dispatch(
+        showError({
+          title: 'Invalid file selected',
+          message: 'No valid polygon file was loaded.'
+        })
+      );
+      return;
+    }
+
+    try {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+      const fileOutput = new Blob([new Uint8Array(polygonBuffer)], {
+        type: 'application/octet-stream'
+      });
+      const extensionStartIndex = polygonFileName.lastIndexOf('.');
+      const name =
+        extensionStartIndex < 0
+          ? polygonFileName
+          : polygonFileName.substring(0, extensionStartIndex);
+      const extension =
+        extensionStartIndex < 0
+          ? 'bin'
+          : polygonFileName.substring(extensionStartIndex + 1);
+
+      saveAs(fileOutput, `${name}.mn.${extension}`);
+    } catch (error: unknown) {
+      console.error(error);
+      let message = '';
+
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else {
+        message = 'Unknown error occurred';
+      }
+
+      dispatch(
+        showError({
+          title: 'Error exporting polygon file',
+          message
+        })
+      );
+    }
+  }
+);
+
 /** called from UI to clean up and then process texture file */
 export const loadTextureFile = createAppAsyncThunk(
   `${sliceName}/loadTextureFile`,

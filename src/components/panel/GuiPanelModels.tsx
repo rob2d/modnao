@@ -30,6 +30,7 @@ import {
   useObjectUINav,
   useSceneGLTFFileDownloader
 } from '@/modules/object-viewer';
+import { downloadPolygonFile } from '@/modules/model-data';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import FileImportArea from './FileImportArea';
 import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
@@ -68,6 +69,10 @@ export default function GuiPanelModels() {
     setGltfExportAnchorEl(null);
     onExportAllModelsToGLTF();
   }, [onExportAllModelsToGLTF]);
+
+  const onDownloadPolygonFile = useCallback(() => {
+    dispatch(downloadPolygonFile());
+  }, [dispatch]);
 
   const onSetMeshSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: MeshSelectionType | null) => {
@@ -275,6 +280,13 @@ export default function GuiPanelModels() {
         }}
       >
         <GuiPanelActionButtonRow>
+          <GuiPanelButton
+            tooltip='Download polygon ROM file with current edits'
+            onClick={onDownloadPolygonFile}
+            color='secondary'
+          >
+            EXPORT MODELS
+          </GuiPanelButton>
           <GuiPanelButton
             tooltip={
               'Choose a .gltf export for the current model or all viewable models.'
