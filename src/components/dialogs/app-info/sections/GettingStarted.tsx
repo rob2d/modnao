@@ -58,15 +58,16 @@ export default function GettingStarted() {
               <StepLabel>Extract Game Files</StepLabel>
               <StepContent>
                 <Typography>
-                  Download&nbsp;
+                  {'Download '}
                   <Link
                     href='https://www.romhacking.net/utilities/1459/'
                     target='_new'
                   >
                     GDI Explorer
                   </Link>
-                  &nbsp;and extract your .cdi/.gdi file contents of your legally
-                  owned and app-supported ROM file.
+                  {
+                    ' and extract your .cdi/.gdi file contents of your legally owned and app-supported ROM file.'
+                  }
                 </Typography>
               </StepContent>
             </Step>
@@ -74,7 +75,7 @@ export default function GettingStarted() {
               <StepLabel>Import Polygon and/or Texture File</StepLabel>
               <StepContent>
                 <Typography>
-                  Click&nbsp;
+                  {'Click '}
                   <Button
                     onClick={noop}
                     color='primary'
@@ -84,9 +85,9 @@ export default function GettingStarted() {
                   >
                     Import Model/Texture
                   </Button>
-                  to load a polygon and an associated texture file, or just a
-                  dedicated texture file by itself. Hold control when clicking
-                  to select multiple files.
+                  {
+                    ' to load a polygon and an associated texture file, or just a dedicated texture file by itself. Hold control when clicking to select multiple files.'
+                  }
                 </Typography>
               </StepContent>
             </Step>
@@ -97,18 +98,19 @@ export default function GettingStarted() {
                   Browse Models using arrow keys or model navigation buttons.
                 </Typography>
                 <Typography>
-                  Click a polygon to highlight its texture, then hit the&nbsp;
+                  {'Click a polygon to highlight its texture, then hit the '}
                   <MoreVertIcon fontSize='small' className='burger-menu-icon' />
-                  &nbsp;icon. Edit the texture color sliders or replace the
-                  image. You can also drag a file into the right panel.
+                  {
+                    ' icon. Edit the texture color sliders or replace the image. You can also drag a file into the right panel.'
+                  }
                 </Typography>
               </StepContent>
             </Step>
-            <Step key='Export Textures and Build' active={true}>
-              <StepLabel>Export Textures and Build</StepLabel>
+            <Step key='Export Textures' active={true}>
+              <StepLabel>Export Textures</StepLabel>
               <StepContent>
                 <Typography>
-                  Once textures are edited, click&nbsp;
+                  {'Once textures are edited, click '}
                   <Button
                     onClick={noop}
                     color='primary'
@@ -118,14 +120,40 @@ export default function GettingStarted() {
                   >
                     Export Textures
                   </Button>
-                  &nbsp;to export. Rebuild your files using&nbsp;
+                  {' to download the updated texture files.'}
+                </Typography>
+              </StepContent>
+            </Step>
+            <Step key='Export Edited Polygon File' active={true}>
+              <StepLabel>Export Edited Polygon File</StepLabel>
+              <StepContent>
+                <Typography>
+                  {"If you've edited vertex colors, click "}
+                  <Button
+                    onClick={noop}
+                    color='secondary'
+                    size='small'
+                    variant='outlined'
+                    sx={{ lineHeight: 1 }}
+                  >
+                    EXPORT MODELS
+                  </Button>
+                  {' to download the polygon file with those edits.'}
+                </Typography>
+              </StepContent>
+            </Step>
+            <Step key='Rebuild Game Files' active={true}>
+              <StepLabel>Rebuild Game Files</StepLabel>
+              <StepContent>
+                <Typography>
+                  {'Rebuild your edited files using '}
                   <Link
                     href='https://projects.sappharad.com/tools/gdibuilder13_win32.zip'
                     target='_new'
                   >
                     GDI Builder
                   </Link>
-                  .
+                  {'.'}
                 </Typography>
               </StepContent>
             </Step>

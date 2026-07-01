@@ -1,23 +1,34 @@
-interface ClipPathPoint {
+export interface UvClipPathPoint {
   x: number;
   y: number;
 }
 
-type ClipPath = ClipPathPoint[];
+export type UvClipPath = UvClipPathPoint[];
+
+export interface UvClipPathBounds {
+  path: UvClipPath;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
 
 const MIN_POLYGON_AREA = 0.000001;
 const TILE_EDGE_EPSILON = 0.000001;
 
 const clipPathBoundary = (
-  points: ClipPath,
-  isInside: (point: ClipPathPoint) => boolean,
-  intersection: (start: ClipPathPoint, end: ClipPathPoint) => ClipPathPoint
+  points: UvClipPath,
+  isInside: (point: UvClipPathPoint) => boolean,
+  intersection: (
+    start: UvClipPathPoint,
+    end: UvClipPathPoint
+  ) => UvClipPathPoint
 ) => {
   if (points.length === 0) {
     return points;
   }
 
-  const clippedPoints: ClipPath = [];
+  const clippedPoints: UvClipPath = [];
   let previousPoint = points[points.length - 1];
   let wasPreviousInside = isInside(previousPoint);
 
@@ -53,6 +64,86 @@ const getTileIndexes = (min: number, max: number, size: number) => {
   return indexes;
 };
 
+export const getUvClipPathBounds = (path: UvClipPath): UvClipPathBounds => {
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  path.forEach(({ x, y }) => {
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  });
+
+  return {
+    path,
+    minX,
+    maxX,
+    minY,
+    maxY
+  };
+};
+
+const isPointInUvClipPathBounds = (
+  x: number,
+  y: number,
+  { path, minX, maxX, minY, maxY }: UvClipPathBounds
+) => {
+  if (path.length < 3 || x < minX || x > maxX || y < minY || y > maxY) {
+    return false;
+  }
+
+  let isInside = false;
+
+  for (
+    let pointIndex = 0, previousPointIndex = path.length - 1;
+    pointIndex < path.length;
+    previousPointIndex = pointIndex, pointIndex += 1
+  ) {
+    const currentPoint = path[pointIndex];
+    const previousPoint = path[previousPointIndex];
+    const crossesHorizontalRay =
+      currentPoint.y > y !== previousPoint.y > y &&
+      x <
+        ((previousPoint.x - currentPoint.x) * (y - currentPoint.y)) /
+          (previousPoint.y - currentPoint.y) +
+          currentPoint.x;
+
+    if (crossesHorizontalRay) {
+      isInside = !isInside;
+    }
+  }
+
+  return isInside;
+};
+
+export const getUvClipPathPixelByteIndexes = (
+  uvClipPathBounds: UvClipPathBounds[],
+  width: number,
+  height: number
+) => {
+  const byteIndexes: number[] = [];
+
+  uvClipPathBounds.forEach((bounds) => {
+    const startX = Math.max(0, Math.floor(bounds.minX));
+    const endX = Math.min(width, Math.ceil(bounds.maxX));
+    const startY = Math.max(0, Math.floor(bounds.minY));
+    const endY = Math.min(height, Math.ceil(bounds.maxY));
+
+    for (let y = startY; y < endY; y++) {
+      for (let x = startX; x < endX; x++) {
+        if (isPointInUvClipPathBounds(x + 0.5, y + 0.5, bounds)) {
+          byteIndexes.push((y * width + x) * 4);
+        }
+      }
+    }
+  });
+
+  return byteIndexes;
+};
+
 export default function createUvClipPaths(
   uvs: NLUV[],
   width: number,
@@ -76,7 +167,7 @@ export default function createUvClipPaths(
   const vTileIndexes = flags.vRepeat
     ? getTileIndexes(Math.min(...ys), Math.max(...ys), height)
     : [0];
-  const paths: ClipPath[] = [];
+  const paths: UvClipPath[] = [];
 
   for (const hTileIndex of hTileIndexes) {
     for (const vTileIndex of vTileIndexes) {

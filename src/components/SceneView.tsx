@@ -42,7 +42,15 @@ import { ColorManagement, SRGBColorSpace, WebGLRenderer } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
 import SceneLassoSelection from './scene/SceneLassoSelection';
 import SceneCameraControls from './scene/SceneCameraControls';
-import type { SceneVertexInteractionMode } from './scene/SceneVertexModeControls';
+import SceneVertexModeControls from './scene/SceneVertexModeControls';
+import VertexControlPanel from './scene/VertexControlPanel';
+import {
+  applySelectedVertexColor,
+  applySelectedVertexHsl,
+  type ApplySelectedVertexHslPayload,
+  type VertexColorUpdate
+} from '@/modules/model-data';
+import { useVertexInteractionMode } from '@/modules/object-viewer';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
 
@@ -59,11 +67,7 @@ const $selectionMergeIndicatorPosition = signal({
   pointerY: -100
 });
 
-interface SceneViewProps {
-  vertexInteractionMode: SceneVertexInteractionMode;
-}
-
-export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
+export default function SceneView() {
   useObjectNavControls();
 
   const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
@@ -79,6 +83,9 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const dispatch = useAppDispatch();
   const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
+  const vertexModeEnabled = meshSelectionType === 'vertex';
+  const { vertexInteractionMode, setVertexInteractionMode } =
+    useVertexInteractionMode(vertexModeEnabled);
   const onSelectObjectKey = useCallback(
     (
       key: string,
@@ -107,6 +114,20 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   const onResetCameraPosition = useCallback(() => {
     setResetCameraPositionRevision((revision) => revision + 1);
   }, []);
+
+  const onPickVertexColor = useCallback(
+    (hexColor: string) => {
+      dispatch(applySelectedVertexColor({ hexColor }));
+    },
+    [dispatch]
+  );
+
+  const onAdjustSelectedVertexHsl = useCallback(
+    (payload: ApplySelectedVertexHslPayload) => {
+      dispatch(applySelectedVertexHsl(payload));
+    },
+    [dispatch]
+  );
 
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const textureCacheMap = useSceneTextureMapCache(textureDefs);
@@ -180,6 +201,48 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
   );
 
   const hasSelectedObjects = Object.keys(selectedObjectIds).length > 0;
+  const vertexControlPanelVisible = hasSelectedObjects && vertexModeEnabled;
+  const selectedVertexColors = useMemo<VertexColorUpdate[]>(() => {
+    if (!model) {
+      return [];
+    }
+
+    return Object.keys(selectedObjectIds).flatMap((objectKey) => {
+      if (!selectedObjectIds[objectKey]) {
+        return [];
+      }
+
+      const indexes = objectKey.split('_').map(Number);
+
+      if (indexes.length !== 3 || !indexes.every(Number.isInteger)) {
+        return [];
+      }
+
+      const [meshIndex, polygonIndex, vertexIndex] = indexes;
+      const mesh = model.meshes[meshIndex];
+
+      if (!mesh?.hasColoredVertices) {
+        return [];
+      }
+
+      const vertex = mesh.polygons[polygonIndex]?.vertices[vertexIndex];
+
+      if (!vertex?.colors) {
+        return [];
+      }
+
+      return [
+        {
+          contentAddress: vertex.contentAddress,
+          color: vertex.colors
+        }
+      ];
+    });
+  }, [model, selectedObjectIds]);
+  const selectedVertexSelectionKey = Object.keys(selectedObjectIds)
+    .filter((objectKey) => selectedObjectIds[objectKey])
+    .sort()
+    .join('|');
   let selectionMergeIndicatorText: string | undefined;
 
   if (selectionMergeMode === 'remove' && hasSelectedObjects) {
@@ -363,6 +426,20 @@ export default function SceneView({ vertexInteractionMode }: SceneViewProps) {
       >
         {selectionMergeIndicatorText}
       </Box>
+      {!vertexModeEnabled ? null : (
+        <SceneVertexModeControls
+          value={vertexInteractionMode}
+          onChange={setVertexInteractionMode}
+        />
+      )}
+      {!vertexControlPanelVisible ? null : (
+        <VertexControlPanel
+          key={selectedVertexSelectionKey}
+          selectedVertexColors={selectedVertexColors}
+          onAdjustHsl={onAdjustSelectedVertexHsl}
+          onPickColor={onPickVertexColor}
+        />
+      )}
     </>
   );
 }

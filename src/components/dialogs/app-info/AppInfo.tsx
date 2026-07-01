@@ -4,6 +4,7 @@ import { Box, Button } from '@mui/material';
 import Contributors from './sections/Contributors';
 import KeyboardShortcuts from './sections/KeyboardShortcuts';
 import SceneNavigationHints from './sections/SceneNavigationHints';
+import SelectionModeHints from './sections/SelectionModeHints';
 import DevLog from './sections/DevLog';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
@@ -93,6 +94,7 @@ export default function AppInfo() {
         >
           <KeyboardShortcuts />
           <SceneNavigationHints />
+          <SelectionModeHints />
           <Contributors />
         </Box>
       </Box>

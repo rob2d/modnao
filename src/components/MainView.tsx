@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext } from 'react';
 import GuiPanel from './panel/GuiPanel';
 import SceneView from './SceneView';
 import {
@@ -11,25 +11,18 @@ import {
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import VideocamIcon from '@mui/icons-material/Videocam';
-import SearchIcon from '@mui/icons-material/Search';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { AppDialog, AppInfo } from './dialogs';
 import { showDialog } from '@/modules/dialogs';
 import {
   selectContentViewMode,
-  selectMeshSelectionType,
   selectProcessingOverlayShown
 } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import TextureView from './TextureView';
 import ErrorMessage from './ErrorMessage';
-import SceneVertexModeControls, {
-  type SceneVertexInteractionMode
-} from './scene/SceneVertexModeControls';
 
 export default function MainView() {
-  const [vertexInteractionMode, setVertexInteractionMode] =
-    useState<SceneVertexInteractionMode>('camera');
   const {
     enableCinematicMode,
     guiPanelExpansionLevel,
@@ -57,7 +50,6 @@ export default function MainView() {
   }, [setEnableCinematicMode]);
 
   const contentViewMode = useAppSelector(selectContentViewMode);
-  const meshSelectionType = useAppSelector(selectMeshSelectionType);
   const processingOverlayShown = useAppSelector(selectProcessingOverlayShown);
 
   let mainScene;
@@ -70,12 +62,11 @@ export default function MainView() {
   const showBrowsedObjectHintsButtonVisible =
     contentViewMode === 'polygons' &&
     (!showBrowsedObjectHints || enableCinematicMode);
-  const vertexModeEnabled = meshSelectionType === 'vertex';
   const sceneButtonHidden = !guiPanelVisible;
 
   switch (contentViewMode) {
     case 'polygons':
-      mainScene = <SceneView vertexInteractionMode={vertexInteractionMode} />;
+      mainScene = <SceneView />;
       break;
     case 'textures':
       mainScene = <TextureView />;
@@ -191,12 +182,6 @@ export default function MainView() {
                   <InfoOutlinedIcon fontSize='medium' />
                 </IconButton>
               </Tooltip>
-              {!vertexModeEnabled ? null : (
-                <SceneVertexModeControls
-                  value={vertexInteractionMode}
-                  onChange={setVertexInteractionMode}
-                />
-              )}
               <Tooltip
                 title='Enter cinematic mode'
                 disableInteractive={!guiPanelVisible}

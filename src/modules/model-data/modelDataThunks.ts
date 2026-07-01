@@ -5,10 +5,12 @@ import { HslValues } from '@/utils/textures';
 import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
 import { ClientThread } from '@/utils/threads';
 import globalBuffers from '@/utils/data/globalBuffers';
+import O from '@/constants/StructOffsets';
 import {
   LoadTextureFileWorkerPayload,
   LoadTextureFileWorkerResult
 } from '@/workers/loadTextureFileWorker';
+import { hslToRgb, rgbToHsl } from '@/utils/color-conversions';
 import {
   LoadPolygonFileWorkerPayload,
   LoadPolygonFileWorkerResult
@@ -32,6 +34,8 @@ import {
 import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefRegionWorker';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import {
+  ApplySelectedVertexColorResult,
+  ApplySelectedVertexHslPayload,
   LoadPolygonsPayload,
   LoadTexturesPayload,
   LoadTexturesResultPayload
@@ -40,6 +44,66 @@ import {
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
 
 export const sliceName = 'modelData';
+
+interface TextureHslAdjustmentPayload {
+  textureIndex: number;
+  hsl: HslValues;
+  uvPixelByteIndexes?: number[];
+}
+
+const getUvPixelByteIndexesKey = (uvPixelByteIndexes: number[] | undefined) =>
+  !uvPixelByteIndexes?.length ? undefined : uvPixelByteIndexes.join(',');
+
+const hexToNormalizedColor = (hexColor: string): NLColor | undefined => {
+  const hex = hexColor.replace(/^#/, '');
+
+  if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
+    return undefined;
+  }
+
+  return [
+    parseInt(hex.slice(0, 2), 16) / 0xff,
+    parseInt(hex.slice(2, 4), 16) / 0xff,
+    parseInt(hex.slice(4, 6), 16) / 0xff
+  ];
+};
+
+const normalizedColorChannelToByte = (channel: number) =>
+  Math.round(Math.min(Math.max(channel, 0), 1) * 0xff);
+
+const writeVertexColorToBuffer = (
+  polygonBuffer: Uint8Array,
+  contentAddress: number,
+  color: NLColorRGBA
+) => {
+  const colorOffset = contentAddress + O.Vertex.COLORS;
+
+  if (colorOffset + 3 >= polygonBuffer.length) {
+    return;
+  }
+
+  polygonBuffer[colorOffset] = normalizedColorChannelToByte(color[2]);
+  polygonBuffer[colorOffset + 1] = normalizedColorChannelToByte(color[1]);
+  polygonBuffer[colorOffset + 2] = normalizedColorChannelToByte(color[0]);
+  polygonBuffer[colorOffset + 3] = normalizedColorChannelToByte(color[3]);
+};
+
+const adjustNormalizedColorHsl = (
+  color: NLColorRGBA,
+  hsl: HslValues
+): NLColorRGBA => {
+  const { h, s, l } = rgbToHsl(
+    normalizedColorChannelToByte(color[0]),
+    normalizedColorChannelToByte(color[1]),
+    normalizedColorChannelToByte(color[2])
+  );
+  const adjustedH = (h + hsl.h + 360) % 360;
+  const adjustedS = Math.max(0, Math.min(s + hsl.s, 100));
+  const adjustedL = Math.max(0, Math.min(l + hsl.l, 100));
+  const { r, g, b } = hslToRgb(adjustedH, adjustedS, adjustedL);
+
+  return [r / 0xff, g / 0xff, b / 0xff, color[3]];
+};
 
 const decompressLzssSection = (
   section: Buffer | Buffer<ArrayBuffer>,
@@ -176,6 +240,163 @@ export const processPolygonFile = createAppAsyncThunk(
       ...result,
       polygonBufferKey: globalBuffers.add(polygonBuffer)
     };
+  }
+);
+
+export const applySelectedVertexColor = createAppAsyncThunk(
+  `${sliceName}/applySelectedVertexColor`,
+  async (
+    { hexColor }: { hexColor: string },
+    { getState }
+  ): Promise<ApplySelectedVertexColorResult> => {
+    const state = getState();
+    const { modelIndex, selectedIds } = state.objectViewer;
+    const model = state.modelData.models[modelIndex];
+    const color = hexToNormalizedColor(hexColor);
+
+    if (!model || !color) {
+      return { modelIndex, vertexColorUpdates: [] };
+    }
+
+    const vertexColorUpdatesByAddress = new Map<number, NLColorRGBA>();
+
+    Object.keys(selectedIds).forEach((objectKey) => {
+      if (!selectedIds[objectKey]) {
+        return;
+      }
+
+      const indexes = objectKey.split('_').map(Number);
+
+      if (indexes.length !== 3 || !indexes.every(Number.isInteger)) {
+        return;
+      }
+
+      const [meshIndex, polygonIndex, vertexIndex] = indexes;
+      const mesh = model.meshes[meshIndex];
+
+      if (!mesh?.hasColoredVertices) {
+        return;
+      }
+
+      const vertex = mesh.polygons[polygonIndex]?.vertices[vertexIndex];
+
+      if (!vertex) {
+        return;
+      }
+
+      vertexColorUpdatesByAddress.set(vertex.contentAddress, [
+        color[0],
+        color[1],
+        color[2],
+        vertex.colors?.[3] ?? 1
+      ]);
+    });
+
+    const { polygonBufferKey } = state.modelData;
+
+    if (polygonBufferKey) {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+
+      vertexColorUpdatesByAddress.forEach((vertexColor, contentAddress) => {
+        writeVertexColorToBuffer(polygonBuffer, contentAddress, vertexColor);
+      });
+    }
+
+    return {
+      modelIndex,
+      vertexColorUpdates: Array.from(
+        vertexColorUpdatesByAddress.entries(),
+        ([contentAddress, vertexColor]) => ({
+          contentAddress,
+          color: vertexColor
+        })
+      )
+    };
+  }
+);
+
+export const applySelectedVertexHsl = createAppAsyncThunk(
+  `${sliceName}/applySelectedVertexHsl`,
+  async (
+    { baseVertexColors, hsl }: ApplySelectedVertexHslPayload,
+    { getState }
+  ): Promise<ApplySelectedVertexColorResult> => {
+    const state = getState();
+    const { modelIndex } = state.objectViewer;
+    const vertexColorUpdates = baseVertexColors.map(
+      ({ contentAddress, color }) => ({
+        contentAddress,
+        color: adjustNormalizedColorHsl(color, hsl)
+      })
+    );
+    const { polygonBufferKey } = state.modelData;
+
+    if (polygonBufferKey) {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+
+      vertexColorUpdates.forEach(({ contentAddress, color }) => {
+        writeVertexColorToBuffer(polygonBuffer, contentAddress, color);
+      });
+    }
+
+    return {
+      modelIndex,
+      vertexColorUpdates
+    };
+  }
+);
+
+export const downloadPolygonFile = createAppAsyncThunk(
+  `${sliceName}/downloadPolygonFile`,
+  async (_, { getState, dispatch }) => {
+    const state = getState();
+    const { polygonBufferKey, polygonFileName } = state.modelData;
+
+    if (!polygonBufferKey || !polygonFileName) {
+      dispatch(
+        showError({
+          title: 'Invalid file selected',
+          message: 'No valid polygon file was loaded.'
+        })
+      );
+      return;
+    }
+
+    try {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+      const fileOutput = new Blob([new Uint8Array(polygonBuffer)], {
+        type: 'application/octet-stream'
+      });
+      const extensionStartIndex = polygonFileName.lastIndexOf('.');
+      const name =
+        extensionStartIndex < 0
+          ? polygonFileName
+          : polygonFileName.substring(0, extensionStartIndex);
+      const extension =
+        extensionStartIndex < 0
+          ? 'bin'
+          : polygonFileName.substring(extensionStartIndex + 1);
+
+      saveAs(fileOutput, `${name}.mn.${extension}`);
+    } catch (error: unknown) {
+      console.error(error);
+      let message = '';
+
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      } else {
+        message = 'Unknown error occurred';
+      }
+
+      dispatch(
+        showError({
+          title: 'Error exporting polygon file',
+          message
+        })
+      );
+    }
   }
 );
 
@@ -357,10 +578,7 @@ export const processTextureFile = createAppAsyncThunk(
 
 export const adjustTextureHsl = createAppAsyncThunk(
   `${sliceName}/adjustTextureHsl`,
-  async (
-    payload: { textureIndex: number; hsl: HslValues },
-    { getState, dispatch }
-  ) => {
+  async (payload: TextureHslAdjustmentPayload, { getState, dispatch }) => {
     const state = getState();
 
     const prevEditedTexture =
@@ -368,12 +586,14 @@ export const adjustTextureHsl = createAppAsyncThunk(
 
     // abort processing in reducer if no hsl change & edited
     const { hsl } = payload;
+    const uvClipPathKey = getUvPixelByteIndexesKey(payload.uvPixelByteIndexes);
     if (prevEditedTexture) {
       const prevHsl = prevEditedTexture?.hsl;
       if (
         prevHsl?.h === hsl.h &&
         prevHsl?.s === hsl.s &&
-        prevHsl?.l === hsl.l
+        prevHsl?.l === hsl.l &&
+        prevEditedTexture.uvClipPathKey === uvClipPathKey
       ) {
         return;
       }
@@ -401,7 +621,7 @@ export const adjustTextureHsl = createAppAsyncThunk(
 export const processAdjustedTextureHsl = createAppAsyncThunk(
   `${sliceName}/processAdjustedTextureHsl`,
   async (
-    { textureIndex, hsl }: { textureIndex: number; hsl: HslValues },
+    { textureIndex, hsl, uvPixelByteIndexes }: TextureHslAdjustmentPayload,
     { getState }
   ) => {
     const state = getState();
@@ -415,6 +635,7 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
           AdjustTextureHslWorkerResult
         >('adjustTextureHsl', {
           hsl,
+          uvPixelByteIndexes,
           buffer: globalBuffers.getShared(bufferKey)
         })
       )
@@ -426,7 +647,8 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
         translucent: globalBuffers.add(translucentRgbaBuffer)
       },
       textureIndex,
-      hsl
+      hsl,
+      uvClipPathKey: getUvPixelByteIndexesKey(uvPixelByteIndexes)
     };
   }
 );

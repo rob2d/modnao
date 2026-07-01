@@ -1,10 +1,17 @@
-import { MouseEvent, useCallback, useMemo, useState } from 'react';
+import {
+  KeyboardEvent,
+  MouseEvent,
+  useCallback,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Box, Divider, Tooltip } from '@mui/material';
-import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys';
+import { TextureImageBufferKeys, UvClipPath } from '@/utils/textures';
 import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
 
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
@@ -13,22 +20,33 @@ const MENU_TRANSFORM_ORIGIN = { vertical: 'top', horizontal: 'right' } as const;
 export default function GuiPanelTextureMenu({
   textureIndex,
   pixelBufferKeys,
+  selectedUvClipPaths,
   onReplaceImageFile
 }: {
   textureIndex: number;
   pixelBufferKeys: TextureImageBufferKeys;
+  selectedUvClipPaths: UvClipPath[];
   onReplaceImageFile: (file: File | SharedArrayBuffer) => void;
 }) {
+  const menuButtonContainerRef = useRef<HTMLDivElement>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
   const handleClick = useCallback((event: MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(
+      menuButtonContainerRef.current?.parentElement ?? event.currentTarget
+    );
   }, []);
 
   const handleClose = useCallback(() => {
     setAnchorEl(null);
   }, [setAnchorEl]);
+
+  const onMenuItemKeyDown = useCallback((event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Tab') {
+      event.stopPropagation();
+    }
+  }, []);
 
   const optionsSources = useTextureOptions(
     textureIndex,
@@ -42,7 +60,11 @@ export default function GuiPanelTextureMenu({
     () =>
       optionsSources.map((o, i) => (
         <Tooltip title={o.tooltip} key={i} placement='left'>
-          <MenuItem onClick={o.onClick} disabled={o.disabled}>
+          <MenuItem
+            onClick={o.onClick}
+            disabled={o.disabled}
+            onKeyDown={onMenuItemKeyDown}
+          >
             <>
               {o.icon}
               {o.label}
@@ -50,11 +72,12 @@ export default function GuiPanelTextureMenu({
           </MenuItem>
         </Tooltip>
       )),
-    [optionsSources]
+    [onMenuItemKeyDown, optionsSources]
   );
 
   return (
     <Box
+      ref={menuButtonContainerRef}
       sx={{
         position: 'absolute',
         top: 0,
@@ -70,7 +93,12 @@ export default function GuiPanelTextureMenu({
         }
       }}
     >
-      <IconButton color='primary' aria-haspopup='true' onClick={handleClick}>
+      <IconButton
+        color='primary'
+        aria-haspopup='true'
+        onClick={handleClick}
+        sx={{ visibility: open ? 'hidden' : 'visible' }}
+      >
         <MoreVertIcon fontSize='small' />
       </IconButton>
       <Menu
@@ -83,7 +111,11 @@ export default function GuiPanelTextureMenu({
       >
         {options}
         <Divider />
-        <TextureColorOptions textureIndex={textureIndex} variant='menu' />
+        <TextureColorOptions
+          textureIndex={textureIndex}
+          variant='menu'
+          selectedUvClipPaths={selectedUvClipPaths}
+        />
       </Menu>
     </Box>
   );

@@ -261,7 +261,7 @@ const themes = Object.fromEntries(
         MuiStepConnector: {
           styleOverrides: {
             line: {
-              minHeight: '12px'
+              minHeight: '8px'
             }
           }
         }
