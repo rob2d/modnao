@@ -78,7 +78,7 @@ describe('TextureColorOptions', () => {
       { preloadedState: mockTextureState as unknown as AppState }
     );
 
-    expect(await screen.findByText('Whole texture')).toBeInTheDocument();
+    expect(await screen.findByText('Edit full texture')).toBeInTheDocument();
   });
 
   it('keeps tab keydown from menu input controls inside the color options', async () => {
