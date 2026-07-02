@@ -390,6 +390,7 @@ export default function SceneView() {
             {renderedModels}
           </group>
           <SceneCameraControls
+            allowSceneZoom={vertexInteractionMode === 'select'}
             mainBounds={model?.mainBounds}
             modelIndex={modelIndex}
             onCameraPositionMovedChange={setCameraPositionMoved}

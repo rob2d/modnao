@@ -53,6 +53,7 @@ interface CameraTouchGesture {
 }
 
 interface SceneCameraControlsProps {
+  allowSceneZoom?: boolean;
   mainBounds?: ModelBounds;
   controlSceneCamera?: boolean;
   modelIndex: number;
@@ -62,6 +63,7 @@ interface SceneCameraControlsProps {
 }
 
 export default function SceneCameraControls({
+  allowSceneZoom = false,
   mainBounds,
   controlSceneCamera = false,
   modelIndex,
@@ -398,11 +400,11 @@ export default function SceneCameraControls({
         return;
       }
 
-      if (!controlSceneCamera) {
-        return;
-      }
-
       if (event.pointerType === 'touch') {
+        if (!allowSceneZoom && !controlSceneCamera) {
+          return;
+        }
+
         touchPointersRef.current.set(event.pointerId, {
           clientX: event.clientX,
           clientY: event.clientY
@@ -415,6 +417,10 @@ export default function SceneCameraControls({
           event.preventDefault();
           return;
         }
+      }
+
+      if (!controlSceneCamera) {
+        return;
       }
 
       const action = event.shiftKey || event.button !== 0 ? 'pan' : 'rotate';
@@ -451,7 +457,10 @@ export default function SceneCameraControls({
             const distanceDelta =
               previousTouchGesture.distance - nextTouchGesture.distance;
 
-            if (centerDeltaX !== 0 || centerDeltaY !== 0) {
+            if (
+              controlSceneCamera &&
+              (centerDeltaX !== 0 || centerDeltaY !== 0)
+            ) {
               panCamera(centerDeltaX, centerDeltaY);
             }
 
@@ -517,7 +526,7 @@ export default function SceneCameraControls({
     };
 
     const onWheel = (event: WheelEvent) => {
-      if (!controlSceneCamera) {
+      if (!allowSceneZoom && !controlSceneCamera) {
         return;
       }
 
@@ -547,6 +556,7 @@ export default function SceneCameraControls({
       domElement.removeEventListener('contextmenu', onContextMenu);
     };
   }, [
+    allowSceneZoom,
     camera,
     controlSceneCamera,
     gl,

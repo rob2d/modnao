@@ -146,6 +146,14 @@ export default function useLassoPath<TElement extends HTMLElement>(
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      if (event.pointerType === 'touch' && activePointerId !== undefined) {
+        activePointerId = undefined;
+        removeWindowListeners();
+        resetLasso();
+
+        return;
+      }
+
       if (event.button !== 0 || activePointerId !== undefined) {
         return;
       }
