@@ -1,6 +1,5 @@
-import { type RefObject, useCallback } from 'react';
+import { type RefObject, useCallback, useEffect } from 'react';
 import { Box } from '@mui/material';
-import { Html } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { Vector3 } from 'three';
 import type { DisplayedMesh } from '@/selectors';
@@ -15,18 +14,26 @@ import { getInteractionBounds, isPointInLasso } from '@/utils/interaction';
 import type { InteractionPoint } from '@/utils/interaction';
 import type { SceneVertexInteractionMode } from '@/modules/object-viewer';
 
-const calculateFullscreenOverlayPosition = (
-  _object: unknown,
-  _camera: unknown,
-  size: { width: number; height: number }
-) => [size.width / 2, size.height / 2];
-
 const MIN_LASSO_BOUNDS_SIZE = 8;
+
+interface SceneLassoOverlayBounds {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export interface SceneLassoOverlayState {
+  isActive: boolean;
+  points: InteractionPoint[];
+  viewportBounds: SceneLassoOverlayBounds;
+}
 
 interface SceneLassoSelectionProps {
   canvasRef: RefObject<HTMLCanvasElement | null>;
   meshGroups: DisplayedMesh[][];
   meshSelectionType: MeshSelectionType;
+  onOverlayChange: (overlay: SceneLassoOverlayState | undefined) => void;
   renderAllModels: boolean;
   vertexInteractionMode: SceneVertexInteractionMode;
 }
@@ -35,6 +42,7 @@ export default function SceneLassoSelection({
   canvasRef,
   meshGroups,
   meshSelectionType,
+  onOverlayChange,
   renderAllModels,
   vertexInteractionMode
 }: SceneLassoSelectionProps) {
@@ -110,61 +118,96 @@ export default function SceneLassoSelection({
     },
     [camera, dispatch, meshGroups, renderAllModels, size]
   );
-  const { isLassoActive, lassoPoints } = useLassoPath(canvasRef, {
-    enabled: lassoEnabled,
-    onComplete: onCompleteLasso
-  });
+  const { isLassoActive, lassoPoints, lassoViewportBounds } = useLassoPath(
+    canvasRef,
+    {
+      enabled: lassoEnabled,
+      onComplete: onCompleteLasso
+    }
+  );
 
-  if (!lassoEnabled || lassoPoints.length < 2) {
+  useEffect(() => {
+    if (!lassoEnabled || lassoPoints.length < 2 || !lassoViewportBounds) {
+      onOverlayChange(undefined);
+
+      return;
+    }
+
+    onOverlayChange({
+      isActive: isLassoActive,
+      points: lassoPoints,
+      viewportBounds: lassoViewportBounds
+    });
+  }, [
+    isLassoActive,
+    lassoEnabled,
+    lassoPoints,
+    lassoViewportBounds,
+    onOverlayChange
+  ]);
+
+  useEffect(
+    () => () => {
+      onOverlayChange(undefined);
+    },
+    [onOverlayChange]
+  );
+
+  return null;
+}
+
+interface SceneLassoOverlayProps {
+  overlay: SceneLassoOverlayState | undefined;
+}
+
+export function SceneLassoOverlay({ overlay }: SceneLassoOverlayProps) {
+  if (!overlay) {
     return null;
   }
 
-  const pointList = lassoPoints.map(({ x, y }) => `${x},${y}`).join(' ');
-  const fillOpacity = isLassoActive ? 0.16 : 0.08;
+  const pointList = overlay.points.map(({ x, y }) => `${x},${y}`).join(' ');
+  const fillOpacity = overlay.isActive ? 0.16 : 0.08;
 
   return (
-    <Html
-      fullscreen
-      calculatePosition={calculateFullscreenOverlayPosition}
-      style={{ pointerEvents: 'none' }}
+    <Box
+      sx={{
+        position: 'fixed',
+        top: overlay.viewportBounds.top,
+        left: overlay.viewportBounds.left,
+        width: overlay.viewportBounds.width,
+        height: overlay.viewportBounds.height,
+        zIndex: 1,
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        '& > svg': {
+          display: 'block'
+        }
+      }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          overflow: 'hidden',
-          pointerEvents: 'none',
-          '& > svg': {
-            display: 'block'
-          }
-        }}
-      >
-        <svg width='100%' height='100%' aria-hidden='true'>
-          <polygon
-            points={pointList}
-            fill='var(--mui-palette-scene-selected)'
-            fillOpacity={fillOpacity}
-            stroke='var(--mui-palette-scene-selected)'
-            strokeDasharray='6 4'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            strokeWidth={2}
-            vectorEffect='non-scaling-stroke'
-          />
-          <polyline
-            points={pointList}
-            fill='none'
-            stroke='var(--mui-palette-common-white)'
-            strokeDasharray='6 4'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            strokeWidth={1}
-            strokeOpacity={0.75}
-            vectorEffect='non-scaling-stroke'
-          />
-        </svg>
-      </Box>
-    </Html>
+      <svg width='100%' height='100%' aria-hidden='true'>
+        <polygon
+          points={pointList}
+          fill='var(--mui-palette-scene-selected)'
+          fillOpacity={fillOpacity}
+          stroke='var(--mui-palette-scene-selected)'
+          strokeDasharray='6 4'
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          strokeWidth={2}
+          vectorEffect='non-scaling-stroke'
+        />
+        <polyline
+          points={pointList}
+          fill='none'
+          stroke='var(--mui-palette-common-white)'
+          strokeDasharray='6 4'
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          strokeWidth={1}
+          strokeOpacity={0.75}
+          vectorEffect='non-scaling-stroke'
+        />
+      </svg>
+    </Box>
   );
 }

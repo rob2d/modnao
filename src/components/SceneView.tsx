@@ -40,7 +40,10 @@ import {
 import { BlendFunction } from 'postprocessing';
 import { ColorManagement, SRGBColorSpace, WebGLRenderer } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
-import SceneLassoSelection from './scene/SceneLassoSelection';
+import SceneLassoSelection, {
+  SceneLassoOverlay,
+  type SceneLassoOverlayState
+} from './scene/SceneLassoSelection';
 import SceneCameraControls from './scene/SceneCameraControls';
 import SceneVertexModeControls from './scene/SceneVertexModeControls';
 import VertexControlPanel from './scene/VertexControlPanel';
@@ -74,6 +77,7 @@ export default function SceneView() {
   const [resetCameraPositionRevision, setResetCameraPositionRevision] =
     useState(0);
   const [isScenePointerInside, setIsScenePointerInside] = useState(false);
+  const [lassoOverlay, setLassoOverlay] = useState<SceneLassoOverlayState>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectionMergeIndicatorRef = useRef<HTMLDivElement>(null);
   const isScenePointerInsideRef = useRef(false);
@@ -397,11 +401,13 @@ export default function SceneView() {
             canvasRef={canvasRef}
             meshGroups={renderedMeshGroups}
             meshSelectionType={meshSelectionType}
+            onOverlayChange={setLassoOverlay}
             renderAllModels={sceneOptions.renderAllModels}
             vertexInteractionMode={vertexInteractionMode}
           />
         </Selection>
       </Canvas>
+      <SceneLassoOverlay overlay={lassoOverlay} />
       <Box
         ref={selectionMergeIndicatorRef}
         sx={{
