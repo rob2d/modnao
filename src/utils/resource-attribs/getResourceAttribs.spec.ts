@@ -145,6 +145,22 @@ describe('getResourceAttribs', () => {
     }
   );
 
+  it('resolves the CVS2 training stage polygon resource', () => {
+    const resourceAttribs = getResourceAttribs(
+      '1997a444821098aa2e7d15b57697c91c89f9ca69',
+      'STG0APOL.BIN'
+    );
+
+    expect(resourceAttribs).toMatchObject({
+      game: 'CVS2',
+      name: 'Training Stage',
+      identifier: '0x0A',
+      resourceType: 'cvs2-stage',
+      polygonMapped: true,
+      hasLzssTextureFile: true
+    });
+  });
+
   it('annotates MVC2 portrait files with the character hex slot and name', () => {
     const resourceAttribs = getResourceAttribs('unknown', 'PL0D_FAC.BIN');
 

@@ -42,6 +42,12 @@ const cvs2StageAttribMappings = {
     name: 'Barentsburg, Norway',
     identifier: '0x05',
     filenamePattern: '^STG05(.mn)?POL.BIN$'
+  },
+  '1997a444821098aa2e7d15b57697c91c89f9ca69': {
+    ...cvs2StageAttribBase,
+    name: 'Training Stage',
+    identifier: '0x0A',
+    filenamePattern: '^STG0A(.mn)?POL.BIN$'
   }
 } as const;
 
