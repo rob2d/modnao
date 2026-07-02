@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import { Text } from '@react-three/drei/core/Text';
-import { DoubleSide, FrontSide, Mesh, Texture, Vector3 } from 'three';
+import { Color, DoubleSide, FrontSide, Mesh, Texture, Vector3 } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { useTheme } from '@mui/material';
@@ -18,6 +18,8 @@ export default function RenderedPolygon({
   address,
   objectKey,
   textureIndex,
+  meshAlpha,
+  meshColor,
   selectedObjectIds,
   onSelectObjectKey,
   texture,
@@ -25,6 +27,8 @@ export default function RenderedPolygon({
 }: NLPolygon & {
   objectKey: string;
   textureIndex: number;
+  meshAlpha: number;
+  meshColor: NLColor;
   selectedObjectIds: Record<string, true>;
   onSelectObjectKey: (
     key: string,
@@ -48,6 +52,20 @@ export default function RenderedPolygon({
   let color: React.CSSProperties['color'];
 
   const isSelected = selectedObjectIds[objectKey] === true;
+  const renderedMeshAlpha = Number.isFinite(meshAlpha)
+    ? Math.min(Math.max(meshAlpha, 0), 1)
+    : 1;
+  const renderedMeshColor = useMemo(
+    () =>
+      meshColor.map((channel) =>
+        Number.isFinite(channel) ? Math.min(Math.max(channel, 0), 1) : 1
+      ) as NLColor,
+    [meshColor]
+  );
+  const renderedMeshMaterialColor = useMemo(
+    () => new Color(...renderedMeshColor),
+    [renderedMeshColor]
+  );
 
   if (meshDisplayMode === 'wireframe') {
     color = isSelected ? colors.selected : colors.default;
@@ -82,15 +100,15 @@ export default function RenderedPolygon({
         });
 
         if (v.colors?.length) {
-          cArray[cArrayIndex++] = v.colors?.[0] ?? 1;
-          cArray[cArrayIndex++] = v.colors?.[1] ?? 1;
-          cArray[cArrayIndex++] = v.colors?.[2] ?? 1;
-          cArray[cArrayIndex++] = v.colors?.[3] ?? 1;
+          cArray[cArrayIndex++] = (v.colors?.[0] ?? 1) * renderedMeshColor[0];
+          cArray[cArrayIndex++] = (v.colors?.[1] ?? 1) * renderedMeshColor[1];
+          cArray[cArrayIndex++] = (v.colors?.[2] ?? 1) * renderedMeshColor[2];
+          cArray[cArrayIndex++] = (v.colors?.[3] ?? 1) * renderedMeshAlpha;
         } else {
-          cArray[cArrayIndex++] = 1;
-          cArray[cArrayIndex++] = 1;
-          cArray[cArrayIndex++] = 1;
-          cArray[cArrayIndex++] = 1;
+          cArray[cArrayIndex++] = renderedMeshColor[0];
+          cArray[cArrayIndex++] = renderedMeshColor[1];
+          cArray[cArrayIndex++] = renderedMeshColor[2];
+          cArray[cArrayIndex++] = renderedMeshAlpha;
         }
 
         nArray[nArrayIndex++] = v.normals[0];
@@ -101,7 +119,13 @@ export default function RenderedPolygon({
         uvArray[uvArrayIndex++] = v.uv[1];
       });
       return [vPositions, nArray, uvArray, iArray, cArray];
-    }, [vertices, vertexGroupMode, indices]);
+    }, [
+      vertices,
+      vertexGroupMode,
+      indices,
+      renderedMeshAlpha,
+      renderedMeshColor
+    ]);
 
   const meshAddressText = useMemo(() => {
     if (
@@ -138,12 +162,18 @@ export default function RenderedPolygon({
   const texturedMaterialProps = useMemo(
     () => ({
       map: texture,
+      color: renderedMeshMaterialColor,
       transparent: true,
-      opacity: 1,
+      opacity: renderedMeshAlpha,
       alphaTest: 0.0001,
       side: disableBackfaceCulling || !flags.culling ? DoubleSide : FrontSide
     }),
-    [texture, disableBackfaceCulling || !flags.culling]
+    [
+      texture,
+      renderedMeshMaterialColor,
+      renderedMeshAlpha,
+      disableBackfaceCulling || !flags.culling
+    ]
   );
 
   const selectedVertices = useMemo(() => {
@@ -189,7 +219,7 @@ export default function RenderedPolygon({
         <mesh
           key={`${address}_${meshDisplayMode}_${color}_${isSelected}_${
             Boolean(texture) ? 1 : 0
-          }`}
+          }_${renderedMeshAlpha}}`}
           onClick={handleClick}
         >
           {meshDisplayMode !== 'wireframe' ? (
