@@ -296,6 +296,7 @@ export default function SceneView() {
                 textureIndex={m.textureIndex}
                 meshAlpha={m.alpha}
                 meshColor={m.color}
+                meshHasColoredVertices={m.hasColoredVertices}
                 selectedObjectIds={selectedObjectIds}
                 onSelectObjectKey={onSelectObjectKey}
                 texture={texture}

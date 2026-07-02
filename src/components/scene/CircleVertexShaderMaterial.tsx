@@ -13,6 +13,7 @@ const circleFragmentShader = `
   varying float vDistance; // The distance to the camera
   uniform float pointSize; // To access the point size
   uniform vec3 selectedColor;
+  uniform float colorEditable;
 
   void main() {
     // Get the distance from the center of the point
@@ -32,11 +33,18 @@ const circleFragmentShader = `
 
     // Invert the fill color for the outline
     vec3 invertedColor = vec3(1.0) - vColor.rgb; // Invert the RGB components for outline
+    float editable = step(0.5, colorEditable);
+    float editableAlphaScale = mix(0.45, 1.0, editable);
+    float slashDistance = abs(gl_PointCoord.x + gl_PointCoord.y - 1.0);
+    float slash = (1.0 - editable) *
+      (1.0 - smoothstep(0.035, 0.075, slashDistance)) *
+      smoothstep(0.16, 0.22, dist);
+    vec3 slashColor = vec3(0.06);
 
     // Check if the current fragment is within the outline thickness
     if (dist > radius) discard; // Outside the circle
     else if (dist > radius - outlineThickness) {
-      float outlineAlpha = vSelected > 0.5 ? vColor.a : alpha;
+      float outlineAlpha = vSelected > 0.5 ? vColor.a : alpha * editableAlphaScale;
 
       gl_FragColor = vec4(vColor.rgb, outlineAlpha); // Inverted outline color with dynamic alpha
     } else if (vSelected > 0.5) {
@@ -44,9 +52,17 @@ const circleFragmentShader = `
       float glowStrength = 1.0 - smoothstep(0.0, centerRadius, dist);
       vec3 glowColor = mix(selectedColor, vec3(1.0), glowStrength * 0.45);
 
-      gl_FragColor = vec4(glowColor, vColor.a);
+      gl_FragColor = vec4(glowColor, vColor.a * mix(0.7, 1.0, editable));
     } else {
-      gl_FragColor = vec4(invertedColor, 0.03); // Fill color with dynamic alpha
+      gl_FragColor = vec4(invertedColor, 0.03 * editableAlphaScale); // Fill color with dynamic alpha
+    }
+
+    if (slash > 0.0) {
+      gl_FragColor = mix(
+        gl_FragColor,
+        vec4(slashColor, max(gl_FragColor.a, 0.95)),
+        slash
+      );
     }
   }
 `;
@@ -74,10 +90,12 @@ const circleVertexShader = `
 interface CircleVertexShaderMaterialProps extends Partial<
   ThreeElements['meshBasicMaterial']
 > {
+  colorEditable: boolean;
   selectedColor: ColorRepresentation;
 }
 
 export default function CircleVertexShaderMaterial({
+  colorEditable,
   selectedColor,
   ...props
 }: CircleVertexShaderMaterialProps) {
@@ -87,6 +105,7 @@ export default function CircleVertexShaderMaterial({
       new ShaderMaterial({
         uniforms: {
           pointSize: { value: 16.0 },
+          colorEditable: { value: colorEditable ? 1 : 0 },
           cameraPosition: { value: new Vector3() },
           selectedColor: { value: new Color(selectedColor) }
         },
@@ -97,7 +116,7 @@ export default function CircleVertexShaderMaterial({
         depthWrite: false,
         transparent: true
       }),
-    []
+    [colorEditable]
   );
 
   useEffect(() => {

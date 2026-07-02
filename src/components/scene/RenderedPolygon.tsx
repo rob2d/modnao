@@ -20,6 +20,7 @@ export default function RenderedPolygon({
   textureIndex,
   meshAlpha,
   meshColor,
+  meshHasColoredVertices,
   selectedObjectIds,
   onSelectObjectKey,
   texture,
@@ -29,6 +30,7 @@ export default function RenderedPolygon({
   textureIndex: number;
   meshAlpha: number;
   meshColor: NLColor;
+  meshHasColoredVertices: boolean;
   selectedObjectIds: Record<string, true>;
   onSelectObjectKey: (
     key: string,
@@ -118,6 +120,7 @@ export default function RenderedPolygon({
         uvArray[uvArrayIndex++] = v.uv[0];
         uvArray[uvArrayIndex++] = v.uv[1];
       });
+
       return [vPositions, nArray, uvArray, iArray, cArray];
     }, [
       vertices,
@@ -219,7 +222,7 @@ export default function RenderedPolygon({
         <mesh
           key={`${address}_${meshDisplayMode}_${color}_${isSelected}_${
             Boolean(texture) ? 1 : 0
-          }_${renderedMeshAlpha}}`}
+          }_${renderedMeshAlpha}_${meshHasColoredVertices ? 1 : 0}`}
           onClick={handleClick}
         >
           {meshDisplayMode !== 'wireframe' ? (
@@ -229,6 +232,7 @@ export default function RenderedPolygon({
               uvs={uvs}
               indices={indicesRendered}
               colors={colorsRendered}
+              colorEditable={meshHasColoredVertices}
               selectedVertices={selectedVertices}
               materialProps={texturedMaterialProps}
               selectedColor={theme.palette.primary.main}

@@ -7,6 +7,7 @@ type Props = {
   vertexPositions: Float32Array;
   indices: Uint16Array;
   colors: Float32Array;
+  colorEditable: boolean;
   selectedVertices: Float32Array;
   normals: Float32Array;
   uvs: Float32Array;
@@ -22,6 +23,7 @@ export default function RenderedTexturePolygon({
   normals,
   indices,
   colors,
+  colorEditable,
   selectedVertices,
   materialProps,
   selectedColor,
@@ -63,6 +65,7 @@ export default function RenderedTexturePolygon({
       {vertexSelectionMode ? (
         <points>
           <CircleVertexShaderMaterial
+            colorEditable={colorEditable}
             selectedColor={selectedColor}
             side={materialProps.side}
           />
