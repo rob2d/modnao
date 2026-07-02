@@ -32,9 +32,10 @@ export default function ModelResourceAttribs() {
         mx: 3,
         my: 2,
         p: 1,
-        pr: 3,
+        pr: 5,
         flexGrow: 0,
-        maxWidth: 486,
+        width: 'fit-content',
+        maxWidth: 'calc(100vw - (var(--mui-spacing) * 6))',
         animation: 'fadeIn 500ms ease',
         animationFillMode: 'both',
         '&.hidden': {
@@ -55,11 +56,12 @@ export default function ModelResourceAttribs() {
       }}
       elevation={3}
     >
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex', minWidth: 0, maxWidth: '100%' }}>
         <Typography
           variant='h5'
           color='textPrimary'
-          sx={{ display: 'flex', lineHeight: 1 }}
+          noWrap
+          sx={{ display: 'flex', lineHeight: 1, minWidth: 0 }}
         >
           {resourceAttribs.name} <Divider orientation='horizontal' flexItem />
         </Typography>
@@ -67,19 +69,24 @@ export default function ModelResourceAttribs() {
         <Typography
           variant='h5'
           color='textSecondary'
-          sx={{ display: 'flex', lineHeight: 1 }}
+          noWrap
+          sx={{ display: 'flex', lineHeight: 1, minWidth: 0 }}
         >
           {gameNameMap[resourceAttribs.game]}
         </Typography>
       </Box>
       {!modelHints ? null : (
         <>
-          <Typography variant='h6' sx={{ mt: 0.5 }}>
+          <Typography variant='h6' sx={{ mt: 0.5, width: 0, minWidth: '100%' }}>
             {modelHints.name}
           </Typography>
 
           {!modelHints.description ? null : (
-            <Typography variant='body1' color='textSecondary'>
+            <Typography
+              variant='body1'
+              color='textSecondary'
+              sx={{ width: 0, minWidth: '100%' }}
+            >
               {modelHints.description}
             </Typography>
           )}
