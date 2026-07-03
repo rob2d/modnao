@@ -16,7 +16,7 @@ import type {
 } from '@/modules/model-data';
 import type { HslValues } from '@/utils/textures';
 
-type VertexColorEditMode = 'editHsl' | 'pickColor' | 'pickGradient';
+type VertexColorEditMode = 'editHsl' | 'pickColor';
 
 const DEFAULT_HSL = {
   h: 0,
@@ -43,6 +43,7 @@ export default function VertexControlPanel({
   const [selectedColor, setSelectedColor] = useState('#ffffff');
   const selectedVertexColorsRef = useRef(selectedVertexColors);
   const processedHsl = useThrottle(hsl, 75);
+  const hasEditableVertices = selectedVertexColors.length > 0;
 
   useEffect(() => {
     selectedVertexColorsRef.current = selectedVertexColors;
@@ -87,71 +88,79 @@ export default function VertexControlPanel({
     >
       <Box sx={{ px: 1.5, py: 1 }}>
         <Typography variant='subtitle2'>Vertex Color Edit</Typography>
-        <ToggleButtonGroup
-          exclusive
-          fullWidth
-          size='small'
-          color='secondary'
-          value={colorEditMode}
-          onChange={(_, nextMode: VertexColorEditMode | null) => {
-            if (!nextMode || nextMode === colorEditMode) {
-              return;
-            }
+        {!hasEditableVertices ? (
+          <Typography color='textDeemphasized' variant='body2' sx={{ mt: 1 }}>
+            No vertices with editable colors in selection.
+          </Typography>
+        ) : (
+          <>
+            <ToggleButtonGroup
+              exclusive
+              fullWidth
+              size='small'
+              color='secondary'
+              value={colorEditMode}
+              onChange={(_, nextMode: VertexColorEditMode | null) => {
+                if (!nextMode || nextMode === colorEditMode) {
+                  return;
+                }
 
-            if (nextMode === 'editHsl') {
-              setHsl(DEFAULT_HSL);
-              setBaseVertexColors(selectedVertexColorsRef.current);
-            }
+                if (nextMode === 'editHsl') {
+                  setHsl(DEFAULT_HSL);
+                  setBaseVertexColors(selectedVertexColorsRef.current);
+                }
 
-            setColorEditMode(nextMode);
-          }}
-          aria-label='Vertex color edit mode'
-          sx={{ mt: 1 }}
-        >
-          <ToggleButton value='editHsl'>Edit HSL</ToggleButton>
-          <ToggleButton value='pickColor'>Pick Color</ToggleButton>
-        </ToggleButtonGroup>
-        <Box sx={{ mt: 1 }}>
-          {colorEditMode === 'editHsl' ? (
-            <List sx={{ p: 0 }}>
-              <NumericSliderInput
-                labelTooltip='Hue'
-                label='H'
-                defaultValue={0}
-                min={-180}
-                max={180}
-                value={hsl.h}
-                onChange={onSetH}
-              />
-              <NumericSliderInput
-                labelTooltip='Saturation'
-                label='S'
-                defaultValue={0}
-                min={-100}
-                max={100}
-                value={hsl.s}
-                onChange={onSetS}
-              />
-              <NumericSliderInput
-                labelTooltip='Lightness'
-                label='L'
-                defaultValue={0}
-                min={-100}
-                max={100}
-                value={hsl.l}
-                onChange={onSetL}
-              />
-            </List>
-          ) : colorEditMode === 'pickColor' ? (
-            <SketchPicker
-              color={selectedColor}
-              onChange={({ hex }: { hex: string }) => setSelectedColor(hex)}
-              onChangeComplete={({ hex }: { hex: string }) => onPickColor(hex)}
-            />
-          ) : (
-            'PLACEHOLDER'
-          )}
-        </Box>
+                setColorEditMode(nextMode);
+              }}
+              aria-label='Vertex color edit mode'
+              sx={{ mt: 1 }}
+            >
+              <ToggleButton value='editHsl'>Edit HSL</ToggleButton>
+              <ToggleButton value='pickColor'>Pick Color</ToggleButton>
+            </ToggleButtonGroup>
+            <Box sx={{ mt: 1 }}>
+              {colorEditMode === 'editHsl' ? (
+                <List sx={{ p: 0 }}>
+                  <NumericSliderInput
+                    labelTooltip='Hue'
+                    label='H'
+                    defaultValue={0}
+                    min={-180}
+                    max={180}
+                    value={hsl.h}
+                    onChange={onSetH}
+                  />
+                  <NumericSliderInput
+                    labelTooltip='Saturation'
+                    label='S'
+                    defaultValue={0}
+                    min={-100}
+                    max={100}
+                    value={hsl.s}
+                    onChange={onSetS}
+                  />
+                  <NumericSliderInput
+                    labelTooltip='Lightness'
+                    label='L'
+                    defaultValue={0}
+                    min={-100}
+                    max={100}
+                    value={hsl.l}
+                    onChange={onSetL}
+                  />
+                </List>
+              ) : (
+                <SketchPicker
+                  color={selectedColor}
+                  onChange={({ hex }: { hex: string }) => setSelectedColor(hex)}
+                  onChangeComplete={({ hex }: { hex: string }) =>
+                    onPickColor(hex)
+                  }
+                />
+              )}
+            </Box>
+          </>
+        )}
       </Box>
     </Paper>
   );
