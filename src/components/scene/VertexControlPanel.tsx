@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SketchPicker } from 'react-color';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import {
   Box,
+  Divider,
   List,
   Paper,
   ToggleButton,
@@ -26,12 +28,14 @@ const DEFAULT_HSL = {
 
 interface VertexControlPanelProps {
   selectedVertexColors: VertexColorUpdate[];
+  selectedVertexCount: number;
   onAdjustHsl: (payload: ApplySelectedVertexHslPayload) => void;
   onPickColor: (hexColor: string) => void;
 }
 
 export default function VertexControlPanel({
   selectedVertexColors,
+  selectedVertexCount,
   onAdjustHsl,
   onPickColor
 }: VertexControlPanelProps) {
@@ -44,6 +48,13 @@ export default function VertexControlPanel({
   const selectedVertexColorsRef = useRef(selectedVertexColors);
   const processedHsl = useThrottle(hsl, 75);
   const hasEditableVertices = selectedVertexColors.length > 0;
+  const hasNonEditableSelectedVertices =
+    selectedVertexCount > selectedVertexColors.length;
+  const vertexEditabilityMessage = !hasEditableVertices
+    ? 'No vertices with editable colors in selection.'
+    : hasNonEditableSelectedVertices
+      ? 'Some vertices selected do not have editable colors'
+      : undefined;
 
   useEffect(() => {
     selectedVertexColorsRef.current = selectedVertexColors;
@@ -88,11 +99,7 @@ export default function VertexControlPanel({
     >
       <Box sx={{ px: 1.5, py: 1 }}>
         <Typography variant='subtitle2'>Vertex Color Edit</Typography>
-        {!hasEditableVertices ? (
-          <Typography color='textDeemphasized' variant='body2' sx={{ mt: 1 }}>
-            No vertices with editable colors in selection.
-          </Typography>
-        ) : (
+        {!hasEditableVertices ? null : (
           <>
             <ToggleButtonGroup
               exclusive
@@ -152,12 +159,39 @@ export default function VertexControlPanel({
               ) : (
                 <SketchPicker
                   color={selectedColor}
-                  onChange={({ hex }: { hex: string }) => setSelectedColor(hex)}
-                  onChangeComplete={({ hex }: { hex: string }) =>
-                    onPickColor(hex)
-                  }
+                  onChange={({ hex }) => setSelectedColor(hex)}
+                  onChangeComplete={({ hex }) => onPickColor(hex)}
                 />
               )}
+            </Box>
+          </>
+        )}
+        {!vertexEditabilityMessage ? null : (
+          <>
+            <Divider sx={{ mt: 1, borderColor: 'textDeemphasized' }} />
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.75,
+                mt: 1
+              }}
+            >
+              <WarningAmberIcon
+                fontSize='small'
+                sx={{
+                  flexShrink: 0,
+                  mr: 1,
+                  fill: 'var(--mui-palette-text-deemphasized)'
+                }}
+              />
+              <Typography
+                color='textDeemphasized'
+                variant='body2'
+                sx={{ flexGrow: 1, fontStyle: 'italic' }}
+              >
+                {vertexEditabilityMessage}
+              </Typography>
             </Box>
           </>
         )}

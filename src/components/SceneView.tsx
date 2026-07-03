@@ -243,10 +243,19 @@ export default function SceneView() {
       ];
     });
   }, [model, selectedObjectIds]);
-  const selectedVertexSelectionKey = Object.keys(selectedObjectIds)
-    .filter((objectKey) => selectedObjectIds[objectKey])
-    .sort()
-    .join('|');
+
+  const selectedVertexSelectionKey = useMemo(
+    () =>
+      Object.keys(selectedObjectIds)
+        .filter((objectKey) => selectedObjectIds[objectKey])
+        .sort()
+        .join('|'),
+    [selectedObjectIds]
+  );
+
+  const selectedVertexCount = selectedVertexSelectionKey
+    ? selectedVertexSelectionKey.split('|').length
+    : 0;
   let selectionMergeIndicatorText: string | undefined;
 
   if (selectionMergeMode === 'remove' && hasSelectedObjects) {
@@ -446,6 +455,7 @@ export default function SceneView() {
         <VertexControlPanel
           key={selectedVertexSelectionKey}
           selectedVertexColors={selectedVertexColors}
+          selectedVertexCount={selectedVertexCount}
           onAdjustHsl={onAdjustSelectedVertexHsl}
           onPickColor={onPickVertexColor}
         />
