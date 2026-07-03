@@ -29,7 +29,7 @@ export default function OtherProjects() {
       >
         <AppInfoProject
           url='https://paxtez.zachd.com'
-          title={<>Paxtez&apos; MVC2 Mod Tool</>}
+          title="Paxtez' MVC2 Mod Tool"
           body={
             <Typography variant='body2' color='text.secondary' textAlign='left'>
               A tool which provides various quality of life patches and custom
@@ -39,7 +39,7 @@ export default function OtherProjects() {
         />
         <AppInfoProject
           url='https://zachd.com/palmod/'
-          title={<>PalMod</>}
+          title='PalMod'
           body={
             <Typography variant='body2' color='text.secondary' textAlign='left'>
               <b>Pal</b>ette <b>mod</b>ification tool for fighting games; this
@@ -48,8 +48,20 @@ export default function OtherProjects() {
           }
         />
         <AppInfoProject
+          url='https://github.com/karttoon/mvc2-stage-photomode'
+          title='mvc2-stage-photomode'
+          body={
+            <Typography variant='body2' color='text.secondary' textAlign='left'>
+              Builds a gallery of in-game stages and videos stripped of
+              HUD/players for photo mode screenshots using Flycast, Lua and some
+              Python scripts. Could come in handy for custom MVC2 SELSTG files
+              in mixes, or just showing off your edits.
+            </Typography>
+          }
+        />
+        <AppInfoProject
           url='https://github.com/NaomiMod/blender-NaomiLib'
-          title={<>Blender NaomiLib Importer</>}
+          title='Blender NaomiLib Importer'
           body={
             <Typography variant='body2' color='text.secondary' textAlign='left'>
               Plugin for importing NL models into Blender. The folks behind this
@@ -60,7 +72,7 @@ export default function OtherProjects() {
         />
         <AppInfoProject
           url='https://www.dreamcast-talk.com/forum/viewtopic.php?t=18323'
-          title={<>Capcom vs SNK 2 English Version</>}
+          title='Capcom vs SNK 2 English Version'
           body={
             <>
               <Typography
