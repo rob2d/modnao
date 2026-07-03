@@ -1,8 +1,14 @@
 import {
   Box,
   Button,
+  Checkbox,
+  Divider,
   IconButton,
-  Popover,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -19,7 +25,10 @@ import {
   selectModel,
   selectModelCount,
   selectModelIndex,
+  selectModels,
   selectPolygonFileName,
+  selectRealModelIndexes,
+  selectResourceAttribs,
   selectSelectedObjectIds
 } from '@/selectors';
 import { setObjectType } from '@/modules/object-viewer';
@@ -35,6 +44,31 @@ import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import FileImportArea from './FileImportArea';
 import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
 
+const matchesFuzzySearch = (value: string, search: string) => {
+  const normalizedValue = value.toLocaleLowerCase();
+  const normalizedSearch = search.trim().toLocaleLowerCase();
+
+  if (!normalizedSearch) {
+    return true;
+  }
+
+  let searchIndex = 0;
+
+  for (const character of normalizedValue) {
+    if (character !== normalizedSearch[searchIndex]) {
+      continue;
+    }
+
+    searchIndex += 1;
+
+    if (searchIndex === normalizedSearch.length) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export default function GuiPanelModels() {
   const sceneOptions = useContext(SceneOptionsContext);
   const dispatch = useAppDispatch();
@@ -42,31 +76,149 @@ export default function GuiPanelModels() {
   const uiNav = useObjectUINav();
   const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
   const meshSelectionType = useAppSelector(selectMeshSelectionType);
+  const polygonFileName = useAppSelector(selectPolygonFileName);
+  const modelIndex = useAppSelector(selectModelIndex);
+  const modelCount = useAppSelector(selectModelCount);
+  const model = useAppSelector(selectModel);
+  const models = useAppSelector(selectModels);
+  const realModelIndexes = useAppSelector(selectRealModelIndexes);
+  const resourceAttribs = useAppSelector(selectResourceAttribs);
   const [gltfExportAnchorEl, setGltfExportAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
+    useState<HTMLElement | null>(null);
+  const [gltfCustomAnchorEl, setGltfCustomAnchorEl] =
+    useState<HTMLElement | null>(null);
+  const [customGltfModelIndexes, setCustomGltfModelIndexes] = useState<
+    number[]
+  >([]);
+  const [customGltfModelSearch, setCustomGltfModelSearch] = useState('');
+  const [customGltfModelsStaggered, setCustomGltfModelsStaggered] =
+    useState(true);
+
+  const currentGltfModelIndexes = useMemo(
+    () => (modelIndex < 0 ? [] : [modelIndex]),
+    [modelIndex]
+  );
+  const allGltfModelIndexes = useMemo(
+    () => realModelIndexes,
+    [realModelIndexes]
+  );
 
   const onExportSelectionJson = useModelSelectionExport();
-  const onExportCurrentModelToGLTF = useSceneGLTFFileDownloader(false);
-  const onExportAllModelsToGLTF = useSceneGLTFFileDownloader(true);
+  const onExportCurrentModelToGLTF = useSceneGLTFFileDownloader({
+    modelIndexes: currentGltfModelIndexes,
+    staggerModels: false
+  });
+  const onExportAllModelsToGLTF = useSceneGLTFFileDownloader({
+    modelIndexes: allGltfModelIndexes,
+    staggerModels: true
+  });
+  const onExportCustomModelsToGLTF = useSceneGLTFFileDownloader({
+    modelIndexes: customGltfModelIndexes,
+    staggerModels: customGltfModelsStaggered
+  });
 
   const onOpenGltfExportPopover = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       setGltfExportAnchorEl(event.currentTarget);
+      sceneOptions.setRenderModelIndexes(undefined);
+      setCustomGltfModelIndexes((modelIndexes) => {
+        const realModelIndexSet = new Set(realModelIndexes);
+        const filteredModelIndexes = modelIndexes.filter((modelIndex) =>
+          realModelIndexSet.has(modelIndex)
+        );
+
+        if (filteredModelIndexes.length || !realModelIndexSet.has(modelIndex)) {
+          return filteredModelIndexes;
+        }
+
+        return [modelIndex];
+      });
     },
-    []
+    [modelIndex, realModelIndexes, sceneOptions]
   );
 
   const onCloseGltfExportPopover = useCallback(() => {
     setGltfExportAnchorEl(null);
-  }, []);
+    setGltfCustomAnchorEl(null);
+    setCustomGltfModelSearch('');
+    sceneOptions.setRenderModelIndexes(undefined);
+    sceneOptions.setRenderModelsStaggered(true);
+  }, [sceneOptions]);
+
+  const onOpenCustomGltfMenu = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setGltfCustomAnchorEl(event.currentTarget);
+      sceneOptions.setRenderModelIndexes(
+        customGltfModelIndexes.length
+          ? customGltfModelIndexes
+          : currentGltfModelIndexes
+      );
+      sceneOptions.setRenderModelsStaggered(customGltfModelsStaggered);
+    },
+    [
+      currentGltfModelIndexes,
+      customGltfModelIndexes,
+      customGltfModelsStaggered,
+      sceneOptions
+    ]
+  );
+
+  const onCloseCustomGltfMenu = useCallback(() => {
+    setGltfCustomAnchorEl(null);
+    setCustomGltfModelSearch('');
+    sceneOptions.setRenderModelIndexes(undefined);
+    sceneOptions.setRenderModelsStaggered(true);
+  }, [sceneOptions]);
+
+  const onCustomGltfModelSearchChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setCustomGltfModelSearch(event.target.value);
+    },
+    []
+  );
+
+  const onCustomGltfModelsStaggeredChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setCustomGltfModelsStaggered(event.target.checked);
+      sceneOptions.setRenderModelsStaggered(event.target.checked);
+    },
+    [sceneOptions]
+  );
+
+  const onToggleCustomGltfModel = useCallback(
+    (optionModelIndex: number) => {
+      setCustomGltfModelIndexes((modelIndexes) => {
+        const nextModelIndexes = modelIndexes.includes(optionModelIndex)
+          ? modelIndexes.filter((index) => index !== optionModelIndex)
+          : [...modelIndexes, optionModelIndex];
+
+        sceneOptions.setRenderModelIndexes(nextModelIndexes);
+
+        return nextModelIndexes;
+      });
+    },
+    [sceneOptions]
+  );
+
+  const onExportCustomModelsToGLTFClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      setGltfExportAnchorEl(null);
+      setGltfCustomAnchorEl(null);
+      onExportCustomModelsToGLTF();
+    },
+    [onExportCustomModelsToGLTF]
+  );
 
   const onExportCurrentModelToGLTFClick = useCallback(() => {
     setGltfExportAnchorEl(null);
+    setGltfCustomAnchorEl(null);
     onExportCurrentModelToGLTF();
   }, [onExportCurrentModelToGLTF]);
 
   const onExportAllModelsToGLTFClick = useCallback(() => {
     setGltfExportAnchorEl(null);
+    setGltfCustomAnchorEl(null);
     onExportAllModelsToGLTF();
   }, [onExportAllModelsToGLTF]);
 
@@ -85,10 +237,37 @@ export default function GuiPanelModels() {
     [dispatch]
   );
 
-  const polygonFileName = useAppSelector(selectPolygonFileName);
-  const modelIndex = useAppSelector(selectModelIndex);
-  const modelCount = useAppSelector(selectModelCount);
-  const model = useAppSelector(selectModel);
+  const customGltfModelOptions = useMemo(
+    () =>
+      realModelIndexes.map((optionModelIndex) => {
+        const optionModel = models[optionModelIndex];
+        const modelName = resourceAttribs?.polygonMapped
+          ? resourceAttribs.modelHints?.[optionModelIndex]?.name
+          : undefined;
+
+        return {
+          label: modelName ?? `Model ${optionModelIndex + 1}`,
+          meshCount: optionModel.meshes.length,
+          modelIndex: optionModelIndex
+        };
+      }),
+    [models, realModelIndexes, resourceAttribs]
+  );
+  const visibleCustomGltfModelOptions = useMemo(() => {
+    const selectedOptions = customGltfModelOptions.filter((option) =>
+      customGltfModelIndexes.includes(option.modelIndex)
+    );
+    const matchingOptions = customGltfModelOptions.filter(
+      (option) =>
+        !customGltfModelIndexes.includes(option.modelIndex) &&
+        matchesFuzzySearch(
+          `${option.label} ${option.modelIndex + 1}`,
+          customGltfModelSearch
+        )
+    );
+
+    return [...selectedOptions, ...matchingOptions];
+  }, [customGltfModelIndexes, customGltfModelOptions, customGltfModelSearch]);
   const selectedObjectKeys = useMemo(
     () =>
       Object.keys(selectedObjectIds).filter(
@@ -296,42 +475,153 @@ export default function GuiPanelModels() {
           >
             Export GLTF
           </GuiPanelButton>
-          <Popover
+          <Menu
             open={Boolean(gltfExportAnchorEl)}
             anchorEl={gltfExportAnchorEl}
             onClose={onCloseGltfExportPopover}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             transformOrigin={{ vertical: 'top', horizontal: 'left' }}
           >
-            <Box
+            <MenuItem
+              onClick={onExportCurrentModelToGLTFClick}
+              onMouseEnter={onCloseCustomGltfMenu}
               sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 1,
-                p: 1,
                 minWidth: 200
               }}
             >
-              <Button
+              Current Model
+            </MenuItem>
+            <MenuItem
+              onClick={onExportAllModelsToGLTFClick}
+              onMouseEnter={onCloseCustomGltfMenu}
+            >
+              All Models
+            </MenuItem>
+            <MenuItem
+              onClick={onOpenCustomGltfMenu}
+              onMouseEnter={onOpenCustomGltfMenu}
+              selected={Boolean(gltfCustomAnchorEl)}
+              sx={{
+                gap: 2,
+                justifyContent: 'space-between',
+                '&.Mui-selected, &.Mui-selected:hover': {
+                  backgroundColor: 'var(--mui-palette-action-hover)'
+                }
+              }}
+            >
+              <ListItemText primary='Custom Export' />
+              <KeyboardArrowRightIcon fontSize='small' />
+            </MenuItem>
+          </Menu>
+          <Menu
+            open={Boolean(gltfCustomAnchorEl)}
+            anchorEl={gltfCustomAnchorEl}
+            onClose={onCloseCustomGltfMenu}
+            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            slotProps={{
+              paper: {
+                sx: {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  maxHeight: 420,
+                  mr: 1
+                }
+              },
+              list: {
+                sx: {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                  p: 0
+                }
+              }
+            }}
+          >
+            <Box sx={{ px: 1, py: 0.75, flexShrink: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Button
+                  color='secondary'
+                  disabled={!customGltfModelIndexes.length}
+                  onClick={onExportCustomModelsToGLTFClick}
+                  size='small'
+                  variant='outlined'
+                  sx={{ flexGrow: 1 }}
+                >
+                  EXPORT
+                </Button>
+                <Box
+                  component='label'
+                  sx={{
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    gap: 0.5,
+                    typography: 'caption',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <Checkbox
+                    checked={customGltfModelsStaggered}
+                    onChange={onCustomGltfModelsStaggeredChange}
+                    size='small'
+                    sx={{ p: 0.25 }}
+                  />
+                  Stagger?
+                </Box>
+              </Box>
+              <TextField
                 fullWidth
-                color='secondary'
-                onClick={onExportCurrentModelToGLTFClick}
+                onChange={onCustomGltfModelSearchChange}
+                onKeyDown={(event) => event.stopPropagation()}
+                placeholder='Filter models'
                 size='small'
-                variant='outlined'
-              >
-                Current Model
-              </Button>
-              <Button
-                fullWidth
-                color='secondary'
-                onClick={onExportAllModelsToGLTFClick}
-                size='small'
-                variant='outlined'
-              >
-                All Models
-              </Button>
+                value={customGltfModelSearch}
+                sx={{ mt: 0.75 }}
+              />
             </Box>
-          </Popover>
+            <Divider />
+            <Box sx={{ overflowY: 'auto' }}>
+              {visibleCustomGltfModelOptions.map((option) => {
+                const checked = customGltfModelIndexes.includes(
+                  option.modelIndex
+                );
+                const meshCountLabel = `${option.meshCount} mesh${
+                  option.meshCount === 1 ? '' : 'es'
+                }`;
+
+                return (
+                  <MenuItem
+                    key={option.modelIndex}
+                    onClick={() => onToggleCustomGltfModel(option.modelIndex)}
+                    dense
+                    sx={{ minWidth: 240 }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 34 }}>
+                      <Checkbox
+                        edge='start'
+                        checked={checked}
+                        disableRipple
+                        readOnly
+                        size='small'
+                        tabIndex={-1}
+                        sx={{ px: 1 }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={option.label}
+                      secondary={meshCountLabel}
+                      slotProps={{
+                        primary: { variant: 'body2' },
+                        secondary: { variant: 'caption' }
+                      }}
+                      sx={{ my: 0 }}
+                    />
+                  </MenuItem>
+                );
+              })}
+            </Box>
+          </Menu>
           {exportSelectionButton}
         </GuiPanelActionButtonRow>
       </Box>

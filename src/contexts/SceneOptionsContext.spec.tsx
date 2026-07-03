@@ -20,8 +20,7 @@ const booleanSetterKeys = [
   'setDevOptionsVisible',
   'setUvRegionsHighlighted',
   'setDisableBackfaceCulling',
-  'setEnableVertexColors',
-  'setRenderAllModels'
+  'setEnableVertexColors'
 ] as const;
 
 function TestOptionsContext() {

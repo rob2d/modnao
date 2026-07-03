@@ -34,7 +34,6 @@ interface SceneLassoSelectionProps {
   meshGroups: DisplayedMesh[][];
   meshSelectionType: MeshSelectionType;
   onOverlayChange: (overlay: SceneLassoOverlayState | undefined) => void;
-  renderAllModels: boolean;
   vertexInteractionMode: SceneVertexInteractionMode;
 }
 
@@ -43,7 +42,6 @@ export default function SceneLassoSelection({
   meshGroups,
   meshSelectionType,
   onOverlayChange,
-  renderAllModels,
   vertexInteractionMode
 }: SceneLassoSelectionProps) {
   const { camera, size } = useThree();
@@ -76,18 +74,11 @@ export default function SceneLassoSelection({
       const projectedVertex = new Vector3();
 
       meshGroups.forEach((meshes, meshGroupIndex) => {
-        const groupX = renderAllModels ? meshGroupIndex * 500 : 0;
-        const groupY = renderAllModels ? meshGroupIndex * 50 : 0;
-
         meshes.forEach((mesh, meshIndex) => {
           mesh.polygons.forEach((polygon, polygonIndex) => {
             polygon.vertices.forEach((vertex, vertexIndex) => {
               projectedVertex
-                .set(
-                  vertex.position[0] + groupX,
-                  vertex.position[1] + groupY,
-                  vertex.position[2]
-                )
+                .set(vertex.position[0], vertex.position[1], vertex.position[2])
                 .project(camera);
 
               if (projectedVertex.z < -1 || projectedVertex.z > 1) {
@@ -116,7 +107,7 @@ export default function SceneLassoSelection({
         })
       );
     },
-    [camera, dispatch, meshGroups, renderAllModels, size]
+    [camera, dispatch, meshGroups, size]
   );
   const { isLassoActive, lassoPoints, lassoViewportBounds } = useLassoPath(
     canvasRef,

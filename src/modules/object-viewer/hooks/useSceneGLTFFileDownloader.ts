@@ -3,7 +3,11 @@ import saveAs from 'file-saver';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { useSceneContext } from '@/contexts/SceneContext';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
-import { selectHasLoadedTextureFile, selectModelIndex } from '@/selectors';
+import {
+  selectHasLoadedTextureFile,
+  selectModelCount,
+  selectModelIndex
+} from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { showError } from '@/modules/error-messages';
 
@@ -43,6 +47,11 @@ type GLTFImage = {
   uri: string;
 };
 
+interface SceneGLTFFileDownloaderOptions {
+  modelIndexes: number[];
+  staggerModels: boolean;
+}
+
 /**
  * Downloads a scene as a GLTF file;
  * This was somewhat hacky, due to a request from a very niche
@@ -51,25 +60,34 @@ type GLTFImage = {
  * R3F has a convenient export function once we've rendered so it didn't
  * make sense not to agree to this request.
  *
- * @param allModels whether we are exporting all models
+ * @param options GLTF export render options
  * @returns
  */
-export default function useSceneGLTFFileDownloader(allModels: boolean) {
+export default function useSceneGLTFFileDownloader({
+  modelIndexes,
+  staggerModels
+}: SceneGLTFFileDownloaderOptions) {
   const dispatch = useAppDispatch();
   const {
-    renderAllModels,
-    setRenderAllModels,
+    renderModelIndexes,
+    setRenderModelIndexes,
+    renderModelsStaggered,
+    setRenderModelsStaggered,
     meshDisplayMode,
     setMeshDisplayMode
   } = useContext(SceneOptionsContext);
   const { scene } = useSceneContext();
   const modelIndex = useAppSelector(selectModelIndex);
+  const modelCount = useAppSelector(selectModelCount);
   const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
   const polygonFileName =
     useAppSelector((s) => s.modelData.polygonFileName) || '';
 
   const onDownloadSceneFile = useCallback(async () => {
     const prevMeshDisplayMode = meshDisplayMode;
+    const exportedModelIndexes = modelIndexes.filter(
+      (modelIndex) => modelIndex >= 0 && modelIndex < modelCount
+    );
     // must be rendering in mesh display mode for GLTF to render textures
 
     if (!scene) {
@@ -92,43 +110,66 @@ export default function useSceneGLTFFileDownloader(allModels: boolean) {
       return;
     }
 
-    setMeshDisplayMode('textured');
-    if (allModels) {
-      setRenderAllModels(true);
+    if (!exportedModelIndexes.length) {
+      dispatch(
+        showError({
+          title: 'Cannot export GLTF',
+          message: 'no models selected to export GLTF'
+        })
+      );
+      return;
     }
+
+    setMeshDisplayMode('textured');
+    setRenderModelIndexes(exportedModelIndexes);
+    setRenderModelsStaggered(staggerModels);
     await new Promise((r) => setTimeout(r, 100));
 
-    const output = (await exporter.parseAsync(scene)) as {
-      images: GLTFImage[];
-    };
+    try {
+      const output = (await exporter.parseAsync(scene)) as {
+        images: GLTFImage[];
+      };
 
-    const rotationPromises = output.images.map(async (img) => {
-      const uri = await rotateDataUri(img.uri);
-      return { ...img, uri };
-    });
+      const rotationPromises = output.images.map(async (img) => {
+        const uri = await rotateDataUri(img.uri);
+        return { ...img, uri };
+      });
 
-    const rotatedImages = await Promise.all(rotationPromises);
-    output.images = rotatedImages;
+      const rotatedImages = await Promise.all(rotationPromises);
+      output.images = rotatedImages;
 
-    const file = new Blob([JSON.stringify(output, null, 2)], {
-      type: 'application/object'
-    });
+      const file = new Blob([JSON.stringify(output, null, 2)], {
+        type: 'application/object'
+      });
 
-    const name = `${polygonFileName.substring(
-      0,
-      polygonFileName.lastIndexOf('.')
-    )}${allModels ? '' : `-${modelIndex}`}`;
+      const modelNameSuffix =
+        exportedModelIndexes.length === modelCount
+          ? ''
+          : exportedModelIndexes.length === 1
+            ? `-${exportedModelIndexes[0]}`
+            : '-custom';
+      const name = `${polygonFileName.substring(
+        0,
+        polygonFileName.lastIndexOf('.')
+      )}${modelNameSuffix}`;
 
-    saveAs(file, `${name}.mn.gltf`);
-
-    await new Promise((r) => setTimeout(r, 100));
-    setRenderAllModels(false);
-    setMeshDisplayMode(prevMeshDisplayMode);
+      saveAs(file, `${name}.mn.gltf`);
+    } finally {
+      await new Promise((r) => setTimeout(r, 100));
+      setRenderModelIndexes(undefined);
+      setRenderModelsStaggered(true);
+      setMeshDisplayMode(prevMeshDisplayMode);
+    }
   }, [
     scene,
-    allModels,
-    renderAllModels,
-    setRenderAllModels,
+    dispatch,
+    hasLoadedTextureFile,
+    modelCount,
+    modelIndexes,
+    polygonFileName,
+    setRenderModelIndexes,
+    setRenderModelsStaggered,
+    staggerModels,
     meshDisplayMode,
     setMeshDisplayMode
   ]);

@@ -273,51 +273,78 @@ export default function SceneView() {
   const meshes = useAppSelector(selectAllDisplayedMeshes);
   const modelIndex = useAppSelector(selectModelIndex);
   const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
-  const renderedMeshGroups = sceneOptions.renderAllModels
-    ? meshes
-    : [selectedMeshes];
+  const renderModelIndexes = sceneOptions.renderModelIndexes;
+  const isRenderingModelIndexes = renderModelIndexes !== undefined;
+  const renderModelsStaggered = sceneOptions.renderModelsStaggered;
+  const renderedModelEntries = useMemo(
+    () =>
+      renderModelIndexes === undefined
+        ? [
+            {
+              meshes: selectedMeshes,
+              modelIndex
+            }
+          ]
+        : renderModelIndexes.map((renderedModelIndex) => ({
+            meshes: meshes[renderedModelIndex] ?? [],
+            modelIndex: renderedModelIndex
+          })),
+    [meshes, modelIndex, renderModelIndexes, selectedMeshes]
+  );
+  const renderedMeshGroups = useMemo(
+    () => renderedModelEntries.map((entry) => entry.meshes),
+    [renderedModelEntries]
+  );
   const axesHelperVisible =
     sceneOptions.axesHelperVisible && !sceneOptions.enableCinematicMode;
   const selectionEnabled =
     sceneOptions.meshDisplayMode !== 'wireframe' &&
     Object.keys(selectedObjectIds).length > 0 &&
-    !sceneOptions.renderAllModels;
+    !isRenderingModelIndexes;
 
   const renderedModels = useMemo(
     () =>
-      renderedMeshGroups.map((ms, msi) => (
-        <mesh
-          key={`meshGroup_${msi}_${sceneOptions.renderAllModels ? 1 : 0}`}
-          position={
-            !sceneOptions.renderAllModels ? [0, 0, 0] : [msi * 500, msi * 50, 0]
-          }
-        >
-          {ms.map((m, i) => {
-            const texture =
-              textureCacheMap?.get(m.textureHash)?.texture || null;
-            return m.polygons.map((p, pIndex) => (
-              <RenderedPolygon
-                {...p}
-                key={`${m.address}_${p.address}`}
-                objectKey={
-                  meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
-                }
-                textureIndex={m.textureIndex}
-                meshAlpha={m.alpha}
-                meshColor={m.color}
-                meshHasColoredVertices={m.hasColoredVertices}
-                selectedObjectIds={selectedObjectIds}
-                onSelectObjectKey={onSelectObjectKey}
-                texture={texture}
-                vertexSelectionMode={meshSelectionType === 'vertex'}
-              />
-            ));
-          })}
-        </mesh>
-      )),
+      renderedModelEntries.map(
+        ({ meshes: renderedMeshes, modelIndex }, msi) => (
+          <mesh
+            key={`meshGroup_${modelIndex}_${isRenderingModelIndexes ? 1 : 0}`}
+            position={
+              !isRenderingModelIndexes ||
+              !renderModelsStaggered ||
+              renderedModelEntries.length === 1
+                ? [0, 0, 0]
+                : [msi * 500, msi * 50, 0]
+            }
+          >
+            {renderedMeshes.map((m, i) => {
+              const texture =
+                textureCacheMap?.get(m.textureHash)?.texture || null;
+              return m.polygons.map((p, pIndex) => (
+                <RenderedPolygon
+                  {...p}
+                  key={`${m.address}_${p.address}`}
+                  objectKey={
+                    meshSelectionType === 'mesh' ? `${i}` : `${i}_${pIndex}`
+                  }
+                  textureIndex={m.textureIndex}
+                  meshAlpha={m.alpha}
+                  meshColor={m.color}
+                  meshHasColoredVertices={m.hasColoredVertices}
+                  selectedObjectIds={selectedObjectIds}
+                  onSelectObjectKey={onSelectObjectKey}
+                  texture={texture}
+                  vertexSelectionMode={meshSelectionType === 'vertex'}
+                />
+              ));
+            })}
+          </mesh>
+        )
+      ),
     [
       model,
-      renderedMeshGroups,
+      renderedModelEntries,
+      isRenderingModelIndexes,
+      renderModelsStaggered,
       textureCacheMap,
       selectedObjectIds,
       meshSelectionType,
@@ -415,7 +442,6 @@ export default function SceneView() {
             meshGroups={renderedMeshGroups}
             meshSelectionType={meshSelectionType}
             onOverlayChange={setLassoOverlay}
-            renderAllModels={sceneOptions.renderAllModels}
             vertexInteractionMode={vertexInteractionMode}
           />
         </Selection>

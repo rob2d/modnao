@@ -23,7 +23,8 @@ export type SceneOptions = {
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
   devOptionsVisible: boolean;
-  renderAllModels: boolean;
+  renderModelIndexes?: number[];
+  renderModelsStaggered: boolean;
   setAxesHelperVisible: (axesHelperVisible: boolean) => void;
   setSceneCursorVisible: (sceneCursorVisible: boolean) => void;
   setShowBrowsedObjectHints: (showBrowsedObjectHints: boolean) => void;
@@ -41,7 +42,8 @@ export type SceneOptions = {
   setThemeKey: (theme: 'light' | 'dark') => void;
   toggleLightDarkTheme: () => void;
   setDevOptionsVisible: (devOptions: boolean) => void;
-  setRenderAllModels: (devOptions: boolean) => void;
+  setRenderModelIndexes: (modelIndexes: number[] | undefined) => void;
+  setRenderModelsStaggered: (modelsStaggered: boolean) => void;
 };
 
 export const defaultValues: SceneOptions = {
@@ -61,7 +63,8 @@ export const defaultValues: SceneOptions = {
   themeKey: 'light',
   scenePalette: undefined,
   devOptionsVisible: false,
-  renderAllModels: false,
+  renderModelIndexes: undefined,
+  renderModelsStaggered: true,
   setAxesHelperVisible: (_: boolean) => null,
   setSceneCursorVisible: (_: boolean) => null,
   setShowBrowsedObjectHints: (_: boolean) => null,
@@ -79,7 +82,8 @@ export const defaultValues: SceneOptions = {
   setThemeKey: (_: 'light' | 'dark') => null,
   toggleLightDarkTheme: () => null,
   setDevOptionsVisible: (_: boolean) => null,
-  setRenderAllModels: (_: boolean) => null
+  setRenderModelIndexes: (_: number[] | undefined) => null,
+  setRenderModelsStaggered: (_: boolean) => null
 } as const;
 
 const SceneOptionsContext = React.createContext<SceneOptions>(defaultValues);
@@ -111,8 +115,11 @@ export function SceneOptionsContextProvider({ children }: Props) {
       StorageKeys.GUI_PANEL_EXPANSION_LEVEL
     );
 
-  const [renderAllModels, setRenderAllModels] = useSceneOptionSetting<boolean>(
-    defaultValues.renderAllModels
+  const [renderModelIndexes, setRenderModelIndexes] = useState<
+    number[] | undefined
+  >(defaultValues.renderModelIndexes);
+  const [renderModelsStaggered, setRenderModelsStaggered] = useState<boolean>(
+    defaultValues.renderModelsStaggered
   );
 
   const [objectAddressesVisible, setObjectAddressesVisible] =
@@ -221,8 +228,10 @@ export function SceneOptionsContextProvider({ children }: Props) {
       toggleLightDarkTheme,
       devOptionsVisible,
       setDevOptionsVisible,
-      renderAllModels,
-      setRenderAllModels
+      renderModelIndexes,
+      setRenderModelIndexes,
+      renderModelsStaggered,
+      setRenderModelsStaggered
     }),
     [
       objectAddressesVisible,
@@ -258,8 +267,10 @@ export function SceneOptionsContextProvider({ children }: Props) {
       toggleLightDarkTheme,
       devOptionsVisible,
       setDevOptionsVisible,
-      renderAllModels,
-      setRenderAllModels
+      renderModelIndexes,
+      setRenderModelIndexes,
+      renderModelsStaggered,
+      setRenderModelsStaggered
     ]
   );
 
