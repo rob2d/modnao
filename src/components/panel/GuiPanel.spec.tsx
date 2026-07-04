@@ -2,7 +2,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import GuiPanel from './GuiPanel';
 import type { NLUITextureDef } from '@/types';
-import { ModelDataState } from '@/modules/model-data';
+import { initialModelDataState, ModelDataState } from '@/modules/model-data';
 import { AppState } from '@/storeTypings';
 import SceneOptionsContext, {
   defaultValues
@@ -80,6 +80,40 @@ describe('GuiPanel', () => {
     fireEvent.click(resizeHandle);
 
     expect(setEnableCinematicMode).toHaveBeenCalledWith(false);
+    expect(setGuiPanelExpansionLevel).not.toHaveBeenCalled();
+  });
+
+  it('forces welcome mode to the first expansion level without resize interaction', () => {
+    const setGuiPanelExpansionLevel = jest.fn();
+    const { renderResult } = renderTestWithProviders(
+      <SceneOptionsContext.Provider
+        value={{
+          ...defaultValues,
+          guiPanelExpansionLevel: 2,
+          setGuiPanelExpansionLevel
+        }}
+      >
+        <GuiPanel />
+      </SceneOptionsContext.Provider>,
+      { preloadedState: { modelData: initialModelDataState } as AppState }
+    );
+
+    const panel = renderResult.container.querySelector('.panel');
+    const resizeHandle = renderResult.container.querySelector('.resize-handle');
+
+    if (!panel || !resizeHandle) {
+      throw new Error(
+        'Expected GuiPanel to render the panel and resize handle'
+      );
+    }
+
+    expect(panel).toHaveClass('welcome');
+    expect(panel).not.toHaveClass('collapsed');
+    expect(panel).not.toHaveClass('expanded');
+    expect(resizeHandle).toHaveClass('disabled');
+
+    fireEvent.click(resizeHandle);
+
     expect(setGuiPanelExpansionLevel).not.toHaveBeenCalled();
   });
 });

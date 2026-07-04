@@ -35,7 +35,10 @@ function clamp(num: number, min: number, max: number) {
 
 type PanelDragParams = [boolean, RefObject<HTMLDivElement | null>];
 
-const usePanelDragState = (sceneOptions: SceneOptions): PanelDragParams => {
+const usePanelDragState = (
+  sceneOptions: SceneOptions,
+  canResizePanel: boolean
+): PanelDragParams => {
   const resizeHandle = useRef<HTMLDivElement | null>(null);
   const [dragMouseXY, isMouseDown, resetMouseTracking] =
     useDragMouseOnEl(resizeHandle);
@@ -58,7 +61,7 @@ const usePanelDragState = (sceneOptions: SceneOptions): PanelDragParams => {
       setGuiPanelExpansionLevel
     } = sceneOptions;
 
-    if (isMouseDown && !hasDragged.current) {
+    if (isMouseDown && canResizePanel && !hasDragged.current) {
       const dragStepDelta = Math.round(dragMouseXY.x / PANEL_DRAG_THRESHOLD);
 
       if (enableCinematicMode) {
@@ -88,6 +91,7 @@ const usePanelDragState = (sceneOptions: SceneOptions): PanelDragParams => {
   }, [
     dragMouseXY,
     isMouseDown,
+    canResizePanel,
     resetMouseTracking,
     sceneOptions.enableCinematicMode,
     sceneOptions.guiPanelExpansionLevel,
@@ -103,16 +107,27 @@ export default function GuiPanel() {
   const contentViewMode = useAppSelector(selectContentViewMode);
   const loadTexturesState = useAppSelector(selectLoadTexturesState);
   const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
-  const [resizeMouseDown, resizeHandle] = usePanelDragState(sceneOptions);
-  const expansionLevel = sceneOptions.enableCinematicMode
-    ? 0
-    : clamp(
-        sceneOptions.guiPanelExpansionLevel,
-        contentViewMode === 'welcome' ? 1 : 0,
-        2
-      );
+  const canResizePanel = contentViewMode !== 'welcome';
+  const [resizeMouseDown, resizeHandle] = usePanelDragState(
+    sceneOptions,
+    canResizePanel
+  );
+
+  let expansionLevel = clamp(sceneOptions.guiPanelExpansionLevel, 0, 2);
+
+  if (sceneOptions.enableCinematicMode) {
+    expansionLevel = 0;
+  }
+
+  if (contentViewMode === 'welcome') {
+    expansionLevel = 1;
+  }
 
   const onClickResizeHandle = useCallback(() => {
+    if (!canResizePanel) {
+      return;
+    }
+
     if (sceneOptions.enableCinematicMode) {
       sceneOptions.setEnableCinematicMode(false);
       return;
@@ -130,6 +145,7 @@ export default function GuiPanel() {
         break;
     }
   }, [
+    canResizePanel,
     sceneOptions.enableCinematicMode,
     sceneOptions.guiPanelExpansionLevel,
     sceneOptions.setEnableCinematicMode,
@@ -247,12 +263,26 @@ export default function GuiPanel() {
           '&:hover svg, &.active svg': {
             opacity: 1,
             transition: `opacity ${TRANSITION_TIME} ease`
+          },
+          '&.disabled': {
+            cursor: 'default',
+            pointerEvents: 'none'
+          },
+          '&.disabled:hover': {
+            backgroundColor: 'transparent'
+          },
+          '&.disabled svg': {
+            opacity: 0
           }
         }
       })}
     >
       <div
-        className={clsx('resize-handle', resizeMouseDown && 'active')}
+        className={clsx(
+          'resize-handle',
+          resizeMouseDown && canResizePanel && 'active',
+          !canResizePanel && 'disabled'
+        )}
         ref={resizeHandle}
         onClick={onClickResizeHandle}
       >
