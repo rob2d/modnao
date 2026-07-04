@@ -77,6 +77,8 @@ export default function MainView() {
           sx={{
             boxSizing: 'border-box',
             display: 'flex',
+            flex: 1,
+            minWidth: 0,
             py: 1,
             px: 2,
             maxHeight: '100vh',

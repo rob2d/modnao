@@ -1,30 +1,40 @@
-import { useCallback } from 'react';
+import { type SyntheticEvent, useCallback, useState } from 'react';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Tab, Tabs } from '@mui/material';
 import Contributors from './sections/Contributors';
-import KeyboardShortcuts from './sections/KeyboardShortcuts';
-import SceneNavigationHints from './sections/SceneNavigationHints';
-import SelectionModeHints from './sections/SelectionModeHints';
 import DevLog from './sections/DevLog';
 import OtherProjects from './sections/OtherProjects';
 import GettingStarted from './sections/GettingStarted';
-import { useScrollEdges } from '@/hooks';
+import AppInfoGuide from '@/components/dialogs/app-info/AppInfoGuide';
 import { closeDialog } from '@/modules/dialogs';
 import { selectIsAppInfoDialogShown } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 
+const appInfoTabs = [
+  { label: 'Getting Started', value: 'getting-started' },
+  { label: 'Guide', value: 'how-to' },
+  { label: 'App Updates', value: 'app-updates' },
+  { label: 'Credits', value: 'credits' },
+  { label: 'Other Projects', value: 'other-projects' }
+] as const;
+
+type AppInfoTabValue = (typeof appInfoTabs)[number]['value'];
+
 export default function AppInfo() {
   const dispatch = useAppDispatch();
-  const {
-    containerRef: howToAndContributionsRef,
-    hasScrollAbove: howToAndContributionsHasScrollAbove,
-    hasScrollBelow: howToAndContributionsHasScrollBelow,
-    scrollEdgeStyle: howToAndContributionsScrollEdgeStyle
-  } = useScrollEdges<HTMLDivElement>();
+  const [activeTab, setActiveTab] =
+    useState<AppInfoTabValue>('getting-started');
 
   const onClose = useCallback(() => {
     dispatch(closeDialog());
   }, []);
+
+  const onTabChange = useCallback(
+    (_event: SyntheticEvent, nextTab: AppInfoTabValue) => {
+      setActiveTab(nextTab);
+    },
+    []
+  );
 
   const isAppInfoDialogShown = useAppSelector(selectIsAppInfoDialogShown);
 
@@ -33,12 +43,15 @@ export default function AppInfo() {
       sx={{
         position: 'relative',
         display: 'grid',
+        flex: 1,
         width: '100%',
         height: '100%',
+        containerType: 'inline-size',
+        minWidth: 0,
         minHeight: 0,
         gridTemplateColumns: { xs: 'none', lg: '5fr 7fr 5fr' },
-        gridTemplateRows: { xs: '1fr 1fr 1fr 1fr', lg: '1fr 1fr' },
-        gap: 1,
+        gridTemplateRows: { xs: 'auto minmax(0, 1fr)', lg: '1fr 1fr' },
+        gap: { xs: 0, lg: 1 },
         '& .app-info-section:not(:last-child):not(.MuiDivider-root)': {
           mb: 2
         },
@@ -46,10 +59,12 @@ export default function AppInfo() {
           py: 1,
           px: 2
         },
-        '& .ok-button': {
-          position: 'absolute',
-          bottom: 'calc(var(--mui-spacing) * 2)',
-          right: 'calc(var(--mui-spacing) * 2)'
+        '& .app-info-tab-panel': {
+          minHeight: 0,
+          overflow: 'hidden',
+          '& > .app-info-section': {
+            height: '100%'
+          }
         },
         '& .getting-started': {
           gridRowStart: { lg: 1 },
@@ -58,49 +73,114 @@ export default function AppInfo() {
         '& .dev-vlog': {
           gridRowStart: { lg: 1 },
           gridRowEnd: { lg: 2 }
-        },
-        '& .howto-and-contributions': {
-          gridRowStart: { lg: 1 },
-          gridRowEnd: { lg: 4 }
-        },
-        '& > *': {
-          minHeight: 0,
-          overflow: 'hidden'
-        },
-        '& .howto-and-contributions .MuiDivider-root': {
-          mb: 2
-        },
-        '& .updates-and-projects > *:not(.MuiDivider-root)': {
-          height: { md: '50%' },
-          overflowY: { md: 'auto' }
-        },
-        '& .updates-and-projects': {
-          overflowY: { md: 'hidden' }
         }
       }}
     >
-      <GettingStarted />
-      <DevLog />
-      <Box
-        className='app-info-section howto-and-contributions'
-        data-scroll-above={howToAndContributionsHasScrollAbove}
-        data-scroll-below={howToAndContributionsHasScrollBelow}
-        style={howToAndContributionsScrollEdgeStyle}
-        sx={(theme) => theme.mixins.dialogScrollEdgeFrame}
-      >
+      <Box sx={{ display: { xs: 'none', lg: 'contents' } }}>
+        <GettingStarted />
+        <DevLog />
+        <AppInfoGuide includeContributors />
+        <OtherProjects />
+      </Box>
+      <Box sx={{ display: { xs: 'contents', lg: 'none' } }}>
         <Box
-          ref={howToAndContributionsRef}
-          sx={(theme) => theme.mixins.dialogScrollEdgeScroller}
+          sx={{
+            p: 0,
+            mt: 0,
+            mx: 0,
+            mb: 1,
+            minHeight: 0,
+            '& .MuiTabs-root': {
+              minHeight: 'calc(var(--mui-spacing) * 4)'
+            },
+            '& .MuiTabs-flexContainer': {
+              minHeight: 'calc(var(--mui-spacing) * 4)'
+            },
+            '& .MuiTab-root': {
+              minWidth: 'auto',
+              minHeight: 'calc(var(--mui-spacing) * 4)',
+              py: 0,
+              px: 1
+            }
+          }}
         >
-          <KeyboardShortcuts />
-          <SceneNavigationHints />
-          <SelectionModeHints />
-          <Contributors />
+          <Tabs
+            aria-label='App info sections'
+            value={activeTab}
+            variant='scrollable'
+            scrollButtons={false}
+            onChange={onTabChange}
+          >
+            {appInfoTabs.map(({ label, value }) => (
+              <Tab
+                key={value}
+                id={`app-info-tab-${value}`}
+                label={label}
+                value={value}
+                aria-controls={`app-info-panel-${value}`}
+              />
+            ))}
+          </Tabs>
+        </Box>
+        <Box
+          id='app-info-panel-getting-started'
+          role='tabpanel'
+          aria-labelledby='app-info-tab-getting-started'
+          className='app-info-tab-panel'
+          hidden={activeTab !== 'getting-started'}
+        >
+          <GettingStarted compact />
+        </Box>
+        <Box
+          id='app-info-panel-how-to'
+          role='tabpanel'
+          aria-labelledby='app-info-tab-how-to'
+          className='app-info-tab-panel'
+          hidden={activeTab !== 'how-to'}
+        >
+          <AppInfoGuide />
+        </Box>
+        <Box
+          id='app-info-panel-app-updates'
+          role='tabpanel'
+          aria-labelledby='app-info-tab-app-updates'
+          className='app-info-tab-panel'
+          hidden={activeTab !== 'app-updates'}
+        >
+          <DevLog compact />
+        </Box>
+        <Box
+          id='app-info-panel-credits'
+          role='tabpanel'
+          aria-labelledby='app-info-tab-credits'
+          className='app-info-tab-panel'
+          hidden={activeTab !== 'credits'}
+        >
+          <Contributors compact />
+        </Box>
+        <Box
+          id='app-info-panel-other-projects'
+          role='tabpanel'
+          aria-labelledby='app-info-tab-other-projects'
+          className='app-info-tab-panel'
+          hidden={activeTab !== 'other-projects'}
+        >
+          <OtherProjects compact />
         </Box>
       </Box>
-      <OtherProjects />
       {!isAppInfoDialogShown ? null : (
-        <Button variant='outlined' className='ok-button' onClick={onClose}>
+        <Button
+          variant='outlined'
+          size='small'
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            backgroundColor: 'var(--mui-palette-background-paper)',
+            lineHeight: 1
+          }}
+        >
           OK <KeyboardDoubleArrowRightIcon fontSize='small' />
         </Button>
       )}

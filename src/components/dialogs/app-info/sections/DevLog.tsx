@@ -35,6 +35,10 @@ interface XUpdateTimelineItem {
 
 type TimelineItem = VlogTimelineItem | XUpdateTimelineItem;
 
+interface DevLogProps {
+  compact?: boolean;
+}
+
 const origin =
   typeof window !== 'undefined' && window.location.origin
     ? window.location.origin
@@ -62,7 +66,7 @@ const useVlogApi = () => {
   return [vlogs, error] as [Vlog[], string | undefined];
 };
 
-export default function DevLog() {
+export default function DevLog({ compact }: DevLogProps) {
   const [vlogs, vlogApiError] = useVlogApi();
   const { containerRef, hasScrollAbove, hasScrollBelow, scrollEdgeStyle } =
     useScrollEdges<HTMLDivElement>();
@@ -130,7 +134,7 @@ export default function DevLog() {
         minHeight: 0
       }}
     >
-      <DialogSectionHeader>Dev Updates</DialogSectionHeader>
+      {compact ? null : <DialogSectionHeader>Dev Updates</DialogSectionHeader>}
       <DialogSectionContentCards
         containerRef={containerRef}
         hasScrollAbove={hasScrollAbove}

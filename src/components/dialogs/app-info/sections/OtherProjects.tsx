@@ -4,7 +4,11 @@ import AppInfoProject from '../AppInfoProject';
 import DialogSectionContentCards from '../../DialogSectionContentCards';
 import { useScrollEdges } from '@/hooks';
 
-export default function OtherProjects() {
+interface OtherProjectsProps {
+  compact?: boolean;
+}
+
+export default function OtherProjects({ compact }: OtherProjectsProps) {
   const { containerRef, hasScrollAbove, hasScrollBelow, scrollEdgeStyle } =
     useScrollEdges<HTMLDivElement>();
 
@@ -14,13 +18,12 @@ export default function OtherProjects() {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        minHeight: 0,
-        '& .MuiTypography-h5': {
-          mt: 1
-        }
+        minHeight: 0
       }}
     >
-      <DialogSectionHeader>Other Notable Projects</DialogSectionHeader>
+      {compact ? null : (
+        <DialogSectionHeader>Other Notable Projects</DialogSectionHeader>
+      )}
       <DialogSectionContentCards
         containerRef={containerRef}
         hasScrollAbove={hasScrollAbove}

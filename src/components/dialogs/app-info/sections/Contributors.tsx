@@ -1,10 +1,16 @@
 import { Box, Typography } from '@mui/material';
 import DialogSectionHeader from '../../DialogSectionHeader';
 
-export default function Contributors() {
+interface ContributorsProps {
+  compact?: boolean;
+}
+
+export default function Contributors({ compact }: ContributorsProps) {
   return (
     <div className='app-info-section contributors'>
-      <DialogSectionHeader>Contributions</DialogSectionHeader>
+      {compact ? null : (
+        <DialogSectionHeader>Contributions</DialogSectionHeader>
+      )}
       <Box
         sx={{
           position: 'relative',

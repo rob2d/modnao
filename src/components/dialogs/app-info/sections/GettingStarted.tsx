@@ -14,7 +14,11 @@ import { useScrollEdges } from '@/hooks';
 
 const noop = () => undefined;
 
-export default function GettingStarted() {
+interface GettingStartedProps {
+  compact?: boolean;
+}
+
+export default function GettingStarted({ compact }: GettingStartedProps) {
   const { containerRef, hasScrollAbove, hasScrollBelow, scrollEdgeStyle } =
     useScrollEdges<HTMLDivElement>();
 
@@ -30,7 +34,9 @@ export default function GettingStarted() {
         ref={containerRef}
         sx={(theme) => theme.mixins.dialogScrollEdgeScroller}
       >
-        <DialogSectionHeader>Getting Started</DialogSectionHeader>
+        {compact ? null : (
+          <DialogSectionHeader>Getting Started</DialogSectionHeader>
+        )}
         <Box
           sx={{
             '& .MuiButton-root': {
