@@ -352,6 +352,77 @@ export const mvc2StageDesertOrangeSkyModelHints = {
   }
 } as const;
 
+const factoryMetalKeywords = ['steel', 'metal'] as const;
+
+export const mvc2StageFactoryModelHints = {
+  0: {
+    name: 'Catwalk and ships being repaired'
+  },
+  1: {
+    name: 'Rotating dockside crane octagon base',
+    keywords: factoryMetalKeywords
+  },
+  3: {
+    name: 'Rotating dockside crane arm',
+    keywords: factoryMetalKeywords
+  },
+  4: {
+    name: 'Rotating dockside crane pulley',
+    keywords: factoryMetalKeywords
+  },
+  5: {
+    name: 'Yellow submarine'
+  },
+  8: {
+    name: 'Rotating pulley gear',
+    keywords: factoryMetalKeywords
+  },
+  16: {
+    name: 'Gear',
+    description: 'Metallic large gear with gears within it',
+    keywords: factoryMetalKeywords
+  },
+  19: {
+    name: 'Large cog',
+    keywords: factoryMetalKeywords
+  },
+  20: {
+    name: 'Platform lift',
+    keywords: factoryMetalKeywords
+  },
+  25: {
+    name: 'Pulley cable'
+  },
+  ...Object.fromEntries(
+    [27, 28, 29, 30, 31, 32, 33, 34].map((i) => [
+      i,
+      {
+        name: `Steam coming up Fr${i - 26}`
+      }
+    ])
+  ),
+  35: {
+    name: 'Rat'
+  },
+  ...Object.fromEntries(
+    [36, 37, 38].map((i) => [
+      i,
+      {
+        name: `Rat tail Fr${i - 35}`
+      }
+    ])
+  ),
+  41: {
+    name: 'Warning light flash'
+  },
+  42: {
+    name: 'Rotating warning beacon light'
+  },
+  44: {
+    name: 'Wooden crate'
+  }
+} as const;
+
 const caveWaterEntry = {
   name: 'Cave water surface',
   description: 'Surface of the water inside the cave'

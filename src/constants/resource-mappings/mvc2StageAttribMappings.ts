@@ -5,7 +5,8 @@ import {
   mvc2StageCaveLavaModelHints,
   mvc2StageCaveWaterModelHints,
   mvc2StageDesertBlueSkyModelHints,
-  mvc2StageDesertOrangeSkyModelHints
+  mvc2StageDesertOrangeSkyModelHints,
+  mvc2StageFactoryModelHints
 } from './mvc2StageModelHints';
 
 const mvc2StageAttribBase = {
@@ -38,7 +39,8 @@ const mvc2StageAttribMappings = {
     ...mvc2StageAttribBase,
     name: 'Factory Stage',
     identifier: '0x02',
-    filenamePattern: '^STG02(.mn)?POL.BIN$'
+    filenamePattern: '^STG02(.mn)?POL.BIN$',
+    modelHints: mvc2StageFactoryModelHints
   },
 
   'mvc2-stg-03': {
