@@ -43,6 +43,30 @@ const cvs2StageAttribMappings = {
     identifier: '0x05',
     filenamePattern: '^STG05(.mn)?POL.BIN$'
   },
+  '17380856c05cbaae18b69b629012357dbb4bf4fb': {
+    ...cvs2StageAttribBase,
+    name: 'New York Rooftop',
+    identifier: '0x06',
+    filenamePattern: '^STG06(.mn)?POL.BIN$'
+  },
+  '43f791dd22390ae2f60650eff4630257abf3c276': {
+    ...cvs2StageAttribBase,
+    name: 'Osaka Stadium',
+    identifier: '0x07',
+    filenamePattern: '^STG07(.mn)?POL.BIN$'
+  },
+  e873552f67383119140971060c779759709898ac: {
+    ...cvs2StageAttribBase,
+    name: 'Osaka Tower Rooftop',
+    identifier: '0x08',
+    filenamePattern: '^STG08(.mn)?POL.BIN$'
+  },
+  '196944e76c46820ceb0ae02669389d670fc70019': {
+    ...cvs2StageAttribBase,
+    name: 'Osaka in Flames',
+    identifier: '0x09',
+    filenamePattern: '^STG09(.mn)?POL.BIN$'
+  },
   '1997a444821098aa2e7d15b57697c91c89f9ca69': {
     ...cvs2StageAttribBase,
     name: 'Training Stage',

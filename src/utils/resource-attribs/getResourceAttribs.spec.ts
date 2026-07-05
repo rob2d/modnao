@@ -161,6 +161,47 @@ describe('getResourceAttribs', () => {
     });
   });
 
+  it.each([
+    [
+      '17380856c05cbaae18b69b629012357dbb4bf4fb',
+      'STG06POL.BIN',
+      'New York Rooftop',
+      '0x06'
+    ],
+    [
+      '43f791dd22390ae2f60650eff4630257abf3c276',
+      'STG07POL.BIN',
+      'Osaka Stadium',
+      '0x07'
+    ],
+    [
+      'e873552f67383119140971060c779759709898ac',
+      'STG08POL.BIN',
+      'Osaka Tower Rooftop',
+      '0x08'
+    ],
+    [
+      '196944e76c46820ceb0ae02669389d670fc70019',
+      'STG09POL.BIN',
+      'Osaka in Flames',
+      '0x09'
+    ]
+  ])(
+    'resolves %s as a CVS2 stage polygon resource',
+    (hash, fileName, name, identifier) => {
+      const resourceAttribs = getResourceAttribs(hash, fileName);
+
+      expect(resourceAttribs).toMatchObject({
+        game: 'CVS2',
+        name,
+        identifier,
+        resourceType: 'cvs2-stage',
+        polygonMapped: true,
+        hasLzssTextureFile: true
+      });
+    }
+  );
+
   it('annotates MVC2 portrait files with the character hex slot and name', () => {
     const resourceAttribs = getResourceAttribs('unknown', 'PL0D_FAC.BIN');
 
