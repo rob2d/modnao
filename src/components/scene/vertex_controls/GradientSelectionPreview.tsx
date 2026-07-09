@@ -1,7 +1,7 @@
-import type { PointerEvent, RefObject } from 'react';
+import type { PointerEvent } from 'react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import type { Signal } from '@preact/signals-react';
-import { effect as signalEffect } from '@preact/signals-react';
+import type { Signal } from '@preact-signals/safe-react';
+import { effect as signalEffect } from '@preact-signals/safe-react';
 import { type ColorResult, SketchPicker } from 'react-color';
 import { Box, Popover } from '@mui/material';
 
@@ -45,8 +45,8 @@ interface GradientPreviewGeometry {
 }
 
 interface GradientSelectionPreviewProps {
-  angleSignalRef: RefObject<Signal<number>>;
-  tiltSignalRef: RefObject<Signal<number>>;
+  $gradientAngle: Signal<number>;
+  $gradientTilt: Signal<number>;
   popoverAnchorEl: HTMLDivElement | null;
   onChangeAngles: (angle: number, tilt: number) => void;
 }
@@ -389,8 +389,8 @@ const GRADIENT_AXIS_LABEL_CONFIGS: readonly GradientAxisLabelConfig[] = [
 ];
 
 export default memo(function GradientSelectionPreview({
-  angleSignalRef,
-  tiltSignalRef,
+  $gradientAngle,
+  $gradientTilt,
   popoverAnchorEl,
   onChangeAngles
 }: GradientSelectionPreviewProps) {
@@ -573,8 +573,8 @@ export default memo(function GradientSelectionPreview({
   useEffect(() => {
     const dispose = signalEffect(() => {
       const geometry = createGradientPreviewGeometry(
-        angleSignalRef.current.value,
-        tiltSignalRef.current.value
+        $gradientAngle.value,
+        $gradientTilt.value
       );
       const previewElement = previewRef.current;
       const previewFillGradient = previewFillGradientRef.current;
@@ -672,7 +672,7 @@ export default memo(function GradientSelectionPreview({
     });
 
     return dispose;
-  }, [angleSignalRef, tiltSignalRef]);
+  }, [$gradientAngle, $gradientTilt]);
 
   return (
     <Box

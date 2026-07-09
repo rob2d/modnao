@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { signal } from '@preact/signals-react';
+import { useCallback } from 'react';
+import { batch, useSignal } from '@preact-signals/safe-react';
 import { Box, List } from '@mui/material';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import GradientSelectionPreview, {
@@ -16,43 +16,41 @@ interface GradientVertexColorControlsProps {
 export default function GradientVertexColorControls({
   popoverAnchorEl
 }: GradientVertexColorControlsProps) {
-  const [gradientAngle, setGradientAngle] = useState(DEFAULT_GRADIENT_ANGLE);
-  const [gradientTilt, setGradientTilt] = useState(DEFAULT_GRADIENT_TILT);
-  const gradientAngleSignalRef = useRef(signal(DEFAULT_GRADIENT_ANGLE));
-  const gradientTiltSignalRef = useRef(signal(DEFAULT_GRADIENT_TILT));
+  const $gradientAngle = useSignal(DEFAULT_GRADIENT_ANGLE);
+  const $gradientTilt = useSignal(DEFAULT_GRADIENT_TILT);
 
   const onSetGradientAngles = useCallback(
     (nextAngle: number, nextTilt: number) => {
       const clampedAngle = clamp(nextAngle, 0, GRADIENT_MAX_ANGLE);
       const clampedTilt = clamp(nextTilt, -90, 90);
 
-      gradientAngleSignalRef.current.value = clampedAngle;
-      gradientTiltSignalRef.current.value = clampedTilt;
-      setGradientAngle(clampedAngle);
-      setGradientTilt(clampedTilt);
+      batch(() => {
+        $gradientAngle.value = clampedAngle;
+        $gradientTilt.value = clampedTilt;
+      });
     },
-    []
+    [$gradientAngle, $gradientTilt]
   );
 
   const onSetGradientAngle = useCallback(
     (nextAngle: number) => {
-      onSetGradientAngles(nextAngle, gradientTiltSignalRef.current.value);
+      onSetGradientAngles(nextAngle, $gradientTilt.value);
     },
-    [onSetGradientAngles]
+    [$gradientTilt, onSetGradientAngles]
   );
 
   const onSetGradientTilt = useCallback(
     (nextTilt: number) => {
-      onSetGradientAngles(gradientAngleSignalRef.current.value, nextTilt);
+      onSetGradientAngles($gradientAngle.value, nextTilt);
     },
-    [onSetGradientAngles]
+    [$gradientAngle, onSetGradientAngles]
   );
 
   return (
     <Box sx={{ display: 'grid', gap: 1.25 }}>
       <GradientSelectionPreview
-        angleSignalRef={gradientAngleSignalRef}
-        tiltSignalRef={gradientTiltSignalRef}
+        $gradientAngle={$gradientAngle}
+        $gradientTilt={$gradientTilt}
         popoverAnchorEl={popoverAnchorEl}
         onChangeAngles={onSetGradientAngles}
       />
@@ -63,7 +61,7 @@ export default function GradientVertexColorControls({
           defaultValue={DEFAULT_GRADIENT_ANGLE}
           min={0}
           max={GRADIENT_MAX_ANGLE}
-          value={gradientAngle}
+          value={$gradientAngle.value}
           onChange={onSetGradientAngle}
         />
         <NumericSliderInput
@@ -72,7 +70,7 @@ export default function GradientVertexColorControls({
           defaultValue={DEFAULT_GRADIENT_TILT}
           min={-90}
           max={90}
-          value={gradientTilt}
+          value={$gradientTilt.value}
           onChange={onSetGradientTilt}
         />
       </List>
