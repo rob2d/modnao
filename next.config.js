@@ -3,6 +3,16 @@ const path = require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
+  experimental: {
+    swcPlugins: [
+      [
+        '@preact-signals/safe-react/swc',
+        {
+          mode: 'auto'
+        }
+      ]
+    ]
+  },
   async headers() {
     return [
       {

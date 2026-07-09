@@ -7,7 +7,7 @@ import {
   useRef,
   useState
 } from 'react';
-import { signal, effect as signalEffect } from '@preact/signals-react';
+import { signal, effect as signalEffect } from '@preact-signals/safe-react';
 import { Canvas } from '@react-three/fiber';
 import {
   selectAllDisplayedMeshes,
