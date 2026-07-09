@@ -58,8 +58,18 @@ interface PendingGradientHandleDrag {
   pointerId: number;
   startClientX: number;
   startClientY: number;
+  startAngle: number;
+  startTilt: number;
   startedAt: number;
   hasDragged: boolean;
+}
+
+interface PendingGradientPreviewDrag {
+  pointerId: number;
+  startClientX: number;
+  startClientY: number;
+  startAngle: number;
+  startTilt: number;
 }
 
 interface GradientColorHandleConfig {
@@ -403,6 +413,8 @@ export default memo(function GradientSelectionPreview({
   const pendingGradientHandleDragRef = useRef<PendingGradientHandleDrag | null>(
     null
   );
+  const pendingGradientPreviewDragRef =
+    useRef<PendingGradientPreviewDrag | null>(null);
   const [gradientStartColor, setGradientStartColor] = useState(
     GRADIENT_MOCK_START_COLOR
   );
@@ -421,8 +433,12 @@ export default memo(function GradientSelectionPreview({
     activeGradientColorHandle === 'start'
       ? gradientStartColor
       : gradientEndColor;
-  const onUpdatePreviewFromPointer = useCallback(
-    (clientX: number, clientY: number) => {
+  const onUpdatePreviewFromDrag = useCallback(
+    (
+      pendingGradientDrag: PendingGradientPreviewDrag,
+      clientX: number,
+      clientY: number
+    ) => {
       const previewElement = previewRef.current;
 
       if (!previewElement) {
@@ -431,10 +447,13 @@ export default memo(function GradientSelectionPreview({
 
       const bounds = previewElement.getBoundingClientRect();
       const nextAngle = Math.round(
-        ((clientX - bounds.left) / bounds.width) * GRADIENT_MAX_ANGLE
+        pendingGradientDrag.startAngle +
+          ((pendingGradientDrag.startClientX - clientX) / bounds.width) *
+            GRADIENT_MAX_ANGLE
       );
       const nextTilt = Math.round(
-        ((clientY - bounds.top) / bounds.height) * 180 - 90
+        pendingGradientDrag.startTilt +
+          ((clientY - pendingGradientDrag.startClientY) / bounds.height) * 180
       );
 
       onChangeAngles(
@@ -448,20 +467,59 @@ export default memo(function GradientSelectionPreview({
   const onStartPreviewDrag = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
       event.currentTarget.setPointerCapture(event.pointerId);
-      onUpdatePreviewFromPointer(event.clientX, event.clientY);
+
+      pendingGradientPreviewDragRef.current = {
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        startAngle: $gradientAngle.value,
+        startTilt: $gradientTilt.value
+      };
     },
-    [onUpdatePreviewFromPointer]
+    [$gradientAngle.value, $gradientTilt.value]
   );
 
   const onDragPreview = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
-      if (event.buttons !== 1) {
+      const pendingGradientPreviewDrag = pendingGradientPreviewDragRef.current;
+
+      if (
+        !pendingGradientPreviewDrag ||
+        pendingGradientPreviewDrag.pointerId !== event.pointerId ||
+        event.buttons !== 1
+      ) {
         return;
       }
 
-      onUpdatePreviewFromPointer(event.clientX, event.clientY);
+      onUpdatePreviewFromDrag(
+        pendingGradientPreviewDrag,
+        event.clientX,
+        event.clientY
+      );
     },
-    [onUpdatePreviewFromPointer]
+    [onUpdatePreviewFromDrag]
+  );
+
+  const onEndPreviewDrag = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      const pendingGradientPreviewDrag = pendingGradientPreviewDragRef.current;
+
+      if (pendingGradientPreviewDrag?.pointerId === event.pointerId) {
+        pendingGradientPreviewDragRef.current = null;
+      }
+    },
+    []
+  );
+
+  const onCancelPreviewDrag = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      const pendingGradientPreviewDrag = pendingGradientPreviewDragRef.current;
+
+      if (pendingGradientPreviewDrag?.pointerId === event.pointerId) {
+        pendingGradientPreviewDragRef.current = null;
+      }
+    },
+    []
   );
 
   const onCloseGradientColorPopover = useCallback(() => {
@@ -481,11 +539,13 @@ export default memo(function GradientSelectionPreview({
           pointerId: event.pointerId,
           startClientX: event.clientX,
           startClientY: event.clientY,
+          startAngle: $gradientAngle.value,
+          startTilt: $gradientTilt.value,
           startedAt: performance.now(),
           hasDragged: false
         };
       },
-    [onCloseGradientColorPopover]
+    [$gradientAngle.value, $gradientTilt.value, onCloseGradientColorPopover]
   );
 
   const onDragGradientHandlePointer = useCallback(
@@ -519,9 +579,13 @@ export default memo(function GradientSelectionPreview({
 
       pendingGradientHandleDrag.hasDragged = true;
       onCloseGradientColorPopover();
-      onUpdatePreviewFromPointer(event.clientX, event.clientY);
+      onUpdatePreviewFromDrag(
+        pendingGradientHandleDrag,
+        event.clientX,
+        event.clientY
+      );
     },
-    [onCloseGradientColorPopover, onUpdatePreviewFromPointer]
+    [onCloseGradientColorPopover, onUpdatePreviewFromDrag]
   );
 
   const onEndGradientHandlePointer = useCallback(
@@ -681,6 +745,8 @@ export default memo(function GradientSelectionPreview({
       aria-label='Gradient direction preview'
       onPointerDown={onStartPreviewDrag}
       onPointerMove={onDragPreview}
+      onPointerUp={onEndPreviewDrag}
+      onPointerCancel={onCancelPreviewDrag}
       ref={previewRef}
       sx={{
         position: 'relative',
