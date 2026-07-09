@@ -18,7 +18,7 @@ import type {
 } from '@/modules/model-data';
 import type { HslValues } from '@/utils/textures';
 
-type VertexColorEditMode = 'editHsl' | 'pickColor';
+type VertexColorEditMode = 'editHsl' | 'pickColor' | 'gradientSelection';
 
 const DEFAULT_HSL = {
   h: 0,
@@ -90,7 +90,7 @@ export default function VertexControlPanel({
         position: 'absolute',
         top: 'calc(var(--mui-spacing) * 6)',
         right: 'var(--mui-spacing)',
-        width: 240,
+        width: 320,
         zIndex: 2,
         pointerEvents: 'all',
         backgroundColor: 'var(--mui-palette-sceneControl-background)',
@@ -124,9 +124,10 @@ export default function VertexControlPanel({
             >
               <ToggleButton value='editHsl'>Edit HSL</ToggleButton>
               <ToggleButton value='pickColor'>Pick Color</ToggleButton>
+              <ToggleButton value='gradientSelection'>Gradient</ToggleButton>
             </ToggleButtonGroup>
             <Box sx={{ mt: 1 }}>
-              {colorEditMode === 'editHsl' ? (
+              {colorEditMode !== 'editHsl' ? null : (
                 <List sx={{ p: 0 }}>
                   <NumericSliderInput
                     labelTooltip='Hue'
@@ -156,13 +157,15 @@ export default function VertexControlPanel({
                     onChange={onSetL}
                   />
                 </List>
-              ) : (
+              )}
+              {colorEditMode !== 'pickColor' ? null : (
                 <SketchPicker
                   color={selectedColor}
                   onChange={({ hex }) => setSelectedColor(hex)}
                   onChangeComplete={({ hex }) => onPickColor(hex)}
                 />
               )}
+              {colorEditMode !== 'gradientSelection' ? null : null}
             </Box>
           </>
         )}
