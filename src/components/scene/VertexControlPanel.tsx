@@ -10,11 +10,15 @@ import {
   Typography
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
-import type {
-  ApplySelectedVertexGradientPayload,
-  ApplySelectedVertexHslPayload,
-  VertexColorUpdate
+import {
+  applySelectedVertexColor,
+  applySelectedVertexGradient,
+  type ApplySelectedVertexGradientPayload,
+  applySelectedVertexHsl,
+  type ApplySelectedVertexHslPayload,
+  type VertexColorUpdate
 } from '@/modules/model-data';
+import { useAppDispatch } from '@/storeTypings';
 import type { HslValues } from '@/utils/textures';
 import {
   GradientVertexColorControls,
@@ -33,18 +37,13 @@ const DEFAULT_HSL = {
 interface VertexControlPanelProps {
   selectedVertexColors: VertexColorUpdate[];
   selectedVertexCount: number;
-  onAdjustHsl: (payload: ApplySelectedVertexHslPayload) => void;
-  onApplyGradient: (payload: ApplySelectedVertexGradientPayload) => void;
-  onPickColor: (hexColor: string) => void;
 }
 
 export default function VertexControlPanel({
   selectedVertexColors,
-  selectedVertexCount,
-  onAdjustHsl,
-  onApplyGradient,
-  onPickColor
+  selectedVertexCount
 }: VertexControlPanelProps) {
+  const dispatch = useAppDispatch();
   const [colorEditMode, setColorEditMode] =
     useState<VertexColorEditMode>('editHsl');
   const [hsl, setHsl] = useState<HslValues>(DEFAULT_HSL);
@@ -63,6 +62,27 @@ export default function VertexControlPanel({
     : hasNonEditableSelectedVertices
       ? 'Some vertices selected do not have editable colors'
       : undefined;
+
+  const onPickColor = useCallback(
+    (hexColor: string) => {
+      dispatch(applySelectedVertexColor({ hexColor }));
+    },
+    [dispatch]
+  );
+
+  const onAdjustHsl = useCallback(
+    (payload: ApplySelectedVertexHslPayload) => {
+      dispatch(applySelectedVertexHsl(payload));
+    },
+    [dispatch]
+  );
+
+  const onApplyGradient = useCallback(
+    (payload: ApplySelectedVertexGradientPayload) => {
+      dispatch(applySelectedVertexGradient(payload));
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     selectedVertexColorsRef.current = selectedVertexColors;

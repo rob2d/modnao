@@ -47,14 +47,7 @@ import SceneLassoSelection, {
 import SceneCameraControls from './scene/SceneCameraControls';
 import SceneVertexModeControls from './scene/SceneVertexModeControls';
 import VertexControlPanel from './scene/VertexControlPanel';
-import {
-  applySelectedVertexColor,
-  applySelectedVertexGradient,
-  type ApplySelectedVertexGradientPayload,
-  applySelectedVertexHsl,
-  type ApplySelectedVertexHslPayload,
-  type VertexColorUpdate
-} from '@/modules/model-data';
+import { type VertexColorUpdate } from '@/modules/model-data';
 import { useVertexInteractionMode } from '@/modules/object-viewer';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
@@ -93,6 +86,7 @@ export default function SceneView() {
   const vertexModeEnabled = meshSelectionType === 'vertex';
   const { vertexInteractionMode, setVertexInteractionMode } =
     useVertexInteractionMode(vertexModeEnabled);
+
   const onSelectObjectKey = useCallback(
     (
       key: string,
@@ -121,27 +115,6 @@ export default function SceneView() {
   const onResetCameraPosition = useCallback(() => {
     setResetCameraPositionRevision((revision) => revision + 1);
   }, []);
-
-  const onPickVertexColor = useCallback(
-    (hexColor: string) => {
-      dispatch(applySelectedVertexColor({ hexColor }));
-    },
-    [dispatch]
-  );
-
-  const onAdjustSelectedVertexHsl = useCallback(
-    (payload: ApplySelectedVertexHslPayload) => {
-      dispatch(applySelectedVertexHsl(payload));
-    },
-    [dispatch]
-  );
-
-  const onApplySelectedVertexGradient = useCallback(
-    (payload: ApplySelectedVertexGradientPayload) => {
-      dispatch(applySelectedVertexGradient(payload));
-    },
-    [dispatch]
-  );
 
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const textureCacheMap = useSceneTextureMapCache(textureDefs);
@@ -496,9 +469,6 @@ export default function SceneView() {
           key={selectedVertexSelectionKey}
           selectedVertexColors={selectedVertexColors}
           selectedVertexCount={selectedVertexCount}
-          onAdjustHsl={onAdjustSelectedVertexHsl}
-          onApplyGradient={onApplySelectedVertexGradient}
-          onPickColor={onPickVertexColor}
         />
       )}
     </>

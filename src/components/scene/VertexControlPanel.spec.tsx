@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import VertexControlPanel from './VertexControlPanel';
 import type { VertexColorUpdate } from '@/modules/model-data';
+import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 
 const vertexColorUpdate: VertexColorUpdate = {
   contentAddress: 1,
@@ -9,14 +10,8 @@ const vertexColorUpdate: VertexColorUpdate = {
 
 describe('VertexControlPanel', () => {
   it('shows an empty state when selected vertices are not editable', () => {
-    render(
-      <VertexControlPanel
-        selectedVertexColors={[]}
-        selectedVertexCount={1}
-        onAdjustHsl={jest.fn()}
-        onApplyGradient={jest.fn()}
-        onPickColor={jest.fn()}
-      />
+    renderTestWithProviders(
+      <VertexControlPanel selectedVertexColors={[]} selectedVertexCount={1} />
     );
 
     expect(
@@ -28,13 +23,10 @@ describe('VertexControlPanel', () => {
   });
 
   it('shows a partial-editability notice when some selected vertices are editable', () => {
-    render(
+    renderTestWithProviders(
       <VertexControlPanel
         selectedVertexColors={[vertexColorUpdate]}
         selectedVertexCount={2}
-        onAdjustHsl={jest.fn()}
-        onApplyGradient={jest.fn()}
-        onPickColor={jest.fn()}
       />
     );
 
