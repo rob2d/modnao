@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import type { ContentViewMode, NLUITextureDef } from '@/types';
 import { AppState } from './storeTypings';
+import type { SelectedVertexGradientInputs } from './modules/model-data/modelDataTypes';
 
 export const selectModelIndex = (s: AppState) => s.objectViewer.modelIndex;
 export const selectTextureIndex = (s: AppState) => s.objectViewer.textureIndex;
@@ -157,6 +158,107 @@ export const selectModel = createSelector(
   selectModels,
   (modelIndex, models) => models?.[modelIndex]
 );
+
+const EMPTY_SELECTED_VERTEX_GRADIENT_INPUTS: SelectedVertexGradientInputs = {
+  selectedVertices: [],
+  bounds: undefined
+};
+
+const createSelectedVertexGradientInputsSelector = () => {
+  let cachedSelectionKey = '';
+  let cachedInputs = EMPTY_SELECTED_VERTEX_GRADIENT_INPUTS;
+
+  return createSelector(
+    selectSelectedObjectIds,
+    selectModel,
+    selectModelIndex,
+    selectPolygonBufferKey,
+    (selectedIds, model, modelIndex, polygonBufferKey) => {
+      const selectedVertexKeys = Object.keys(selectedIds)
+        .filter((objectKey) => selectedIds[objectKey])
+        .sort();
+      const selectionKey = `${polygonBufferKey ?? ''}|${modelIndex}|${selectedVertexKeys.join('|')}`;
+
+      if (selectionKey === cachedSelectionKey) {
+        return cachedInputs;
+      }
+
+      if (!model || selectedVertexKeys.length === 0) {
+        cachedSelectionKey = selectionKey;
+        cachedInputs = EMPTY_SELECTED_VERTEX_GRADIENT_INPUTS;
+
+        return cachedInputs;
+      }
+
+      const selectedVertices = selectedVertexKeys.flatMap((objectKey) => {
+        const indexes = objectKey.split('_').map(Number);
+
+        if (indexes.length !== 3 || !indexes.every(Number.isInteger)) {
+          return [];
+        }
+
+        const [meshIndex, polygonIndex, vertexIndex] = indexes;
+        const mesh = model.meshes[meshIndex];
+
+        if (!mesh?.hasColoredVertices) {
+          return [];
+        }
+
+        const vertex = mesh.polygons[polygonIndex]?.vertices[vertexIndex];
+
+        if (!vertex?.colors) {
+          return [];
+        }
+
+        return [
+          {
+            contentAddress: vertex.contentAddress,
+            position: vertex.position,
+            alpha: vertex.colors[3]
+          }
+        ];
+      });
+
+      if (selectedVertices.length === 0) {
+        cachedSelectionKey = selectionKey;
+        cachedInputs = EMPTY_SELECTED_VERTEX_GRADIENT_INPUTS;
+
+        return cachedInputs;
+      }
+
+      const min: Point3D = [Infinity, Infinity, Infinity];
+      const max: Point3D = [-Infinity, -Infinity, -Infinity];
+
+      selectedVertices.forEach(({ position }) => {
+        position.forEach((coordinate, index) => {
+          min[index] = Math.min(min[index], coordinate);
+          max[index] = Math.max(max[index], coordinate);
+        });
+      });
+
+      cachedSelectionKey = selectionKey;
+      cachedInputs = {
+        selectedVertices,
+        bounds: {
+          min,
+          max,
+          center: min.map(
+            (coordinate, index) => coordinate + (max[index] - coordinate) / 2
+          ) as Point3D,
+          size: min.map(
+            (coordinate, index) => max[index] - coordinate
+          ) as Point3D,
+          vertexCount: selectedVertices.length
+        }
+      };
+
+      return cachedInputs;
+    }
+  );
+};
+
+export const selectSelectedVertexGradientInputs =
+  createSelectedVertexGradientInputsSelector();
 
 export type DisplayedMesh = NLMesh & { textureHash: string };
 

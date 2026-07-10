@@ -8,6 +8,7 @@ import {
 } from './modelDataTypes';
 import {
   applySelectedVertexColor,
+  applySelectedVertexGradient,
   applySelectedVertexHsl,
   downloadTextureFile,
   loadCharacterPortraitsFile,
@@ -220,6 +221,11 @@ const modelDataSlice = createSlice({
 
     builder.addCase(
       applySelectedVertexHsl.fulfilled,
+      applySelectedVertexColorFulfilled
+    );
+
+    builder.addCase(
+      applySelectedVertexGradient.fulfilled,
       applySelectedVertexColorFulfilled
     );
 

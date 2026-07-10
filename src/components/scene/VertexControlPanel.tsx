@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
 import type {
+  ApplySelectedVertexGradientPayload,
   ApplySelectedVertexHslPayload,
   VertexColorUpdate
 } from '@/modules/model-data';
@@ -33,6 +34,7 @@ interface VertexControlPanelProps {
   selectedVertexColors: VertexColorUpdate[];
   selectedVertexCount: number;
   onAdjustHsl: (payload: ApplySelectedVertexHslPayload) => void;
+  onApplyGradient: (payload: ApplySelectedVertexGradientPayload) => void;
   onPickColor: (hexColor: string) => void;
 }
 
@@ -40,6 +42,7 @@ export default function VertexControlPanel({
   selectedVertexColors,
   selectedVertexCount,
   onAdjustHsl,
+  onApplyGradient,
   onPickColor
 }: VertexControlPanelProps) {
   const [colorEditMode, setColorEditMode] =
@@ -112,7 +115,10 @@ export default function VertexControlPanel({
       />
     ),
     gradientSelection: () => (
-      <GradientVertexColorControls popoverAnchorEl={vertexControlPanelEl} />
+      <GradientVertexColorControls
+        popoverAnchorEl={vertexControlPanelEl}
+        onApplyGradient={onApplyGradient}
+      />
     )
   } satisfies Record<VertexColorEditMode, () => ReactNode>;
 

@@ -14,6 +14,7 @@ describe('VertexControlPanel', () => {
         selectedVertexColors={[]}
         selectedVertexCount={1}
         onAdjustHsl={jest.fn()}
+        onApplyGradient={jest.fn()}
         onPickColor={jest.fn()}
       />
     );
@@ -32,6 +33,7 @@ describe('VertexControlPanel', () => {
         selectedVertexColors={[vertexColorUpdate]}
         selectedVertexCount={2}
         onAdjustHsl={jest.fn()}
+        onApplyGradient={jest.fn()}
         onPickColor={jest.fn()}
       />
     );

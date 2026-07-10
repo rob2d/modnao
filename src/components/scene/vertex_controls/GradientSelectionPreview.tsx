@@ -47,8 +47,12 @@ interface GradientPreviewGeometry {
 interface GradientSelectionPreviewProps {
   $gradientAngle: Signal<number>;
   $gradientTilt: Signal<number>;
+  gradientStartColor: string;
+  gradientEndColor: string;
   popoverAnchorEl: HTMLDivElement | null;
   onChangeAngles: (angle: number, tilt: number) => void;
+  onChangeGradientStartColor: (hexColor: string) => void;
+  onChangeGradientEndColor: (hexColor: string) => void;
 }
 
 type GradientColorHandle = 'start' | 'end';
@@ -94,8 +98,8 @@ interface GradientAxisLabelConfig {
   };
 }
 
-const GRADIENT_MOCK_START_COLOR = '#ff4f7a';
-const GRADIENT_MOCK_END_COLOR = '#32d7ff';
+export const DEFAULT_GRADIENT_START_COLOR = '#ff4f7a';
+export const DEFAULT_GRADIENT_END_COLOR = '#32d7ff';
 export const DEFAULT_GRADIENT_ANGLE = 90;
 export const DEFAULT_GRADIENT_TILT = 0;
 export const GRADIENT_MAX_ANGLE = 180;
@@ -401,8 +405,12 @@ const GRADIENT_AXIS_LABEL_CONFIGS: readonly GradientAxisLabelConfig[] = [
 export default memo(function GradientSelectionPreview({
   $gradientAngle,
   $gradientTilt,
+  gradientStartColor,
+  gradientEndColor,
   popoverAnchorEl,
-  onChangeAngles
+  onChangeAngles,
+  onChangeGradientStartColor,
+  onChangeGradientEndColor
 }: GradientSelectionPreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const meshLineRefs = useRef<Array<SVGLineElement | null>>([]);
@@ -415,12 +423,6 @@ export default memo(function GradientSelectionPreview({
   );
   const pendingGradientPreviewDragRef =
     useRef<PendingGradientPreviewDrag | null>(null);
-  const [gradientStartColor, setGradientStartColor] = useState(
-    GRADIENT_MOCK_START_COLOR
-  );
-  const [gradientEndColor, setGradientEndColor] = useState(
-    GRADIENT_MOCK_END_COLOR
-  );
   const [isGradientColorPopoverOpen, setIsGradientColorPopoverOpen] =
     useState(false);
   const [activeGradientColorHandle, setActiveGradientColorHandle] =
@@ -622,16 +624,20 @@ export default memo(function GradientSelectionPreview({
   const onChangeGradientColor = useCallback(
     ({ hex }: ColorResult) => {
       if (activeGradientColorHandle === 'start') {
-        setGradientStartColor(hex);
+        onChangeGradientStartColor(hex);
 
         return;
       }
 
       if (activeGradientColorHandle === 'end') {
-        setGradientEndColor(hex);
+        onChangeGradientEndColor(hex);
       }
     },
-    [activeGradientColorHandle]
+    [
+      activeGradientColorHandle,
+      onChangeGradientEndColor,
+      onChangeGradientStartColor
+    ]
   );
 
   useEffect(() => {

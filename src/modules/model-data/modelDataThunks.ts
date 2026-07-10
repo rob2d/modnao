@@ -22,6 +22,7 @@ import {
 import { showError } from '@/modules/error-messages';
 import {
   selectHasCompressedTextures,
+  selectSelectedVertexGradientInputs,
   selectTextureFileType,
   selectUpdatedTextureDefs
 } from '@/selectors';
@@ -35,6 +36,7 @@ import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefR
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import {
   ApplySelectedVertexColorResult,
+  ApplySelectedVertexGradientPayload,
   ApplySelectedVertexHslPayload,
   LoadPolygonsPayload,
   LoadTexturesPayload,
@@ -104,6 +106,36 @@ const adjustNormalizedColorHsl = (
 
   return [r / 0xff, g / 0xff, b / 0xff, color[3]];
 };
+
+const getGradientDirection = (angle: number, tilt: number) => {
+  const angleRadians = (angle * Math.PI) / 180;
+  const tiltRadians = (tilt * Math.PI) / 180;
+  const tiltScale = Math.cos(tiltRadians);
+  const direction: Point3D = [
+    Math.cos(angleRadians) * tiltScale,
+    Math.sin(angleRadians) * tiltScale,
+    Math.sin(tiltRadians)
+  ];
+
+  return direction;
+};
+
+const getPositionProjection = (position: Point3D, direction: Point3D) =>
+  position[0] * direction[0] +
+  position[1] * direction[1] +
+  position[2] * direction[2];
+
+const interpolateNormalizedColor = (
+  startColor: NLColor,
+  endColor: NLColor,
+  amount: number,
+  alpha: number
+): NLColorRGBA => [
+  startColor[0] + (endColor[0] - startColor[0]) * amount,
+  startColor[1] + (endColor[1] - startColor[1]) * amount,
+  startColor[2] + (endColor[2] - startColor[2]) * amount,
+  alpha
+];
 
 const decompressLzssSection = (
   section: Buffer | Buffer<ArrayBuffer>,
@@ -342,6 +374,82 @@ export const applySelectedVertexHsl = createAppAsyncThunk(
     return {
       modelIndex,
       vertexColorUpdates
+    };
+  }
+);
+
+export const applySelectedVertexGradient = createAppAsyncThunk(
+  `${sliceName}/applySelectedVertexGradient`,
+  async (
+    {
+      startHexColor,
+      endHexColor,
+      angle,
+      tilt
+    }: ApplySelectedVertexGradientPayload,
+    { getState }
+  ): Promise<ApplySelectedVertexColorResult> => {
+    const state = getState();
+    const { modelIndex } = state.objectViewer;
+    const startColor = hexToNormalizedColor(startHexColor);
+    const endColor = hexToNormalizedColor(endHexColor);
+
+    if (!startColor || !endColor) {
+      return { modelIndex, vertexColorUpdates: [] };
+    }
+
+    const { selectedVertices } = selectSelectedVertexGradientInputs(state);
+
+    if (selectedVertices.length === 0) {
+      return { modelIndex, vertexColorUpdates: [] };
+    }
+
+    const direction = getGradientDirection(angle, tilt);
+    let minProjection = Infinity;
+    let maxProjection = -Infinity;
+
+    selectedVertices.forEach(({ position }) => {
+      const projection = getPositionProjection(position, direction);
+
+      minProjection = Math.min(minProjection, projection);
+      maxProjection = Math.max(maxProjection, projection);
+    });
+
+    const projectionRange = maxProjection - minProjection;
+    const vertexColorUpdatesByAddress = new Map<number, NLColorRGBA>();
+
+    selectedVertices.forEach(({ contentAddress, position, alpha }) => {
+      const projection = getPositionProjection(position, direction);
+      const amount =
+        projectionRange === 0
+          ? 0.5
+          : (projection - minProjection) / projectionRange;
+
+      vertexColorUpdatesByAddress.set(
+        contentAddress,
+        interpolateNormalizedColor(startColor, endColor, amount, alpha)
+      );
+    });
+
+    const { polygonBufferKey } = state.modelData;
+
+    if (polygonBufferKey) {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+
+      vertexColorUpdatesByAddress.forEach((vertexColor, contentAddress) => {
+        writeVertexColorToBuffer(polygonBuffer, contentAddress, vertexColor);
+      });
+    }
+
+    return {
+      modelIndex,
+      vertexColorUpdates: Array.from(
+        vertexColorUpdatesByAddress.entries(),
+        ([contentAddress, color]) => ({
+          contentAddress,
+          color
+        })
+      )
     };
   }
 );

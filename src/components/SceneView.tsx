@@ -49,6 +49,8 @@ import SceneVertexModeControls from './scene/SceneVertexModeControls';
 import VertexControlPanel from './scene/VertexControlPanel';
 import {
   applySelectedVertexColor,
+  applySelectedVertexGradient,
+  type ApplySelectedVertexGradientPayload,
   applySelectedVertexHsl,
   type ApplySelectedVertexHslPayload,
   type VertexColorUpdate
@@ -129,6 +131,13 @@ export default function SceneView() {
   const onAdjustSelectedVertexHsl = useCallback(
     (payload: ApplySelectedVertexHslPayload) => {
       dispatch(applySelectedVertexHsl(payload));
+    },
+    [dispatch]
+  );
+
+  const onApplySelectedVertexGradient = useCallback(
+    (payload: ApplySelectedVertexGradientPayload) => {
+      dispatch(applySelectedVertexGradient(payload));
     },
     [dispatch]
   );
@@ -483,6 +492,7 @@ export default function SceneView() {
           selectedVertexColors={selectedVertexColors}
           selectedVertexCount={selectedVertexCount}
           onAdjustHsl={onAdjustSelectedVertexHsl}
+          onApplyGradient={onApplySelectedVertexGradient}
           onPickColor={onPickVertexColor}
         />
       )}
