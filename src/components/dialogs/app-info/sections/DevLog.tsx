@@ -128,11 +128,7 @@ export default function DevLog({ compact }: DevLogProps) {
   return (
     <Box
       className='app-info-section dev-vlog scroll-body'
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 0
-      }}
+      sx={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}
     >
       {compact ? null : <DialogSectionHeader>Dev Updates</DialogSectionHeader>}
       <DialogSectionContentCards

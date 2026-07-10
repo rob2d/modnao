@@ -12,6 +12,28 @@ export interface XUpdatePart {
 
 export const xUpdates: XUpdate[] = [
   {
+    publishedAt: '2026-06-30',
+    parts: [
+      {
+        hasVideo: true,
+        textLines: [
+          '- multi-object selection/deselection via shift/alt+click',
+          '- selection-specific color region shifting',
+          '- improved texture menu ergonomics',
+          '- vertex color visualization view',
+          '- vertex selection mode',
+          '- vertex color editing',
+          '- selections maintained going from Mesh → Poly → Vertex modes',
+          '- mesh-level alpha and color rendered on-scene (not yet editable)',
+          '- searchable character annotation in MVC2 & CVS2',
+          '- more MVC2 stage annotations',
+          '[update thread spanning a few days with examples]'
+        ],
+        url: 'https://x.com/rob2d_u8/status/2072115722575138902'
+      }
+    ]
+  },
+  {
     publishedAt: '2026-06-20',
     parts: [
       {
@@ -20,7 +42,7 @@ export const xUpdates: XUpdate[] = [
           '- cam positions are now remembered per-model',
           '- model cam positions can be reset via a button'
         ],
-        url: 'https://x.com/rob2d_u8/status/2068155419902542132?ref_src=twsrc%5Etfw'
+        url: 'https://x.com/rob2d_u8/status/2068155419902542132'
       },
       {
         hasVideo: true,
@@ -61,7 +83,7 @@ export const xUpdates: XUpdate[] = [
           '- new camera speed option/feels better',
           '- better use of space in scene options'
         ],
-        url: 'https://x.com/rob2d_u8/status/2065597792953786845?ref_src=twsrc%5Etfw'
+        url: 'https://x.com/rob2d_u8/status/2065597792953786845w'
       },
       {
         hasVideo: true,
