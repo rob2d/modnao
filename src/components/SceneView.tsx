@@ -83,6 +83,7 @@ export default function SceneView() {
   const isScenePointerInsideRef = useRef(false);
   const sceneBoundsRef = useRef<DOMRect | undefined>(undefined);
   const sceneOptions = useContext(SceneOptionsContext);
+  const { enableCinematicMode, sceneCursorVisible } = sceneOptions;
 
   const dispatch = useAppDispatch();
   const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
@@ -142,7 +143,7 @@ export default function SceneView() {
   const canvasStyle = useMemo(() => {
     let cursor = 'default';
 
-    if (!sceneOptions.sceneCursorVisible) {
+    if (!sceneCursorVisible) {
       cursor = 'none';
     }
 
@@ -155,7 +156,7 @@ export default function SceneView() {
       background: theme.palette.scene.background,
       cursor
     };
-  }, [sceneOptions.sceneCursorVisible, theme.palette.scene.background]);
+  }, [sceneCursorVisible, theme.palette.scene.background]);
 
   useEffect(
     () =>
@@ -296,7 +297,7 @@ export default function SceneView() {
     [renderedModelEntries]
   );
   const axesHelperVisible =
-    sceneOptions.axesHelperVisible && !sceneOptions.enableCinematicMode;
+    sceneOptions.axesHelperVisible && !enableCinematicMode;
   const selectionEnabled =
     sceneOptions.meshDisplayMode !== 'wireframe' &&
     Object.keys(selectedObjectIds).length > 0 &&
@@ -355,8 +356,8 @@ export default function SceneView() {
   const onSceneCreated = useCallback(({ gl }: { gl: WebGLRenderer }) => {
     gl.outputColorSpace = SRGBColorSpace;
   }, []);
-  const resetCameraPositionButtonHidden =
-    sceneOptions.enableCinematicMode || !cameraPositionMoved;
+
+  const resetCamPosButtonHidden = enableCinematicMode || !cameraPositionMoved;
 
   return (
     <>
@@ -375,7 +376,7 @@ export default function SceneView() {
       </Box>
       <Tooltip
         title='Reset camera position'
-        disableInteractive={resetCameraPositionButtonHidden}
+        disableInteractive={resetCamPosButtonHidden}
         placement='left'
       >
         <IconButton
@@ -390,8 +391,8 @@ export default function SceneView() {
             mb: 1,
             zIndex: 1,
             transition: 'opacity 0.5s ease',
-            opacity: resetCameraPositionButtonHidden ? 0 : 1,
-            pointerEvents: resetCameraPositionButtonHidden ? 'none' : 'all',
+            opacity: resetCamPosButtonHidden ? 0 : 1,
+            pointerEvents: resetCamPosButtonHidden ? 'none' : 'all',
             '& svg': theme.mixins.sceneIconMixin
           })}
         >
@@ -429,12 +430,16 @@ export default function SceneView() {
             {renderedModels}
           </group>
           <SceneCameraControls
-            allowSceneZoom={vertexInteractionMode === 'select'}
+            allowSceneZoom={
+              vertexModeEnabled && vertexInteractionMode === 'select'
+            }
             mainBounds={model?.mainBounds}
             modelIndex={modelIndex}
             onCameraPositionMovedChange={setCameraPositionMoved}
             polygonBufferKey={polygonBufferKey}
-            controlSceneCamera={vertexInteractionMode === 'camera'}
+            controlSceneCamera={
+              !vertexModeEnabled || vertexInteractionMode === 'camera'
+            }
             resetCameraPositionRevision={resetCameraPositionRevision}
           />
           <SceneLassoSelection
