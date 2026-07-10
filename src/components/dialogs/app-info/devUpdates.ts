@@ -27,7 +27,7 @@ export const xUpdates: XUpdate[] = [
           '- mesh-level alpha and color rendered on-scene (not yet editable)',
           '- searchable character annotation in MVC2 & CVS2',
           '- more MVC2 stage annotations',
-          '[update thread spanning a few days with examples]'
+          '[update thread spans a few days with demos and examples]'
         ],
         url: 'https://x.com/rob2d_u8/status/2072115722575138902'
       }
@@ -93,6 +93,20 @@ export const xUpdates: XUpdate[] = [
     ]
   },
   {
+    publishedAt: '2026-06-07',
+    parts: [
+      {
+        hasVideo: true,
+        textLines: [
+          '- model annotations can now be hidden',
+          '- added a "cinematic mode" which hides all scene GUI elements & the 3D axes helper',
+          '→ can be turned on w a button, or off by hovering over the window edge to restore a panel. Ctrl + \ toggles it.'
+        ],
+        url: 'https://x.com/rob2d_u8/status/2063721399735234777'
+      }
+    ]
+  },
+  {
     publishedAt: '2026-06-02',
     parts: [
       {
@@ -149,6 +163,30 @@ export const xUpdates: XUpdate[] = [
         hasVideo: true,
         textLines: ['- MVC2 special effects supported! (EFKYTEX.BIN)'],
         url: 'https://x.com/rob2d_u8/status/2058077260704325737'
+      }
+    ]
+  },
+  {
+    publishedAt: '2026-01-04',
+    parts: [
+      {
+        hasVideo: true,
+        textLines: [
+          '- small visual fixes',
+          '- updated several dependencies',
+          '[+ demo of experimental vertex shader and color preview mode]'
+        ],
+        url: 'https://x.com/rob2d_u8/status/1875739689216520366'
+      }
+    ]
+  },
+  {
+    publishedAt: '2024-11-30',
+    parts: [
+      {
+        hasVideo: true,
+        textLines: ['- expandable and collapsible panels'],
+        url: 'https://x.com/rob2d_u8/status/1863046218542149963'
       }
     ]
   }
