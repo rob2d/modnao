@@ -125,28 +125,6 @@ const getPositionProjection = (position: Point3D, direction: Point3D) =>
   position[1] * direction[1] +
   position[2] * direction[2];
 
-const interpolateNormalizedColor = (
-  startColor: NLColor,
-  endColor: NLColor,
-  amount: number,
-  alpha: number
-): NLColorRGBA => [
-  startColor[0] + (endColor[0] - startColor[0]) * amount,
-  startColor[1] + (endColor[1] - startColor[1]) * amount,
-  startColor[2] + (endColor[2] - startColor[2]) * amount,
-  alpha
-];
-
-const getPivotedGradientAmount = (amount: number, pivotPoint: number) => {
-  if (amount <= pivotPoint) {
-    return pivotPoint === 0 ? 0.5 : (amount / pivotPoint) * 0.5;
-  }
-
-  return pivotPoint === 1
-    ? 0.5
-    : 0.5 + ((amount - pivotPoint) / (1 - pivotPoint)) * 0.5;
-};
-
 const decompressLzssSection = (
   section: Buffer | Buffer<ArrayBuffer>,
   startPointer: number,
@@ -392,8 +370,8 @@ export const applySelectedVertexGradient = createAppAsyncThunk(
   `${sliceName}/applySelectedVertexGradient`,
   async (
     {
-      startHexColor,
-      endHexColor,
+      startColor,
+      endColor,
       angle,
       tilt,
       pivotPoint
@@ -402,12 +380,6 @@ export const applySelectedVertexGradient = createAppAsyncThunk(
   ): Promise<ApplySelectedVertexColorResult> => {
     const state = getState();
     const { modelIndex } = state.objectViewer;
-    const startColor = hexToNormalizedColor(startHexColor);
-    const endColor = hexToNormalizedColor(endHexColor);
-
-    if (!startColor || !endColor) {
-      return { modelIndex, vertexColorUpdates: [] };
-    }
 
     const { selectedVertices } = selectSelectedVertexGradientInputs(state);
 
@@ -435,12 +407,21 @@ export const applySelectedVertexGradient = createAppAsyncThunk(
         projectionRange === 0
           ? 0.5
           : (projection - minProjection) / projectionRange;
-      const pivotedAmount = getPivotedGradientAmount(amount, pivotPoint);
+      const pivotedAmount =
+        amount <= pivotPoint
+          ? pivotPoint === 0
+            ? 0.5
+            : (amount / pivotPoint) * 0.5
+          : pivotPoint === 1
+            ? 0.5
+            : 0.5 + ((amount - pivotPoint) / (1 - pivotPoint)) * 0.5;
 
-      vertexColorUpdatesByAddress.set(
-        contentAddress,
-        interpolateNormalizedColor(startColor, endColor, pivotedAmount, alpha)
-      );
+      vertexColorUpdatesByAddress.set(contentAddress, [
+        startColor[0] + (endColor[0] - startColor[0]) * pivotedAmount,
+        startColor[1] + (endColor[1] - startColor[1]) * pivotedAmount,
+        startColor[2] + (endColor[2] - startColor[2]) * pivotedAmount,
+        alpha
+      ]);
     });
 
     const { polygonBufferKey } = state.modelData;

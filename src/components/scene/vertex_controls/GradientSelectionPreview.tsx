@@ -2,7 +2,7 @@ import type { PointerEvent } from 'react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import type { Signal } from '@preact-signals/safe-react';
 import { effect as signalEffect } from '@preact-signals/safe-react';
-import { type ColorResult, SketchPicker } from 'react-color';
+import { type ColorResult, type RGBColor, SketchPicker } from 'react-color';
 import { Box, Popover } from '@mui/material';
 
 interface GradientMeshPoint {
@@ -48,8 +48,8 @@ interface GradientSelectionPreviewProps {
   $gradientAngle: Signal<number>;
   $gradientTilt: Signal<number>;
   $gradientPivotPoint: Signal<number>;
-  $gradientStartColor: Signal<string>;
-  $gradientEndColor: Signal<string>;
+  $gradientStartColor: Signal<RGBColor>;
+  $gradientEndColor: Signal<RGBColor>;
   popoverAnchorEl: HTMLDivElement | null;
   onChangeAngles: (angle: number, tilt: number) => void;
 }
@@ -97,8 +97,16 @@ interface GradientAxisLabelConfig {
   };
 }
 
-export const DEFAULT_GRADIENT_START_COLOR = '#ff4f7a';
-export const DEFAULT_GRADIENT_END_COLOR = '#32d7ff';
+export const DEFAULT_GRADIENT_START_COLOR: RGBColor = {
+  r: 0xff,
+  g: 0x4f,
+  b: 0x7a
+};
+export const DEFAULT_GRADIENT_END_COLOR: RGBColor = {
+  r: 0x32,
+  g: 0xd7,
+  b: 0xff
+};
 export const DEFAULT_GRADIENT_ANGLE = 90;
 export const DEFAULT_GRADIENT_TILT = 0;
 export const DEFAULT_GRADIENT_PIVOT_POINT = 0.5;
@@ -139,29 +147,7 @@ export const clamp = (value: number, min: number, max: number) =>
 
 const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
 
-const getGradientMiddleColor = (startHexColor: string, endHexColor: string) => {
-  const startColorMatch = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(
-    startHexColor
-  );
-  const endColorMatch = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(
-    endHexColor
-  );
-
-  if (!startColorMatch || !endColorMatch) {
-    return startHexColor;
-  }
-
-  const channels = [1, 2, 3].map((matchIndex) => {
-    const startChannel = Number.parseInt(startColorMatch[matchIndex], 16);
-    const endChannel = Number.parseInt(endColorMatch[matchIndex], 16);
-
-    return Math.round((startChannel + endChannel) / 2)
-      .toString(16)
-      .padStart(2, '0');
-  });
-
-  return `#${channels.join('')}`;
-};
+const rgbColorToCss = ({ r, g, b }: RGBColor) => `rgb(${r} ${g} ${b})`;
 
 const projectGradientMeshPoint = (
   point: GradientMeshPoint,
@@ -452,18 +438,22 @@ export default memo(function GradientSelectionPreview({
     useState<GradientColorHandle | null>(null);
   const gradientStartColor = $gradientStartColor.value;
   const gradientEndColor = $gradientEndColor.value;
+  const gradientStartCssColor = rgbColorToCss(gradientStartColor);
+  const gradientEndCssColor = rgbColorToCss(gradientEndColor);
+  const gradientMiddleCssColor = rgbColorToCss({
+    r: Math.round((gradientStartColor.r + gradientEndColor.r) / 2),
+    g: Math.round((gradientStartColor.g + gradientEndColor.g) / 2),
+    b: Math.round((gradientStartColor.b + gradientEndColor.b) / 2)
+  });
+
   const gradientColorByHandle = {
-    start: gradientStartColor,
-    end: gradientEndColor
+    start: gradientStartCssColor,
+    end: gradientEndCssColor
   } satisfies Record<GradientColorHandle, string>;
   const activeGradientColor =
     activeGradientColorHandle === 'start'
       ? gradientStartColor
       : gradientEndColor;
-  const gradientMiddleColor = getGradientMiddleColor(
-    gradientStartColor,
-    gradientEndColor
-  );
   const previewPivotOffset = `${8 + $gradientPivotPoint.value * 84}%`;
   const barPivotOffset = `${$gradientPivotPoint.value * 100}%`;
   const onUpdatePreviewFromDrag = useCallback(
@@ -653,15 +643,15 @@ export default memo(function GradientSelectionPreview({
   );
 
   const onChangeGradientColor = useCallback(
-    ({ hex }: ColorResult) => {
+    ({ rgb }: ColorResult) => {
       if (activeGradientColorHandle === 'start') {
-        $gradientStartColor.value = hex;
+        $gradientStartColor.value = rgb;
 
         return;
       }
 
       if (activeGradientColorHandle === 'end') {
-        $gradientEndColor.value = hex;
+        $gradientEndColor.value = rgb;
       }
     },
     [$gradientEndColor, $gradientStartColor, activeGradientColorHandle]
@@ -821,9 +811,12 @@ export default memo(function GradientSelectionPreview({
             y2={DEFAULT_GRADIENT_PREVIEW_GEOMETRY.endCenterY}
             ref={previewFillGradientRef}
           >
-            <stop offset='8%' stopColor={gradientStartColor} />
-            <stop offset={previewPivotOffset} stopColor={gradientMiddleColor} />
-            <stop offset='92%' stopColor={gradientEndColor} />
+            <stop offset='8%' stopColor={gradientStartCssColor} />
+            <stop
+              offset={previewPivotOffset}
+              stopColor={gradientMiddleCssColor}
+            />
+            <stop offset='92%' stopColor={gradientEndCssColor} />
           </linearGradient>
         </defs>
         <rect width='144' height='144' fill='url(#gradient-preview-fill)' />
@@ -885,9 +878,9 @@ export default memo(function GradientSelectionPreview({
             y2={DEFAULT_GRADIENT_PREVIEW_GEOMETRY.endCenterY}
             ref={barFillGradientRef}
           >
-            <stop offset='0%' stopColor={gradientStartColor} />
-            <stop offset={barPivotOffset} stopColor={gradientMiddleColor} />
-            <stop offset='100%' stopColor={gradientEndColor} />
+            <stop offset='0%' stopColor={gradientStartCssColor} />
+            <stop offset={barPivotOffset} stopColor={gradientMiddleCssColor} />
+            <stop offset='100%' stopColor={gradientEndCssColor} />
           </linearGradient>
           <linearGradient
             id={GRADIENT_BAR_OUTLINE_ID}

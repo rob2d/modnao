@@ -102,8 +102,8 @@ export interface ApplySelectedVertexHslPayload {
 }
 
 export interface ApplySelectedVertexGradientPayload {
-  startHexColor: string;
-  endHexColor: string;
+  startColor: NLColor;
+  endColor: NLColor;
   angle: number;
   tilt: number;
   pivotPoint: number;

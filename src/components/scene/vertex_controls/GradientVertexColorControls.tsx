@@ -33,9 +33,16 @@ export default function GradientVertexColorControls({
   const hasAppliedGradientRef = useRef(false);
 
   useSignalEffect(() => {
-    const gradientPayload = {
-      startHexColor: $gradientStartColor.value,
-      endHexColor: $gradientEndColor.value,
+    const startColor = $gradientStartColor.value;
+    const endColor = $gradientEndColor.value;
+
+    const gradientPayload: ApplySelectedVertexGradientPayload = {
+      startColor: [
+        startColor.r / 0xff,
+        startColor.g / 0xff,
+        startColor.b / 0xff
+      ],
+      endColor: [endColor.r / 0xff, endColor.g / 0xff, endColor.b / 0xff],
       angle: $gradientAngle.value,
       tilt: $gradientTilt.value,
       pivotPoint: $gradientPivotPoint.value
