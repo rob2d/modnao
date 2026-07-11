@@ -45,13 +45,16 @@ interface GradientPreviewGeometry {
 }
 
 interface GradientSelectionPreviewProps {
-  $gradientAngle: Signal<number>;
-  $gradientTilt: Signal<number>;
-  $gradientPivotPoint: Signal<number>;
+  $gradientTransform: Signal<GradientTransform>;
   $gradientStartColor: Signal<RGBColor>;
   $gradientEndColor: Signal<RGBColor>;
   popoverAnchorEl: HTMLDivElement | null;
-  onChangeAngles: (angle: number, tilt: number) => void;
+}
+
+export interface GradientTransform {
+  angle: number;
+  tilt: number;
+  pivotPoint: number;
 }
 
 type GradientColorHandle = 'start' | 'end';
@@ -413,13 +416,10 @@ const GRADIENT_AXIS_LABEL_CONFIGS: readonly GradientAxisLabelConfig[] = [
 ];
 
 export default memo(function GradientSelectionPreview({
-  $gradientAngle,
-  $gradientTilt,
-  $gradientPivotPoint,
+  $gradientTransform,
   $gradientStartColor,
   $gradientEndColor,
-  popoverAnchorEl,
-  onChangeAngles
+  popoverAnchorEl
 }: GradientSelectionPreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const meshLineRefs = useRef<Array<SVGLineElement | null>>([]);
@@ -438,6 +438,7 @@ export default memo(function GradientSelectionPreview({
     useState<GradientColorHandle | null>(null);
   const gradientStartColor = $gradientStartColor.value;
   const gradientEndColor = $gradientEndColor.value;
+  const { angle, tilt, pivotPoint } = $gradientTransform.value;
   const gradientStartCssColor = rgbColorToCss(gradientStartColor);
   const gradientEndCssColor = rgbColorToCss(gradientEndColor);
   const gradientMiddleCssColor = rgbColorToCss({
@@ -454,8 +455,8 @@ export default memo(function GradientSelectionPreview({
     activeGradientColorHandle === 'start'
       ? gradientStartColor
       : gradientEndColor;
-  const previewPivotOffset = `${8 + $gradientPivotPoint.value * 84}%`;
-  const barPivotOffset = `${$gradientPivotPoint.value * 100}%`;
+  const previewPivotOffset = `${8 + pivotPoint * 84}%`;
+  const barPivotOffset = `${pivotPoint * 100}%`;
   const onUpdatePreviewFromDrag = useCallback(
     (
       pendingGradientDrag: PendingGradientPreviewDrag,
@@ -479,12 +480,13 @@ export default memo(function GradientSelectionPreview({
           ((clientY - pendingGradientDrag.startClientY) / bounds.height) * 180
       );
 
-      onChangeAngles(
-        clamp(nextAngle, 0, GRADIENT_MAX_ANGLE),
-        clamp(nextTilt, -90, 90)
-      );
+      $gradientTransform.value = {
+        ...$gradientTransform.value,
+        angle: clamp(nextAngle, 0, GRADIENT_MAX_ANGLE),
+        tilt: clamp(nextTilt, -90, 90)
+      };
     },
-    [onChangeAngles]
+    [$gradientTransform]
   );
 
   const onStartPreviewDrag = useCallback(
@@ -495,11 +497,11 @@ export default memo(function GradientSelectionPreview({
         pointerId: event.pointerId,
         startClientX: event.clientX,
         startClientY: event.clientY,
-        startAngle: $gradientAngle.value,
-        startTilt: $gradientTilt.value
+        startAngle: angle,
+        startTilt: tilt
       };
     },
-    [$gradientAngle.value, $gradientTilt.value]
+    [angle, tilt]
   );
 
   const onDragPreview = useCallback(
@@ -562,13 +564,13 @@ export default memo(function GradientSelectionPreview({
           pointerId: event.pointerId,
           startClientX: event.clientX,
           startClientY: event.clientY,
-          startAngle: $gradientAngle.value,
-          startTilt: $gradientTilt.value,
+          startAngle: angle,
+          startTilt: tilt,
           startedAt: performance.now(),
           hasDragged: false
         };
       },
-    [$gradientAngle.value, $gradientTilt.value, onCloseGradientColorPopover]
+    [angle, tilt, onCloseGradientColorPopover]
   );
 
   const onDragGradientHandlePointer = useCallback(
@@ -660,8 +662,8 @@ export default memo(function GradientSelectionPreview({
   useEffect(() => {
     const dispose = signalEffect(() => {
       const geometry = createGradientPreviewGeometry(
-        $gradientAngle.value,
-        $gradientTilt.value
+        $gradientTransform.value.angle,
+        $gradientTransform.value.tilt
       );
       const previewElement = previewRef.current;
       const previewFillGradient = previewFillGradientRef.current;
@@ -759,7 +761,7 @@ export default memo(function GradientSelectionPreview({
     });
 
     return dispose;
-  }, [$gradientAngle, $gradientTilt]);
+  }, [$gradientTransform]);
 
   return (
     <Box

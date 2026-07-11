@@ -43,6 +43,11 @@ export default defineConfig([
 
       'react-hooks/exhaustive-deps': 0,
 
+      // Preact signals are intentionally mutable in their usage
+      // which break normal paradigm; there isn't a reliable
+      // way to opt in selectively at this point
+      'react-hooks/immutability': 0,
+
       'sort-imports': [
         'error',
         {
