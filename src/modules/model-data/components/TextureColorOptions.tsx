@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from 'react';
 import {
@@ -21,10 +22,11 @@ import {
   getUvClipPathBounds,
   getUvClipPathPixelByteIndexes,
   HslValues,
+  TextureImageBufferKeys,
   UvClipPath
 } from '@/utils/textures';
 import { adjustTextureHsl } from '../modelDataThunks';
-import { selectEditedTextures, selectTextureDefs } from '@/selectors';
+import { selectEditedTextures, selectUpdatedTextureDefs } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
@@ -99,7 +101,7 @@ export default function TextureColorOptions({
   selectedUvClipPaths?: UvClipPath[];
 }) {
   const dispatch = useAppDispatch();
-  const textureDefs = useAppSelector(selectTextureDefs);
+  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
   const editedTextures = useAppSelector(selectEditedTextures);
   const textureDef = textureDefs[textureIndex];
   const editedTexture = editedTextures?.[textureIndex];
@@ -113,6 +115,10 @@ export default function TextureColorOptions({
   }, [editedTexture]);
 
   const [hsl, setHsl] = useState<HslValues>(() => baseHsl);
+  const hasTouchedHslInputRef = useRef(false);
+  const hslSourceBufferKeysRef = useRef<TextureImageBufferKeys | undefined>(
+    undefined
+  );
   const [applyToWholeTexture, setApplyToWholeTexture] = useState(false);
   const hasSelectedUvClipPaths = selectedUvClipPaths.length > 0;
   const selectedUvClipPathBounds = useMemo(
@@ -156,17 +162,38 @@ export default function TextureColorOptions({
     150
   );
 
-  const onSetH = useCallback((h: number) => {
-    setHsl((prev) => ({ ...prev, h }));
-  }, []);
+  const captureHslSourceBufferKeys = useCallback(() => {
+    if (hasTouchedHslInputRef.current) {
+      return;
+    }
 
-  const onSetS = useCallback((s: number) => {
-    setHsl((prev) => ({ ...prev, s }));
-  }, []);
+    hasTouchedHslInputRef.current = true;
+    hslSourceBufferKeysRef.current = textureDef?.bufferKeys;
+  }, [textureDef?.bufferKeys]);
 
-  const onSetL = useCallback((l: number) => {
-    setHsl((prev) => ({ ...prev, l }));
-  }, []);
+  const onSetH = useCallback(
+    (h: number) => {
+      captureHslSourceBufferKeys();
+      setHsl((prev) => ({ ...prev, h }));
+    },
+    [captureHslSourceBufferKeys]
+  );
+
+  const onSetS = useCallback(
+    (s: number) => {
+      captureHslSourceBufferKeys();
+      setHsl((prev) => ({ ...prev, s }));
+    },
+    [captureHslSourceBufferKeys]
+  );
+
+  const onSetL = useCallback(
+    (l: number) => {
+      captureHslSourceBufferKeys();
+      setHsl((prev) => ({ ...prev, l }));
+    },
+    [captureHslSourceBufferKeys]
+  );
 
   const onSetApplyToWholeTexture = useCallback(
     (_: ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -184,9 +211,14 @@ export default function TextureColorOptions({
   const processedHsl = useThrottle(hsl, 200);
 
   useEffect(() => {
+    if (!hasTouchedHslInputRef.current) {
+      return;
+    }
+
     dispatch(
       adjustTextureHsl({
         hsl: processedHsl,
+        sourceBufferKeys: hslSourceBufferKeysRef.current,
         textureIndex,
         uvPixelByteIndexes: activeUvPixelByteIndexes
       })
