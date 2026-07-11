@@ -1,7 +1,7 @@
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
-import { useCallback, useState } from 'react';
-import { batch, useSignal } from '@preact-signals/safe-react';
+import { useCallback, useRef } from 'react';
+import { batch, useSignal, useSignalEffect } from '@preact-signals/safe-react';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import type { ApplySelectedVertexGradientPayload } from '@/modules/model-data';
@@ -9,6 +9,7 @@ import GradientSelectionPreview, {
   clamp,
   DEFAULT_GRADIENT_ANGLE,
   DEFAULT_GRADIENT_END_COLOR,
+  DEFAULT_GRADIENT_PIVOT_POINT,
   DEFAULT_GRADIENT_START_COLOR,
   DEFAULT_GRADIENT_TILT,
   GRADIENT_MAX_ANGLE
@@ -25,29 +26,29 @@ export default function GradientVertexColorControls({
 }: GradientVertexColorControlsProps) {
   const $gradientAngle = useSignal(DEFAULT_GRADIENT_ANGLE);
   const $gradientTilt = useSignal(DEFAULT_GRADIENT_TILT);
-  const [gradientStartColor, setGradientStartColor] = useState(
-    DEFAULT_GRADIENT_START_COLOR
-  );
-  const [gradientEndColor, setGradientEndColor] = useState(
-    DEFAULT_GRADIENT_END_COLOR
-  );
+  const $gradientPivotPoint = useSignal(DEFAULT_GRADIENT_PIVOT_POINT);
 
-  const applyGradient = useCallback(
-    (
-      startHexColor: string,
-      endHexColor: string,
-      angle: number,
-      tilt: number
-    ) => {
-      onApplyGradient({
-        startHexColor,
-        endHexColor,
-        angle,
-        tilt
-      });
-    },
-    [onApplyGradient]
-  );
+  const $gradientStartColor = useSignal(DEFAULT_GRADIENT_START_COLOR);
+  const $gradientEndColor = useSignal(DEFAULT_GRADIENT_END_COLOR);
+  const hasAppliedGradientRef = useRef(false);
+
+  useSignalEffect(() => {
+    const gradientPayload = {
+      startHexColor: $gradientStartColor.value,
+      endHexColor: $gradientEndColor.value,
+      angle: $gradientAngle.value,
+      tilt: $gradientTilt.value,
+      pivotPoint: $gradientPivotPoint.value
+    };
+
+    if (!hasAppliedGradientRef.current) {
+      hasAppliedGradientRef.current = true;
+
+      return;
+    }
+
+    onApplyGradient(gradientPayload);
+  });
 
   const onSetGradientAngles = useCallback(
     (nextAngle: number, nextTilt: number) => {
@@ -58,21 +59,8 @@ export default function GradientVertexColorControls({
         $gradientAngle.value = clampedAngle;
         $gradientTilt.value = clampedTilt;
       });
-
-      applyGradient(
-        gradientStartColor,
-        gradientEndColor,
-        clampedAngle,
-        clampedTilt
-      );
     },
-    [
-      $gradientAngle,
-      $gradientTilt,
-      applyGradient,
-      gradientEndColor,
-      gradientStartColor
-    ]
+    [$gradientAngle, $gradientTilt]
   );
 
   const onSetGradientAngle = useCallback(
@@ -105,43 +93,27 @@ export default function GradientVertexColorControls({
     onSetGradientTilt($gradientTilt.value + 45);
   }, [$gradientTilt, onSetGradientTilt]);
 
-  const onChangeGradientStartColor = useCallback(
-    (nextColor: string) => {
-      setGradientStartColor(nextColor);
-      applyGradient(
-        nextColor,
-        gradientEndColor,
-        $gradientAngle.value,
-        $gradientTilt.value
-      );
-    },
-    [$gradientAngle, $gradientTilt, applyGradient, gradientEndColor]
-  );
+  const onSetGradientPivotPoint = useCallback(
+    (nextPivotPoint: number) => {
+      const clampedPivotPoint = clamp(nextPivotPoint, 0, 1);
 
-  const onChangeGradientEndColor = useCallback(
-    (nextColor: string) => {
-      setGradientEndColor(nextColor);
-      applyGradient(
-        gradientStartColor,
-        nextColor,
-        $gradientAngle.value,
-        $gradientTilt.value
-      );
+      batch(() => {
+        $gradientPivotPoint.value = clampedPivotPoint;
+      });
     },
-    [$gradientAngle, $gradientTilt, applyGradient, gradientStartColor]
+    [$gradientPivotPoint]
   );
 
   return (
-    <Box sx={{ display: 'grid', gap: 1.25 }}>
+    <Box sx={{ display: 'grid', gap: 1.25, mt: 1 }}>
       <GradientSelectionPreview
         $gradientAngle={$gradientAngle}
         $gradientTilt={$gradientTilt}
-        gradientStartColor={gradientStartColor}
-        gradientEndColor={gradientEndColor}
+        $gradientPivotPoint={$gradientPivotPoint}
+        $gradientStartColor={$gradientStartColor}
+        $gradientEndColor={$gradientEndColor}
         popoverAnchorEl={popoverAnchorEl}
         onChangeAngles={onSetGradientAngles}
-        onChangeGradientStartColor={onChangeGradientStartColor}
-        onChangeGradientEndColor={onChangeGradientEndColor}
       />
       <Box sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>
         <NumericSliderInput
@@ -153,7 +125,7 @@ export default function GradientVertexColorControls({
           max={GRADIENT_MAX_ANGLE}
           value={$gradientAngle.value}
           onChange={onSetGradientAngle}
-          inputSx={{ width: 56 }}
+          inputSx={{ width: 60 }}
           additionalControls={
             <>
               <Tooltip title='Rotate angle left'>
@@ -188,7 +160,8 @@ export default function GradientVertexColorControls({
           max={90}
           value={$gradientTilt.value}
           onChange={onSetGradientTilt}
-          inputSx={{ width: 56 }}
+          inputSx={{ width: 60 }}
+          sx={{ mt: -1 }}
           additionalControls={
             <>
               <Tooltip title='Rotate tilt left'>
@@ -213,6 +186,19 @@ export default function GradientVertexColorControls({
               </Tooltip>
             </>
           }
+        />
+        <NumericSliderInput
+          labelTooltip='Moves the point the gradient bends around'
+          label='Pivot'
+          labelSx={{ width: 32 }}
+          defaultValue={DEFAULT_GRADIENT_PIVOT_POINT}
+          min={0}
+          max={1}
+          step={0.01}
+          value={$gradientPivotPoint.value}
+          onChange={onSetGradientPivotPoint}
+          inputSx={{ width: 60 }}
+          sx={{ mt: -1 }}
         />
       </Box>
     </Box>

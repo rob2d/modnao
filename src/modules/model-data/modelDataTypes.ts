@@ -106,6 +106,7 @@ export interface ApplySelectedVertexGradientPayload {
   endHexColor: string;
   angle: number;
   tilt: number;
+  pivotPoint: number;
 }
 
 export interface ModelDataState {

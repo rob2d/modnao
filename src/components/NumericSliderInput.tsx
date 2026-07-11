@@ -24,6 +24,7 @@ type Props = {
   max: number;
   value: number;
   defaultValue: number;
+  step?: number;
   labelTooltip: string;
   onChange: (value: number) => void;
   additionalControls?: ReactNode;
@@ -40,6 +41,7 @@ export default function NumericSliderInput({
   min,
   max,
   defaultValue,
+  step,
   value,
   label,
   labelTooltip,
@@ -53,7 +55,7 @@ export default function NumericSliderInput({
 
   const onChangeTextField: FocusEventHandler<HTMLInputElement> = useCallback(
     (event) => {
-      let nextValue = Number.parseInt(event.target.value);
+      let nextValue = Number.parseFloat(event.target.value);
 
       if (!Number.isNaN(nextValue) && nextValue !== value) {
         nextValue = Math.min(max, Math.max(min, nextValue));
@@ -80,21 +82,19 @@ export default function NumericSliderInput({
   }, [defaultValue]);
 
   const slotProps = useMemo(
-    () => ({ input: { type: 'number', min, max } }),
-    [min, max]
+    () => ({ input: { type: 'number', min, max, step } }),
+    [min, max, step]
   );
 
   return (
     <Box
       sx={{
-        ...sx,
         px: 2,
-        mt: 1,
-        mb: 0.5,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        ...sx
       }}
     >
       <Box
@@ -113,6 +113,7 @@ export default function NumericSliderInput({
           size='small'
           min={min}
           max={max}
+          step={step}
           aria-label={label}
           valueLabelDisplay='auto'
           color='secondary'
@@ -135,6 +136,7 @@ export default function NumericSliderInput({
           display: 'flex',
           alignItems: 'center',
           px: 3,
+          mt: -0.5,
           justifyContent: 'flex-end'
         }}
       >

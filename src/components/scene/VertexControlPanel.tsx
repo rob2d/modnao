@@ -182,8 +182,8 @@ export default function VertexControlPanel({
               aria-label='Vertex color edit mode'
               sx={{ mt: 1 }}
             >
-              <ToggleButton value='editHsl'>HSL</ToggleButton>
-              <ToggleButton value='pickColor'>Color</ToggleButton>
+              <ToggleButton value='editHsl'>Edit</ToggleButton>
+              <ToggleButton value='pickColor'>Pick</ToggleButton>
               <ToggleButton value='gradientSelection'>Gradient</ToggleButton>
             </ToggleButtonGroup>
             <Box

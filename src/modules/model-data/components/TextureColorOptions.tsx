@@ -15,6 +15,8 @@ import {
   ListItem,
   ListSubheader,
   Switch,
+  type SxProps,
+  type Theme,
   Tooltip
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
@@ -30,24 +32,6 @@ import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
 
-const textureColorOptionsListSx = {
-  '&.texture-view': {
-    display: 'flex',
-    p: 0,
-    flexDirection: { xs: 'column', md: 'row' }
-  },
-  '&.texture-view .MuiListItem-root': {
-    px: 0
-  },
-  '& .MuiButton svg': {
-    mr: 1
-  },
-  '& .slider p': {
-    display: 'flex',
-    alignItems: 'center'
-  }
-};
-
 const DEFAULT_HSL = {
   h: 0,
   s: 0,
@@ -58,12 +42,14 @@ function TextureColorButtonOption({
   tooltip,
   onClick,
   label,
-  disabled
+  disabled,
+  sx
 }: {
   tooltip: string;
   onClick: () => void;
   label: JSX.Element | string;
   disabled?: boolean;
+  sx?: SxProps<Theme>;
 }) {
   const button = (
     <Button
@@ -78,7 +64,7 @@ function TextureColorButtonOption({
     </Button>
   );
   return (
-    <ListItem>
+    <ListItem sx={sx} dense>
       {disabled ? (
         button
       ) : (
@@ -239,7 +225,7 @@ export default function TextureColorOptions({
   const buttons = (
     <>
       {!hasSelectedUvClipPaths ? null : (
-        <ListItem>
+        <ListItem dense>
           <Tooltip
             title='Ignore the selected UV region and edit every pixel'
             placement='left-start'
@@ -261,13 +247,30 @@ export default function TextureColorOptions({
         tooltip='Apply color changes to all loaded textures'
         onClick={onApplyToAll}
         label={<>Apply to All</>}
+        sx={{ mt: 1 }}
       />
     </>
   );
 
   if (variant === 'texture-view') {
     return (
-      <Box className={variant} sx={textureColorOptionsListSx}>
+      <Box
+        sx={{
+          display: 'flex',
+          p: 0,
+          flexDirection: { xs: 'column', md: 'row' },
+          '& .MuiListItem-root': {
+            px: 0
+          },
+          '& .MuiButton svg': {
+            mr: 1
+          },
+          '& .slider p': {
+            display: 'flex',
+            alignItems: 'center'
+          }
+        }}
+      >
         {hslSliders}
         {buttons}
       </Box>
@@ -277,11 +280,18 @@ export default function TextureColorOptions({
   return (
     <List
       dense
-      className={variant}
       subheader={
         <ListSubheader component='div'>Color Adjustment</ListSubheader>
       }
-      sx={textureColorOptionsListSx}
+      sx={{
+        '& .MuiButton svg': {
+          mr: 1
+        },
+        '& .slider p': {
+          display: 'flex',
+          alignItems: 'center'
+        }
+      }}
       onKeyDown={onInputKeyDown}
     >
       {hslSliders}

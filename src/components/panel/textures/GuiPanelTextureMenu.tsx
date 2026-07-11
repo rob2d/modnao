@@ -59,18 +59,23 @@ export default function GuiPanelTextureMenu({
   const options = useMemo(
     () =>
       optionsSources.map((o, i) => (
-        <Tooltip title={o.tooltip} key={i} placement='left'>
-          <MenuItem
-            onClick={o.onClick}
-            disabled={o.disabled}
-            onKeyDown={onMenuItemKeyDown}
-          >
-            <>
+        <MenuItem
+          key={i}
+          onClick={o.onClick}
+          disabled={o.disabled}
+          onKeyDown={onMenuItemKeyDown}
+          dense
+        >
+          <Tooltip title={o.tooltip} placement='left'>
+            <Box
+              component='span'
+              sx={{ display: 'flex', alignItems: 'center', width: '100%' }}
+            >
               {o.icon}
               {o.label}
-            </>
-          </MenuItem>
-        </Tooltip>
+            </Box>
+          </Tooltip>
+        </MenuItem>
       )),
     [onMenuItemKeyDown, optionsSources]
   );
@@ -107,7 +112,7 @@ export default function GuiPanelTextureMenu({
         onClose={handleClose}
         anchorOrigin={MENU_ANCHOR_ORIGIN}
         transformOrigin={MENU_TRANSFORM_ORIGIN}
-        sx={{ 'li.MuiMenuItem-root > svg': { mr: 2 } }}
+        sx={{ 'li.MuiMenuItem-root svg': { mr: 2 } }}
       >
         {options}
         <Divider />

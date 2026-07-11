@@ -137,6 +137,16 @@ const interpolateNormalizedColor = (
   alpha
 ];
 
+const getPivotedGradientAmount = (amount: number, pivotPoint: number) => {
+  if (amount <= pivotPoint) {
+    return pivotPoint === 0 ? 0.5 : (amount / pivotPoint) * 0.5;
+  }
+
+  return pivotPoint === 1
+    ? 0.5
+    : 0.5 + ((amount - pivotPoint) / (1 - pivotPoint)) * 0.5;
+};
+
 const decompressLzssSection = (
   section: Buffer | Buffer<ArrayBuffer>,
   startPointer: number,
@@ -385,7 +395,8 @@ export const applySelectedVertexGradient = createAppAsyncThunk(
       startHexColor,
       endHexColor,
       angle,
-      tilt
+      tilt,
+      pivotPoint
     }: ApplySelectedVertexGradientPayload,
     { getState }
   ): Promise<ApplySelectedVertexColorResult> => {
@@ -424,10 +435,11 @@ export const applySelectedVertexGradient = createAppAsyncThunk(
         projectionRange === 0
           ? 0.5
           : (projection - minProjection) / projectionRange;
+      const pivotedAmount = getPivotedGradientAmount(amount, pivotPoint);
 
       vertexColorUpdatesByAddress.set(
         contentAddress,
-        interpolateNormalizedColor(startColor, endColor, amount, alpha)
+        interpolateNormalizedColor(startColor, endColor, pivotedAmount, alpha)
       );
     });
 

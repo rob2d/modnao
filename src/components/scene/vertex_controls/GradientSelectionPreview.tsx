@@ -47,12 +47,11 @@ interface GradientPreviewGeometry {
 interface GradientSelectionPreviewProps {
   $gradientAngle: Signal<number>;
   $gradientTilt: Signal<number>;
-  gradientStartColor: string;
-  gradientEndColor: string;
+  $gradientPivotPoint: Signal<number>;
+  $gradientStartColor: Signal<string>;
+  $gradientEndColor: Signal<string>;
   popoverAnchorEl: HTMLDivElement | null;
   onChangeAngles: (angle: number, tilt: number) => void;
-  onChangeGradientStartColor: (hexColor: string) => void;
-  onChangeGradientEndColor: (hexColor: string) => void;
 }
 
 type GradientColorHandle = 'start' | 'end';
@@ -102,6 +101,7 @@ export const DEFAULT_GRADIENT_START_COLOR = '#ff4f7a';
 export const DEFAULT_GRADIENT_END_COLOR = '#32d7ff';
 export const DEFAULT_GRADIENT_ANGLE = 90;
 export const DEFAULT_GRADIENT_TILT = 0;
+export const DEFAULT_GRADIENT_PIVOT_POINT = 0.5;
 export const GRADIENT_MAX_ANGLE = 180;
 const GRADIENT_HANDLE_SIZE = 14;
 const GRADIENT_HANDLE_HIT_AREA_SIZE = 28;
@@ -138,6 +138,30 @@ export const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
 const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+
+const getGradientMiddleColor = (startHexColor: string, endHexColor: string) => {
+  const startColorMatch = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(
+    startHexColor
+  );
+  const endColorMatch = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(
+    endHexColor
+  );
+
+  if (!startColorMatch || !endColorMatch) {
+    return startHexColor;
+  }
+
+  const channels = [1, 2, 3].map((matchIndex) => {
+    const startChannel = Number.parseInt(startColorMatch[matchIndex], 16);
+    const endChannel = Number.parseInt(endColorMatch[matchIndex], 16);
+
+    return Math.round((startChannel + endChannel) / 2)
+      .toString(16)
+      .padStart(2, '0');
+  });
+
+  return `#${channels.join('')}`;
+};
 
 const projectGradientMeshPoint = (
   point: GradientMeshPoint,
@@ -405,12 +429,11 @@ const GRADIENT_AXIS_LABEL_CONFIGS: readonly GradientAxisLabelConfig[] = [
 export default memo(function GradientSelectionPreview({
   $gradientAngle,
   $gradientTilt,
-  gradientStartColor,
-  gradientEndColor,
+  $gradientPivotPoint,
+  $gradientStartColor,
+  $gradientEndColor,
   popoverAnchorEl,
-  onChangeAngles,
-  onChangeGradientStartColor,
-  onChangeGradientEndColor
+  onChangeAngles
 }: GradientSelectionPreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const meshLineRefs = useRef<Array<SVGLineElement | null>>([]);
@@ -427,6 +450,8 @@ export default memo(function GradientSelectionPreview({
     useState(false);
   const [activeGradientColorHandle, setActiveGradientColorHandle] =
     useState<GradientColorHandle | null>(null);
+  const gradientStartColor = $gradientStartColor.value;
+  const gradientEndColor = $gradientEndColor.value;
   const gradientColorByHandle = {
     start: gradientStartColor,
     end: gradientEndColor
@@ -435,6 +460,12 @@ export default memo(function GradientSelectionPreview({
     activeGradientColorHandle === 'start'
       ? gradientStartColor
       : gradientEndColor;
+  const gradientMiddleColor = getGradientMiddleColor(
+    gradientStartColor,
+    gradientEndColor
+  );
+  const previewPivotOffset = `${8 + $gradientPivotPoint.value * 84}%`;
+  const barPivotOffset = `${$gradientPivotPoint.value * 100}%`;
   const onUpdatePreviewFromDrag = useCallback(
     (
       pendingGradientDrag: PendingGradientPreviewDrag,
@@ -624,20 +655,16 @@ export default memo(function GradientSelectionPreview({
   const onChangeGradientColor = useCallback(
     ({ hex }: ColorResult) => {
       if (activeGradientColorHandle === 'start') {
-        onChangeGradientStartColor(hex);
+        $gradientStartColor.value = hex;
 
         return;
       }
 
       if (activeGradientColorHandle === 'end') {
-        onChangeGradientEndColor(hex);
+        $gradientEndColor.value = hex;
       }
     },
-    [
-      activeGradientColorHandle,
-      onChangeGradientEndColor,
-      onChangeGradientStartColor
-    ]
+    [$gradientEndColor, $gradientStartColor, activeGradientColorHandle]
   );
 
   useEffect(() => {
@@ -795,6 +822,7 @@ export default memo(function GradientSelectionPreview({
             ref={previewFillGradientRef}
           >
             <stop offset='8%' stopColor={gradientStartColor} />
+            <stop offset={previewPivotOffset} stopColor={gradientMiddleColor} />
             <stop offset='92%' stopColor={gradientEndColor} />
           </linearGradient>
         </defs>
@@ -858,6 +886,7 @@ export default memo(function GradientSelectionPreview({
             ref={barFillGradientRef}
           >
             <stop offset='0%' stopColor={gradientStartColor} />
+            <stop offset={barPivotOffset} stopColor={gradientMiddleColor} />
             <stop offset='100%' stopColor={gradientEndColor} />
           </linearGradient>
           <linearGradient
