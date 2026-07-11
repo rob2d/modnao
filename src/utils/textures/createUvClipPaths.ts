@@ -15,6 +15,19 @@ export interface UvClipPathBounds {
 
 const MIN_POLYGON_AREA = 0.000001;
 const TILE_EDGE_EPSILON = 0.000001;
+const PIXEL_SAMPLE_INSET = 0.05;
+const PIXEL_SAMPLE_OFFSETS = [
+  0.5,
+  0.5,
+  PIXEL_SAMPLE_INSET,
+  PIXEL_SAMPLE_INSET,
+  1 - PIXEL_SAMPLE_INSET,
+  PIXEL_SAMPLE_INSET,
+  1 - PIXEL_SAMPLE_INSET,
+  1 - PIXEL_SAMPLE_INSET,
+  PIXEL_SAMPLE_INSET,
+  1 - PIXEL_SAMPLE_INSET
+] as const;
 
 const clipPathBoundary = (
   points: UvClipPath,
@@ -86,47 +99,21 @@ export const getUvClipPathBounds = (path: UvClipPath): UvClipPathBounds => {
   };
 };
 
-const isPointInUvClipPathBounds = (
-  x: number,
-  y: number,
-  { path, minX, maxX, minY, maxY }: UvClipPathBounds
-) => {
-  if (path.length < 3 || x < minX || x > maxX || y < minY || y > maxY) {
-    return false;
-  }
-
-  let isInside = false;
-
-  for (
-    let pointIndex = 0, previousPointIndex = path.length - 1;
-    pointIndex < path.length;
-    previousPointIndex = pointIndex, pointIndex += 1
-  ) {
-    const currentPoint = path[pointIndex];
-    const previousPoint = path[previousPointIndex];
-    const crossesHorizontalRay =
-      currentPoint.y > y !== previousPoint.y > y &&
-      x <
-        ((previousPoint.x - currentPoint.x) * (y - currentPoint.y)) /
-          (previousPoint.y - currentPoint.y) +
-          currentPoint.x;
-
-    if (crossesHorizontalRay) {
-      isInside = !isInside;
-    }
-  }
-
-  return isInside;
-};
-
 export const getUvClipPathPixelByteIndexes = (
   uvClipPathBounds: UvClipPathBounds[],
   width: number,
   height: number
 ) => {
   const byteIndexes: number[] = [];
+  const selectedPixels = new Uint8Array(width * height);
 
   uvClipPathBounds.forEach((bounds) => {
+    const { path, minX, maxX, minY, maxY } = bounds;
+
+    if (path.length < 3) {
+      return;
+    }
+
     const startX = Math.max(0, Math.floor(bounds.minX));
     const endX = Math.min(width, Math.ceil(bounds.maxX));
     const startY = Math.max(0, Math.floor(bounds.minY));
@@ -134,8 +121,62 @@ export const getUvClipPathPixelByteIndexes = (
 
     for (let y = startY; y < endY; y++) {
       for (let x = startX; x < endX; x++) {
-        if (isPointInUvClipPathBounds(x + 0.5, y + 0.5, bounds)) {
-          byteIndexes.push((y * width + x) * 4);
+        let isPixelCovered = false;
+
+        for (
+          let sampleIndex = 0;
+          sampleIndex < PIXEL_SAMPLE_OFFSETS.length;
+          sampleIndex += 2
+        ) {
+          const sampleX = x + PIXEL_SAMPLE_OFFSETS[sampleIndex];
+          const sampleY = y + PIXEL_SAMPLE_OFFSETS[sampleIndex + 1];
+
+          if (
+            sampleX < minX ||
+            sampleX > maxX ||
+            sampleY < minY ||
+            sampleY > maxY
+          ) {
+            continue;
+          }
+
+          let isSampleInside = false;
+
+          for (
+            let pointIndex = 0, previousPointIndex = path.length - 1;
+            pointIndex < path.length;
+            previousPointIndex = pointIndex, pointIndex += 1
+          ) {
+            const currentPoint = path[pointIndex];
+            const previousPoint = path[previousPointIndex];
+            const crossesHorizontalRay =
+              currentPoint.y > sampleY !== previousPoint.y > sampleY &&
+              sampleX <
+                ((previousPoint.x - currentPoint.x) *
+                  (sampleY - currentPoint.y)) /
+                  (previousPoint.y - currentPoint.y) +
+                  currentPoint.x;
+
+            if (crossesHorizontalRay) {
+              isSampleInside = !isSampleInside;
+            }
+          }
+
+          if (isSampleInside) {
+            isPixelCovered = true;
+            break;
+          }
+        }
+
+        if (isPixelCovered) {
+          const pixelIndex = y * width + x;
+
+          if (selectedPixels[pixelIndex]) {
+            continue;
+          }
+
+          selectedPixels[pixelIndex] = 1;
+          byteIndexes.push(pixelIndex * 4);
         }
       }
     }

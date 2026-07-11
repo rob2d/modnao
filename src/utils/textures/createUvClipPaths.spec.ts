@@ -1,4 +1,7 @@
-import createUvClipPaths from './createUvClipPaths';
+import createUvClipPaths, {
+  getUvClipPathBounds,
+  getUvClipPathPixelByteIndexes
+} from './createUvClipPaths';
 
 const defaultWrappingFlags: TextureWrappingFlags = {
   hFlip: false,
@@ -103,5 +106,26 @@ describe('createUvClipPaths', () => {
         return Math.max(...ys) - Math.min(...ys) < 160;
       })
     ).toBe(true);
+  });
+
+  it('includes pixels along shared UV polygon edges', () => {
+    expect(
+      getUvClipPathPixelByteIndexes(
+        [
+          getUvClipPathBounds([
+            { x: 0, y: 0 },
+            { x: 2, y: 0 },
+            { x: 0, y: 2 }
+          ]),
+          getUvClipPathBounds([
+            { x: 2, y: 0 },
+            { x: 2, y: 2 },
+            { x: 0, y: 2 }
+          ])
+        ],
+        2,
+        2
+      )
+    ).toEqual([0, 4, 8, 12]);
   });
 });
