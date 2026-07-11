@@ -21,9 +21,7 @@ export default function PickVertexColorControls({
             width: '100%',
             background: 'transparent',
             boxShadow: 'none',
-            position: 'relative',
-            left: 'calc(var(--mui-spacing) * -1.25)',
-            top: 'calc(var(--mui-spacing) * -0.5))'
+            position: 'relative'
           }
         }
       }}

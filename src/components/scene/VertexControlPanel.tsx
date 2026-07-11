@@ -186,7 +186,17 @@ export default function VertexControlPanel({
               <ToggleButton value='pickColor'>Color</ToggleButton>
               <ToggleButton value='gradientSelection'>Gradient</ToggleButton>
             </ToggleButtonGroup>
-            <Box sx={{ mt: 1 }}>{controlsByMode[colorEditMode]()}</Box>
+            <Box
+              sx={{
+                mt: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+              }}
+            >
+              {controlsByMode[colorEditMode]()}
+            </Box>
           </>
         )}
         {!vertexEditabilityMessage ? null : (

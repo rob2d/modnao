@@ -1,6 +1,8 @@
+import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+import RotateRightIcon from '@mui/icons-material/RotateRight';
 import { useCallback, useState } from 'react';
 import { batch, useSignal } from '@preact-signals/safe-react';
-import { Box, List } from '@mui/material';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import type { ApplySelectedVertexGradientPayload } from '@/modules/model-data';
 import GradientSelectionPreview, {
@@ -87,6 +89,22 @@ export default function GradientVertexColorControls({
     [$gradientAngle, onSetGradientAngles]
   );
 
+  const onRotateGradientAngleLeft = useCallback(() => {
+    onSetGradientAngle($gradientAngle.value - 45);
+  }, [$gradientAngle, onSetGradientAngle]);
+
+  const onRotateGradientAngleRight = useCallback(() => {
+    onSetGradientAngle($gradientAngle.value + 45);
+  }, [$gradientAngle, onSetGradientAngle]);
+
+  const onRotateGradientTiltLeft = useCallback(() => {
+    onSetGradientTilt($gradientTilt.value - 45);
+  }, [$gradientTilt, onSetGradientTilt]);
+
+  const onRotateGradientTiltRight = useCallback(() => {
+    onSetGradientTilt($gradientTilt.value + 45);
+  }, [$gradientTilt, onSetGradientTilt]);
+
   const onChangeGradientStartColor = useCallback(
     (nextColor: string) => {
       setGradientStartColor(nextColor);
@@ -125,26 +143,78 @@ export default function GradientVertexColorControls({
         onChangeGradientStartColor={onChangeGradientStartColor}
         onChangeGradientEndColor={onChangeGradientEndColor}
       />
-      <List sx={{ p: 0 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>
         <NumericSliderInput
           labelTooltip='Gradient angle'
           label='Angle'
+          labelSx={{ width: 32 }}
           defaultValue={DEFAULT_GRADIENT_ANGLE}
           min={0}
           max={GRADIENT_MAX_ANGLE}
           value={$gradientAngle.value}
           onChange={onSetGradientAngle}
+          inputSx={{ width: 56 }}
+          additionalControls={
+            <>
+              <Tooltip title='Rotate angle left'>
+                <IconButton
+                  size='small'
+                  color='secondary'
+                  onClick={onRotateGradientAngleLeft}
+                  aria-label='Rotate angle left'
+                >
+                  <RotateLeftIcon fontSize='small' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Rotate angle right'>
+                <IconButton
+                  size='small'
+                  color='secondary'
+                  onClick={onRotateGradientAngleRight}
+                  aria-label='Rotate angle right'
+                >
+                  <RotateRightIcon fontSize='small' />
+                </IconButton>
+              </Tooltip>
+            </>
+          }
         />
         <NumericSliderInput
           labelTooltip='Gradient tilt'
           label='Tilt'
+          labelSx={{ width: 32 }}
           defaultValue={DEFAULT_GRADIENT_TILT}
           min={-90}
           max={90}
           value={$gradientTilt.value}
           onChange={onSetGradientTilt}
+          inputSx={{ width: 56 }}
+          additionalControls={
+            <>
+              <Tooltip title='Rotate tilt left'>
+                <IconButton
+                  size='small'
+                  color='secondary'
+                  onClick={onRotateGradientTiltLeft}
+                  aria-label='Rotate tilt left'
+                >
+                  <RotateLeftIcon fontSize='small' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Rotate tilt right'>
+                <IconButton
+                  size='small'
+                  color='secondary'
+                  onClick={onRotateGradientTiltRight}
+                  aria-label='Rotate tilt right'
+                >
+                  <RotateRightIcon fontSize='small' />
+                </IconButton>
+              </Tooltip>
+            </>
+          }
         />
-      </List>
+      </Box>
     </Box>
   );
 }

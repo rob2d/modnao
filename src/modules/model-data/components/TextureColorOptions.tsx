@@ -8,6 +8,7 @@ import {
   useState
 } from 'react';
 import {
+  Box,
   Button,
   FormControlLabel,
   List,
@@ -213,7 +214,6 @@ export default function TextureColorOptions({
         max={180}
         value={hsl.h}
         onChange={onSetH}
-        sx={{ mt: -0.5 }}
       />
       <NumericSliderInput
         labelTooltip={`Saturation`}
@@ -223,7 +223,6 @@ export default function TextureColorOptions({
         max={100}
         value={hsl.s}
         onChange={onSetS}
-        sx={{ mt: -0.5 }}
       />
       <NumericSliderInput
         labelTooltip={`Lightness`}
@@ -233,7 +232,6 @@ export default function TextureColorOptions({
         max={100}
         value={hsl.l}
         onChange={onSetL}
-        sx={{ mt: -0.5 }}
       />
     </>
   );
@@ -269,10 +267,10 @@ export default function TextureColorOptions({
 
   if (variant === 'texture-view') {
     return (
-      <List className={variant} sx={textureColorOptionsListSx}>
+      <Box className={variant} sx={textureColorOptionsListSx}>
         {hslSliders}
         {buttons}
-      </List>
+      </Box>
     );
   }
 

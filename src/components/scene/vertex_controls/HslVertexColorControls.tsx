@@ -1,4 +1,3 @@
-import { List } from '@mui/material';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import type { HslValues } from '@/utils/textures';
 
@@ -16,7 +15,7 @@ export default function HslVertexColorControls({
   onSetL
 }: HslVertexColorControlsProps) {
   return (
-    <List sx={{ p: 0 }}>
+    <>
       <NumericSliderInput
         labelTooltip='Hue'
         label='H'
@@ -25,6 +24,7 @@ export default function HslVertexColorControls({
         max={180}
         value={hsl.h}
         onChange={onSetH}
+        sx={{ width: '100%' }}
       />
       <NumericSliderInput
         labelTooltip='Saturation'
@@ -34,6 +34,7 @@ export default function HslVertexColorControls({
         max={100}
         value={hsl.s}
         onChange={onSetS}
+        sx={{ width: '100%' }}
       />
       <NumericSliderInput
         labelTooltip='Lightness'
@@ -43,7 +44,8 @@ export default function HslVertexColorControls({
         max={100}
         value={hsl.l}
         onChange={onSetL}
+        sx={{ width: '100%' }}
       />
-    </List>
+    </>
   );
 }

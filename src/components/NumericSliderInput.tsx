@@ -1,7 +1,6 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Box,
-  BoxProps,
   IconButton,
   ListItem,
   Slider,
@@ -9,6 +8,8 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
+import { SxProps, Theme } from '@mui/material/styles';
+import { SystemStyleObject } from '@mui/system';
 import {
   FocusEventHandler,
   ReactNode,
@@ -26,7 +27,9 @@ type Props = {
   labelTooltip: string;
   onChange: (value: number) => void;
   additionalControls?: ReactNode;
-  sx?: BoxProps['sx'];
+  labelSx?: SystemStyleObject<Theme>;
+  inputSx?: SystemStyleObject<Theme>;
+  sx?: SxProps<Theme>;
 };
 
 /**
@@ -42,6 +45,8 @@ export default function NumericSliderInput({
   labelTooltip,
   onChange,
   additionalControls,
+  labelSx,
+  inputSx,
   sx
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -80,16 +85,29 @@ export default function NumericSliderInput({
   );
 
   return (
-    <ListItem
+    <Box
       sx={{
         ...sx,
+        px: 2,
+        mt: 1,
+        mb: 0.5,
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
     >
-      <Box sx={{ display: 'flex', width: '100%' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100%',
+          alignItems: 'center'
+        }}
+      >
         <Tooltip title={labelTooltip} placement='left'>
-          <Typography variant='body1'>{label}</Typography>
+          <Typography variant='body1' sx={labelSx}>
+            {label}
+          </Typography>
         </Tooltip>
         <Slider
           size='small'
@@ -98,10 +116,17 @@ export default function NumericSliderInput({
           aria-label={label}
           valueLabelDisplay='auto'
           color='secondary'
-          className='MuiMenuItem-gutters'
           value={value}
           onChange={onChangeSlider}
-          sx={{ ml: 2, zIndex: 1, width: 'calc(100% - 48px)' }}
+          sx={{
+            ml: 2,
+            zIndex: 1,
+            py: 0,
+            '& .MuiSlider-thumb': {
+              width: 12,
+              height: 12
+            }
+          }}
         />
       </Box>
       <Box
@@ -109,8 +134,7 @@ export default function NumericSliderInput({
           width: '100%',
           display: 'flex',
           alignItems: 'center',
-          pl: 3,
-          pr: 2,
+          px: 3,
           justifyContent: 'flex-end'
         }}
       >
@@ -130,7 +154,8 @@ export default function NumericSliderInput({
               textAlign: 'right',
               py: 0,
               px: 1
-            }
+            },
+            ...inputSx
           }}
         />
         <IconButton
@@ -148,6 +173,6 @@ export default function NumericSliderInput({
           </Box>
         )}
       </Box>
-    </ListItem>
+    </Box>
   );
 }
