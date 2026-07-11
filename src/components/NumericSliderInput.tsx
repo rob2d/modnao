@@ -1,5 +1,6 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {
+  Box,
   BoxProps,
   IconButton,
   ListItem,
@@ -8,7 +9,13 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { FocusEventHandler, useCallback, useMemo, useRef } from 'react';
+import {
+  FocusEventHandler,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useRef
+} from 'react';
 
 type Props = {
   label: string;
@@ -18,6 +25,7 @@ type Props = {
   defaultValue: number;
   labelTooltip: string;
   onChange: (value: number) => void;
+  additionalControls?: ReactNode;
   sx?: BoxProps['sx'];
 };
 
@@ -33,6 +41,7 @@ export default function NumericSliderInput({
   label,
   labelTooltip,
   onChange,
+  additionalControls,
   sx
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -75,39 +84,10 @@ export default function NumericSliderInput({
       sx={{
         ...sx,
         display: 'flex',
-        flexDirection: 'column',
-        '& .slider': {
-          display: 'flex',
-          width: '100%'
-        },
-        '& .input-and-reset': {
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          pl: 3,
-          pr: 2,
-          justifyContent: 'flex-end',
-          '& .MuiIconButton-root': {
-            p: 0,
-            ml: 2
-          }
-        },
-        '& .MuiSlider-root': {
-          ml: 2,
-          zIndex: 1,
-          width: 'calc(100% - 48px)'
-        },
-        '& .MuiTextField-root.input': {
-          width: '72px'
-        },
-        '& .MuiTextField-root.input input': {
-          textAlign: 'right',
-          py: 0,
-          px: 1
-        }
+        flexDirection: 'column'
       }}
     >
-      <div className='slider'>
+      <Box sx={{ display: 'flex', width: '100%' }}>
         <Tooltip title={labelTooltip} placement='left'>
           <Typography variant='body1'>{label}</Typography>
         </Tooltip>
@@ -121,9 +101,19 @@ export default function NumericSliderInput({
           className='MuiMenuItem-gutters'
           value={value}
           onChange={onChangeSlider}
+          sx={{ ml: 2, zIndex: 1, width: 'calc(100% - 48px)' }}
         />
-      </div>
-      <div className='input-and-reset'>
+      </Box>
+      <Box
+        sx={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          pl: 3,
+          pr: 2,
+          justifyContent: 'flex-end'
+        }}
+      >
         <TextField
           key={value}
           color='secondary'
@@ -131,20 +121,33 @@ export default function NumericSliderInput({
           type='text'
           defaultValue={value}
           slotProps={slotProps}
-          className='input'
           onBlur={onChangeTextField}
           inputRef={inputRef}
           inputMode='numeric'
+          sx={{
+            width: 72,
+            '& input': {
+              textAlign: 'right',
+              py: 0,
+              px: 1
+            }
+          }}
         />
         <IconButton
           size='small'
           color='secondary'
           onClick={onResetValue}
           aria-label={`Reset ${label}`}
+          sx={{ p: 0, ml: 2 }}
         >
           <RefreshIcon fontSize='small' />
         </IconButton>
-      </div>
+        {!additionalControls ? null : (
+          <Box sx={{ display: 'flex', alignItems: 'center', ml: 2, gap: 1 }}>
+            {additionalControls}
+          </Box>
+        )}
+      </Box>
     </ListItem>
   );
 }
