@@ -1,7 +1,7 @@
 import type { NLUITextureDef, TextureDataUrlType } from '@/types';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
-import { HslValues } from '@/utils/textures';
+import { HslValues, TextureImageBufferKeys } from '@/utils/textures';
 import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
 import { ClientThread } from '@/utils/threads';
 import globalBuffers from '@/utils/data/globalBuffers';
@@ -50,6 +50,7 @@ export const sliceName = 'modelData';
 interface TextureHslAdjustmentPayload {
   textureIndex: number;
   hsl: HslValues;
+  sourceBufferKeys?: TextureImageBufferKeys;
   uvPixelByteIndexes?: number[];
 }
 
@@ -706,11 +707,18 @@ export const adjustTextureHsl = createAppAsyncThunk(
     }
 
     setTimeout(() => {
-      if (prevEditedTexture?.bufferKeys.opaque) {
+      if (
+        prevEditedTexture?.bufferKeys.opaque &&
+        prevEditedTexture.bufferKeys.opaque !== payload.sourceBufferKeys?.opaque
+      ) {
         globalBuffers.delete(prevEditedTexture.bufferKeys.opaque);
       }
 
-      if (prevEditedTexture?.bufferKeys.translucent) {
+      if (
+        prevEditedTexture?.bufferKeys.translucent &&
+        prevEditedTexture.bufferKeys.translucent !==
+          payload.sourceBufferKeys?.translucent
+      ) {
         globalBuffers.delete(prevEditedTexture.bufferKeys.translucent);
       }
     }, 250);
@@ -722,12 +730,17 @@ export const adjustTextureHsl = createAppAsyncThunk(
 export const processAdjustedTextureHsl = createAppAsyncThunk(
   `${sliceName}/processAdjustedTextureHsl`,
   async (
-    { textureIndex, hsl, uvPixelByteIndexes }: TextureHslAdjustmentPayload,
+    {
+      textureIndex,
+      hsl,
+      sourceBufferKeys,
+      uvPixelByteIndexes
+    }: TextureHslAdjustmentPayload,
     { getState }
   ) => {
     const state = getState();
     const textureDef = state.modelData.textureDefs[textureIndex];
-    const { bufferKeys } = textureDef;
+    const bufferKeys = sourceBufferKeys ?? textureDef.bufferKeys;
 
     const [opaqueRgbaBuffer, translucentRgbaBuffer] = await Promise.all(
       [bufferKeys.opaque, bufferKeys.translucent].map((bufferKey) =>

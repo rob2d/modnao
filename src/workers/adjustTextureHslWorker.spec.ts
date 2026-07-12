@@ -9,7 +9,7 @@ const bufferToArray = (buffer: SharedArrayBuffer) =>
   Array.from(new Uint8Array(buffer));
 
 describe('adjustTextureHslWorker', () => {
-  it('only adjusts pixels inside provided UV clip paths', async () => {
+  it('only adjusts pixels touched by provided UV clip paths', async () => {
     const source = Uint8Array.from([
       255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 255
     ]);
@@ -31,7 +31,7 @@ describe('adjustTextureHslWorker', () => {
     });
 
     expect(bufferToArray(result)).toEqual([
-      0, 255, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 255
+      0, 255, 0, 255, 0, 0, 255, 255, 255, 0, 0, 255, 255, 255, 255, 255
     ]);
   });
 
