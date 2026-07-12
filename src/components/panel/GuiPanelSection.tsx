@@ -42,7 +42,7 @@ export default function GuiPanelSection({
 
   if (!subtitleDisplayed && subtitle) {
     subtitleDisplayed = (
-      <Typography variant='caption' sx={{ mt: -0.5 }}>
+      <Typography variant='technical' sx={{ mt: -0.5 }}>
         {subtitle}
       </Typography>
     );

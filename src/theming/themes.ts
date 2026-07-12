@@ -25,30 +25,55 @@ export const publicSans = localFont({
   display: 'swap'
 });
 
+export const firaCode = localFont({
+  src: [
+    {
+      path: '../../public/fonts/FiraCodeLatin400.woff2',
+      style: 'normal',
+      weight: '400'
+    },
+    {
+      path: '../../public/fonts/FiraCodeLatin600.woff2',
+      style: 'normal',
+      weight: '600'
+    },
+    {
+      path: '../../public/fonts/FiraCodeLatin700.woff2',
+      style: 'normal',
+      weight: '700'
+    }
+  ],
+  display: 'swap'
+});
+
+export const firaCodeFontFamily = firaCode.style.fontFamily;
+
 const modes: PaletteMode[] = ['dark', 'light'];
 
 type AppThemeMixin = SystemStyleObject<Theme>;
 
 interface AppThemeMixins {
+  dropShadowContrast: AppThemeMixin;
   dialogScrollEdgeFrame: AppThemeMixin;
   dialogScrollEdgeScroller: AppThemeMixin;
   fileDragActiveAfter: AppThemeMixin;
+  fontFamilyMono: CSSProperties['fontFamily'];
   guiPanelExpansionL0W: CSSProperties['width'];
   guiPanelExpansionL1W: CSSProperties['width'];
   guiPanelExpansionL2W: CSSProperties['width'];
   guiPanelExpansionL3W: CSSProperties['width'];
-  sceneIconMixin: AppThemeMixin;
 }
 
 interface AppThemeMixinsOptions {
+  dropShadowContrast?: AppThemeMixin;
   dialogScrollEdgeFrame?: AppThemeMixin;
   dialogScrollEdgeScroller?: AppThemeMixin;
   fileDragActiveAfter?: AppThemeMixin;
+  fontFamilyMono?: CSSProperties['fontFamily'];
   guiPanelExpansionL0W?: CSSProperties['width'];
   guiPanelExpansionL1W?: CSSProperties['width'];
   guiPanelExpansionL2W?: CSSProperties['width'];
   guiPanelExpansionL3W?: CSSProperties['width'];
-  sceneIconMixin?: AppThemeMixin;
 }
 
 declare module '@mui/material' {
@@ -90,12 +115,32 @@ declare module '@mui/material' {
 }
 
 declare module '@mui/material/styles' {
+  interface TypographyVariants {
+    technical: CSSProperties;
+  }
+
+  interface TypographyVariantsOptions {
+    technical?: CSSProperties;
+  }
+
   interface Mixins extends AppThemeMixins {}
 
   interface MixinsOptions extends AppThemeMixinsOptions {}
 }
 
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    technical: true;
+  }
+}
+
 const mixins = {
+  dropShadowContrast: {
+    color: 'var(--mui-palette-common-white)',
+    filter:
+      'drop-shadow(2px 2px 1px color-mix(in srgb, var(--mui-palette-common-black) 70%, transparent))',
+    mixBlendMode: 'luminosity'
+  },
   dialogScrollEdgeFrame: {
     position: 'relative',
     boxSizing: 'border-box',
@@ -155,16 +200,11 @@ const mixins = {
     opacity: 0.75,
     pointerEvents: 'none'
   },
+  fontFamilyMono: firaCodeFontFamily,
   guiPanelExpansionL0W: '32px',
   guiPanelExpansionL1W: '222px',
   guiPanelExpansionL2W: '388px',
-  guiPanelExpansionL3W: '592px',
-  sceneIconMixin: {
-    color: 'var(--mui-palette-common-white)',
-    filter:
-      'drop-shadow(2px 2px 1px color-mix(in srgb, var(--mui-palette-common-black) 50%, transparent))',
-    mixBlendMode: 'luminosity'
-  }
+  guiPanelExpansionL3W: '592px'
 } satisfies AppThemeMixins;
 
 export type AppThemes = {
@@ -185,6 +225,11 @@ const themes = Object.fromEntries(
         },
         body2: {
           fontSize: '0.775rem'
+        },
+        technical: {
+          fontSize: '0.775rem',
+          fontWeight: 600,
+          fontFamily: firaCodeFontFamily
         },
         subtitle1: {
           fontSize: '0.875rem',

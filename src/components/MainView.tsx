@@ -151,7 +151,7 @@ export default function MainView() {
                       left: 'var(--mui-spacing)',
                       pointerEvents: 'none',
                       '& svg': {
-                        ...theme.mixins.sceneIconMixin,
+                        ...theme.mixins.dropShadowContrast,
                         opacity: 0,
                         transition: 'opacity 0.5s ease'
                       }
@@ -178,7 +178,7 @@ export default function MainView() {
                     transition: 'opacity 0.5s ease',
                     opacity: sceneButtonHidden ? 0 : 1,
                     pointerEvents: sceneButtonHidden ? 'none' : 'all',
-                    '& svg': theme.mixins.sceneIconMixin
+                    '& svg': theme.mixins.dropShadowContrast
                   })}
                 >
                   <InfoOutlinedIcon fontSize='medium' />
@@ -201,7 +201,7 @@ export default function MainView() {
                     transition: 'opacity 0.5s ease',
                     opacity: sceneButtonHidden ? 0 : 1,
                     pointerEvents: sceneButtonHidden ? 'none' : 'all',
-                    '& svg': theme.mixins.sceneIconMixin
+                    '& svg': theme.mixins.dropShadowContrast
                   })}
                 >
                   <VideocamIcon fontSize='medium' />

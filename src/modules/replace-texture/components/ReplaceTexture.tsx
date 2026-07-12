@@ -470,6 +470,9 @@ export default function ReplaceTexture() {
               maxWidth: { xs: '280px', md: 'none' },
               minHeight: 0,
               overflow: 'hidden',
+              '& .MuiFormControlLabel-root': {
+                mr: 0
+              },
               '& .MuiFormControlLabel-labelPlacementEnd': {
                 display: 'block'
               }
@@ -501,17 +504,13 @@ export default function ReplaceTexture() {
                 }}
               >
                 <Typography variant='subtitle1'>Dimensions</Typography>
-                <Typography variant='body2'>
-                  <b>{originalWidth}</b>&nbsp;x&nbsp;<b>{originalHeight}</b>
+                <Typography variant='technical'>
+                  {originalWidth} x {originalHeight}
                 </Typography>
                 <Typography variant='subtitle1'>Texture Index</Typography>
-                <Typography variant='body2'>
-                  <b>{textureIndex}</b>
-                </Typography>
+                <Typography variant='technical'>{textureIndex}</Typography>
                 <Typography variant='subtitle1'>Texture Format</Typography>
-                <Typography variant='body2'>
-                  <b>{textureFormat}</b>
-                </Typography>
+                <Typography variant='technical'>{textureFormat}</Typography>
               </Box>
               <Tooltip
                 title='Renders fully transparent pixels as transparent; this is useful in cases where there are transparent pixels that have color data.'
