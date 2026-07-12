@@ -211,6 +211,11 @@ export default function TextureColorOptions({
   const processedHsl = useThrottle(hsl, 200);
 
   useEffect(() => {
+    hasTouchedHslInputRef.current = false;
+    hslSourceBufferKeysRef.current = undefined;
+  }, [activeUvPixelByteIndexes, textureIndex]);
+
+  useEffect(() => {
     if (!hasTouchedHslInputRef.current) {
       return;
     }
