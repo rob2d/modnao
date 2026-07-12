@@ -1,4 +1,4 @@
-import { mvc2EffectsModelHints } from './mvc2StageModelHints';
+import mvc2EffectsModelHints from './mvc2EffectsModelHints';
 
 const mvc2EffectsAttribMappings = {
   'mvc2-special-effects': {
