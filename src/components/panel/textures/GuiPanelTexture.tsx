@@ -9,7 +9,14 @@ import {
 } from 'react';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Box, ButtonBase, IconButton, Skeleton, Tooltip } from '@mui/material';
+import {
+  Box,
+  ButtonBase,
+  IconButton,
+  Skeleton,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import type { SxProps, Theme } from '@mui/material/styles';
 import type { ContentViewMode, NLUITextureDef } from '@/types';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
@@ -65,17 +72,34 @@ const panelTextureSx: SxProps<Theme> = (theme) => ({
   '&.mode-textures.selectable': {
     cursor: 'pointer'
   },
-  '& .texture-overlay-button': {
+  '& .texture-overlay': {
+    position: 'absolute',
+    inset: 0,
     opacity: 0,
     transition: theme.transitions.create('opacity', {
       duration: theme.transitions.duration.short
-    })
+    }),
+    pointerEvents: 'none',
+    zIndex: 1
   },
-  '& .texture-overlay-button svg': {
+  '& .texture-overlay-content': {
+    position: 'relative',
+    width: '100%',
+    height: '100%'
+  },
+  '& .texture-overlay-actions': {
+    position: 'absolute',
+    top: 'calc(var(--mui-spacing) * 0.5)',
+    right: 0,
+    display: 'flex',
+    pointerEvents: 'auto'
+  },
+  '& .texture-overlay .MuiIconButton-root svg': {
+    ...theme.mixins.dropShadowContrast,
     color: 'var(--mui-palette-primary-contrastText)',
-    filter: 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.8))'
+    mixBlendMode: 'normal'
   },
-  '&:hover .texture-overlay-button': {
+  '&:hover .texture-overlay, & .texture-overlay:focus-within': {
     opacity: 1
   }
 });
@@ -378,38 +402,44 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       )}
       {textureDef ? (
         <>
-          <Tooltip title='Texture options'>
-            <IconButton
-              color='primary'
-              aria-haspopup='true'
-              onClick={onOpenTextureMenu}
-              className='texture-overlay-button'
-              sx={{
-                position: 'absolute',
-                top: 'var(--mui-spacing)',
-                right: 0,
-                visibility: textureMenuOpen ? 'hidden' : 'visible'
-              }}
-            >
-              <MoreVertIcon fontSize='small' />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title='Find models this texture is used in'>
-            <IconButton
-              color='primary'
-              aria-haspopup='true'
-              onClick={onOpenModelNavMenu}
-              className='texture-overlay-button'
-              sx={{
-                position: 'absolute',
-                top: 'calc(var(--mui-spacing) * 6)',
-                right: 0,
-                visibility: modelNavMenuOpen ? 'hidden' : 'visible'
-              }}
-            >
-              <AccountTreeIcon fontSize='small' />
-            </IconButton>
-          </Tooltip>
+          <Box className='texture-overlay'>
+            <Box className='texture-overlay-content'>
+              <Box className='texture-overlay-actions'>
+                <Tooltip title='Find models this texture is used in'>
+                  <IconButton
+                    color='primary'
+                    aria-haspopup='true'
+                    onClick={onOpenModelNavMenu}
+                    sx={{ visibility: modelNavMenuOpen ? 'hidden' : 'visible' }}
+                  >
+                    <AccountTreeIcon fontSize='small' />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title='Texture options'>
+                  <IconButton
+                    color='primary'
+                    aria-haspopup='true'
+                    onClick={onOpenTextureMenu}
+                    sx={{ visibility: textureMenuOpen ? 'hidden' : 'visible' }}
+                  >
+                    <MoreVertIcon fontSize='small' />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <Typography
+                color='primary.contrastText'
+                variant='technical'
+                sx={(theme) => ({
+                  position: 'absolute',
+                  bottom: 'var(--mui-spacing)',
+                  right: 'var(--mui-spacing)',
+                  ...theme.mixins.dropShadowContrast
+                })}
+              >
+                {textureDef.width} x {textureDef.height}
+              </Typography>
+            </Box>
+          </Box>
           <GuiPanelTextureMenu
             textureIndex={textureIndex}
             pixelBufferKeys={textureDef.bufferKeys}

@@ -33,6 +33,11 @@ export const firaCode = localFont({
       weight: '400'
     },
     {
+      path: '../../public/fonts/FiraCodeLatin600.woff2',
+      style: 'normal',
+      weight: '600'
+    },
+    {
       path: '../../public/fonts/FiraCodeLatin700.woff2',
       style: 'normal',
       weight: '700'
@@ -110,9 +115,23 @@ declare module '@mui/material' {
 }
 
 declare module '@mui/material/styles' {
+  interface TypographyVariants {
+    technical: CSSProperties;
+  }
+
+  interface TypographyVariantsOptions {
+    technical?: CSSProperties;
+  }
+
   interface Mixins extends AppThemeMixins {}
 
   interface MixinsOptions extends AppThemeMixinsOptions {}
+}
+
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    technical: true;
+  }
 }
 
 const mixins = {
@@ -206,6 +225,11 @@ const themes = Object.fromEntries(
         },
         body2: {
           fontSize: '0.775rem'
+        },
+        technical: {
+          fontSize: '0.775rem',
+          fontWeight: 600,
+          fontFamily: firaCodeFontFamily
         },
         subtitle1: {
           fontSize: '0.875rem',
