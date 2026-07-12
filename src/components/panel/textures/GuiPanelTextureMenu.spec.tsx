@@ -15,16 +15,20 @@ jest.mock('@/modules/model-data', () => ({
 
 describe('GuiPanelTextureMenu', () => {
   it('keeps tab keydown from texture menu items inside the menu', async () => {
+    const anchorEl = document.createElement('button');
+    document.body.appendChild(anchorEl);
+
     render(
       <GuiPanelTextureMenu
         textureIndex={0}
         pixelBufferKeys={{ opaque: '', translucent: '' }}
         selectedUvClipPaths={[]}
         onReplaceImageFile={jest.fn()}
+        anchorEl={anchorEl}
+        open
+        onClose={jest.fn()}
       />
     );
-
-    fireEvent.click(screen.getByRole('button'));
 
     const cropRotateItem = await screen.findByText('Crop/rotate');
     fireEvent.keyDown(cropRotateItem, { key: 'Tab' });
