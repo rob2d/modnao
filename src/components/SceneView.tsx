@@ -375,7 +375,7 @@ export default function SceneView() {
             transition: 'opacity 0.5s ease',
             opacity: resetCamPosButtonHidden ? 0 : 1,
             pointerEvents: resetCamPosButtonHidden ? 'none' : 'all',
-            '& svg': theme.mixins.sceneIconMixin
+            '& svg': theme.mixins.dropShadowContrast
           })}
         >
           <CenterFocusStrongIcon fontSize='medium' />
