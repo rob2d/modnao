@@ -24,7 +24,7 @@ const VertexGradientTransformControls = memo(
     const { angle, tilt, pivotPoint } = $gradientTransform.value;
 
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', p: 0, gap: 1 }}>
         <NumericSliderInput
           labelTooltip='Gradient angle'
           label='Angle'

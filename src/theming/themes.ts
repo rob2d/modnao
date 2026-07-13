@@ -309,6 +309,13 @@ const themes = Object.fromEntries(
               minHeight: '8px'
             }
           }
+        },
+        MuiOutlinedInput: {
+          styleOverrides: {
+            root: {
+              backgroundColor: 'var(--mui-palette-background-paper)'
+            }
+          }
         }
       },
       palette: {

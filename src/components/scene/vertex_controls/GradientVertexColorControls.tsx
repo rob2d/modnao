@@ -66,8 +66,16 @@ export default function GradientVertexColorControls({
     onApplyGradient(gradientPayload);
   });
 
+  const gradientStartColor = $gradientStartColor.value;
+  const gradientEndColor = $gradientEndColor.value;
+  const { pivotPoint } = $gradientTransform.value;
+  const gradientStartCssColor = `rgb(${gradientStartColor.r} ${gradientStartColor.g} ${gradientStartColor.b})`;
+  const gradientEndCssColor = `rgb(${gradientEndColor.r} ${gradientEndColor.g} ${gradientEndColor.b})`;
+  const gradientPivotCssColor = `rgb(${Math.round((gradientStartColor.r + gradientEndColor.r) / 2)} ${Math.round((gradientStartColor.g + gradientEndColor.g) / 2)} ${Math.round((gradientStartColor.b + gradientEndColor.b) / 2)})`;
+  const gradientPivotPercent = `${pivotPoint * 100}%`;
+
   return (
-    <Box sx={{ display: 'grid', gap: 1.25, mt: 1 }}>
+    <Box sx={{ display: 'grid', gap: 1.25, my: 1 }}>
       <GradientSelectionPreview
         $gradientTransform={$gradientTransform}
         $gradientStartColor={$gradientStartColor}
@@ -77,6 +85,54 @@ export default function GradientVertexColorControls({
       <VertexGradientTransformControls
         $gradientTransform={$gradientTransform}
       />
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '20px minmax(0, 1fr) 20px',
+          alignItems: 'center',
+          gap: 1,
+          px: 2
+        }}
+      >
+        <Box
+          sx={{
+            width: 20,
+            height: 20,
+            borderRadius: 0.5,
+            backgroundColor: gradientStartCssColor,
+            border: '1px solid var(--mui-palette-divider)'
+          }}
+        />
+        <Box
+          sx={{
+            position: 'relative',
+            height: 10,
+            borderRadius: 0.5,
+            background: `linear-gradient(90deg, ${gradientStartCssColor} 0%, ${gradientPivotCssColor} ${gradientPivotPercent}, ${gradientEndCssColor} 100%)`,
+            border: '1px solid var(--mui-palette-divider)',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              left: gradientPivotPercent,
+              top: -3,
+              width: 2,
+              height: 14,
+              backgroundColor: 'var(--mui-palette-common-white)',
+              border: '1px solid var(--mui-palette-common-black)',
+              transform: 'translateX(-50%)'
+            }
+          }}
+        />
+        <Box
+          sx={{
+            width: 20,
+            height: 20,
+            borderRadius: 0.5,
+            backgroundColor: gradientEndCssColor,
+            border: '1px solid var(--mui-palette-divider)'
+          }}
+        />
+      </Box>
     </Box>
   );
 }
