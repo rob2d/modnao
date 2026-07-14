@@ -1,10 +1,14 @@
-import { useRef } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   useComputed,
   useSignal,
   useSignalEffect
 } from '@preact-signals/safe-react';
-import { Box } from '@mui/material';
+import type { ColorResult } from 'react-color';
+import { SketchPicker } from 'react-color';
+import { Box, Popover } from '@mui/material';
+import ColorPickerSwatch from '@/components/ColorPickerSwatch';
 import type { ApplySelectedVertexGradientPayload } from '@/modules/model-data';
 import GradientSelectionPreview, {
   DEFAULT_GRADIENT_ANGLE,
@@ -12,9 +16,20 @@ import GradientSelectionPreview, {
   DEFAULT_GRADIENT_PIVOT_POINT,
   DEFAULT_GRADIENT_START_COLOR,
   DEFAULT_GRADIENT_TILT,
+  type GradientColorHandle,
   type GradientTransform
 } from './GradientSelectionPreview';
 import VertexGradientTransformControls from './VertexGradientTransformControls';
+
+const GRADIENT_COLOR_POPOVER_ANCHOR_ORIGIN = {
+  vertical: 'center',
+  horizontal: 'left'
+} as const;
+
+const GRADIENT_COLOR_POPOVER_TRANSFORM_ORIGIN = {
+  vertical: 'center',
+  horizontal: 'right'
+} as const;
 
 interface GradientVertexColorControlsProps {
   popoverAnchorEl: HTMLDivElement | null;
@@ -33,6 +48,8 @@ export default function GradientVertexColorControls({
 
   const $gradientStartColor = useSignal(DEFAULT_GRADIENT_START_COLOR);
   const $gradientEndColor = useSignal(DEFAULT_GRADIENT_END_COLOR);
+  const [activeGradientColorHandle, setActiveGradientColorHandle] =
+    useState<GradientColorHandle | null>(null);
   const hasAppliedGradientRef = useRef(false);
   const $gradientPayload = useComputed<ApplySelectedVertexGradientPayload>(
     () => {
@@ -66,9 +83,56 @@ export default function GradientVertexColorControls({
     onApplyGradient(gradientPayload);
   });
 
+  const onOpenGradientColorPicker = useCallback(
+    (handle: GradientColorHandle) => {
+      setActiveGradientColorHandle(handle);
+    },
+    []
+  );
+
+  const onCloseGradientColorPicker = useCallback(() => {
+    setActiveGradientColorHandle(null);
+  }, []);
+
+  const onStopGradientColorPopoverPointer = useCallback(
+    (event: ReactPointerEvent<Element>) => {
+      event.stopPropagation();
+    },
+    []
+  );
+
+  const onChangeGradientColor = useCallback(
+    ({ rgb }: ColorResult) => {
+      if (activeGradientColorHandle === 'start') {
+        $gradientStartColor.value = rgb;
+
+        return;
+      }
+
+      if (activeGradientColorHandle === 'end') {
+        $gradientEndColor.value = rgb;
+      }
+    },
+    [$gradientEndColor, $gradientStartColor, activeGradientColorHandle]
+  );
+
+  const onChangeGradientStartColor = useCallback(
+    ({ rgb }: ColorResult) => ($gradientStartColor.value = rgb),
+    [$gradientStartColor]
+  );
+
+  const onChangeGradientEndColor = useCallback(
+    ({ rgb }: ColorResult) => ($gradientEndColor.value = rgb),
+    [$gradientEndColor]
+  );
+
   const gradientStartColor = $gradientStartColor.value;
   const gradientEndColor = $gradientEndColor.value;
   const { pivotPoint } = $gradientTransform.value;
+  const activeGradientColor =
+    activeGradientColorHandle === 'start'
+      ? gradientStartColor
+      : gradientEndColor;
   const gradientStartCssColor = `rgb(${gradientStartColor.r} ${gradientStartColor.g} ${gradientStartColor.b})`;
   const gradientEndCssColor = `rgb(${gradientEndColor.r} ${gradientEndColor.g} ${gradientEndColor.b})`;
   const gradientPivotCssColor = `rgb(${Math.round((gradientStartColor.r + gradientEndColor.r) / 2)} ${Math.round((gradientStartColor.g + gradientEndColor.g) / 2)} ${Math.round((gradientStartColor.b + gradientEndColor.b) / 2)})`;
@@ -80,7 +144,8 @@ export default function GradientVertexColorControls({
         $gradientTransform={$gradientTransform}
         $gradientStartColor={$gradientStartColor}
         $gradientEndColor={$gradientEndColor}
-        popoverAnchorEl={popoverAnchorEl}
+        onOpenGradientColorPicker={onOpenGradientColorPicker}
+        onCloseGradientColorPicker={onCloseGradientColorPicker}
       />
       <VertexGradientTransformControls
         $gradientTransform={$gradientTransform}
@@ -94,14 +159,14 @@ export default function GradientVertexColorControls({
           px: 2
         }}
       >
-        <Box
-          sx={{
-            width: 20,
-            height: 20,
-            borderRadius: 0.5,
-            backgroundColor: gradientStartCssColor,
-            border: '1px solid var(--mui-palette-divider)'
-          }}
+        <ColorPickerSwatch
+          ariaLabel='Select gradient start color'
+          color={gradientStartColor}
+          swatchColor={gradientStartCssColor}
+          onChange={onChangeGradientStartColor}
+          anchorOrigin={GRADIENT_COLOR_POPOVER_ANCHOR_ORIGIN}
+          transformOrigin={GRADIENT_COLOR_POPOVER_TRANSFORM_ORIGIN}
+          popoverSlotProps={{ paper: { sx: { ml: -1 } } }}
         />
         <Box
           sx={{
@@ -123,16 +188,35 @@ export default function GradientVertexColorControls({
             }
           }}
         />
-        <Box
-          sx={{
-            width: 20,
-            height: 20,
-            borderRadius: 0.5,
-            backgroundColor: gradientEndCssColor,
-            border: '1px solid var(--mui-palette-divider)'
-          }}
+        <ColorPickerSwatch
+          ariaLabel='Select gradient end color'
+          color={gradientEndColor}
+          swatchColor={gradientEndCssColor}
+          onChange={onChangeGradientEndColor}
+          anchorOrigin={GRADIENT_COLOR_POPOVER_ANCHOR_ORIGIN}
+          transformOrigin={GRADIENT_COLOR_POPOVER_TRANSFORM_ORIGIN}
+          popoverSlotProps={{ paper: { sx: { ml: -1 } } }}
         />
       </Box>
+      {!activeGradientColorHandle ? null : (
+        <Popover
+          open={Boolean(popoverAnchorEl)}
+          anchorEl={popoverAnchorEl}
+          onClose={onCloseGradientColorPicker}
+          anchorOrigin={GRADIENT_COLOR_POPOVER_ANCHOR_ORIGIN}
+          transformOrigin={GRADIENT_COLOR_POPOVER_TRANSFORM_ORIGIN}
+          onPointerDown={onStopGradientColorPopoverPointer}
+          onPointerMove={onStopGradientColorPopoverPointer}
+          onPointerUp={onStopGradientColorPopoverPointer}
+          onPointerCancel={onStopGradientColorPopoverPointer}
+          slotProps={{ paper: { sx: { ml: -1 } } }}
+        >
+          <SketchPicker
+            color={activeGradientColor}
+            onChange={onChangeGradientColor}
+          />
+        </Popover>
+      )}
     </Box>
   );
 }

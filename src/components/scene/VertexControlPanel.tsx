@@ -192,7 +192,8 @@ export default function VertexControlPanel({
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                gap: 0.25
               }}
             >
               {controlsByMode[colorEditMode]()}

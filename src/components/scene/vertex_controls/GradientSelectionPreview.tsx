@@ -1,9 +1,9 @@
 import type { PointerEvent } from 'react';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import type { Signal } from '@preact-signals/safe-react';
 import { effect as signalEffect } from '@preact-signals/safe-react';
-import { type ColorResult, type RGBColor, SketchPicker } from 'react-color';
-import { Box, Popover } from '@mui/material';
+import type { RGBColor } from 'react-color';
+import { Box } from '@mui/material';
 
 interface GradientMeshPoint {
   coordinateX: number;
@@ -48,7 +48,8 @@ interface GradientSelectionPreviewProps {
   $gradientTransform: Signal<GradientTransform>;
   $gradientStartColor: Signal<RGBColor>;
   $gradientEndColor: Signal<RGBColor>;
-  popoverAnchorEl: HTMLDivElement | null;
+  onOpenGradientColorPicker: (handle: GradientColorHandle) => void;
+  onCloseGradientColorPicker: () => void;
 }
 
 export interface GradientTransform {
@@ -57,7 +58,7 @@ export interface GradientTransform {
   pivotPoint: number;
 }
 
-type GradientColorHandle = 'start' | 'end';
+export type GradientColorHandle = 'start' | 'end';
 
 interface PendingGradientHandleDrag {
   handle: GradientColorHandle;
@@ -136,15 +137,6 @@ const GRADIENT_BAR_FILL_ID = 'gradient-direction-bar-fill';
 const GRADIENT_BAR_OUTLINE_ID = 'gradient-direction-bar-outline';
 const GRADIENT_HANDLE_DRAG_DISTANCE = 5;
 const GRADIENT_HANDLE_DRAG_DELAY = 140;
-const GRADIENT_COLOR_POPOVER_ANCHOR_ORIGIN = {
-  vertical: 'center',
-  horizontal: 'left'
-} as const;
-const GRADIENT_COLOR_POPOVER_TRANSFORM_ORIGIN = {
-  vertical: 'center',
-  horizontal: 'right'
-} as const;
-
 export const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
@@ -419,7 +411,8 @@ export default memo(function GradientSelectionPreview({
   $gradientTransform,
   $gradientStartColor,
   $gradientEndColor,
-  popoverAnchorEl
+  onOpenGradientColorPicker,
+  onCloseGradientColorPicker
 }: GradientSelectionPreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const meshLineRefs = useRef<Array<SVGLineElement | null>>([]);
@@ -432,10 +425,6 @@ export default memo(function GradientSelectionPreview({
   );
   const pendingGradientPreviewDragRef =
     useRef<PendingGradientPreviewDrag | null>(null);
-  const [isGradientColorPopoverOpen, setIsGradientColorPopoverOpen] =
-    useState(false);
-  const [activeGradientColorHandle, setActiveGradientColorHandle] =
-    useState<GradientColorHandle | null>(null);
   const gradientStartColor = $gradientStartColor.value;
   const gradientEndColor = $gradientEndColor.value;
   const { angle, tilt, pivotPoint } = $gradientTransform.value;
@@ -451,10 +440,6 @@ export default memo(function GradientSelectionPreview({
     start: gradientStartCssColor,
     end: gradientEndCssColor
   } satisfies Record<GradientColorHandle, string>;
-  const activeGradientColor =
-    activeGradientColorHandle === 'start'
-      ? gradientStartColor
-      : gradientEndColor;
   const previewPivotOffset = `${8 + pivotPoint * 84}%`;
   const barPivotOffset = `${pivotPoint * 100}%`;
   const onUpdatePreviewFromDrag = useCallback(
@@ -547,17 +532,12 @@ export default memo(function GradientSelectionPreview({
     []
   );
 
-  const onCloseGradientColorPopover = useCallback(() => {
-    setIsGradientColorPopoverOpen(false);
-    setActiveGradientColorHandle(null);
-  }, []);
-
   const onStartGradientHandlePointer = useCallback(
     (handle: GradientColorHandle) =>
       (event: PointerEvent<HTMLButtonElement>) => {
         event.stopPropagation();
         event.currentTarget.setPointerCapture(event.pointerId);
-        onCloseGradientColorPopover();
+        onCloseGradientColorPicker();
 
         pendingGradientHandleDragRef.current = {
           handle,
@@ -570,7 +550,7 @@ export default memo(function GradientSelectionPreview({
           hasDragged: false
         };
       },
-    [angle, tilt, onCloseGradientColorPopover]
+    [angle, tilt, onCloseGradientColorPicker]
   );
 
   const onDragGradientHandlePointer = useCallback(
@@ -603,14 +583,14 @@ export default memo(function GradientSelectionPreview({
       }
 
       pendingGradientHandleDrag.hasDragged = true;
-      onCloseGradientColorPopover();
+      onCloseGradientColorPicker();
       onUpdatePreviewFromDrag(
         pendingGradientHandleDrag,
         event.clientX,
         event.clientY
       );
     },
-    [onCloseGradientColorPopover, onUpdatePreviewFromDrag]
+    [onCloseGradientColorPicker, onUpdatePreviewFromDrag]
   );
 
   const onEndGradientHandlePointer = useCallback(
@@ -622,11 +602,10 @@ export default memo(function GradientSelectionPreview({
       pendingGradientHandleDragRef.current = null;
 
       if (pendingGradientHandleDrag && !pendingGradientHandleDrag.hasDragged) {
-        setActiveGradientColorHandle(pendingGradientHandleDrag.handle);
-        setIsGradientColorPopoverOpen(true);
+        onOpenGradientColorPicker(pendingGradientHandleDrag.handle);
       }
     },
-    []
+    [onOpenGradientColorPicker]
   );
 
   const onCancelGradientHandlePointer = useCallback(
@@ -635,28 +614,6 @@ export default memo(function GradientSelectionPreview({
       pendingGradientHandleDragRef.current = null;
     },
     []
-  );
-
-  const onStopGradientColorPopoverPointer = useCallback(
-    (event: PointerEvent<Element>) => {
-      event.stopPropagation();
-    },
-    []
-  );
-
-  const onChangeGradientColor = useCallback(
-    ({ rgb }: ColorResult) => {
-      if (activeGradientColorHandle === 'start') {
-        $gradientStartColor.value = rgb;
-
-        return;
-      }
-
-      if (activeGradientColorHandle === 'end') {
-        $gradientEndColor.value = rgb;
-      }
-    },
-    [$gradientEndColor, $gradientStartColor, activeGradientColorHandle]
   );
 
   useEffect(() => {
@@ -974,25 +931,6 @@ export default memo(function GradientSelectionPreview({
             />
           </Box>
         )
-      )}
-      {!activeGradientColorHandle ? null : (
-        <Popover
-          open={isGradientColorPopoverOpen && Boolean(popoverAnchorEl)}
-          anchorEl={popoverAnchorEl}
-          onClose={onCloseGradientColorPopover}
-          anchorOrigin={GRADIENT_COLOR_POPOVER_ANCHOR_ORIGIN}
-          transformOrigin={GRADIENT_COLOR_POPOVER_TRANSFORM_ORIGIN}
-          onPointerDown={onStopGradientColorPopoverPointer}
-          onPointerMove={onStopGradientColorPopoverPointer}
-          onPointerUp={onStopGradientColorPopoverPointer}
-          onPointerCancel={onStopGradientColorPopoverPointer}
-          slotProps={{ paper: { sx: { ml: -1 } } }}
-        >
-          <SketchPicker
-            color={activeGradientColor}
-            onChange={onChangeGradientColor}
-          />
-        </Popover>
       )}
       {GRADIENT_AXIS_LABEL_CONFIGS.map(({ label, position }) => (
         <Box
