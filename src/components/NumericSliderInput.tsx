@@ -69,17 +69,20 @@ export default function NumericSliderInput({
     [onChange, value, min, max]
   );
 
-  const onChangeSlider = useCallback((_: Event, value: number | number[]) => {
-    if (Array.isArray(value)) {
-      onChange(value[0]);
-    } else {
-      onChange(value);
-    }
-  }, []);
+  const onChangeSlider = useCallback(
+    (_: Event, value: number | number[]) => {
+      if (Array.isArray(value)) {
+        onChange(value[0]);
+      } else {
+        onChange(value);
+      }
+    },
+    [onChange]
+  );
 
   const onResetValue = useCallback(() => {
     onChange(defaultValue);
-  }, [defaultValue]);
+  }, [defaultValue, onChange]);
 
   const slotProps = useMemo(
     () => ({ input: { type: 'number', min, max, step } }),
