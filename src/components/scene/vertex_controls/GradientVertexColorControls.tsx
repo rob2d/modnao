@@ -1,5 +1,6 @@
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useRef, useState } from 'react';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import {
   useComputed,
   useSignal,
@@ -7,7 +8,7 @@ import {
 } from '@preact-signals/safe-react';
 import type { ColorResult } from 'react-color';
 import { SketchPicker } from 'react-color';
-import { Box, Popover } from '@mui/material';
+import { Box, IconButton, Popover, Tooltip } from '@mui/material';
 import ColorPickerSwatch from '@/components/ColorPickerSwatch';
 import type { ApplySelectedVertexGradientPayload } from '@/modules/model-data';
 import GradientSelectionPreview, {
@@ -126,6 +127,13 @@ export default function GradientVertexColorControls({
     [$gradientEndColor]
   );
 
+  const onSwapGradientColors = useCallback(() => {
+    const nextStartColor = $gradientEndColor.value;
+
+    $gradientEndColor.value = $gradientStartColor.value;
+    $gradientStartColor.value = nextStartColor;
+  }, [$gradientEndColor, $gradientStartColor]);
+
   const gradientStartColor = $gradientStartColor.value;
   const gradientEndColor = $gradientEndColor.value;
   const { pivotPoint } = $gradientTransform.value;
@@ -171,23 +179,58 @@ export default function GradientVertexColorControls({
         <Box
           sx={{
             position: 'relative',
-            height: 10,
-            borderRadius: 0.5,
-            background: `linear-gradient(90deg, ${gradientStartCssColor} 0%, ${gradientPivotCssColor} ${gradientPivotPercent}, ${gradientEndCssColor} 100%)`,
-            border: '1px solid var(--mui-palette-divider)',
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              left: gradientPivotPercent,
-              top: -3,
-              width: 2,
-              height: 14,
-              backgroundColor: 'var(--mui-palette-common-white)',
-              border: '1px solid var(--mui-palette-common-black)',
-              transform: 'translateX(-50%)'
-            }
+            height: 24,
+            display: 'flex',
+            alignItems: 'center'
           }}
-        />
+        >
+          <Box
+            sx={{
+              position: 'relative',
+              width: '100%',
+              height: 10,
+              borderRadius: 0.5,
+              background: `linear-gradient(90deg, ${gradientStartCssColor} 0%, ${gradientPivotCssColor} ${gradientPivotPercent}, ${gradientEndCssColor} 100%)`,
+              border: '1px solid var(--mui-palette-divider)',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                left: gradientPivotPercent,
+                top: -3,
+                width: 2,
+                height: 14,
+                backgroundColor: 'var(--mui-palette-common-white)',
+                border: '1px solid var(--mui-palette-common-black)',
+                transform: 'translateX(-50%)'
+              }
+            }}
+          />
+          <Tooltip title='Swap gradient start and end colors'>
+            <IconButton
+              size='small'
+              onClick={onSwapGradientColors}
+              aria-label='Swap gradient start and end colors'
+              sx={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 20,
+                height: 20,
+                transform: 'translate(-50%, -50%)',
+                border: '1px solid var(--mui-palette-divider)',
+                backgroundColor: 'var(--mui-palette-background-paper)',
+                color: 'var(--mui-palette-text-secondary)',
+                '&:hover': {
+                  backgroundColor: 'var(--mui-palette-background-paper)',
+                  borderColor: 'var(--mui-palette-secondary-main)',
+                  color: 'var(--mui-palette-secondary-main)'
+                }
+              }}
+            >
+              <SwapHorizIcon fontSize='inherit' />
+            </IconButton>
+          </Tooltip>
+        </Box>
         <ColorPickerSwatch
           ariaLabel='Select gradient end color'
           color={gradientEndColor}
