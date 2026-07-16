@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react';
-import VertexControlPanel from './VertexControlPanel';
+import VertexControlPanel, {
+  getDefaultGradientVertexColors
+} from './VertexControlPanel';
 import type { VertexColorUpdate } from '@/modules/model-data';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 
@@ -43,5 +45,30 @@ describe('VertexControlPanel', () => {
     expect(
       screen.getByRole('group', { name: 'Vertex color edit mode' })
     ).toBeVisible();
+  });
+
+  it('defaults gradient handles to the same color when the selection has one color', () => {
+    const defaultGradientVertexColors = getDefaultGradientVertexColors([
+      { contentAddress: 1, color: [1, 0, 0, 1] },
+      { contentAddress: 2, color: [1, 0, 0, 1] }
+    ]);
+
+    expect(defaultGradientVertexColors).toEqual({
+      startColor: { r: 255, g: 0, b: 0 },
+      endColor: { r: 255, g: 0, b: 0 }
+    });
+  });
+
+  it('defaults gradient handles to the selected colors with the widest color range', () => {
+    const defaultGradientVertexColors = getDefaultGradientVertexColors([
+      { contentAddress: 1, color: [1, 0, 0, 1] },
+      { contentAddress: 2, color: [1, 0.45, 0, 1] },
+      { contentAddress: 3, color: [0, 0.15, 1, 1] }
+    ]);
+
+    expect(defaultGradientVertexColors).toEqual({
+      startColor: { r: 255, g: 0, b: 0 },
+      endColor: { r: 0, g: 38, b: 255 }
+    });
   });
 });

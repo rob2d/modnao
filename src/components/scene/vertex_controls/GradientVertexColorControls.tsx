@@ -1,12 +1,9 @@
 import type { PointerEvent as ReactPointerEvent } from 'react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import {
-  useComputed,
-  useSignal,
-  useSignalEffect
-} from '@preact-signals/safe-react';
-import type { ColorResult } from 'react-color';
+import { useSignal } from '@preact-signals/safe-react';
+import { useThrottle } from '@uidotdev/usehooks';
+import type { ColorResult, RGBColor } from 'react-color';
 import { SketchPicker } from 'react-color';
 import { Box, IconButton, Popover, Tooltip } from '@mui/material';
 import ColorPickerSwatch from '@/components/ColorPickerSwatch';
@@ -32,13 +29,22 @@ const GRADIENT_COLOR_POPOVER_TRANSFORM_ORIGIN = {
   horizontal: 'right'
 } as const;
 
+const GRADIENT_TRANSFORM_THROTTLE_MS = 125;
+
+interface GradientVertexColors {
+  startColor: RGBColor;
+  endColor: RGBColor;
+}
+
 interface GradientVertexColorControlsProps {
   popoverAnchorEl: HTMLDivElement | null;
+  defaultGradientVertexColors: GradientVertexColors | undefined;
   onApplyGradient: (payload: ApplySelectedVertexGradientPayload) => void;
 }
 
 export default function GradientVertexColorControls({
   popoverAnchorEl,
+  defaultGradientVertexColors,
   onApplyGradient
 }: GradientVertexColorControlsProps) {
   const $gradientTransform = useSignal<GradientTransform>({
@@ -47,34 +53,49 @@ export default function GradientVertexColorControls({
     pivotPoint: DEFAULT_GRADIENT_PIVOT_POINT
   });
 
-  const $gradientStartColor = useSignal(DEFAULT_GRADIENT_START_COLOR);
-  const $gradientEndColor = useSignal(DEFAULT_GRADIENT_END_COLOR);
+  const $gradientStartColor = useSignal(
+    defaultGradientVertexColors?.startColor ?? DEFAULT_GRADIENT_START_COLOR
+  );
+  const $gradientEndColor = useSignal(
+    defaultGradientVertexColors?.endColor ?? DEFAULT_GRADIENT_END_COLOR
+  );
   const [activeGradientColorHandle, setActiveGradientColorHandle] =
     useState<GradientColorHandle | null>(null);
   const hasAppliedGradientRef = useRef(false);
-  const $gradientPayload = useComputed<ApplySelectedVertexGradientPayload>(
-    () => {
-      const startColor = $gradientStartColor.value;
-      const endColor = $gradientEndColor.value;
-      const { angle, tilt, pivotPoint } = $gradientTransform.value;
-
-      return {
-        startColor: [
-          startColor.r / 0xff,
-          startColor.g / 0xff,
-          startColor.b / 0xff
-        ],
-        endColor: [endColor.r / 0xff, endColor.g / 0xff, endColor.b / 0xff],
-        angle,
-        tilt,
-        pivotPoint
-      };
-    }
+  const gradientStartColor = $gradientStartColor.value;
+  const gradientEndColor = $gradientEndColor.value;
+  const { angle, tilt, pivotPoint } = $gradientTransform.value;
+  const gradientAngleTilt = useMemo(() => ({ angle, tilt }), [angle, tilt]);
+  const throttledGradientAngleTilt = useThrottle(
+    gradientAngleTilt,
+    GRADIENT_TRANSFORM_THROTTLE_MS
+  );
+  const gradientPayload = useMemo<ApplySelectedVertexGradientPayload>(
+    () => ({
+      startColor: [
+        gradientStartColor.r / 0xff,
+        gradientStartColor.g / 0xff,
+        gradientStartColor.b / 0xff
+      ],
+      endColor: [
+        gradientEndColor.r / 0xff,
+        gradientEndColor.g / 0xff,
+        gradientEndColor.b / 0xff
+      ],
+      angle: throttledGradientAngleTilt.angle,
+      tilt: throttledGradientAngleTilt.tilt,
+      pivotPoint
+    }),
+    [
+      gradientEndColor,
+      gradientStartColor,
+      pivotPoint,
+      throttledGradientAngleTilt.angle,
+      throttledGradientAngleTilt.tilt
+    ]
   );
 
-  useSignalEffect(() => {
-    const gradientPayload = $gradientPayload.value;
-
+  useEffect(() => {
     if (!hasAppliedGradientRef.current) {
       hasAppliedGradientRef.current = true;
 
@@ -82,7 +103,7 @@ export default function GradientVertexColorControls({
     }
 
     onApplyGradient(gradientPayload);
-  });
+  }, [gradientPayload, onApplyGradient]);
 
   const onOpenGradientColorPicker = useCallback(
     (handle: GradientColorHandle) => {
@@ -134,9 +155,6 @@ export default function GradientVertexColorControls({
     $gradientStartColor.value = nextStartColor;
   }, [$gradientEndColor, $gradientStartColor]);
 
-  const gradientStartColor = $gradientStartColor.value;
-  const gradientEndColor = $gradientEndColor.value;
-  const { pivotPoint } = $gradientTransform.value;
   const activeGradientColor =
     activeGradientColorHandle === 'start'
       ? gradientStartColor

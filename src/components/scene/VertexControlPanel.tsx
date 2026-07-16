@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import {
   Box,
@@ -19,7 +19,9 @@ import {
   type VertexColorUpdate
 } from '@/modules/model-data';
 import { useAppDispatch } from '@/storeTypings';
+import { rgbToHsl } from '@/utils/color-conversions';
 import type { HslValues } from '@/utils/textures';
+import type { RGBColor } from 'react-color';
 import {
   GradientVertexColorControls,
   HslVertexColorControls,
@@ -32,6 +34,95 @@ const DEFAULT_HSL = {
   h: 0,
   s: 0,
   l: 0
+};
+
+interface GradientVertexColors {
+  startColor: RGBColor;
+  endColor: RGBColor;
+}
+
+const normalizedColorChannelToByte = (channel: number) =>
+  Math.round(Math.min(Math.max(channel, 0), 1) * 0xff);
+
+const vertexColorToRgbColor = ([r, g, b]: NLColorRGBA): RGBColor => ({
+  r: normalizedColorChannelToByte(r),
+  g: normalizedColorChannelToByte(g),
+  b: normalizedColorChannelToByte(b)
+});
+
+const getRgbColorKey = ({ r, g, b }: RGBColor) => `${r},${g},${b}`;
+
+const getHueDistance = (startHue: number, endHue: number) => {
+  const absoluteDistance = Math.abs(startHue - endHue);
+
+  return Math.min(absoluteDistance, 360 - absoluteDistance);
+};
+
+const getColorDistanceScore = (startColor: RGBColor, endColor: RGBColor) => {
+  const startHsl = rgbToHsl(startColor.r, startColor.g, startColor.b);
+  const endHsl = rgbToHsl(endColor.r, endColor.g, endColor.b);
+  const redDistance = startColor.r - endColor.r;
+  const greenDistance = startColor.g - endColor.g;
+  const blueDistance = startColor.b - endColor.b;
+
+  return (
+    getHueDistance(startHsl.h, endHsl.h) / 180 +
+    Math.abs(startHsl.s - endHsl.s) / 100 +
+    Math.abs(startHsl.l - endHsl.l) / 100 +
+    Math.hypot(redDistance, greenDistance, blueDistance) /
+      Math.hypot(0xff, 0xff, 0xff)
+  );
+};
+
+export const getDefaultGradientVertexColors = (
+  selectedVertexColors: VertexColorUpdate[]
+): GradientVertexColors | undefined => {
+  const uniqueColorsByKey = new Map<string, RGBColor>();
+
+  selectedVertexColors.forEach(({ color }) => {
+    const rgbColor = vertexColorToRgbColor(color);
+
+    uniqueColorsByKey.set(getRgbColorKey(rgbColor), rgbColor);
+  });
+
+  const uniqueColors = Array.from(uniqueColorsByKey.values());
+
+  if (uniqueColors.length === 0) {
+    return undefined;
+  }
+
+  if (uniqueColors.length === 1) {
+    return {
+      startColor: uniqueColors[0],
+      endColor: uniqueColors[0]
+    };
+  }
+
+  const selectedColors = uniqueColors.reduce<GradientVertexColors>(
+    (currentSelectedColors, startColor, startIndex) => {
+      const nextSelectedColors = uniqueColors
+        .slice(startIndex + 1)
+        .reduce<GradientVertexColors>((currentPair, endColor) => {
+          const currentPairScore = getColorDistanceScore(
+            currentPair.startColor,
+            currentPair.endColor
+          );
+          const nextPairScore = getColorDistanceScore(startColor, endColor);
+
+          return nextPairScore <= currentPairScore
+            ? currentPair
+            : { startColor, endColor };
+        }, currentSelectedColors);
+
+      return nextSelectedColors;
+    },
+    {
+      startColor: uniqueColors[0],
+      endColor: uniqueColors[1]
+    }
+  );
+
+  return selectedColors;
 };
 
 interface VertexControlPanelProps {
@@ -54,6 +145,18 @@ export default function VertexControlPanel({
     useState<HTMLDivElement | null>(null);
   const selectedVertexColorsRef = useRef(selectedVertexColors);
   const processedHsl = useThrottle(hsl, 75);
+  const defaultGradientVertexColors = useMemo(
+    () => getDefaultGradientVertexColors(selectedVertexColors),
+    [selectedVertexColors]
+  );
+  const selectedVertexSelectionKey = useMemo(
+    () =>
+      selectedVertexColors
+        .map(({ contentAddress }) => contentAddress)
+        .sort((firstAddress, secondAddress) => firstAddress - secondAddress)
+        .join('|'),
+    [selectedVertexColors]
+  );
   const hasEditableVertices = selectedVertexColors.length > 0;
   const hasNonEditableSelectedVertices =
     selectedVertexCount > selectedVertexColors.length;
@@ -136,7 +239,9 @@ export default function VertexControlPanel({
     ),
     gradientSelection: () => (
       <GradientVertexColorControls
+        key={selectedVertexSelectionKey}
         popoverAnchorEl={vertexControlPanelEl}
+        defaultGradientVertexColors={defaultGradientVertexColors}
         onApplyGradient={onApplyGradient}
       />
     )
