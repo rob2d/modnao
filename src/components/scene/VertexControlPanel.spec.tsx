@@ -1,4 +1,6 @@
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { SceneOptionsContextProvider } from '@/contexts/SceneOptionsContext';
 import VertexControlPanel, {
   getDefaultGradientVertexColors
 } from './VertexControlPanel';
@@ -11,6 +13,10 @@ const vertexColorUpdate: VertexColorUpdate = {
 };
 
 describe('VertexControlPanel', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('shows an empty state when selected vertices are not editable', () => {
     renderTestWithProviders(
       <VertexControlPanel selectedVertexColors={[]} selectedVertexCount={1} />
@@ -45,6 +51,28 @@ describe('VertexControlPanel', () => {
     expect(
       screen.getByRole('group', { name: 'Vertex color edit mode' })
     ).toBeVisible();
+  });
+
+  it('persists the selected vertex color edit mode', async () => {
+    const user = userEvent.setup();
+    const panel = (
+      <SceneOptionsContextProvider>
+        <VertexControlPanel
+          selectedVertexColors={[vertexColorUpdate]}
+          selectedVertexCount={1}
+        />
+      </SceneOptionsContextProvider>
+    );
+
+    const { renderResult } = renderTestWithProviders(panel);
+
+    await user.click(screen.getByRole('button', { name: 'Gradient' }));
+    expect(screen.getByRole('slider', { name: 'Angle' })).toBeVisible();
+
+    renderResult.unmount();
+    renderTestWithProviders(panel);
+
+    expect(screen.getByRole('slider', { name: 'Angle' })).toBeVisible();
   });
 
   it('defaults gradient handles to the same color when the selection has one color', () => {

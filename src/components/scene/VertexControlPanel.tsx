@@ -1,5 +1,12 @@
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import {
   Box,
@@ -10,6 +17,10 @@ import {
   Typography
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
+import {
+  default as SceneOptionsContext,
+  type VertexColorEditMode
+} from '@/contexts/SceneOptionsContext';
 import {
   applySelectedVertexColor,
   applySelectedVertexGradient,
@@ -27,8 +38,6 @@ import {
   HslVertexColorControls,
   PickVertexColorControls
 } from './vertex_controls';
-
-type VertexColorEditMode = 'editHsl' | 'pickColor' | 'gradientSelection';
 
 const DEFAULT_HSL = {
   h: 0,
@@ -135,8 +144,8 @@ export default function VertexControlPanel({
   selectedVertexCount
 }: VertexControlPanelProps) {
   const dispatch = useAppDispatch();
-  const [colorEditMode, setColorEditMode] =
-    useState<VertexColorEditMode>('editHsl');
+  const { vertexColorEditMode, setVertexColorEditMode } =
+    useContext(SceneOptionsContext);
   const [hsl, setHsl] = useState<HslValues>(DEFAULT_HSL);
   const [baseVertexColors, setBaseVertexColors] =
     useState(selectedVertexColors);
@@ -192,7 +201,7 @@ export default function VertexControlPanel({
   }, [selectedVertexColors]);
 
   useEffect(() => {
-    if (colorEditMode !== 'editHsl' || baseVertexColors.length === 0) {
+    if (vertexColorEditMode !== 'editHsl' || baseVertexColors.length === 0) {
       return;
     }
 
@@ -200,7 +209,7 @@ export default function VertexControlPanel({
       baseVertexColors,
       hsl: processedHsl
     });
-  }, [baseVertexColors, colorEditMode, onAdjustHsl, processedHsl]);
+  }, [baseVertexColors, onAdjustHsl, processedHsl, vertexColorEditMode]);
 
   const onSetH = useCallback((h: number) => {
     setHsl((prev) => ({ ...prev, h }));
@@ -271,9 +280,9 @@ export default function VertexControlPanel({
               fullWidth
               size='small'
               color='secondary'
-              value={colorEditMode}
+              value={vertexColorEditMode}
               onChange={(_, nextMode: VertexColorEditMode | null) => {
-                if (!nextMode || nextMode === colorEditMode) {
+                if (!nextMode || nextMode === vertexColorEditMode) {
                   return;
                 }
 
@@ -282,7 +291,7 @@ export default function VertexControlPanel({
                   setBaseVertexColors(selectedVertexColorsRef.current);
                 }
 
-                setColorEditMode(nextMode);
+                setVertexColorEditMode(nextMode);
               }}
               aria-label='Vertex color edit mode'
               sx={{ mt: 1 }}
@@ -301,7 +310,7 @@ export default function VertexControlPanel({
                 gap: 0.25
               }}
             >
-              {controlsByMode[colorEditMode]()}
+              {controlsByMode[vertexColorEditMode]()}
             </Box>
           </>
         )}
