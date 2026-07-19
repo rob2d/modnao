@@ -131,7 +131,7 @@ describe('VertexControlPanel', () => {
     ]);
 
     expect(defaultGradientVertexColors).toEqual({
-      startColor: { r: 255, g: 0, b: 0 },
+      startColor: { r: 255, g: 115, b: 0 },
       endColor: { r: 0, g: 38, b: 255 }
     });
   });
