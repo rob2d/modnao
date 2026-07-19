@@ -33,6 +33,8 @@ const nextConfig = {
   reactCompiler: true,
   reactStrictMode: true,
   transpilePackages: [
+    '@preact/signals-core',
+    '@preact-signals/safe-react',
     '@mui/material',
     '@mui/system',
     '@mui/icons-material',
