@@ -152,6 +152,7 @@ export default function VertexControlPanel({
   const [vertexControlPanelEl, setVertexControlPanelEl] =
     useState<HTMLDivElement | null>(null);
   const selectedVertexColorsRef = useRef(selectedVertexColors);
+  const interactedVertexColorScopeRef = useRef<string | undefined>(undefined);
   const processedHsl = useThrottle(hsl, 75);
   const defaultGradientVertexColors = useMemo(
     () => getDefaultGradientVertexColors(selectedVertexColors),
@@ -166,6 +167,7 @@ export default function VertexControlPanel({
     [selectedVertexColors]
   );
   const hasEditableVertices = selectedVertexColors.length > 0;
+  const vertexColorInteractionScope = `${vertexColorEditMode}:${selectedVertexSelectionKey}`;
   const hasNonEditableSelectedVertices =
     selectedVertexCount > selectedVertexColors.length;
   const vertexEditabilityMessage = !hasEditableVertices
@@ -176,24 +178,46 @@ export default function VertexControlPanel({
 
   const onPickColor = useCallback(
     (hexColor: string) => {
+      if (
+        interactedVertexColorScopeRef.current !== vertexColorInteractionScope
+      ) {
+        return;
+      }
+
       dispatch(applySelectedVertexColor({ hexColor }));
     },
-    [dispatch]
+    [dispatch, vertexColorInteractionScope]
   );
 
   const onAdjustHsl = useCallback(
     (payload: ApplySelectedVertexHslPayload) => {
+      if (
+        interactedVertexColorScopeRef.current !== vertexColorInteractionScope
+      ) {
+        return;
+      }
+
       dispatch(applySelectedVertexHsl(payload));
     },
-    [dispatch]
+    [dispatch, vertexColorInteractionScope]
   );
 
   const onApplyGradient = useCallback(
     (payload: ApplySelectedVertexGradientPayload) => {
+      if (
+        interactedVertexColorScopeRef.current !== vertexColorInteractionScope
+      ) {
+        return;
+      }
+
       dispatch(applySelectedVertexGradient(payload));
     },
-    [dispatch]
+    [dispatch, vertexColorInteractionScope]
   );
+
+  const onInteractWithVertexColorControl = useCallback(() => {
+    interactedVertexColorScopeRef.current = vertexColorInteractionScope;
+  }, [vertexColorInteractionScope]);
 
   useEffect(() => {
     selectedVertexColorsRef.current = selectedVertexColors;
@@ -300,6 +324,8 @@ export default function VertexControlPanel({
               <ToggleButton value='gradientSelection'>Gradient</ToggleButton>
             </ToggleButtonGroup>
             <Box
+              onPointerDownCapture={onInteractWithVertexColorControl}
+              onKeyDownCapture={onInteractWithVertexColorControl}
               sx={{
                 mt: 1,
                 display: 'flex',

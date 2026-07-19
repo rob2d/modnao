@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SceneOptionsContextProvider } from '@/contexts/SceneOptionsContext';
 import VertexControlPanel, {
@@ -15,6 +15,10 @@ const vertexColorUpdate: VertexColorUpdate = {
 describe('VertexControlPanel', () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('shows an empty state when selected vertices are not editable', () => {
@@ -73,6 +77,38 @@ describe('VertexControlPanel', () => {
     renderTestWithProviders(panel);
 
     expect(screen.getByRole('slider', { name: 'Angle' })).toBeVisible();
+  });
+
+  it('does not edit colors when the vertex selection changes before interaction', () => {
+    jest.useFakeTimers();
+    localStorage.setItem('vertexColorEditMode', 'gradientSelection');
+    const panel = (selectedVertexColors: VertexColorUpdate[]) => (
+      <SceneOptionsContextProvider>
+        <VertexControlPanel
+          selectedVertexColors={selectedVertexColors}
+          selectedVertexCount={selectedVertexColors.length}
+        />
+      </SceneOptionsContextProvider>
+    );
+    const { renderResult, store } = renderTestWithProviders(
+      panel([vertexColorUpdate])
+    );
+    const dispatchSpy = jest.spyOn(store!, 'dispatch');
+
+    renderResult.rerender(
+      panel([
+        {
+          contentAddress: 2,
+          color: [1, 0, 0, 1]
+        }
+      ])
+    );
+
+    act(() => {
+      jest.advanceTimersByTime(200);
+    });
+
+    expect(dispatchSpy).not.toHaveBeenCalled();
   });
 
   it('defaults gradient handles to the same color when the selection has one color', () => {

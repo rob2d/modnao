@@ -1,5 +1,5 @@
 import type { PointerEvent as ReactPointerEvent } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { useSignal } from '@preact-signals/safe-react';
 import { useThrottle } from '@uidotdev/usehooks';
@@ -61,7 +61,6 @@ export default function GradientVertexColorControls({
   );
   const [activeGradientColorHandle, setActiveGradientColorHandle] =
     useState<GradientColorHandle | null>(null);
-  const hasAppliedGradientRef = useRef(false);
   const gradientStartColor = $gradientStartColor.value;
   const gradientEndColor = $gradientEndColor.value;
   const { angle, tilt, pivotPoint } = $gradientTransform.value;
@@ -96,12 +95,6 @@ export default function GradientVertexColorControls({
   );
 
   useEffect(() => {
-    if (!hasAppliedGradientRef.current) {
-      hasAppliedGradientRef.current = true;
-
-      return;
-    }
-
     onApplyGradient(gradientPayload);
   }, [gradientPayload, onApplyGradient]);
 
