@@ -90,7 +90,6 @@ export const getDefaultGradientVertexColors = (
 
   selectedVertexColors.forEach(({ color }) => {
     const rgbColor = vertexColorToRgbColor(color);
-
     uniqueColorsByKey.set(getRgbColorKey(rgbColor), rgbColor);
   });
 
