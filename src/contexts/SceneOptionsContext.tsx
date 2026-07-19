@@ -1,10 +1,24 @@
-import React, { ReactNode, useCallback, useMemo, useState } from 'react';
+import React, {
+  type CSSProperties,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useState
+} from 'react';
 import { StorageKeys } from '@/constants/StorageKeys';
-import { ScenePalette, useMediaQuery } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import useSceneOptionSetting from '@/hooks/useSceneOptionSettings';
 
 export type MeshDisplayMode = 'wireframe' | 'textured' | 'colors';
 export type TextureViewMode = 'opaque' | 'transparent';
+export type VertexColorEditMode = 'editHsl' | 'pickColor' | 'gradientSelection';
+
+interface ScenePalette {
+  background: CSSProperties['color'];
+  default: CSSProperties['color'];
+  selected: CSSProperties['color'];
+  flagged: CSSProperties['color'];
+}
 
 export type SceneOptions = {
   axesHelperVisible: boolean;
@@ -20,6 +34,7 @@ export type SceneOptions = {
   wireframeLineWidth: number;
   sceneCamSpeed: number;
   textureViewMode: TextureViewMode;
+  vertexColorEditMode: VertexColorEditMode;
   themeKey?: 'light' | 'dark';
   scenePalette?: ScenePalette;
   devOptionsVisible: boolean;
@@ -38,6 +53,7 @@ export type SceneOptions = {
   setWireframeLineWidth: (wireframeLineWidth: number) => void;
   setSceneCamSpeed: (sceneCamSpeed: number) => void;
   setTextureViewMode: (textureViewMode: TextureViewMode) => void;
+  setVertexColorEditMode: (vertexColorEditMode: VertexColorEditMode) => void;
   setScenePalette: (_: ScenePalette | undefined) => void;
   setThemeKey: (theme: 'light' | 'dark') => void;
   toggleLightDarkTheme: () => void;
@@ -60,6 +76,7 @@ export const defaultValues: SceneOptions = {
   wireframeLineWidth: 3,
   sceneCamSpeed: 0.6625,
   textureViewMode: 'opaque',
+  vertexColorEditMode: 'editHsl',
   themeKey: 'light',
   scenePalette: undefined,
   devOptionsVisible: false,
@@ -78,6 +95,7 @@ export const defaultValues: SceneOptions = {
   setWireframeLineWidth: (_: number) => null,
   setSceneCamSpeed: (_: number) => null,
   setTextureViewMode: (_: TextureViewMode) => null,
+  setVertexColorEditMode: (_: VertexColorEditMode) => null,
   setScenePalette: (_: ScenePalette | undefined) => null,
   setThemeKey: (_: 'light' | 'dark') => null,
   toggleLightDarkTheme: () => null,
@@ -160,6 +178,12 @@ export function SceneOptionsContextProvider({ children }: Props) {
       StorageKeys.TEXTURE_VIEW_MODE
     );
 
+  const [vertexColorEditMode, setVertexColorEditMode] =
+    useSceneOptionSetting<VertexColorEditMode>(
+      defaultValues.vertexColorEditMode,
+      StorageKeys.VERTEX_COLOR_EDIT_MODE
+    );
+
   const [uvRegionsHighlighted, setUvRegionsHighlighted] =
     useSceneOptionSetting<boolean>(
       defaultValues.uvRegionsHighlighted,
@@ -221,6 +245,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setSceneCamSpeed,
       textureViewMode,
       setTextureViewMode,
+      vertexColorEditMode,
+      setVertexColorEditMode,
       scenePalette,
       setScenePalette,
       themeKey,
@@ -258,6 +284,8 @@ export function SceneOptionsContextProvider({ children }: Props) {
       setSceneCamSpeed,
       textureViewMode,
       setTextureViewMode,
+      vertexColorEditMode,
+      setVertexColorEditMode,
       guiPanelExpansionLevel,
       setGuiPanelExpansionLevel,
       scenePalette,

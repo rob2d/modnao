@@ -309,6 +309,13 @@ const themes = Object.fromEntries(
               minHeight: '8px'
             }
           }
+        },
+        MuiOutlinedInput: {
+          styleOverrides: {
+            root: {
+              backgroundColor: 'var(--mui-palette-background-paper)'
+            }
+          }
         }
       },
       palette: {
@@ -323,11 +330,14 @@ const themes = Object.fromEntries(
           contrastText: '#FFF'
         },
         text: {
-          deemphasized: 'rgba(0, 0, 0, 0.4)'
+          deemphasized: 'rgba(var(--mui-palette-text-primaryChannel) / 0.4)'
         },
         warningBackground: 'rgba(255, 0, 0, 0.1)',
         info: {
-          main: mode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.67)'
+          main:
+            mode === 'dark'
+              ? 'rgba(var(--mui-palette-text-primaryChannel) / 0.5)'
+              : 'rgba(var(--mui-palette-text-primaryChannel) / 0.67)'
         },
         scene: {
           background: mode === 'dark' ? '#1c121c' : '#efefff',

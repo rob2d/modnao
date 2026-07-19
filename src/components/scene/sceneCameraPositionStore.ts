@@ -1,4 +1,4 @@
-import { signal } from '@preact/signals-react';
+import { signal } from '@preact-signals/safe-react';
 
 export interface SceneCameraPosition {
   position: [number, number, number];

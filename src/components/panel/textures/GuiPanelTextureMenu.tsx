@@ -1,7 +1,7 @@
 import { KeyboardEvent, useCallback, useMemo } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Divider, Tooltip } from '@mui/material';
+import { Box, Divider, Tooltip } from '@mui/material';
 import { TextureImageBufferKeys, UvClipPath } from '@/utils/textures';
 import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
 
@@ -42,18 +42,23 @@ export default function GuiPanelTextureMenu({
   const options = useMemo(
     () =>
       optionsSources.map((o, i) => (
-        <Tooltip title={o.tooltip} key={i} placement='left'>
-          <MenuItem
-            onClick={o.onClick}
-            disabled={o.disabled}
-            onKeyDown={onMenuItemKeyDown}
-          >
-            <>
+        <MenuItem
+          key={i}
+          onClick={o.onClick}
+          disabled={o.disabled}
+          onKeyDown={onMenuItemKeyDown}
+          dense
+        >
+          <Tooltip title={o.tooltip} placement='left'>
+            <Box
+              component='span'
+              sx={{ display: 'flex', alignItems: 'center', width: '100%' }}
+            >
               {o.icon}
               {o.label}
-            </>
-          </MenuItem>
-        </Tooltip>
+            </Box>
+          </Tooltip>
+        </MenuItem>
       )),
     [onMenuItemKeyDown, optionsSources]
   );

@@ -22,6 +22,7 @@ import {
 import { showError } from '@/modules/error-messages';
 import {
   selectHasCompressedTextures,
+  selectSelectedVertexGradientInputs,
   selectTextureFileType,
   selectUpdatedTextureDefs
 } from '@/selectors';
@@ -35,6 +36,7 @@ import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefR
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import {
   ApplySelectedVertexColorResult,
+  ApplySelectedVertexGradientPayload,
   ApplySelectedVertexHslPayload,
   LoadPolygonsPayload,
   LoadTexturesPayload,
@@ -105,6 +107,24 @@ const adjustNormalizedColorHsl = (
 
   return [r / 0xff, g / 0xff, b / 0xff, color[3]];
 };
+
+const getGradientDirection = (angle: number, tilt: number) => {
+  const angleRadians = (angle * Math.PI) / 180;
+  const tiltRadians = (tilt * Math.PI) / 180;
+  const tiltScale = Math.cos(tiltRadians);
+  const direction: Point3D = [
+    Math.cos(angleRadians) * tiltScale,
+    Math.sin(angleRadians) * tiltScale,
+    Math.sin(tiltRadians)
+  ];
+
+  return direction;
+};
+
+const getPositionProjection = (position: Point3D, direction: Point3D) =>
+  position[0] * direction[0] +
+  position[1] * direction[1] +
+  position[2] * direction[2];
 
 const decompressLzssSection = (
   section: Buffer | Buffer<ArrayBuffer>,
@@ -343,6 +363,87 @@ export const applySelectedVertexHsl = createAppAsyncThunk(
     return {
       modelIndex,
       vertexColorUpdates
+    };
+  }
+);
+
+export const applySelectedVertexGradient = createAppAsyncThunk(
+  `${sliceName}/applySelectedVertexGradient`,
+  async (
+    {
+      startColor,
+      endColor,
+      angle,
+      tilt,
+      pivotPoint
+    }: ApplySelectedVertexGradientPayload,
+    { getState }
+  ): Promise<ApplySelectedVertexColorResult> => {
+    const state = getState();
+    const { modelIndex } = state.objectViewer;
+
+    const { selectedVertices } = selectSelectedVertexGradientInputs(state);
+
+    if (selectedVertices.length === 0) {
+      return { modelIndex, vertexColorUpdates: [] };
+    }
+
+    const direction = getGradientDirection(angle, tilt);
+    let minProjection = Infinity;
+    let maxProjection = -Infinity;
+
+    selectedVertices.forEach(({ position }) => {
+      const projection = getPositionProjection(position, direction);
+
+      minProjection = Math.min(minProjection, projection);
+      maxProjection = Math.max(maxProjection, projection);
+    });
+
+    const projectionRange = maxProjection - minProjection;
+    const vertexColorUpdatesByAddress = new Map<number, NLColorRGBA>();
+
+    selectedVertices.forEach(({ contentAddress, position, alpha }) => {
+      const projection = getPositionProjection(position, direction);
+      const amount =
+        projectionRange === 0
+          ? 0.5
+          : (projection - minProjection) / projectionRange;
+      const pivotedAmount =
+        amount <= pivotPoint
+          ? pivotPoint === 0
+            ? 0.5
+            : (amount / pivotPoint) * 0.5
+          : pivotPoint === 1
+            ? 0.5
+            : 0.5 + ((amount - pivotPoint) / (1 - pivotPoint)) * 0.5;
+
+      vertexColorUpdatesByAddress.set(contentAddress, [
+        startColor[0] + (endColor[0] - startColor[0]) * pivotedAmount,
+        startColor[1] + (endColor[1] - startColor[1]) * pivotedAmount,
+        startColor[2] + (endColor[2] - startColor[2]) * pivotedAmount,
+        alpha
+      ]);
+    });
+
+    const { polygonBufferKey } = state.modelData;
+
+    if (polygonBufferKey) {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+
+      vertexColorUpdatesByAddress.forEach((vertexColor, contentAddress) => {
+        writeVertexColorToBuffer(polygonBuffer, contentAddress, vertexColor);
+      });
+    }
+
+    return {
+      modelIndex,
+      vertexColorUpdates: Array.from(
+        vertexColorUpdatesByAddress.entries(),
+        ([contentAddress, color]) => ({
+          contentAddress,
+          color
+        })
+      )
     };
   }
 );
@@ -606,18 +707,11 @@ export const adjustTextureHsl = createAppAsyncThunk(
     }
 
     setTimeout(() => {
-      if (
-        prevEditedTexture?.bufferKeys.opaque &&
-        prevEditedTexture.bufferKeys.opaque !== payload.sourceBufferKeys?.opaque
-      ) {
+      if (prevEditedTexture?.bufferKeys.opaque) {
         globalBuffers.delete(prevEditedTexture.bufferKeys.opaque);
       }
 
-      if (
-        prevEditedTexture?.bufferKeys.translucent &&
-        prevEditedTexture.bufferKeys.translucent !==
-          payload.sourceBufferKeys?.translucent
-      ) {
+      if (prevEditedTexture?.bufferKeys.translucent) {
         globalBuffers.delete(prevEditedTexture.bufferKeys.translucent);
       }
     }, 250);
@@ -639,7 +733,18 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
   ) => {
     const state = getState();
     const textureDef = state.modelData.textureDefs[textureIndex];
+    const editedTexture = state.modelData.editedTextures[textureIndex];
     const bufferKeys = sourceBufferKeys ?? textureDef.bufferKeys;
+    const uvClipPathKey = getUvPixelByteIndexesKey(uvPixelByteIndexes);
+    const sourceHsl =
+      editedTexture?.uvClipPathKey === uvClipPathKey
+        ? editedTexture.hsl
+        : { h: 0, s: 0, l: 0 };
+    const relativeHsl = {
+      h: hsl.h - sourceHsl.h,
+      s: hsl.s - sourceHsl.s,
+      l: hsl.l - sourceHsl.l
+    };
 
     const [opaqueRgbaBuffer, translucentRgbaBuffer] = await Promise.all(
       [bufferKeys.opaque, bufferKeys.translucent].map((bufferKey) =>
@@ -647,7 +752,7 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
           AdjustTextureHslWorkerPayload,
           AdjustTextureHslWorkerResult
         >('adjustTextureHsl', {
-          hsl,
+          hsl: relativeHsl,
           uvPixelByteIndexes,
           buffer: globalBuffers.getShared(bufferKey)
         })
@@ -661,7 +766,7 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
       },
       textureIndex,
       hsl,
-      uvClipPathKey: getUvPixelByteIndexesKey(uvPixelByteIndexes)
+      uvClipPathKey
     };
   }
 );

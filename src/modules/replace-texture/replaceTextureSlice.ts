@@ -94,13 +94,7 @@ export const applyReplacedTextureImage = createAppAsyncThunk(
 
     const bufferKeys = { translucent, opaque };
 
-    dispatch(
-      replaceTextureImage({
-        textureIndex,
-        bufferKeys
-      })
-    );
-
+    dispatch(replaceTextureImage({ textureIndex, bufferKeys }));
     dispatch(closeDialog());
   }
 );

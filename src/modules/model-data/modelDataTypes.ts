@@ -72,6 +72,25 @@ export interface VertexColorUpdate {
   color: NLColorRGBA;
 }
 
+export interface SelectedVertexGradientInput {
+  contentAddress: number;
+  position: Point3D;
+  alpha: number;
+}
+
+export interface SelectedVertexGradientBounds {
+  min: Point3D;
+  max: Point3D;
+  center: Point3D;
+  size: Point3D;
+  vertexCount: number;
+}
+
+export interface SelectedVertexGradientInputs {
+  selectedVertices: SelectedVertexGradientInput[];
+  bounds: SelectedVertexGradientBounds | undefined;
+}
+
 export interface ApplySelectedVertexColorResult {
   modelIndex: number;
   vertexColorUpdates: VertexColorUpdate[];
@@ -80,6 +99,14 @@ export interface ApplySelectedVertexColorResult {
 export interface ApplySelectedVertexHslPayload {
   baseVertexColors: VertexColorUpdate[];
   hsl: HslValues;
+}
+
+export interface ApplySelectedVertexGradientPayload {
+  startColor: NLColor;
+  endColor: NLColor;
+  angle: number;
+  tilt: number;
+  pivotPoint: number;
 }
 
 export interface ModelDataState {

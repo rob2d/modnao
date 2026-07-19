@@ -9,12 +9,15 @@ import {
   useState
 } from 'react';
 import {
+  Box,
   Button,
   FormControlLabel,
   List,
   ListItem,
   ListSubheader,
   Switch,
+  type SxProps,
+  type Theme,
   Tooltip
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
@@ -22,7 +25,6 @@ import {
   getUvClipPathBounds,
   getUvClipPathPixelByteIndexes,
   HslValues,
-  TextureImageBufferKeys,
   UvClipPath
 } from '@/utils/textures';
 import { adjustTextureHsl } from '../modelDataThunks';
@@ -30,24 +32,6 @@ import { selectEditedTextures, selectUpdatedTextureDefs } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
-
-const textureColorOptionsListSx = {
-  '&.texture-view': {
-    display: 'flex',
-    p: 0,
-    flexDirection: { xs: 'column', md: 'row' }
-  },
-  '&.texture-view .MuiListItem-root': {
-    px: 0
-  },
-  '& .MuiButton svg': {
-    mr: 1
-  },
-  '& .slider p': {
-    display: 'flex',
-    alignItems: 'center'
-  }
-};
 
 const DEFAULT_HSL = {
   h: 0,
@@ -59,12 +43,14 @@ function TextureColorButtonOption({
   tooltip,
   onClick,
   label,
-  disabled
+  disabled,
+  sx
 }: {
   tooltip: string;
   onClick: () => void;
   label: JSX.Element | string;
   disabled?: boolean;
+  sx?: SxProps<Theme>;
 }) {
   const button = (
     <Button
@@ -79,7 +65,7 @@ function TextureColorButtonOption({
     </Button>
   );
   return (
-    <ListItem>
+    <ListItem sx={sx} dense>
       {disabled ? (
         button
       ) : (
@@ -116,9 +102,6 @@ export default function TextureColorOptions({
 
   const [hsl, setHsl] = useState<HslValues>(() => baseHsl);
   const hasTouchedHslInputRef = useRef(false);
-  const hslSourceBufferKeysRef = useRef<TextureImageBufferKeys | undefined>(
-    undefined
-  );
   const [applyToWholeTexture, setApplyToWholeTexture] = useState(false);
   const hasSelectedUvClipPaths = selectedUvClipPaths.length > 0;
   const selectedUvClipPathBounds = useMemo(
@@ -162,38 +145,20 @@ export default function TextureColorOptions({
     150
   );
 
-  const captureHslSourceBufferKeys = useCallback(() => {
-    if (hasTouchedHslInputRef.current) {
-      return;
-    }
-
+  const onSetH = useCallback((h: number) => {
     hasTouchedHslInputRef.current = true;
-    hslSourceBufferKeysRef.current = textureDef?.bufferKeys;
-  }, [textureDef?.bufferKeys]);
+    setHsl((prev) => ({ ...prev, h }));
+  }, []);
 
-  const onSetH = useCallback(
-    (h: number) => {
-      captureHslSourceBufferKeys();
-      setHsl((prev) => ({ ...prev, h }));
-    },
-    [captureHslSourceBufferKeys]
-  );
+  const onSetS = useCallback((s: number) => {
+    hasTouchedHslInputRef.current = true;
+    setHsl((prev) => ({ ...prev, s }));
+  }, []);
 
-  const onSetS = useCallback(
-    (s: number) => {
-      captureHslSourceBufferKeys();
-      setHsl((prev) => ({ ...prev, s }));
-    },
-    [captureHslSourceBufferKeys]
-  );
-
-  const onSetL = useCallback(
-    (l: number) => {
-      captureHslSourceBufferKeys();
-      setHsl((prev) => ({ ...prev, l }));
-    },
-    [captureHslSourceBufferKeys]
-  );
+  const onSetL = useCallback((l: number) => {
+    hasTouchedHslInputRef.current = true;
+    setHsl((prev) => ({ ...prev, l }));
+  }, []);
 
   const onSetApplyToWholeTexture = useCallback(
     (_: ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -212,7 +177,6 @@ export default function TextureColorOptions({
 
   useEffect(() => {
     hasTouchedHslInputRef.current = false;
-    hslSourceBufferKeysRef.current = undefined;
   }, [activeUvPixelByteIndexes, textureIndex]);
 
   useEffect(() => {
@@ -223,12 +187,18 @@ export default function TextureColorOptions({
     dispatch(
       adjustTextureHsl({
         hsl: processedHsl,
-        sourceBufferKeys: hslSourceBufferKeysRef.current,
+        sourceBufferKeys: textureDef?.bufferKeys,
         textureIndex,
         uvPixelByteIndexes: activeUvPixelByteIndexes
       })
     );
-  }, [activeUvPixelByteIndexes, dispatch, processedHsl, textureIndex]);
+  }, [
+    activeUvPixelByteIndexes,
+    dispatch,
+    processedHsl,
+    textureDef?.bufferKeys,
+    textureIndex
+  ]);
 
   const onApplyToAll = useCallback(() => {
     for (
@@ -250,7 +220,6 @@ export default function TextureColorOptions({
         max={180}
         value={hsl.h}
         onChange={onSetH}
-        sx={{ mt: -0.5 }}
       />
       <NumericSliderInput
         labelTooltip={`Saturation`}
@@ -260,7 +229,6 @@ export default function TextureColorOptions({
         max={100}
         value={hsl.s}
         onChange={onSetS}
-        sx={{ mt: -0.5 }}
       />
       <NumericSliderInput
         labelTooltip={`Lightness`}
@@ -270,7 +238,6 @@ export default function TextureColorOptions({
         max={100}
         value={hsl.l}
         onChange={onSetL}
-        sx={{ mt: -0.5 }}
       />
     </>
   );
@@ -278,7 +245,7 @@ export default function TextureColorOptions({
   const buttons = (
     <>
       {!hasSelectedUvClipPaths ? null : (
-        <ListItem>
+        <ListItem dense>
           <Tooltip
             title='Ignore the selected UV region and edit every pixel'
             placement='left-start'
@@ -300,27 +267,51 @@ export default function TextureColorOptions({
         tooltip='Apply color changes to all loaded textures'
         onClick={onApplyToAll}
         label={<>Apply to All</>}
+        sx={{ mt: 1 }}
       />
     </>
   );
 
   if (variant === 'texture-view') {
     return (
-      <List className={variant} sx={textureColorOptionsListSx}>
+      <Box
+        sx={{
+          display: 'flex',
+          p: 0,
+          flexDirection: { xs: 'column', md: 'row' },
+          '& .MuiListItem-root': {
+            px: 0
+          },
+          '& .MuiButton svg': {
+            mr: 1
+          },
+          '& .slider p': {
+            display: 'flex',
+            alignItems: 'center'
+          }
+        }}
+      >
         {hslSliders}
         {buttons}
-      </List>
+      </Box>
     );
   }
 
   return (
     <List
       dense
-      className={variant}
       subheader={
         <ListSubheader component='div'>Color Adjustment</ListSubheader>
       }
-      sx={textureColorOptionsListSx}
+      sx={{
+        '& .MuiButton svg': {
+          mr: 1
+        },
+        '& .slider p': {
+          display: 'flex',
+          alignItems: 'center'
+        }
+      }}
       onKeyDown={onInputKeyDown}
     >
       {hslSliders}
