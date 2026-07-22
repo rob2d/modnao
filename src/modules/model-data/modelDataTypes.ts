@@ -18,6 +18,12 @@ export type EditedTexture = {
   uvClipPathKey?: string;
 };
 
+export interface TextureHslSession {
+  scopeKey: string;
+  sourceBufferKeys: TextureImageBufferKeys;
+  hsl: HslValues;
+}
+
 export interface LoadTexturesBasePayload {
   textureFileType: TextureFileType;
   resourceAttribs?: ResourceAttribs;
@@ -125,6 +131,9 @@ export interface ModelDataState {
   };
   editedTextures: {
     [textureIndex: number]: EditedTexture;
+  };
+  textureHslSessions: {
+    [textureIndex: number]: TextureHslSession;
   };
   polygonFileName?: string;
   textureFileName?: string;

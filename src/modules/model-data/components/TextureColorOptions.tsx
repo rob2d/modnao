@@ -24,11 +24,10 @@ import { useThrottle } from '@uidotdev/usehooks';
 import {
   getUvClipPathBounds,
   getUvClipPathPixelByteIndexes,
-  HslValues,
   UvClipPath
 } from '@/utils/textures';
-import { adjustTextureHsl } from '../modelDataThunks';
-import { selectEditedTextures, selectUpdatedTextureDefs } from '@/selectors';
+import { adjustTextureHsl, getTextureHslScopeKey } from '../modelDataThunks';
+import { selectUpdatedTextureDefs } from '@/selectors';
 import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
@@ -88,19 +87,11 @@ export default function TextureColorOptions({
 }) {
   const dispatch = useAppDispatch();
   const textureDefs = useAppSelector(selectUpdatedTextureDefs);
-  const editedTextures = useAppSelector(selectEditedTextures);
   const textureDef = textureDefs[textureIndex];
-  const editedTexture = editedTextures?.[textureIndex];
-  const baseHsl = useMemo(() => {
-    if (!editedTexture?.hsl) {
-      return DEFAULT_HSL;
-    }
+  const textureHslSession = useAppSelector(
+    (state) => state.modelData.textureHslSessions[textureIndex]
+  );
 
-    const { h, s, l } = editedTexture.hsl;
-    return h || s || l ? editedTexture.hsl : DEFAULT_HSL;
-  }, [editedTexture]);
-
-  const [hsl, setHsl] = useState<HslValues>(() => baseHsl);
   const hasTouchedHslInputRef = useRef(false);
   const [applyToWholeTexture, setApplyToWholeTexture] = useState(false);
   const hasSelectedUvClipPaths = selectedUvClipPaths.length > 0;
@@ -129,36 +120,83 @@ export default function TextureColorOptions({
     hasSelectedUvClipPaths && !applyToWholeTexture
       ? selectedUvPixelByteIndexes
       : undefined;
+  const activeHslScopeKey = useMemo(
+    () => getTextureHslScopeKey(textureIndex, activeUvPixelByteIndexes),
+    [activeUvPixelByteIndexes, textureIndex]
+  );
+  const [hslState, setHslState] = useState(() => ({
+    scopeKey: activeHslScopeKey,
+    value:
+      textureHslSession?.scopeKey === activeHslScopeKey
+        ? textureHslSession.hsl
+        : DEFAULT_HSL
+  }));
+  const hsl =
+    hslState.scopeKey === activeHslScopeKey ? hslState.value : DEFAULT_HSL;
 
-  // keep hsl in sync in case we're in TextureView
   useDebouncedEffect(
     () => {
-      const stateHsl = editedTextures?.[textureIndex]?.hsl;
-      if (stateHsl) {
-        const { h, s, l } = stateHsl;
+      if (textureHslSession?.scopeKey === activeHslScopeKey) {
+        const { h, s, l } = textureHslSession.hsl;
         if (h !== hsl.h || s !== hsl.s || l !== hsl.l) {
-          setHsl(stateHsl);
+          setHslState({
+            scopeKey: activeHslScopeKey,
+            value: textureHslSession.hsl
+          });
         }
       }
     },
-    [editedTexture],
+    [activeHslScopeKey, textureHslSession],
     150
   );
 
-  const onSetH = useCallback((h: number) => {
-    hasTouchedHslInputRef.current = true;
-    setHsl((prev) => ({ ...prev, h }));
-  }, []);
+  const onSetH = useCallback(
+    (h: number) => {
+      hasTouchedHslInputRef.current = true;
+      setHslState((previous) => ({
+        scopeKey: activeHslScopeKey,
+        value: {
+          ...(previous.scopeKey === activeHslScopeKey
+            ? previous.value
+            : DEFAULT_HSL),
+          h
+        }
+      }));
+    },
+    [activeHslScopeKey]
+  );
 
-  const onSetS = useCallback((s: number) => {
-    hasTouchedHslInputRef.current = true;
-    setHsl((prev) => ({ ...prev, s }));
-  }, []);
+  const onSetS = useCallback(
+    (s: number) => {
+      hasTouchedHslInputRef.current = true;
+      setHslState((previous) => ({
+        scopeKey: activeHslScopeKey,
+        value: {
+          ...(previous.scopeKey === activeHslScopeKey
+            ? previous.value
+            : DEFAULT_HSL),
+          s
+        }
+      }));
+    },
+    [activeHslScopeKey]
+  );
 
-  const onSetL = useCallback((l: number) => {
-    hasTouchedHslInputRef.current = true;
-    setHsl((prev) => ({ ...prev, l }));
-  }, []);
+  const onSetL = useCallback(
+    (l: number) => {
+      hasTouchedHslInputRef.current = true;
+      setHslState((previous) => ({
+        scopeKey: activeHslScopeKey,
+        value: {
+          ...(previous.scopeKey === activeHslScopeKey
+            ? previous.value
+            : DEFAULT_HSL),
+          l
+        }
+      }));
+    },
+    [activeHslScopeKey]
+  );
 
   const onSetApplyToWholeTexture = useCallback(
     (_: ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -177,7 +215,7 @@ export default function TextureColorOptions({
 
   useEffect(() => {
     hasTouchedHslInputRef.current = false;
-  }, [activeUvPixelByteIndexes, textureIndex]);
+  }, [activeHslScopeKey, textureIndex]);
 
   useEffect(() => {
     if (!hasTouchedHslInputRef.current) {

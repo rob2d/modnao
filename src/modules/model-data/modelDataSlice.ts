@@ -4,7 +4,8 @@ import { TextureImageBufferKeys } from '@/utils/textures/TextureImageBufferKeys'
 import {
   ApplySelectedVertexColorResult,
   LoadTexturesResultPayload,
-  ModelDataState
+  ModelDataState,
+  TextureHslSession
 } from './modelDataTypes';
 import {
   applySelectedVertexColor,
@@ -23,6 +24,7 @@ export const initialModelDataState: ModelDataState = {
   loadTexturesState: 'idle',
   exportTextureFileState: 'idle',
   editedTextures: {},
+  textureHslSessions: {},
   textureHistory: {},
   polygonFileName: undefined,
   textureFileName: undefined,
@@ -85,6 +87,7 @@ const modelDataSlice = createSlice({
     ) {
       // clear previous edited texture when replacing a texture image
       delete state.editedTextures[textureIndex];
+      delete state.textureHslSessions[textureIndex];
 
       state.textureHistory[textureIndex] =
         state.textureHistory[textureIndex] || [];
@@ -110,6 +113,7 @@ const modelDataSlice = createSlice({
       }
 
       delete state.editedTextures[textureIndex];
+      delete state.textureHslSessions[textureIndex];
 
       const textureHistory = state.textureHistory[textureIndex].pop();
 
@@ -119,6 +123,18 @@ const modelDataSlice = createSlice({
         state.textureDefs[textureIndex].bufferKeys.opaque =
           textureHistory.bufferKeys.opaque;
       }
+    },
+
+    setTextureHslSession(
+      state,
+      {
+        payload: { textureIndex, session }
+      }: PayloadAction<{
+        textureIndex: number;
+        session: TextureHslSession;
+      }>
+    ) {
+      state.textureHslSessions[textureIndex] = session;
     }
   },
   extraReducers: (builder) => {
@@ -140,6 +156,7 @@ const modelDataSlice = createSlice({
         state.textureDefs = textureDefs;
         state.resourceAttribs = resourceAttribs;
         state.editedTextures = {};
+        state.textureHslSessions = {};
         state.textureHistory = {};
         state.textureFileType = undefined;
 
@@ -191,6 +208,7 @@ const modelDataSlice = createSlice({
         state.loadTexturesState = 'fulfilled';
         state.textureDefs = textureDefs;
         state.editedTextures = {};
+        state.textureHslSessions = {};
         state.hasEditedTextures = false;
         state.textureHistory = {};
         state.textureFileType = textureFileType;
@@ -210,6 +228,7 @@ const modelDataSlice = createSlice({
         state.polygonBufferKey = undefined;
         state.textureBufferKey = undefined;
         state.textureDefs = [];
+        state.textureHslSessions = {};
         state.textureHistory = {};
       }
     );
@@ -255,7 +274,7 @@ const modelDataSlice = createSlice({
   }
 });
 
-export const { revertTextureImage, replaceTextureImage } =
+export const { revertTextureImage, replaceTextureImage, setTextureHslSession } =
   modelDataSlice.actions;
 
 export default modelDataSlice;

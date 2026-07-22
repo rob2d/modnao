@@ -11,6 +11,7 @@ const mockTextureState = {
     models: [],
     textureDefs: [{} as NLUITextureDef],
     editedTextures: {},
+    textureHslSessions: {},
     textureHistory: {},
     hasEditedTextures: false,
     isLzssCompressed: false,
