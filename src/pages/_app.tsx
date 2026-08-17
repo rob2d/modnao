@@ -10,6 +10,7 @@ import { SceneContextProvider } from '@/contexts/SceneContext';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Provider } from 'react-redux';
+import { ModNaoBrowserApiProvider } from '@/contexts/ModNaoBrowserApiContext';
 
 type ThisAppProps = AppProps;
 
@@ -33,7 +34,9 @@ export default function App({ Component, ...theseProps }: ThisAppProps) {
       <SceneOptionsContextProvider>
         <SceneContextProvider>
           <Provider store={store}>
-            <ThemedApp {...props} Component={Component} />
+            <ModNaoBrowserApiProvider>
+              <ThemedApp {...props} Component={Component} />
+            </ModNaoBrowserApiProvider>
           </Provider>
           <Analytics
             mode={

@@ -51,6 +51,7 @@ import { type VertexColorUpdate } from '@/modules/model-data';
 import { useVertexInteractionMode } from '@/modules/object-viewer';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import type { NodeSelectionMergeMode } from '@/types';
+import { useModNaoBrowserApiRegistration } from '@/contexts/ModNaoBrowserApiContext';
 
 ColorManagement.enabled = true;
 
@@ -78,6 +79,7 @@ export default function SceneView() {
   const isScenePointerInsideRef = useRef(false);
   const sceneBoundsRef = useRef<DOMRect | undefined>(undefined);
   const sceneOptions = useContext(SceneOptionsContext);
+  const { registerScene } = useModNaoBrowserApiRegistration();
   const sceneOptionsRef = useRef(sceneOptions);
   const { enableCinematicMode, sceneCursorVisible } = sceneOptions;
 
@@ -91,27 +93,8 @@ export default function SceneView() {
         return sceneOptionsRef.current;
       }
     };
-    const previousSceneApi = window.modNao?.scene;
-
-    window.modNao = { ...window.modNao, scene: sceneApi };
-    window.dispatchEvent(new CustomEvent('modnao:scene-ready'));
-
-    return () => {
-      if (window.modNao?.scene !== sceneApi) {
-        return;
-      }
-
-      if (previousSceneApi) {
-        window.modNao.scene = previousSceneApi;
-      } else {
-        delete window.modNao.scene;
-
-        if (Object.keys(window.modNao).length === 0) {
-          delete window.modNao;
-        }
-      }
-    };
-  }, []);
+    return registerScene(sceneApi);
+  }, [registerScene]);
 
   const dispatch = useAppDispatch();
   const selectedObjectIds = useAppSelector(selectSelectedObjectIds);

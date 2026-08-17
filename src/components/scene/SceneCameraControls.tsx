@@ -15,6 +15,7 @@ import {
   setSceneCameraPosition
 } from './sceneCameraPositionStore';
 import type { SceneCameraPosition } from './sceneCameraPositionStore';
+import { useModNaoBrowserApiRegistration } from '@/contexts/ModNaoBrowserApiContext';
 
 const sceneCameraControlParams = {
   baseDollyVelocity: 0.225,
@@ -72,6 +73,7 @@ export default function SceneCameraControls({
   resetCameraPositionRevision
 }: SceneCameraControlsProps) {
   const { sceneCamSpeed } = useContext(SceneOptionsContext);
+  const { registerCamera } = useModNaoBrowserApiRegistration();
   const { camera, gl, invalidate, size } = useThree();
   const dragRef = useRef<CameraPointerDrag | null>(null);
   const touchGestureRef = useRef<CameraTouchGesture | null>(null);
@@ -258,49 +260,36 @@ export default function SceneCameraControls({
   );
 
   useEffect(() => {
-    const getPose = (): ModNaoCameraPose => ({
-      position: camera.position.toArray(),
-      target: targetRef.current.toArray()
-    });
+    const updateCamera = () => {
+      camera.lookAt(targetRef.current);
+      setCameraPositionMoved(true);
+      invalidate();
+    };
+    const validateVector = (name: string, vector: ModNaoCameraVector) => {
+      if (vector.length !== 3 || !vector.every(Number.isFinite)) {
+        throw new TypeError(`${name} must contain three finite numbers`);
+      }
+    };
     const cameraApi: ModNaoCameraApi = {
-      getPose,
-      setPose: ({ position, target }) => {
-        if (![...position, ...target].every(Number.isFinite)) {
-          throw new TypeError(
-            'Camera position and target must be finite numbers'
-          );
-        }
-
+      get position() {
+        return camera.position.toArray();
+      },
+      set position(position) {
+        validateVector('Camera position', position);
         camera.position.fromArray(position);
+        updateCamera();
+      },
+      get target() {
+        return targetRef.current.toArray();
+      },
+      set target(target) {
+        validateVector('Camera target', target);
         targetRef.current.fromArray(target);
-        camera.lookAt(targetRef.current);
-        setCameraPositionMoved(true);
-        invalidate();
-
-        return getPose();
+        updateCamera();
       }
     };
-    const previousCameraApi = window.modNao?.camera;
-
-    window.modNao = { ...window.modNao, camera: cameraApi };
-    window.dispatchEvent(new CustomEvent('modnao:camera-ready'));
-
-    return () => {
-      if (window.modNao?.camera !== cameraApi) {
-        return;
-      }
-
-      if (previousCameraApi) {
-        window.modNao.camera = previousCameraApi;
-      } else {
-        delete window.modNao.camera;
-
-        if (Object.keys(window.modNao).length === 0) {
-          delete window.modNao;
-        }
-      }
-    };
-  }, [camera, invalidate, setCameraPositionMoved]);
+    return registerCamera(cameraApi);
+  }, [camera, invalidate, registerCamera, setCameraPositionMoved]);
 
   useEffect(() => {
     const {

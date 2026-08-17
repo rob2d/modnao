@@ -1,18 +1,23 @@
-type ModNaoCameraPose =
-  import('@/components/scene/sceneCameraPositionStore').SceneCameraPosition;
+type ModNaoCameraVector =
+  import('@/components/scene/sceneCameraPositionStore').SceneCameraPosition['position'];
 
 interface ModNaoCameraApi {
-  getPose: () => ModNaoCameraPose;
-  setPose: (pose: ModNaoCameraPose) => ModNaoCameraPose;
+  position: ModNaoCameraVector;
+  target: ModNaoCameraVector;
 }
 
 interface ModNaoSceneApi {
   readonly options: import('@/contexts/SceneOptionsContext').SceneOptions;
 }
 
+interface ModNaoFilesApi {
+  load: (files: File[] | FileList) => Promise<void>;
+}
+
 interface ModNaoBrowserApi {
-  camera?: ModNaoCameraApi;
-  scene?: ModNaoSceneApi;
+  readonly camera: ModNaoCameraApi | undefined;
+  readonly files: ModNaoFilesApi;
+  readonly scene: ModNaoSceneApi | undefined;
 }
 
 interface Window {
