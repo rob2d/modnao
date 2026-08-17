@@ -9,7 +9,9 @@ import {
 
 const camera: ModNaoCameraApi = {
   position: [0, 0, 0],
-  target: [0, 0, 0]
+  target: [0, 0, 0],
+  moveTo: async () => undefined,
+  orbitTo: async () => undefined
 };
 
 const scene: ModNaoSceneApi = {

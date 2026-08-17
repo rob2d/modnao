@@ -32,6 +32,18 @@ const sceneCameraControlParams = {
 const cameraControlMinPolarAngle = 0.000001;
 const cameraControlMaxPolarAngle = Math.PI - cameraControlMinPolarAngle;
 const wheelLineHeightPixels = 16;
+const cameraAnimationDefaultDuration = 750;
+
+const cameraEasings: Record<ModNaoCameraEasing, (progress: number) => number> =
+  {
+    linear: (progress) => progress,
+    easeIn: (progress) => progress * progress,
+    easeOut: (progress) => 1 - (1 - progress) * (1 - progress),
+    easeInOut: (progress) =>
+      progress < 0.5
+        ? 2 * progress * progress
+        : 1 - (-2 * progress + 2) ** 2 / 2
+  };
 
 type CameraPointerAction = 'pan' | 'rotate';
 
@@ -97,6 +109,8 @@ export default function SceneCameraControls({
   const cameraPositionMovedRef = useRef(false);
   const polygonBufferKeyRef = useRef<string | undefined>(undefined);
   const resetCameraPositionRevisionRef = useRef(resetCameraPositionRevision);
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const animationResolveRef = useRef<(() => void) | undefined>(undefined);
 
   const setCameraPositionMoved = useCallback(
     (cameraPositionMoved: boolean) => {
@@ -260,6 +274,16 @@ export default function SceneCameraControls({
   );
 
   useEffect(() => {
+    const cancelCameraAnimation = () => {
+      if (animationFrameRef.current === undefined) {
+        return;
+      }
+
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
+      animationResolveRef.current?.();
+      animationResolveRef.current = undefined;
+    };
     const updateCamera = () => {
       camera.lookAt(targetRef.current);
       setCameraPositionMoved(true);
@@ -270,11 +294,79 @@ export default function SceneCameraControls({
         throw new TypeError(`${name} must contain three finite numbers`);
       }
     };
+    const validateDuration = (duration: number) => {
+      if (!Number.isFinite(duration) || duration < 0) {
+        throw new TypeError(
+          'Camera animation duration must be a non-negative finite number'
+        );
+      }
+    };
+    const moveCamera = (
+      position: ModNaoCameraVector,
+      target: ModNaoCameraVector,
+      {
+        duration = cameraAnimationDefaultDuration,
+        easing = 'easeInOut'
+      }: ModNaoCameraAnimationOptions
+    ) => {
+      validateVector('Camera position', position);
+      validateVector('Camera target', target);
+      validateDuration(duration);
+
+      const easingFunction = cameraEasings[easing];
+
+      if (!easingFunction) {
+        throw new TypeError(`Unsupported camera animation easing: ${easing}`);
+      }
+
+      cancelCameraAnimation();
+
+      if (duration === 0) {
+        camera.position.fromArray(position);
+        targetRef.current.fromArray(target);
+        updateCamera();
+        return Promise.resolve();
+      }
+
+      const startPosition = camera.position.clone();
+      const startTarget = targetRef.current.clone();
+      const endPosition = new Vector3().fromArray(position);
+      const endTarget = new Vector3().fromArray(target);
+
+      return new Promise<void>((resolve) => {
+        animationResolveRef.current = resolve;
+        const startTime = performance.now();
+        const animate = (now: number) => {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const easedProgress = easingFunction(progress);
+
+          camera.position.lerpVectors(
+            startPosition,
+            endPosition,
+            easedProgress
+          );
+          targetRef.current.lerpVectors(startTarget, endTarget, easedProgress);
+          updateCamera();
+
+          if (progress === 1) {
+            animationFrameRef.current = undefined;
+            animationResolveRef.current = undefined;
+            resolve();
+            return;
+          }
+
+          animationFrameRef.current = requestAnimationFrame(animate);
+        };
+
+        animationFrameRef.current = requestAnimationFrame(animate);
+      });
+    };
     const cameraApi: ModNaoCameraApi = {
       get position() {
         return camera.position.toArray();
       },
       set position(position) {
+        cancelCameraAnimation();
         validateVector('Camera position', position);
         camera.position.fromArray(position);
         updateCamera();
@@ -283,12 +375,55 @@ export default function SceneCameraControls({
         return targetRef.current.toArray();
       },
       set target(target) {
+        cancelCameraAnimation();
         validateVector('Camera target', target);
         targetRef.current.fromArray(target);
         updateCamera();
+      },
+      moveTo: ({
+        position = camera.position.toArray(),
+        target = targetRef.current.toArray(),
+        ...animationOptions
+      }) => moveCamera(position, target, animationOptions),
+      orbitTo: ({
+        azimuth,
+        distance,
+        polar,
+        target = targetRef.current.toArray(),
+        ...animationOptions
+      }) => {
+        if (
+          ![azimuth, distance, polar].every(Number.isFinite) ||
+          distance <= 0
+        ) {
+          throw new TypeError(
+            'Camera azimuth, polar, and distance must be finite numbers, with a positive distance'
+          );
+        }
+
+        validateVector('Camera target', target);
+        const endTarget = new Vector3().fromArray(target);
+        const endPosition = new Vector3()
+          .setFromSphericalCoords(
+            distance,
+            MathUtils.clamp(
+              polar,
+              cameraControlMinPolarAngle,
+              cameraControlMaxPolarAngle
+            ),
+            azimuth
+          )
+          .add(endTarget);
+
+        return moveCamera(endPosition.toArray(), target, animationOptions);
       }
     };
-    return registerCamera(cameraApi);
+    const unregisterCamera = registerCamera(cameraApi);
+
+    return () => {
+      cancelCameraAnimation();
+      unregisterCamera();
+    };
   }, [camera, invalidate, registerCamera, setCameraPositionMoved]);
 
   useEffect(() => {
