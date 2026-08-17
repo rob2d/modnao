@@ -88,6 +88,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
+    "playwright": "^1.62.1",
     "prettier": "^3.8.3",
     "prettier-eslint": "^16.4.2",
     "typescript": "^5.8.2"

@@ -78,7 +78,40 @@ export default function SceneView() {
   const isScenePointerInsideRef = useRef(false);
   const sceneBoundsRef = useRef<DOMRect | undefined>(undefined);
   const sceneOptions = useContext(SceneOptionsContext);
+  const sceneOptionsRef = useRef(sceneOptions);
   const { enableCinematicMode, sceneCursorVisible } = sceneOptions;
+
+  useEffect(() => {
+    sceneOptionsRef.current = sceneOptions;
+  }, [sceneOptions]);
+
+  useEffect(() => {
+    const sceneApi: ModNaoSceneApi = {
+      get options() {
+        return sceneOptionsRef.current;
+      }
+    };
+    const previousSceneApi = window.modNao?.scene;
+
+    window.modNao = { ...window.modNao, scene: sceneApi };
+    window.dispatchEvent(new CustomEvent('modnao:scene-ready'));
+
+    return () => {
+      if (window.modNao?.scene !== sceneApi) {
+        return;
+      }
+
+      if (previousSceneApi) {
+        window.modNao.scene = previousSceneApi;
+      } else {
+        delete window.modNao.scene;
+
+        if (Object.keys(window.modNao).length === 0) {
+          delete window.modNao;
+        }
+      }
+    };
+  }, []);
 
   const dispatch = useAppDispatch();
   const selectedObjectIds = useAppSelector(selectSelectedObjectIds);

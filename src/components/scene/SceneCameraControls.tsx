@@ -258,6 +258,51 @@ export default function SceneCameraControls({
   );
 
   useEffect(() => {
+    const getPose = (): ModNaoCameraPose => ({
+      position: camera.position.toArray(),
+      target: targetRef.current.toArray()
+    });
+    const cameraApi: ModNaoCameraApi = {
+      getPose,
+      setPose: ({ position, target }) => {
+        if (![...position, ...target].every(Number.isFinite)) {
+          throw new TypeError(
+            'Camera position and target must be finite numbers'
+          );
+        }
+
+        camera.position.fromArray(position);
+        targetRef.current.fromArray(target);
+        camera.lookAt(targetRef.current);
+        setCameraPositionMoved(true);
+        invalidate();
+
+        return getPose();
+      }
+    };
+    const previousCameraApi = window.modNao?.camera;
+
+    window.modNao = { ...window.modNao, camera: cameraApi };
+    window.dispatchEvent(new CustomEvent('modnao:camera-ready'));
+
+    return () => {
+      if (window.modNao?.camera !== cameraApi) {
+        return;
+      }
+
+      if (previousCameraApi) {
+        window.modNao.camera = previousCameraApi;
+      } else {
+        delete window.modNao.camera;
+
+        if (Object.keys(window.modNao).length === 0) {
+          delete window.modNao;
+        }
+      }
+    };
+  }, [camera, invalidate, setCameraPositionMoved]);
+
+  useEffect(() => {
     const {
       baseDollyVelocity,
       dollyVelocityByDistanceRoot,
