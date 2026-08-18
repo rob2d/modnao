@@ -1,5 +1,7 @@
 import { showError } from '@/modules/error-messages';
 import { handleFileInput } from '@/modules/model-data/hooks/useSupportedFilePicker';
+import { setObjectViewedIndex } from '@/modules/object-viewer';
+import { selectContentViewMode } from '@/selectors';
 import type { AppStore } from '@/storeTypings';
 
 export interface ModNaoBrowserApiController {
@@ -29,6 +31,35 @@ export default function createModNaoBrowserApi(
           store.dispatch,
           store.getState().modelData.polygonFileName
         )
+    }),
+    object: Object.freeze({
+      get viewedIndex() {
+        const state = store.getState();
+
+        return selectContentViewMode(state) === 'polygons'
+          ? state.objectViewer.modelIndex
+          : state.objectViewer.textureIndex;
+      },
+      set viewedIndex(index) {
+        if (!Number.isInteger(index)) {
+          throw new TypeError('Object index must be an integer');
+        }
+
+        void store.dispatch(setObjectViewedIndex(index));
+      },
+      get selectedIndexes() {
+        const state = store.getState();
+
+        if (selectContentViewMode(state) === 'polygons') {
+          return state.modelData.models.reduce<number[]>(
+            (indexes, model, index) =>
+              model.meshes.length ? [...indexes, index] : indexes,
+            []
+          );
+        }
+
+        return state.modelData.textureDefs.map((_, index) => index);
+      }
     }),
     get scene() {
       return scene;

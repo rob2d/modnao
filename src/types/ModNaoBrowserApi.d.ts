@@ -27,6 +27,11 @@ interface ModNaoCameraApi {
   orbitTo: (options: ModNaoCameraOrbitOptions) => Promise<void>;
 }
 
+interface ModNaoObjectApi {
+  viewedIndex: number;
+  readonly selectedIndexes: number[];
+}
+
 interface ModNaoSceneApi {
   readonly options: import('@/contexts/SceneOptionsContext').SceneOptions;
 }
@@ -38,6 +43,7 @@ interface ModNaoFilesApi {
 interface ModNaoBrowserApi {
   readonly camera: ModNaoCameraApi | undefined;
   readonly files: ModNaoFilesApi;
+  readonly object: ModNaoObjectApi;
   readonly scene: ModNaoSceneApi | undefined;
 }
 

@@ -57,8 +57,15 @@ describe('ModNaoBrowserApiProvider', () => {
 
     const browserApi = window.modNao as ModNaoBrowserApi;
 
-    expect(Object.keys(browserApi)).toEqual(['camera', 'files', 'scene']);
+    expect(Object.keys(browserApi)).toEqual([
+      'camera',
+      'files',
+      'object',
+      'scene'
+    ]);
     expect(browserApi.files.load).toEqual(expect.any(Function));
+    expect(browserApi.object.viewedIndex).toBe(-1);
+    expect(browserApi.object.selectedIndexes).toEqual([]);
     expect(browserApi.camera).toBeUndefined();
     expect(browserApi.scene).toBeUndefined();
 
