@@ -1,9 +1,8 @@
 import {
   $meshSelectionType,
-  $model,
-  $modelIndex,
-  $objectKey
-} from '@/selectors';
+  $modelIndex
+} from '@/modules/object-viewer/objectViewerStore';
+import { $model, $objectKey } from '@/selectors';
 import exportFromJSON from 'export-from-json';
 import { useCallback, useMemo } from 'react';
 

@@ -1,11 +1,8 @@
 import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
 import { useObjectNavControls, useObjectUINav } from '@/modules/object-viewer';
 import { useTextureReplaceDropzone } from '@/modules/replace-texture';
-import {
-  $resourceAttribs,
-  $textureIndex,
-  $updatedTextureDefs
-} from '@/selectors';
+import { $textureIndex } from '@/modules/object-viewer/objectViewerStore';
+import { $resourceAttribs, $updatedTextureDefs } from '@/selectors';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { TextureImageBufferKeys } from '@/utils/textures';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';

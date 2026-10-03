@@ -1,12 +1,13 @@
 import type { TextureModelReference } from '@/modules/model-data';
 import { useTextureModelReferences } from '@/modules/model-data';
 import { navToTextureModelUsage } from '@/modules/object-viewer';
-import { $modelIndex } from '@/selectors';
+
 import LocationPinIcon from '@mui/icons-material/LocationPin';
 import { Box, ListSubheader } from '@mui/material';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useCallback } from 'react';
+import { $modelIndex } from '@/modules/object-viewer/objectViewerStore';
 
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 const MENU_TRANSFORM_ORIGIN = { vertical: 'top', horizontal: 'right' } as const;

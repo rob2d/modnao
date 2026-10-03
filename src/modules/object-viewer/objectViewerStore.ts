@@ -1,11 +1,12 @@
 import {
   $contentViewMode,
+  $model,
+  $models,
   $realModelIndexes,
-  $realModelIndexLookup
+  $realModelIndexLookup,
+  $textureDefs
 } from '@/selectors';
-import { getState } from '@/store';
-import { signal } from '@preact-signals/safe-react';
-import { produce } from 'immer';
+import { batch, signal } from '@preact-signals/safe-react';
 import getConvertedObjectKeys from './objectSelectionConversion';
 import type { NodeSelectionMergeMode } from '@/types';
 
@@ -19,13 +20,12 @@ export interface ObjectViewerState {
 
 export type MeshSelectionType = 'mesh' | 'polygon' | 'vertex';
 
-export const initialObjectViewerState: ObjectViewerState = {
-  modelIndex: -1,
-  textureIndex: -1,
-  selectedIds: {},
-  meshSelectionType: 'mesh',
-  meshDisplayMode: 'textured'
-};
+export const $modelIndex = signal(-1);
+export const $textureIndex = signal(-1);
+export const $selectedObjectIds = signal<Record<string, true>>({});
+export const $meshSelectionType = signal<MeshSelectionType>('mesh');
+export const $meshDisplayMode =
+  signal<ObjectViewerState['meshDisplayMode']>('textured');
 
 const getPrevRealModelIndex = (modelIndex: number, modelIndexes: number[]) => {
   for (let index = modelIndexes.length - 1; index >= 0; index -= 1) {
@@ -64,24 +64,28 @@ const getNextObjectIndex = (objectIndex: number, objectCount: number) => {
 export const setObjectViewedIndex = async (objectIndex: number) => {
   const indexKey =
     $contentViewMode.value === 'polygons' ? 'modelIndex' : 'textureIndex';
-  $objectViewer.value = {
-    ...$objectViewer.value,
-    [indexKey]: objectIndex,
-    selectedIds: {}
-  };
+  batch(() => {
+    if (indexKey === 'modelIndex') {
+      $modelIndex.value = objectIndex;
+    } else {
+      $textureIndex.value = objectIndex;
+    }
+
+    $selectedObjectIds.value = {};
+  });
+
   return { objectIndex, indexKey };
 };
 
 export const navToPrevObject = async () => {
   try {
-    const state = getState();
     const contentViewMode = $contentViewMode.value;
-    const indexKey =
-      contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
-    const objectsKey =
-      contentViewMode === 'polygons' ? 'models' : 'textureDefs';
-    const objectCount = state.modelData[objectsKey].length;
-    const index = state.objectViewer[indexKey];
+    const objectCount =
+      contentViewMode === 'polygons'
+        ? $models.value.length
+        : $textureDefs.value.length;
+    const index =
+      contentViewMode === 'polygons' ? $modelIndex.value : $textureIndex.value;
     const realModelIndexLookup = $realModelIndexLookup.value;
     const realModelIndexes = $realModelIndexes.value;
     const objectIndex =
@@ -98,14 +102,13 @@ export const navToPrevObject = async () => {
 
 export const navToNextObject = async () => {
   try {
-    const state = getState();
     const contentViewMode = $contentViewMode.value;
-    const indexKey =
-      contentViewMode === 'polygons' ? 'modelIndex' : 'textureIndex';
-    const objectsKey =
-      contentViewMode === 'polygons' ? 'models' : 'textureDefs';
-    const objectCount = state.modelData[objectsKey].length;
-    const index = state.objectViewer[indexKey];
+    const objectCount =
+      contentViewMode === 'polygons'
+        ? $models.value.length
+        : $textureDefs.value.length;
+    const index =
+      contentViewMode === 'polygons' ? $modelIndex.value : $textureIndex.value;
     const realModelIndexLookup = $realModelIndexLookup.value;
     const realModelIndexes = $realModelIndexes.value;
     const objectIndex =
@@ -136,70 +139,66 @@ export const selectObjectKeys = ({
   }
 };
 
-export const $objectViewer = signal<ObjectViewerState>(
-  initialObjectViewerState
-);
-
 export function addObjectKeys(objectKeys: string[]) {
-  $objectViewer.value = produce($objectViewer.value, (state) => {
-    objectKeys.forEach((objectKey) => {
-      state.selectedIds[objectKey] = true;
-    });
+  if (objectKeys.every((objectKey) => $selectedObjectIds.value[objectKey])) {
+    return;
+  }
+
+  const selectedIds = { ...$selectedObjectIds.value };
+
+  objectKeys.forEach((objectKey) => {
+    selectedIds[objectKey] = true;
   });
+
+  $selectedObjectIds.value = selectedIds;
 }
 
 export function removeObjectKeys(objectKeys: string[]) {
-  $objectViewer.value = produce($objectViewer.value, (state) => {
-    objectKeys.forEach((objectKey) => {
-      delete state.selectedIds[objectKey];
-    });
+  if (!objectKeys.some((objectKey) => $selectedObjectIds.value[objectKey])) {
+    return;
+  }
+
+  const selectedIds = { ...$selectedObjectIds.value };
+
+  objectKeys.forEach((objectKey) => {
+    delete selectedIds[objectKey];
   });
+
+  $selectedObjectIds.value = selectedIds;
 }
 
 export function setObjectKeys(objectKeys: string[]) {
-  $objectViewer.value = produce($objectViewer.value, (state) => {
-    const selectedIds = objectKeys.reduce<Record<string, true>>(
-      (selectedObjectIds, objectKey) => {
-        selectedObjectIds[objectKey] = true;
-        return selectedObjectIds;
-      },
-      {}
-    );
-
-    Object.assign(state, {
-      selectedIds
-    });
-  });
+  $selectedObjectIds.value = objectKeys.reduce<Record<string, true>>(
+    (selectedObjectIds, objectKey) => {
+      selectedObjectIds[objectKey] = true;
+      return selectedObjectIds;
+    },
+    {}
+  );
 }
 
 export function setSelectedTextureIndex(payload: number) {
-  $objectViewer.value = produce($objectViewer.value, (state) => {
-    Object.assign(state, {
-      textureIndex: payload
-    });
-  });
+  $textureIndex.value = payload;
 }
 
 export function setObjectType(meshSelectionType: MeshSelectionType) {
-  const previousState = getState();
-  const previousType = previousState.objectViewer.meshSelectionType;
-  const selectedKeys = Object.keys(previousState.objectViewer.selectedIds);
-  const selectedIds =
+  const previousType = $meshSelectionType.value;
+  const selectedKeys = Object.keys($selectedObjectIds.value);
+  const selectedIds: Record<string, true> =
     previousType === meshSelectionType
       ? {}
       : Object.fromEntries(
           getConvertedObjectKeys(
-            previousState,
+            $model.value,
             selectedKeys,
             previousType,
             meshSelectionType
           ).map((key) => [key, true])
         );
-  $objectViewer.value = produce($objectViewer.value, (state) => {
-    Object.assign(state, {
-      selectedIds,
-      meshSelectionType
-    });
+
+  batch(() => {
+    $selectedObjectIds.value = selectedIds;
+    $meshSelectionType.value = meshSelectionType;
   });
 }
 
@@ -208,20 +207,18 @@ export function navToTextureModelUsage(payload: {
   meshIndexes: number[];
   textureIndex?: number;
 }) {
-  $objectViewer.value = produce($objectViewer.value, (state) => {
-    const selectedIds = payload.meshIndexes.reduce<Record<string, true>>(
-      (selectedMeshIds, meshIndex) => {
-        selectedMeshIds[`${meshIndex}`] = true;
-        return selectedMeshIds;
-      },
-      {}
-    );
+  const selectedIds = payload.meshIndexes.reduce<Record<string, true>>(
+    (selectedMeshIds, meshIndex) => {
+      selectedMeshIds[`${meshIndex}`] = true;
+      return selectedMeshIds;
+    },
+    {}
+  );
 
-    Object.assign(state, {
-      modelIndex: payload.modelIndex,
-      textureIndex: payload.textureIndex ?? state.textureIndex,
-      selectedIds,
-      meshSelectionType: 'mesh'
-    });
+  batch(() => {
+    $modelIndex.value = payload.modelIndex;
+    $textureIndex.value = payload.textureIndex ?? $textureIndex.value;
+    $selectedObjectIds.value = selectedIds;
+    $meshSelectionType.value = 'mesh';
   });
 }

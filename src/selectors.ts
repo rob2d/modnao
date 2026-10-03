@@ -1,16 +1,15 @@
 import { $dialogs } from '@/modules/dialogs/dialogsStore';
 import { $modelData } from '@/modules/model-data/modelDataStore';
-import { $objectViewer } from '@/modules/object-viewer/objectViewerStore';
+import {
+  $meshSelectionType,
+  $modelIndex,
+  $selectedObjectIds,
+  $textureIndex
+} from '@/modules/object-viewer/objectViewerStore';
 import { $replaceTexture } from '@/modules/replace-texture/replaceTextureStore';
 import type { NLUITextureDef } from '@/types';
 import { computed } from '@preact-signals/safe-react';
 import type { SelectedVertexGradientInputs } from './modules/model-data/modelDataTypes';
-
-export const $modelIndex = computed(() => $objectViewer.value.modelIndex);
-export const $textureIndex = computed(() => $objectViewer.value.textureIndex);
-export const $selectedObjectIds = computed(
-  () => $objectViewer.value.selectedIds
-);
 
 // selects the key of the currently selected object
 // NOTE: this is temporary as it is a bridge to single-select
@@ -82,9 +81,6 @@ export const $realModelIndexLookup = computed(() => {
     return realModelIndexLookup;
   }, new Map());
 });
-export const $meshSelectionType = computed(
-  () => $objectViewer.value.meshSelectionType
-);
 export const $textureDefs = computed(() => $modelData.value.textureDefs);
 export const $textureBufferKeyHistory = computed(
   () => $modelData.value.textureHistory

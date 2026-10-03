@@ -7,15 +7,17 @@ import {
   downloadTextureFile
 } from '@/modules/model-data';
 import {
+  $meshSelectionType,
+  $selectedObjectIds
+} from '@/modules/object-viewer/objectViewerStore';
+import {
   $canExportTextures,
   $contentViewMode,
   $hasLoadedTextureFile,
   $loadTexturesState,
-  $meshSelectionType,
   $model,
   $models,
   $resourceAttribs,
-  $selectedObjectIds,
   $selectedTexture,
   $textureFileName,
   $updatedTextureDefs

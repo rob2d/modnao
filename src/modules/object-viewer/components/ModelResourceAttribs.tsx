@@ -1,6 +1,7 @@
 import gameNameMap from '@/constants/gameNameMap';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
-import { $modelIndex, $resourceAttribs } from '@/selectors';
+import { $modelIndex } from '@/modules/object-viewer/objectViewerStore';
+import { $resourceAttribs } from '@/selectors';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Box, ButtonBase, Divider, Paper, Typography } from '@mui/material';
 import clsx from 'clsx';

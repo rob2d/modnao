@@ -1,10 +1,4 @@
-import type { ModelDataState } from '@/modules/model-data/modelDataTypes';
-import type { MeshSelectionType, ObjectViewerState } from './objectViewerStore';
-
-interface ObjectSelectionConversionState {
-  modelData: ModelDataState;
-  objectViewer: ObjectViewerState;
-}
+import type { MeshSelectionType } from './objectViewerStore';
 
 const getMeshSelectionConvertedKeys = (
   model: NLModel | undefined,
@@ -100,13 +94,11 @@ const getPolygonSelectionConvertedKeys = (
 };
 
 const getConvertedObjectKeys = (
-  state: ObjectSelectionConversionState,
+  model: NLModel | undefined,
   selectedKeys: string[],
   previousType: MeshSelectionType,
   nextType: MeshSelectionType
 ) => {
-  const model = state.modelData.models[state.objectViewer.modelIndex];
-
   if (previousType === 'mesh') {
     return getMeshSelectionConvertedKeys(model, selectedKeys, nextType);
   }

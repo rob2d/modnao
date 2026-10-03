@@ -13,13 +13,15 @@ import {
 } from '@/modules/object-viewer';
 import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
 import {
+  $meshSelectionType,
+  $modelIndex,
+  $selectedObjectIds
+} from '@/modules/object-viewer/objectViewerStore';
+import {
   $allDisplayedMeshes,
   $displayedMeshes,
-  $meshSelectionType,
   $model,
-  $modelIndex,
   $polygonBufferKey,
-  $selectedObjectIds,
   $updatedTextureDefs
 } from '@/selectors';
 import type { NodeSelectionMergeMode } from '@/types';

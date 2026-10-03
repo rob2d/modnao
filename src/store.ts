@@ -8,8 +8,11 @@ import {
   initialModelDataState
 } from '@/modules/model-data/modelDataStore';
 import {
-  $objectViewer,
-  initialObjectViewerState
+  $meshDisplayMode,
+  $meshSelectionType,
+  $modelIndex,
+  $selectedObjectIds,
+  $textureIndex
 } from '@/modules/object-viewer/objectViewerStore';
 import {
   $replaceTexture,
@@ -21,7 +24,13 @@ export const getState = () => ({
   dialogs: $dialogs.value,
   errorMessages: $errorMessages.value,
   modelData: $modelData.value,
-  objectViewer: $objectViewer.value,
+  objectViewer: {
+    modelIndex: $modelIndex.value,
+    textureIndex: $textureIndex.value,
+    selectedIds: $selectedObjectIds.value,
+    meshSelectionType: $meshSelectionType.value,
+    meshDisplayMode: $meshDisplayMode.value
+  },
   replaceTexture: $replaceTexture.value
 });
 export type AppState = ReturnType<typeof getState>;
@@ -33,9 +42,17 @@ export function resetState(preloadedState: Partial<AppState> = {}) {
       ...initialErrorMessagesState
     };
     $modelData.value = preloadedState.modelData ?? { ...initialModelDataState };
-    $objectViewer.value = preloadedState.objectViewer ?? {
-      ...initialObjectViewerState
-    };
+    const objectViewer = preloadedState.objectViewer;
+
+    $modelIndex.value = objectViewer ? objectViewer.modelIndex : -1;
+    $textureIndex.value = objectViewer ? objectViewer.textureIndex : -1;
+    $selectedObjectIds.value = objectViewer ? objectViewer.selectedIds : {};
+    $meshSelectionType.value = objectViewer
+      ? objectViewer.meshSelectionType
+      : 'mesh';
+    $meshDisplayMode.value = objectViewer
+      ? objectViewer.meshDisplayMode
+      : 'textured';
     $replaceTexture.value = preloadedState.replaceTexture ?? {
       ...initialReplaceTextureState
     };

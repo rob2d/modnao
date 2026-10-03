@@ -9,14 +9,16 @@ import {
 } from '@/modules/object-viewer';
 import {
   $meshSelectionType,
+  $modelIndex,
+  $selectedObjectIds
+} from '@/modules/object-viewer/objectViewerStore';
+import {
   $model,
   $modelCount,
-  $modelIndex,
   $models,
   $polygonFileName,
   $realModelIndexes,
-  $resourceAttribs,
-  $selectedObjectIds
+  $resourceAttribs
 } from '@/selectors';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';

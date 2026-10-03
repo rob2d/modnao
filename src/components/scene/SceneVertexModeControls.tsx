@@ -2,7 +2,8 @@ import {
   type SceneVertexInteractionMode,
   setObjectKeys
 } from '@/modules/object-viewer';
-import { $model, $selectedObjectIds } from '@/selectors';
+import { $selectedObjectIds } from '@/modules/object-viewer/objectViewerStore';
+import { $model } from '@/selectors';
 import { mdiCameraControl, mdiLasso } from '@mdi/js';
 import ClearIcon from '@mui/icons-material/Clear';
 import SelectAllIcon from '@mui/icons-material/SelectAll';

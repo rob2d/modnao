@@ -2,7 +2,11 @@ import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import O from '@/constants/StructOffsets';
 import { showError } from '@/modules/error-messages';
 import { $modelData } from '@/modules/model-data/modelDataStore';
-import { $objectViewer } from '@/modules/object-viewer/objectViewerStore';
+import {
+  $modelIndex,
+  $selectedObjectIds,
+  $textureIndex
+} from '@/modules/object-viewer/objectViewerStore';
 import {
   $hasCompressedTextures,
   $selectedVertexGradientInputs,
@@ -310,17 +314,11 @@ export const processPolygonFile = async (file: File) => {
         state.polygonBufferKey = polygonBufferKey;
         state.hasEditedTextures = false;
       });
-      $objectViewer.value = produce($objectViewer.value, (state) => {
-        const payload = result;
-        const firstRealModelIndex = payload.models.findIndex(
-          (model) => model.meshes.length > 0
-        );
-        Object.assign(state, {
-          modelIndex: firstRealModelIndex,
-          textureIndex: 0,
-          selectedIds: {}
-        });
-      });
+      $modelIndex.value = result.models.findIndex(
+        (model) => model.meshes.length > 0
+      );
+      $textureIndex.value = 0;
+      $selectedObjectIds.value = {};
     });
     return result;
   } catch {
@@ -730,14 +728,9 @@ export const processTextureFile = async ({
             state.hasEditedTextures = false;
           }
         );
-        $objectViewer.value = produce($objectViewer.value, (state) => {
-          const firstRealModelIndex = -1;
-          Object.assign(state, {
-            modelIndex: firstRealModelIndex,
-            textureIndex: 0,
-            selectedIds: {}
-          });
-        });
+        $modelIndex.value = -1;
+        $textureIndex.value = 0;
+        $selectedObjectIds.value = {};
       });
     } else {
       textureDefs =

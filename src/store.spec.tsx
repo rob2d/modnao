@@ -1,3 +1,4 @@
+import { effect } from '@preact-signals/safe-react';
 import { act, render, screen } from '@testing-library/react';
 import { deserialize, serialize } from 'node:v8';
 import {
@@ -11,13 +12,17 @@ import {
   processTextureFile
 } from './modules/model-data/modelDataThunks';
 import {
+  $modelIndex,
+  $selectedObjectIds,
+  $textureIndex,
   navToNextObject,
   navToPrevObject,
   setObjectKeys,
   setObjectType,
+  setObjectViewedIndex,
   setSelectedTextureIndex
 } from './modules/object-viewer/objectViewerStore';
-import { $textureIndex, $updatedTextureDefs } from './selectors';
+import { $updatedTextureDefs } from './selectors';
 import { getState, resetState } from './store';
 import globalBuffers from './utils/data/globalBuffers';
 import {
@@ -73,6 +78,64 @@ it('updates a signal consumer without rendering its parent or an unrelated consu
   expect(screen.getByText('Index: 3')).toBeInTheDocument();
   expect(parentRenders).toBe(1);
   expect(textureRenders).toBe(1);
+});
+
+it('updates the model index directly without notifying unrelated viewer signals', () => {
+  const modelIndexes: number[] = [];
+  const textureIndexes: number[] = [];
+  const selections: Record<string, true>[] = [];
+  const disposeModel = effect(() => {
+    modelIndexes.push($modelIndex.value);
+  });
+  const disposeTexture = effect(() => {
+    textureIndexes.push($textureIndex.value);
+  });
+  const disposeSelection = effect(() => {
+    selections.push($selectedObjectIds.value);
+  });
+
+  try {
+    $modelIndex.value = 2;
+
+    expect(modelIndexes).toEqual([-1, 2]);
+    expect(textureIndexes).toEqual([-1]);
+    expect(selections).toEqual([{}]);
+    expect(getState().objectViewer.modelIndex).toBe(2);
+  } finally {
+    disposeModel();
+    disposeTexture();
+    disposeSelection();
+  }
+});
+
+it('changes the viewed index and clears selection in one batch', async () => {
+  $modelData.value = {
+    ...$modelData.value,
+    polygonFileName: 'STG01POL.BIN',
+    models: [createModel(), createModel()]
+  };
+  $modelIndex.value = 0;
+  setObjectKeys(['0']);
+
+  const states: { modelIndex: number; selectedIds: Record<string, true> }[] =
+    [];
+  const dispose = effect(() => {
+    states.push({
+      modelIndex: $modelIndex.value,
+      selectedIds: $selectedObjectIds.value
+    });
+  });
+
+  try {
+    await setObjectViewedIndex(1);
+
+    expect(states).toEqual([
+      { modelIndex: 0, selectedIds: { '0': true } },
+      { modelIndex: 1, selectedIds: {} }
+    ]);
+  } finally {
+    dispose();
+  }
 });
 
 it('wraps navigation around real models and clears selection', async () => {
