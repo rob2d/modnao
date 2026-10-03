@@ -51,6 +51,16 @@ export default function OtherProjects({ compact }: OtherProjectsProps) {
           }
         />
         <AppInfoProject
+          url='http://ropgadget.com/stage-gallery.html?tab=community'
+          title='MvC2 Stage Gallery'
+          body={
+            <Typography variant='body2' color='text.secondary' textAlign='left'>
+              Gallery of Marvel vs Capcom 2 stage mods, with community
+              submissions, previews and downloadable stage files.
+            </Typography>
+          }
+        />
+        <AppInfoProject
           url='https://github.com/karttoon/mvc2-stage-photomode'
           title='mvc2-stage-photomode'
           body={
