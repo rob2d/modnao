@@ -23,6 +23,7 @@ While there are some liberties taken for the data structures used in this projec
 <a href="https://github.com/zocker-160" title="zocker-160"><img src="https://avatars.githubusercontent.com/u/36563538?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
 <a href="https://github.com/TVIndustries" title="TVIndustries"><img src="https://avatars.githubusercontent.com/u/63134071?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
 <a href="https://github.com/mountainmanjed" title="Jed Hudson"><img src="https://avatars.githubusercontent.com/u/5819256?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
+<a href="https://github.com/ez2torta" title="tortita"><img alt="tortita" src="https://avatars.githubusercontent.com/u/5553942?v=4" width="40"  style="height: auto; border-radius: 50%; border-width: 1px; border: solid; border-color: #ccc;"></a>
 
 ## Project Status & Scope
 
