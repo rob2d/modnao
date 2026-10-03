@@ -1,5 +1,5 @@
 import { useHeldRepetitionTimer } from '@/hooks';
-import { $canNavObjects, $objectIndex } from '@/selectors';
+import { $canNavObjects, $objectIndex } from '@/derivedState';
 import { useCallback, useEffect, useMemo } from 'react';
 import { navToNextObject, navToPrevObject } from '../objectViewerStore';
 

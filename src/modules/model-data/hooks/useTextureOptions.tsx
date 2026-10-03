@@ -5,7 +5,7 @@ import {
   $textureHistory,
   revertTextureImage
 } from '@/modules/model-data/modelDataStore';
-import { $updatedTextureDefs } from '@/selectors';
+import { $updatedTextureDefs } from '@/derivedState';
 import globalBuffers from '@/utils/data/globalBuffers';
 import {
   createB64ImgFromTextureDef,

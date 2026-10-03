@@ -22,7 +22,7 @@ import {
   $model,
   $selectedTexture,
   $updatedTextureDefs
-} from '@/selectors';
+} from '@/derivedState';
 import { mdiSquare, mdiSquareOpacity } from '@mdi/js';
 import {
   Box,

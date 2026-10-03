@@ -4,7 +4,7 @@ import {
   type MeshSelectionType,
   selectObjectKeys
 } from '@/modules/object-viewer';
-import type { DisplayedMesh } from '@/selectors';
+import type { DisplayedMesh } from '@/derivedState';
 import type { NodeSelectionMergeMode } from '@/types';
 import type { InteractionPoint } from '@/utils/interaction';
 import { getInteractionBounds, isPointInLasso } from '@/utils/interaction';

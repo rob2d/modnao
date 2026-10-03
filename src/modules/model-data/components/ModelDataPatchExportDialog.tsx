@@ -1,7 +1,7 @@
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import { useResizeObserverSize } from '@/hooks';
 import { closeDialog } from '@/modules/dialogs';
-import { $updatedTextureDefs } from '@/selectors';
+import { $updatedTextureDefs } from '@/derivedState';
 import globalBuffers from '@/utils/data/globalBuffers';
 import {
   Box,

@@ -6,7 +6,7 @@ import {
   $loadTexturesState,
   $polygonFileName
 } from '@/modules/model-data/modelDataStore';
-import { $contentViewMode } from '@/selectors';
+import { $contentViewMode } from '@/derivedState';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';

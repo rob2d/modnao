@@ -4,7 +4,7 @@ import {
   $textureHistory,
   resetModelData
 } from '@/modules/model-data/modelDataStore';
-import { $updatedTextureDefs } from '@/selectors';
+import { $updatedTextureDefs } from '@/derivedState';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { createTextureDef } from '@/utils/textures';
 import { effect } from '@preact-signals/safe-react';

@@ -6,7 +6,7 @@ import {
   $textureFileName
 } from '@/modules/model-data/modelDataStore';
 import { $modelIndex } from '@/modules/object-viewer/objectViewerStore';
-import { $modelCount } from '@/selectors';
+import { $modelCount } from '@/derivedState';
 import saveAs from 'file-saver';
 import { useCallback, useContext } from 'react';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';

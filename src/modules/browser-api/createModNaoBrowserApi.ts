@@ -10,7 +10,7 @@ import {
   $polygonFileName,
   $textureDefs
 } from '@/modules/model-data/modelDataStore';
-import { $contentViewMode } from '@/selectors';
+import { $contentViewMode } from '@/derivedState';
 
 export interface ModNaoBrowserApiController {
   mount: () => () => void;

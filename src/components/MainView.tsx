@@ -1,7 +1,7 @@
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { showDialog } from '@/modules/dialogs';
 import { $exportTextureFileState } from '@/modules/model-data/modelDataStore';
-import { $contentViewMode } from '@/selectors';
+import { $contentViewMode } from '@/derivedState';
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import VideocamIcon from '@mui/icons-material/Videocam';

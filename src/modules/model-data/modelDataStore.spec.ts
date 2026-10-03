@@ -1,4 +1,4 @@
-import { $updatedTextureDefs } from '@/selectors';
+import { $updatedTextureDefs } from '@/derivedState';
 import { createTextureDef } from '@/utils/textures';
 import { effect } from '@preact-signals/safe-react';
 import {

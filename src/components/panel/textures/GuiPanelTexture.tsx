@@ -3,7 +3,7 @@ import type { TextureModelReference } from '@/modules/model-data';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
 import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import { $models } from '@/modules/model-data/modelDataStore';
-import { $model } from '@/selectors';
+import { $model } from '@/derivedState';
 import type { ContentViewMode, NLUITextureDef } from '@/types';
 import { createUvClipPaths, UvClipPath } from '@/utils/textures';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';

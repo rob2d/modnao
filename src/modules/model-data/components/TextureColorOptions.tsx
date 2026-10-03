@@ -1,7 +1,7 @@
 import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
 import { $textureHslSessions } from '@/modules/model-data/modelDataStore';
-import { $updatedTextureDefs } from '@/selectors';
+import { $updatedTextureDefs } from '@/derivedState';
 import {
   getUvClipPathBounds,
   getUvClipPathPixelByteIndexes,

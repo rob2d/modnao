@@ -1,7 +1,7 @@
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import { useDebouncedEffect } from '@/hooks';
 import { closeDialog } from '@/modules/dialogs';
-import { $updatedTextureDefs } from '@/selectors';
+import { $updatedTextureDefs } from '@/derivedState';
 import type { NLUITextureDef } from '@/types';
 import globalBuffers from '@/utils/data/globalBuffers';
 import cropImage from '@/utils/images/cropImage';

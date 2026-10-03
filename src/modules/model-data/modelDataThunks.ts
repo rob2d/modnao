@@ -10,7 +10,7 @@ import { $replacementImage } from '@/modules/replace-texture/replaceTextureStore
 import {
   $selectedVertexGradientInputs,
   $updatedTextureDefs
-} from '@/selectors';
+} from '@/derivedState';
 import type { NLUITextureDef, TextureDataUrlType } from '@/types';
 import { hslToRgb, rgbToHsl } from '@/utils/color-conversions';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';

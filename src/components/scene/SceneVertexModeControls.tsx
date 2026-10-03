@@ -3,7 +3,7 @@ import {
   setObjectKeys
 } from '@/modules/object-viewer';
 import { $selectedObjectIds } from '@/modules/object-viewer/objectViewerStore';
-import { $model } from '@/selectors';
+import { $model } from '@/derivedState';
 import { mdiCameraControl, mdiLasso } from '@mdi/js';
 import ClearIcon from '@mui/icons-material/Clear';
 import SelectAllIcon from '@mui/icons-material/SelectAll';

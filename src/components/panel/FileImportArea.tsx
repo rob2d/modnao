@@ -5,7 +5,7 @@ import {
   $polygonFileName,
   $resourceAttribs
 } from '@/modules/model-data/modelDataStore';
-import { $contentViewMode } from '@/selectors';
+import { $contentViewMode } from '@/derivedState';
 import { Box } from '@mui/material';
 import { JSX, useCallback } from 'react';
 import FilesSupportedButton from '../FilesSupportedButton';

@@ -23,7 +23,7 @@ import {
   $displayedMeshes,
   $model,
   $updatedTextureDefs
-} from '@/selectors';
+} from '@/derivedState';
 import type { NodeSelectionMergeMode } from '@/types';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { Box, IconButton, Tooltip, useTheme } from '@mui/material';

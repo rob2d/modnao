@@ -17,7 +17,7 @@ import {
   $polygonFileName,
   $resourceAttribs
 } from '@/modules/model-data/modelDataStore';
-import { $model, $modelCount, $realModelIndexes } from '@/selectors';
+import { $model, $modelCount, $realModelIndexes } from '@/derivedState';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {

@@ -4,7 +4,7 @@ import {
   $model,
   $realModelIndexes,
   $realModelIndexLookup
-} from '@/selectors';
+} from '@/derivedState';
 import { batch, signal } from '@preact-signals/safe-react';
 import getConvertedObjectKeys from './objectSelectionConversion';
 import type { NodeSelectionMergeMode } from '@/types';

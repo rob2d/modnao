@@ -2,7 +2,7 @@ import {
   $meshSelectionType,
   $modelIndex
 } from '@/modules/object-viewer/objectViewerStore';
-import { $model, $objectKey } from '@/selectors';
+import { $model, $objectKey } from '@/derivedState';
 import exportFromJSON from 'export-from-json';
 import { useCallback, useMemo } from 'react';
 
