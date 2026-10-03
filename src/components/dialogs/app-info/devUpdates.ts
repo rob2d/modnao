@@ -12,6 +12,20 @@ export interface XUpdatePart {
 
 export const xUpdates: XUpdate[] = [
   {
+    publishedAt: '2026-10-02',
+    parts: [
+      {
+        hasImages: true,
+        textLines: [
+          '- load/edit Cable and Ruby Heart intro art',
+          '- improved ARGB1555 conversions',
+          '[thanks to @ontortita for the contribution!]'
+        ],
+        url: 'https://x.com/rob2d_u8/status/2106256711497470091'
+      }
+    ]
+  },
+  {
     publishedAt: '2026-07-23',
     parts: [
       {
