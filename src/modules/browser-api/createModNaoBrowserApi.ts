@@ -1,6 +1,10 @@
 import { showError } from '@/modules/error-messages';
 import { handleFileInput } from '@/modules/model-data/hooks/useSupportedFilePicker';
-import { setObjectViewedIndex } from '@/modules/object-viewer';
+import {
+  $modelIndex,
+  $textureIndex,
+  setObjectViewedIndex
+} from '@/modules/object-viewer';
 import { $contentViewMode } from '@/selectors';
 import { getState } from '@/store';
 
@@ -28,11 +32,9 @@ export default function createModNaoBrowserApi(): ModNaoBrowserApiController {
     }),
     object: Object.freeze({
       get viewedIndex() {
-        const state = getState();
-
         return $contentViewMode.value === 'polygons'
-          ? state.objectViewer.modelIndex
-          : state.objectViewer.textureIndex;
+          ? $modelIndex.value
+          : $textureIndex.value;
       },
       set viewedIndex(index) {
         if (!Number.isInteger(index)) {

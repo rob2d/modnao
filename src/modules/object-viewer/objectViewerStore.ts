@@ -10,22 +10,23 @@ import { batch, signal } from '@preact-signals/safe-react';
 import getConvertedObjectKeys from './objectSelectionConversion';
 import type { NodeSelectionMergeMode } from '@/types';
 
-export interface ObjectViewerState {
-  modelIndex: number;
-  textureIndex: number;
-  selectedIds: Record<string, true>;
-  meshSelectionType: MeshSelectionType;
-  meshDisplayMode: 'wireframe' | 'textured';
-}
-
 export type MeshSelectionType = 'mesh' | 'polygon' | 'vertex';
 
 export const $modelIndex = signal(-1);
 export const $textureIndex = signal(-1);
 export const $selectedObjectIds = signal<Record<string, true>>({});
 export const $meshSelectionType = signal<MeshSelectionType>('mesh');
-export const $meshDisplayMode =
-  signal<ObjectViewerState['meshDisplayMode']>('textured');
+export const $meshDisplayMode = signal<'wireframe' | 'textured'>('textured');
+
+export function resetObjectViewer() {
+  batch(() => {
+    $modelIndex.value = -1;
+    $textureIndex.value = -1;
+    $selectedObjectIds.value = {};
+    $meshSelectionType.value = 'mesh';
+    $meshDisplayMode.value = 'textured';
+  });
+}
 
 const getPrevRealModelIndex = (modelIndex: number, modelIndexes: number[]) => {
   for (let index = modelIndexes.length - 1; index >= 0; index -= 1) {

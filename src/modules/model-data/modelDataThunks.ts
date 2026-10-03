@@ -333,7 +333,8 @@ export const applySelectedVertexColor = async ({
 }) => {
   try {
     const state = getState();
-    const { modelIndex, selectedIds } = state.objectViewer;
+    const modelIndex = $modelIndex.value;
+    const selectedIds = $selectedObjectIds.value;
     const model = state.modelData.models[modelIndex];
     const color = hexToNormalizedColor(hexColor);
 
@@ -421,7 +422,7 @@ export const applySelectedVertexHsl = async ({
 }: ApplySelectedVertexHslPayload) => {
   try {
     const state = getState();
-    const { modelIndex } = state.objectViewer;
+    const modelIndex = $modelIndex.value;
     const vertexColorUpdates = baseVertexColors.map(
       ({ contentAddress, color }) => ({
         contentAddress,
@@ -462,7 +463,7 @@ export const applySelectedVertexGradient = async ({
 }: ApplySelectedVertexGradientPayload) => {
   try {
     const state = getState();
-    const { modelIndex } = state.objectViewer;
+    const modelIndex = $modelIndex.value;
 
     const { selectedVertices } = $selectedVertexGradientInputs.value;
 

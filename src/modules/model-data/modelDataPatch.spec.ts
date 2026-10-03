@@ -1,4 +1,8 @@
 import O from '@/constants/StructOffsets';
+import {
+  $modelIndex,
+  $textureIndex
+} from '@/modules/object-viewer/objectViewerStore';
 import { getState, resetState } from '@/store';
 import type { ResourceAttribs } from '@/types';
 import globalBuffers from '@/utils/data/globalBuffers';
@@ -212,13 +216,11 @@ describe('modelDataPatch', () => {
         polygonFileName: 'STG01POL.BIN',
         polygonBufferKey,
         resourceAttribs
-      },
-      objectViewer: {
-        ...getState().objectViewer,
-        modelIndex: 0,
-        textureIndex: 0
       }
     });
+
+    $modelIndex.value = 0;
+    $textureIndex.value = 0;
 
     const result = await loadModelDataPatch(file);
     const state = getState().modelData;

@@ -17,6 +17,7 @@ import {
   $textureIndex,
   navToNextObject,
   navToPrevObject,
+  resetObjectViewer,
   setObjectKeys,
   setObjectType,
   setObjectViewedIndex,
@@ -50,6 +51,7 @@ const createModel = (polygonCount = 1) =>
 
 beforeEach(() => {
   resetState();
+  resetObjectViewer();
   globalBuffers.clear();
   jest.mocked(ClientThread.run).mockReset();
 });
@@ -100,7 +102,7 @@ it('updates the model index directly without notifying unrelated viewer signals'
     expect(modelIndexes).toEqual([-1, 2]);
     expect(textureIndexes).toEqual([-1]);
     expect(selections).toEqual([{}]);
-    expect(getState().objectViewer.modelIndex).toBe(2);
+    expect($modelIndex.value).toBe(2);
   } finally {
     disposeModel();
     disposeTexture();
@@ -145,15 +147,15 @@ it('wraps navigation around real models and clears selection', async () => {
     models: [createModel(), { meshes: [] } as unknown as NLModel, createModel()]
   };
   await navToNextObject();
-  expect(getState().objectViewer.modelIndex).toBe(0);
+  expect($modelIndex.value).toBe(0);
   setObjectKeys(['0']);
   await navToNextObject();
-  expect(getState().objectViewer.modelIndex).toBe(2);
-  expect(getState().objectViewer.selectedIds).toEqual({});
+  expect($modelIndex.value).toBe(2);
+  expect($selectedObjectIds.value).toEqual({});
   await navToNextObject();
-  expect(getState().objectViewer.modelIndex).toBe(0);
+  expect($modelIndex.value).toBe(0);
   await navToPrevObject();
-  expect(getState().objectViewer.modelIndex).toBe(2);
+  expect($modelIndex.value).toBe(2);
 });
 
 it('wraps texture navigation and handles an empty collection', async () => {
@@ -182,24 +184,24 @@ it('preserves complete mesh and polygon selections when changing selection type'
   await navToNextObject();
   setObjectKeys(['0']);
   setObjectType('polygon');
-  expect(getState().objectViewer.selectedIds).toEqual({
+  expect($selectedObjectIds.value).toEqual({
     '0_0': true,
     '0_1': true
   });
   setObjectType('mesh');
-  expect(getState().objectViewer.selectedIds).toEqual({ '0': true });
+  expect($selectedObjectIds.value).toEqual({ '0': true });
   setObjectType('vertex');
-  expect(Object.keys(getState().objectViewer.selectedIds)).toEqual([
+  expect(Object.keys($selectedObjectIds.value)).toEqual([
     '0_0_0',
     '0_0_1',
     '0_1_0',
     '0_1_1'
   ]);
   setObjectType('polygon');
-  expect(getState().objectViewer.selectedIds).toEqual({});
+  expect($selectedObjectIds.value).toEqual({});
   setObjectKeys(['0_0']);
   setObjectType('mesh');
-  expect(getState().objectViewer.selectedIds).toEqual({});
+  expect($selectedObjectIds.value).toEqual({});
 });
 
 it('keeps texture replacement history and reverts one replacement at a time', () => {
@@ -275,8 +277,8 @@ it('applies polygon worker results to data and viewer state together', async () 
   expect(getState().modelData.models).toEqual(models);
   expect(getState().modelData.originalModels).toEqual(models);
   expect(getState().modelData.originalModels).not.toBe(models);
-  expect(getState().objectViewer.modelIndex).toBe(1);
-  expect(getState().objectViewer.textureIndex).toBe(0);
+  expect($modelIndex.value).toBe(1);
+  expect($textureIndex.value).toBe(0);
 });
 
 it('loads a standalone texture file and clears the previous polygon state', async () => {
@@ -303,7 +305,7 @@ it('loads a standalone texture file and clears the previous polygon state', asyn
   expect(getState().modelData.textureFileName).toBe('FONT.BIN');
   expect(getState().modelData.models).toEqual([]);
   expect(getState().modelData.polygonFileName).toBeUndefined();
-  expect(getState().objectViewer.modelIndex).toBe(-1);
+  expect($modelIndex.value).toBe(-1);
 });
 
 it('ends loading and export progress when operations fail', async () => {

@@ -1,3 +1,4 @@
+import { resetObjectViewer } from '@/modules/object-viewer/objectViewerStore';
 import { type AppState, resetState } from '@/store';
 import useUserTheme from '@/theming/useUserTheme';
 import { ThemeProvider } from '@mui/material/styles';
@@ -12,6 +13,7 @@ export default function renderTestWithProviders(
   { preloadedState, ...renderOptions }: ExtendedRenderOptions = {}
 ) {
   resetState(preloadedState);
+  resetObjectViewer();
   function Wrapper({ children }: PropsWithChildren) {
     const theme = useUserTheme();
     return <ThemeProvider theme={theme}>{children}</ThemeProvider>;

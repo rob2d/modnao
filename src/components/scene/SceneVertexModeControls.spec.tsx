@@ -1,6 +1,11 @@
+import {
+  $meshSelectionType,
+  $modelIndex,
+  $selectedObjectIds
+} from '@/modules/object-viewer/objectViewerStore';
 import { getState } from '@/store';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SceneVertexModeControls from './SceneVertexModeControls';
 
@@ -123,12 +128,6 @@ describe('SceneVertexModeControls', () => {
       {
         preloadedState: {
           ...initialAppState,
-          objectViewer: {
-            ...initialAppState.objectViewer,
-            modelIndex: 0,
-            selectedIds: { '0_0_0': true },
-            meshSelectionType: 'vertex'
-          },
           modelData: {
             ...initialAppState.modelData,
             models: [selectableVertexModel]
@@ -137,10 +136,16 @@ describe('SceneVertexModeControls', () => {
       }
     );
 
+    act(() => {
+      $modelIndex.value = 0;
+      $selectedObjectIds.value = { '0_0_0': true };
+      $meshSelectionType.value = 'vertex';
+    });
+
     await user.click(
       screen.getByRole('button', { name: 'Select all vertices' })
     );
-    expect(getState().objectViewer.selectedIds).toEqual({
+    expect($selectedObjectIds.value).toEqual({
       '0_0_0': true,
       '0_0_1': true
     });
@@ -149,6 +154,6 @@ describe('SceneVertexModeControls', () => {
       screen.getByRole('button', { name: 'Clear vertex selection' })
     );
 
-    expect(getState().objectViewer.selectedIds).toEqual({});
+    expect($selectedObjectIds.value).toEqual({});
   });
 });
