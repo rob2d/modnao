@@ -1,9 +1,8 @@
-import { AppState } from '@/store';
 import type { NLUITextureDef } from '@/types';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import { TextureImageBufferKeys } from '@/utils/textures';
 import { fireEvent, screen } from '@testing-library/react';
-import { EditedTexture } from '../modelDataTypes';
+import { EditedTexture, ModelDataState } from '../modelDataTypes';
 import TextureColorOptions from './TextureColorOptions';
 
 const mockTextureState = {
@@ -19,7 +18,7 @@ const mockTextureState = {
     polygonFileName: 'hello-world.pol.bin',
     polygonBufferKey: 'data://anywhere',
     textureBufferKey: 'data://anywhere'
-  }
+  } as unknown as ModelDataState
 };
 
 describe('TextureColorOptions', () => {
@@ -41,7 +40,7 @@ describe('TextureColorOptions', () => {
           } as EditedTexture
         }
       }
-    } as unknown as AppState;
+    };
     renderTestWithProviders(
       <TextureColorOptions textureIndex={0} variant='menu' />,
       { preloadedState: mockEditedTextureState }
@@ -76,7 +75,7 @@ describe('TextureColorOptions', () => {
           ]
         ]}
       />,
-      { preloadedState: mockTextureState as unknown as AppState }
+      { preloadedState: mockTextureState }
     );
 
     expect(await screen.findByText('Edit full texture')).toBeInTheDocument();
@@ -89,7 +88,7 @@ describe('TextureColorOptions', () => {
       <div onKeyDown={onKeyDown}>
         <TextureColorOptions textureIndex={0} variant='menu' />
       </div>,
-      { preloadedState: mockTextureState as unknown as AppState }
+      { preloadedState: mockTextureState }
     );
 
     const [hInput] = await screen.findAllByRole('spinbutton');
@@ -105,7 +104,7 @@ describe('TextureColorOptions', () => {
       <div onKeyDown={onKeyDown}>
         <TextureColorOptions textureIndex={0} variant='menu' />
       </div>,
-      { preloadedState: mockTextureState as unknown as AppState }
+      { preloadedState: mockTextureState }
     );
 
     fireEvent.keyDown(await screen.findByLabelText('Reset H'), { key: 'Tab' });

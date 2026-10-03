@@ -1,7 +1,7 @@
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import { useResizeObserverSize } from '@/hooks';
 import { closeDialog } from '@/modules/dialogs';
-import { $models, $updatedTextureDefs } from '@/selectors';
+import { $updatedTextureDefs } from '@/selectors';
 import globalBuffers from '@/utils/data/globalBuffers';
 import {
   Box,
@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import downloadModelDataPatch from '../downloadModelDataPatch';
-import { $modelData } from '../modelDataStore';
+import { $models, $originalModels } from '../modelDataStore';
 
 const TEXTURE_TILE_SIZE = 136;
 const TEXTURE_TILE_GAP = 8;
@@ -23,7 +23,7 @@ export default function ModelDataPatchExportDialog() {
   'use no memo';
 
   const models = $models.value;
-  const hasOriginalModels = $modelData.value.originalModels.length > 0;
+  const hasOriginalModels = $originalModels.value.length > 0;
   const textureDefs = $updatedTextureDefs.value;
   const textureOptions = useMemo(
     () =>

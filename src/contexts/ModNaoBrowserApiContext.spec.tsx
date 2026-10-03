@@ -1,3 +1,4 @@
+import { resetModelData } from '@/modules/model-data/modelDataStore';
 import { resetObjectViewer } from '@/modules/object-viewer/objectViewerStore';
 import { getState, resetState } from '@/store';
 import { render, waitFor } from '@testing-library/react';
@@ -45,6 +46,7 @@ describe('ModNaoBrowserApiProvider', () => {
 
   it('owns one stable API object while capabilities change', async () => {
     resetState();
+    resetModelData();
     resetObjectViewer();
     const { rerender, unmount } = render(
       <>

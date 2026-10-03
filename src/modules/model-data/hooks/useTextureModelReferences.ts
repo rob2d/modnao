@@ -1,4 +1,4 @@
-import { $models, $resourceAttribs } from '@/selectors';
+import { $models, $resourceAttribs } from '@/modules/model-data/modelDataStore';
 import { useMemo } from 'react';
 
 export interface TextureModelReference {

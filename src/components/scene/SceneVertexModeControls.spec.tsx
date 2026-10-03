@@ -1,9 +1,9 @@
+import { $models } from '@/modules/model-data/modelDataStore';
 import {
   $meshSelectionType,
   $modelIndex,
   $selectedObjectIds
 } from '@/modules/object-viewer/objectViewerStore';
-import { getState } from '@/store';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -121,22 +121,13 @@ describe('SceneVertexModeControls', () => {
 
   it('renders vertex selection actions when vertices are selectable', async () => {
     const user = userEvent.setup();
-    const initialAppState = getState();
 
     renderTestWithProviders(
-      <SceneVertexModeControls value='select' onChange={jest.fn()} />,
-      {
-        preloadedState: {
-          ...initialAppState,
-          modelData: {
-            ...initialAppState.modelData,
-            models: [selectableVertexModel]
-          }
-        }
-      }
+      <SceneVertexModeControls value='select' onChange={jest.fn()} />
     );
 
     act(() => {
+      $models.value = [selectableVertexModel];
       $modelIndex.value = 0;
       $selectedObjectIds.value = { '0_0_0': true };
       $meshSelectionType.value = 'vertex';

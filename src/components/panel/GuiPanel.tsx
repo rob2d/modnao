@@ -2,11 +2,8 @@ import SceneOptionsContext, {
   SceneOptions
 } from '@/contexts/SceneOptionsContext';
 import { useDragMouseOnEl } from '@/hooks';
-import {
-  $contentViewMode,
-  $hasLoadedPolygonFile,
-  $loadTexturesState
-} from '@/selectors';
+import { $loadTexturesState } from '@/modules/model-data/modelDataStore';
+import { $contentViewMode, $hasLoadedPolygonFile } from '@/selectors';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';

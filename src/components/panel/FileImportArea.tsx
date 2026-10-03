@@ -1,11 +1,8 @@
 import { showError } from '@/modules/error-messages';
 import { useSupportedFilePicker } from '@/modules/model-data';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
-import {
-  $contentViewMode,
-  $hasLoadedPolygonFile,
-  $resourceAttribs
-} from '@/selectors';
+import { $resourceAttribs } from '@/modules/model-data/modelDataStore';
+import { $contentViewMode, $hasLoadedPolygonFile } from '@/selectors';
 import { Box } from '@mui/material';
 import { JSX, useCallback } from 'react';
 import FilesSupportedButton from '../FilesSupportedButton';

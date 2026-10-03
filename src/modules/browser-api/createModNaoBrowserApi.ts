@@ -5,8 +5,12 @@ import {
   $textureIndex,
   setObjectViewedIndex
 } from '@/modules/object-viewer';
+import {
+  $models,
+  $polygonFileName,
+  $textureDefs
+} from '@/modules/model-data/modelDataStore';
 import { $contentViewMode } from '@/selectors';
-import { getState } from '@/store';
 
 export interface ModNaoBrowserApiController {
   mount: () => () => void;
@@ -27,7 +31,7 @@ export default function createModNaoBrowserApi(): ModNaoBrowserApiController {
         handleFileInput(
           Array.from(files),
           (message) => showError({ title: 'Invalid file selection', message }),
-          getState().modelData.polygonFileName
+          $polygonFileName.value
         )
     }),
     object: Object.freeze({
@@ -44,17 +48,15 @@ export default function createModNaoBrowserApi(): ModNaoBrowserApiController {
         void setObjectViewedIndex(index);
       },
       get selectedIndexes() {
-        const state = getState();
-
         if ($contentViewMode.value === 'polygons') {
-          return state.modelData.models.reduce<number[]>(
+          return $models.value.reduce<number[]>(
             (indexes, model, index) =>
               model.meshes.length ? [...indexes, index] : indexes,
             []
           );
         }
 
-        return state.modelData.textureDefs.map((_, index) => index);
+        return $textureDefs.value.map((_, index) => index);
       }
     }),
     get scene() {

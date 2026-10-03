@@ -17,11 +17,11 @@ import {
   $modelIndex,
   $selectedObjectIds
 } from '@/modules/object-viewer/objectViewerStore';
+import { $polygonBufferKey } from '@/modules/model-data/modelDataStore';
 import {
   $allDisplayedMeshes,
   $displayedMeshes,
   $model,
-  $polygonBufferKey,
   $updatedTextureDefs
 } from '@/selectors';
 import type { NodeSelectionMergeMode } from '@/types';

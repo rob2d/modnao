@@ -4,10 +4,6 @@ import {
   initialErrorMessagesState
 } from '@/modules/error-messages/errorMessagesStore';
 import {
-  $modelData,
-  initialModelDataState
-} from '@/modules/model-data/modelDataStore';
-import {
   $replaceTexture,
   initialReplaceTextureState
 } from '@/modules/replace-texture/replaceTextureStore';
@@ -16,7 +12,6 @@ import { batch } from '@preact-signals/safe-react';
 export const getState = () => ({
   dialogs: $dialogs.value,
   errorMessages: $errorMessages.value,
-  modelData: $modelData.value,
   replaceTexture: $replaceTexture.value
 });
 export type AppState = ReturnType<typeof getState>;
@@ -27,7 +22,6 @@ export function resetState(preloadedState: Partial<AppState> = {}) {
     $errorMessages.value = preloadedState.errorMessages ?? {
       ...initialErrorMessagesState
     };
-    $modelData.value = preloadedState.modelData ?? { ...initialModelDataState };
     $replaceTexture.value = preloadedState.replaceTexture ?? {
       ...initialReplaceTextureState
     };

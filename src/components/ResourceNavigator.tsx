@@ -1,7 +1,10 @@
 import gameNameMap from '@/constants/gameNameMap';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import resourceTypeNameMap from '@/constants/resourceTypeNameMap';
-import { $polygonFileName, $textureFileName } from '@/selectors';
+import {
+  $polygonFileName,
+  $textureFileName
+} from '@/modules/model-data/modelDataStore';
 import type { ResourceAttribs } from '@/types';
 import SearchIcon from '@mui/icons-material/Search';
 import {

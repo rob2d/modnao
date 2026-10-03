@@ -1,5 +1,15 @@
 import { $dialogs } from '@/modules/dialogs/dialogsStore';
-import { $modelData } from '@/modules/model-data/modelDataStore';
+import {
+  $editedTextures,
+  $exportTextureFileState,
+  $models,
+  $polygonBufferKey,
+  $polygonFileName,
+  $resourceAttribs,
+  $textureDefs,
+  $textureFileName,
+  $textureHistory
+} from '@/modules/model-data/modelDataStore';
 import {
   $meshSelectionType,
   $modelIndex,
@@ -24,24 +34,14 @@ export const $objectKey = computed(() => {
 
   return undefined;
 });
-export const $models = computed(() => $modelData.value.models);
-export const $resourceAttribs = computed(
-  () => $modelData.value.resourceAttribs
-);
 
 export const $hasLoadedPolygonFile = computed(() =>
-  Boolean($modelData.value.polygonFileName)
+  Boolean($polygonFileName.value)
 );
 export const $hasLoadedTextureFile = computed(() =>
-  Boolean($modelData.value.textureFileName)
-);
-export const $loadTexturesState = computed(
-  () => $modelData.value.loadTexturesState
+  Boolean($textureFileName.value)
 );
 
-export const $hasEditedTextures = computed(
-  () => $modelData.value.hasEditedTextures
-);
 export const $modelCount = computed(() => {
   const models = $models.value;
   return models.length;
@@ -81,18 +81,13 @@ export const $realModelIndexLookup = computed(() => {
     return realModelIndexLookup;
   }, new Map());
 });
-export const $textureDefs = computed(() => $modelData.value.textureDefs);
-export const $textureBufferKeyHistory = computed(
-  () => $modelData.value.textureHistory
-);
-
 /**
  * get a set of base texture urls (before hsl edits)
  * to detect presence in O(1)
  */
 export const $uneditedTextureUrls = computed(() => {
   const defs = $textureDefs.value;
-  const history = $textureBufferKeyHistory.value;
+  const history = $textureHistory.value;
   const urlSet = new Set<string>();
   defs.forEach((d) => {
     if (d.bufferKeys.translucent) {
@@ -118,8 +113,6 @@ export const $uneditedTextureUrls = computed(() => {
   return urlSet;
 });
 
-export const $editedTextures = computed(() => $modelData.value.editedTextures);
-
 /**
  * combines texture defs with any edited data urls
  * to display on scene in real-time
@@ -141,17 +134,6 @@ export const $updatedTextureDefs = computed(() => {
 
   return returnTextures;
 });
-export const $polygonFileName = computed(
-  () => $modelData.value.polygonFileName
-);
-
-export const $polygonBufferKey = computed(
-  () => $modelData.value.polygonBufferKey
-);
-
-export const $textureFileName = computed(
-  () => $modelData.value.textureFileName
-);
 
 export const $model = computed(() => {
   const modelIndex = $modelIndex.value;
@@ -335,14 +317,6 @@ export const $canExportTextures = computed(() => {
   );
 });
 
-export const $textureFileType = computed(
-  () => $modelData.value.textureFileType
-);
-
-export const $hasCompressedTextures = computed(
-  () => $modelData.value.isLzssCompressed
-);
-
 export const $contentViewMode = computed(() => {
   const hasLoadedTextures = $hasLoadedTextureFile.value;
   const hasLoadedPolygons = $hasLoadedPolygonFile.value;
@@ -422,5 +396,5 @@ export const $canNavObjects = computed(() => {
 });
 
 export const $processingOverlayShown = computed(
-  () => $modelData.value.exportTextureFileState === 'pending'
+  () => $exportTextureFileState.value === 'pending'
 );

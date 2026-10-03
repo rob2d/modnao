@@ -1,5 +1,8 @@
 import { closeDialog, showDialog } from '@/modules/dialogs/dialogsStore';
-import { replaceTextureImage } from '@/modules/model-data/modelDataStore';
+import {
+  $textureDefs,
+  replaceTextureImage
+} from '@/modules/model-data/modelDataStore';
 import { getState } from '@/store';
 import globalBuffers from '@/utils/data/globalBuffers';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
@@ -25,9 +28,8 @@ export const selectReplacementTexture = async ({
     let height: number;
     if (imageFile instanceof SharedArrayBuffer) {
       buffer = new Uint8Array(imageFile);
-      const state = getState();
-      width = state.modelData.textureDefs[textureIndex].width;
-      height = state.modelData.textureDefs[textureIndex].height;
+      width = $textureDefs.value[textureIndex].width;
+      height = $textureDefs.value[textureIndex].height;
     } else {
       const [_b, , _w, _h] = await loadRGBABuffersFromFile(imageFile);
 

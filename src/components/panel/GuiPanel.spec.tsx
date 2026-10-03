@@ -1,8 +1,7 @@
 import SceneOptionsContext, {
   defaultValues
 } from '@/contexts/SceneOptionsContext';
-import { initialModelDataState, ModelDataState } from '@/modules/model-data';
-import { AppState } from '@/store';
+import { ModelDataState } from '@/modules/model-data';
 import type { NLUITextureDef } from '@/types';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import { fireEvent, screen } from '@testing-library/react';
@@ -28,7 +27,7 @@ const mockState = {
     polygonBufferKey: 'data://anywhere',
     textureBufferKey: 'data://anywhere'
   } as unknown as ModelDataState
-} as AppState;
+};
 
 describe('GuiPanel', () => {
   it('renders', async () => {
@@ -94,8 +93,7 @@ describe('GuiPanel', () => {
         }}
       >
         <GuiPanel />
-      </SceneOptionsContext.Provider>,
-      { preloadedState: { modelData: initialModelDataState } as AppState }
+      </SceneOptionsContext.Provider>
     );
 
     const panel = renderResult.container.querySelector('.panel');

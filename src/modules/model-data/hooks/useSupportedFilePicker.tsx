@@ -1,6 +1,6 @@
 import FilesSupportedButton from '@/components/FilesSupportedButton';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
-import { $modelData } from '@/modules/model-data/modelDataStore';
+import { $polygonFileName } from '@/modules/model-data/modelDataStore';
 import type { TextureFileType } from '@/types';
 import { JSX, useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
@@ -216,7 +216,7 @@ export default function useSupportedFilePicker(
 ) {
   'use no memo';
 
-  const polygonFilename = $modelData.value.polygonFileName;
+  const polygonFilename = $polygonFileName.value;
   const { plainFiles, openFilePicker } = useFilePicker({
     multiple: true,
     readAs: 'ArrayBuffer',

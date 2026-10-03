@@ -13,13 +13,11 @@ import {
   $selectedObjectIds
 } from '@/modules/object-viewer/objectViewerStore';
 import {
-  $model,
-  $modelCount,
   $models,
   $polygonFileName,
-  $realModelIndexes,
   $resourceAttribs
-} from '@/selectors';
+} from '@/modules/model-data/modelDataStore';
+import { $model, $modelCount, $realModelIndexes } from '@/selectors';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {

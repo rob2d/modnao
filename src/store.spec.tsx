@@ -1,12 +1,26 @@
+import O from '@/constants/StructOffsets';
 import { effect } from '@preact-signals/safe-react';
 import { act, render, screen } from '@testing-library/react';
 import { deserialize, serialize } from 'node:v8';
 import {
-  $modelData,
+  $exportTextureFileState,
+  $hasEditedTextures,
+  $loadTexturesState,
+  $models,
+  $originalModels,
+  $polygonBufferKey,
+  $polygonFileName,
+  $textureBufferKey,
+  $textureDefs,
+  $textureFileName,
+  $textureFileType,
+  $textureHistory,
   replaceTextureImage,
+  resetModelData,
   revertTextureImage
 } from './modules/model-data/modelDataStore';
 import {
+  applySelectedVertexColor,
   downloadTextureFile,
   processPolygonFile,
   processTextureFile
@@ -51,6 +65,7 @@ const createModel = (polygonCount = 1) =>
 
 beforeEach(() => {
   resetState();
+  resetModelData();
   resetObjectViewer();
   globalBuffers.clear();
   jest.mocked(ClientThread.run).mockReset();
@@ -110,12 +125,71 @@ it('updates the model index directly without notifying unrelated viewer signals'
   }
 });
 
+it('keeps model data subscribers independent of loading progress', () => {
+  const modelReads = jest.fn();
+  const textureReads = jest.fn();
+  const disposeModels = effect(() => {
+    modelReads($models.value);
+  });
+  const disposeTextures = effect(() => {
+    textureReads($textureDefs.value);
+  });
+
+  try {
+    $loadTexturesState.value = 'pending';
+    $originalModels.value = [createModel()];
+
+    expect(modelReads).toHaveBeenCalledTimes(1);
+    expect(textureReads).toHaveBeenCalledTimes(1);
+
+    $models.value = [createModel()];
+
+    expect(modelReads).toHaveBeenCalledTimes(2);
+    expect(textureReads).toHaveBeenCalledTimes(1);
+  } finally {
+    disposeModels();
+    disposeTextures();
+  }
+});
+
+it('edits selected vertex colors without changing the original models', async () => {
+  const models = [createModel()];
+  models[0].meshes[0].polygons[0].vertices[0] = {
+    contentAddress: 16,
+    colors: [0, 0, 0, 0.25]
+  } as NLVertex;
+  const originalModels = structuredClone(models);
+
+  $models.value = models;
+  $originalModels.value = originalModels;
+  $modelIndex.value = 0;
+  $polygonBufferKey.value = globalBuffers.add(
+    new Uint8Array(16 + O.Vertex.COLORS + 4)
+  );
+  setObjectKeys(['0_0_0']);
+
+  await applySelectedVertexColor({ hexColor: '#ff8000' });
+
+  expect($models.value[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
+    1,
+    128 / 255,
+    0,
+    0.25
+  ]);
+  expect($originalModels.value).toBe(originalModels);
+  expect(originalModels[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
+    0, 0, 0, 0.25
+  ]);
+  expect(
+    Array.from(
+      globalBuffers.get($polygonBufferKey.value).slice(16 + O.Vertex.COLORS)
+    )
+  ).toEqual([0, 128, 255, 64]);
+});
+
 it('changes the viewed index and clears selection in one batch', async () => {
-  $modelData.value = {
-    ...$modelData.value,
-    polygonFileName: 'STG01POL.BIN',
-    models: [createModel(), createModel()]
-  };
+  $polygonFileName.value = 'STG01POL.BIN';
+  $models.value = [createModel(), createModel()];
   $modelIndex.value = 0;
   setObjectKeys(['0']);
 
@@ -141,11 +215,12 @@ it('changes the viewed index and clears selection in one batch', async () => {
 });
 
 it('wraps navigation around real models and clears selection', async () => {
-  $modelData.value = {
-    ...$modelData.value,
-    polygonFileName: 'STG01POL.BIN',
-    models: [createModel(), { meshes: [] } as unknown as NLModel, createModel()]
-  };
+  $polygonFileName.value = 'STG01POL.BIN';
+  $models.value = [
+    createModel(),
+    { meshes: [] } as unknown as NLModel,
+    createModel()
+  ];
   await navToNextObject();
   expect($modelIndex.value).toBe(0);
   setObjectKeys(['0']);
@@ -159,28 +234,22 @@ it('wraps navigation around real models and clears selection', async () => {
 });
 
 it('wraps texture navigation and handles an empty collection', async () => {
-  $modelData.value = {
-    ...$modelData.value,
-    textureFileName: 'FONT.BIN',
-    textureDefs: [createTextureDef({}), createTextureDef({})]
-  };
+  $textureFileName.value = 'FONT.BIN';
+  $textureDefs.value = [createTextureDef({}), createTextureDef({})];
   await navToNextObject();
   expect($textureIndex.value).toBe(0);
   await navToPrevObject();
   expect($textureIndex.value).toBe(1);
   await navToNextObject();
   expect($textureIndex.value).toBe(0);
-  $modelData.value = { ...$modelData.value, textureDefs: [] };
+  $textureDefs.value = [];
   await navToNextObject();
   expect($textureIndex.value).toBe(-1);
 });
 
 it('preserves complete mesh and polygon selections when changing selection type', async () => {
-  $modelData.value = {
-    ...$modelData.value,
-    polygonFileName: 'STG01POL.BIN',
-    models: [createModel(2)]
-  };
+  $polygonFileName.value = 'STG01POL.BIN';
+  $models.value = [createModel(2)];
   await navToNextObject();
   setObjectKeys(['0']);
   setObjectType('polygon');
@@ -206,10 +275,7 @@ it('preserves complete mesh and polygon selections when changing selection type'
 
 it('keeps texture replacement history and reverts one replacement at a time', () => {
   const original = { translucent: 'original', opaque: 'original-opaque' };
-  $modelData.value = {
-    ...$modelData.value,
-    textureDefs: [createTextureDef({ bufferKeys: original })]
-  };
+  $textureDefs.value = [createTextureDef({ bufferKeys: original })];
   replaceTextureImage({
     textureIndex: 0,
     bufferKeys: { translucent: 'first', opaque: 'first-opaque' }
@@ -223,15 +289,12 @@ it('keeps texture replacement history and reverts one replacement at a time', ()
   expect($updatedTextureDefs.value[0].bufferKeys.translucent).toBe('first');
   revertTextureImage({ textureIndex: 0 });
   expect($updatedTextureDefs.value[0].bufferKeys).toEqual(original);
-  expect(getState().modelData.textureHistory[0]).toEqual([]);
-  expect(getState().modelData.hasEditedTextures).toBe(true);
+  expect($textureHistory.value[0]).toEqual([]);
+  expect($hasEditedTextures.value).toBe(true);
 });
 
 it('replaces a selected image, releases its previous buffer, and applies opaque and translucent pixels', async () => {
-  $modelData.value = {
-    ...$modelData.value,
-    textureDefs: [createTextureDef({ width: 1, height: 1 })]
-  };
+  $textureDefs.value = [createTextureDef({ width: 1, height: 1 })];
   await selectReplacementTexture({
     textureIndex: 0,
     imageFile: new SharedArrayBuffer(4)
@@ -248,13 +311,13 @@ it('replaces a selected image, releases its previous buffer, and applies opaque 
   const keys = $updatedTextureDefs.value[0].bufferKeys;
   expect(Array.from(globalBuffers.get(keys.translucent))).toEqual([1, 2, 3, 4]);
   expect(Array.from(globalBuffers.get(keys.opaque))).toEqual([1, 2, 3, 255]);
-  expect(getState().modelData.textureHistory[0]).toHaveLength(1);
+  expect($textureHistory.value[0]).toHaveLength(1);
   expect(getState().dialogs.dialogShown).toBeUndefined();
 });
 
 it('ends export progress when no texture file type is available', async () => {
   await downloadTextureFile();
-  expect(getState().modelData.exportTextureFileState).toBe('fulfilled');
+  expect($exportTextureFileState.value).toBe('fulfilled');
   expect(getState().errorMessages.messages[0].title).toBe(
     'Invalid file selected'
   );
@@ -274,19 +337,16 @@ it('applies polygon worker results to data and viewer state together', async () 
   } as File;
   const result = await processPolygonFile(file);
   expect(result).toBeDefined();
-  expect(getState().modelData.models).toEqual(models);
-  expect(getState().modelData.originalModels).toEqual(models);
-  expect(getState().modelData.originalModels).not.toBe(models);
+  expect($models.value).toEqual(models);
+  expect($originalModels.value).toEqual(models);
+  expect($originalModels.value).not.toBe(models);
   expect($modelIndex.value).toBe(1);
   expect($textureIndex.value).toBe(0);
 });
 
 it('loads a standalone texture file and clears the previous polygon state', async () => {
-  $modelData.value = {
-    ...$modelData.value,
-    models: [createModel()],
-    polygonFileName: 'STG01POL.BIN'
-  };
+  $models.value = [createModel()];
+  $polygonFileName.value = 'STG01POL.BIN';
   jest.mocked(ClientThread.run).mockResolvedValue({
     texturePixelBuffers: [new Uint8Array(4), new Uint8Array(4)],
     decompressedTextureBuffer: new Uint8Array(4)
@@ -301,10 +361,10 @@ it('loads a standalone texture file and clears the previous polygon state', asyn
     textureDefs: [createTextureDef({ width: 1, height: 1 })]
   });
   expect(result).toBeDefined();
-  expect(getState().modelData.loadTexturesState).toBe('fulfilled');
-  expect(getState().modelData.textureFileName).toBe('FONT.BIN');
-  expect(getState().modelData.models).toEqual([]);
-  expect(getState().modelData.polygonFileName).toBeUndefined();
+  expect($loadTexturesState.value).toBe('fulfilled');
+  expect($textureFileName.value).toBe('FONT.BIN');
+  expect($models.value).toEqual([]);
+  expect($polygonFileName.value).toBeUndefined();
   expect($modelIndex.value).toBe(-1);
 });
 
@@ -319,21 +379,18 @@ it('ends loading and export progress when operations fail', async () => {
     textureFileType: 'mvc2-font-file',
     textureDefs: [createTextureDef({})]
   });
-  expect(getState().modelData.loadTexturesState).toBe('pending');
+  expect($loadTexturesState.value).toBe('pending');
   await operation;
-  expect(getState().modelData.loadTexturesState).toBe('rejected');
-  $modelData.value = {
-    ...$modelData.value,
-    textureFileType: 'mvc2-font-file',
-    textureDefs: [],
-    textureBufferKey: globalBuffers.add(new Uint8Array(4))
-  };
+  expect($loadTexturesState.value).toBe('rejected');
+  $textureFileType.value = 'mvc2-font-file';
+  $textureDefs.value = [];
+  $textureBufferKey.value = globalBuffers.add(new Uint8Array(4));
   const errorLog = jest
     .spyOn(console, 'error')
     .mockImplementation(() => undefined);
   const exporting = downloadTextureFile();
   await exporting;
-  expect(getState().modelData.exportTextureFileState).toBe('fulfilled');
+  expect($exportTextureFileState.value).toBe('fulfilled');
   expect(getState().errorMessages.messages[0].title).toBe(
     'Error exporting texture'
   );

@@ -1,6 +1,6 @@
 import NumericSliderInput from '@/components/NumericSliderInput';
 import { useDebouncedEffect } from '@/hooks';
-import { $modelData } from '@/modules/model-data/modelDataStore';
+import { $textureHslSessions } from '@/modules/model-data/modelDataStore';
 import { $updatedTextureDefs } from '@/selectors';
 import {
   getUvClipPathBounds,
@@ -89,7 +89,7 @@ export default function TextureColorOptions({
 
   const textureDefs = $updatedTextureDefs.value;
   const textureDef = textureDefs[textureIndex];
-  const textureHslSession = $modelData.value.textureHslSessions[textureIndex];
+  const textureHslSession = $textureHslSessions.value[textureIndex];
 
   const hasTouchedHslInputRef = useRef(false);
   const [applyToWholeTexture, setApplyToWholeTexture] = useState(false);

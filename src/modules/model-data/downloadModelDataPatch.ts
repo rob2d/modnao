@@ -1,5 +1,12 @@
+import {
+  $models,
+  $originalModels,
+  $polygonFileName,
+  $resourceAttribs,
+  $textureDefs,
+  $textureFileName
+} from '@/modules/model-data/modelDataStore';
 import { showError } from '@/modules/error-messages';
-import { getState } from '@/store';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { createB64ImgFromTextureDef } from '@/utils/textures';
 import saveAs from 'file-saver';
@@ -19,14 +26,12 @@ const downloadModelDataPatch = async ({
   onlyChangedVertexColors: boolean;
 }) => {
   try {
-    const {
-      models,
-      originalModels,
-      polygonFileName,
-      resourceAttribs,
-      textureDefs,
-      textureFileName
-    } = getState().modelData;
+    const models = $models.value;
+    const originalModels = $originalModels.value;
+    const polygonFileName = $polygonFileName.value;
+    const resourceAttribs = $resourceAttribs.value;
+    const textureDefs = $textureDefs.value;
+    const textureFileName = $textureFileName.value;
     const sourceFileName = polygonFileName ?? textureFileName;
 
     if (!resourceAttribs || !sourceFileName) {

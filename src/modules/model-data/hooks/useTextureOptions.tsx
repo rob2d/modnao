@@ -1,7 +1,11 @@
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { useKeyPressEffect } from '@/hooks';
-import { $modelData } from '@/modules/model-data/modelDataStore';
-import { $textureFileName, $updatedTextureDefs } from '@/selectors';
+import {
+  $textureFileName,
+  $textureHistory,
+  revertTextureImage
+} from '@/modules/model-data/modelDataStore';
+import { $updatedTextureDefs } from '@/selectors';
 import globalBuffers from '@/utils/data/globalBuffers';
 import {
   createB64ImgFromTextureDef,
@@ -21,7 +25,6 @@ import {
   useState
 } from 'react';
 import { useFilePicker } from 'use-file-picker';
-import { revertTextureImage } from '../modelDataStore';
 
 interface TextureOption {
   label: string;
@@ -95,7 +98,7 @@ export default function useTextureOptions(
 
   const dlAsTranslucent = !ignoreKeyboardFunctions && wantsTranslucentDownload;
 
-  const textureHistory = $modelData.value.textureHistory[textureIndex];
+  const textureHistory = $textureHistory.value[textureIndex];
 
   const options = useMemo(
     (): TextureOption[] => [

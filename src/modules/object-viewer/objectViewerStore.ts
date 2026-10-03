@@ -1,10 +1,9 @@
+import { $models, $textureDefs } from '@/modules/model-data/modelDataStore';
 import {
   $contentViewMode,
   $model,
-  $models,
   $realModelIndexes,
-  $realModelIndexLookup,
-  $textureDefs
+  $realModelIndexLookup
 } from '@/selectors';
 import { batch, signal } from '@preact-signals/safe-react';
 import getConvertedObjectKeys from './objectSelectionConversion';

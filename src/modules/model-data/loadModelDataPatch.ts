@@ -1,7 +1,5 @@
 import O from '@/constants/StructOffsets';
 import { showError } from '@/modules/error-messages';
-import { $modelData } from '@/modules/model-data/modelDataStore';
-import { getState } from '@/store';
 import globalBuffers from '@/utils/data/globalBuffers';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { batch } from '@preact-signals/safe-react';
@@ -9,8 +7,13 @@ import { produce } from 'immer';
 import JSZip from 'jszip';
 import { createElement } from 'react';
 import {
+  $models,
+  $polygonBufferKey,
+  $polygonFileName,
+  $resourceAttribs,
+  $textureDefs,
   applySelectedVertexColorFulfilled,
-  replaceTextureImageInState
+  replaceTextureImage
 } from './modelDataStore';
 import { writeVertexColorToBuffer } from './modelDataThunks';
 import parseModelDataPatchManifest from './parseModelDataPatchManifest';
@@ -28,7 +31,8 @@ const PATCH_RESOURCE_CHANGED_ERROR =
 
 const loadModelDataPatch = async (file: File) => {
   try {
-    const { polygonFileName, resourceAttribs } = getState().modelData;
+    const polygonFileName = $polygonFileName.value;
+    const resourceAttribs = $resourceAttribs.value;
 
     if (!polygonFileName || !resourceAttribs) {
       showError({
@@ -76,13 +80,11 @@ const loadModelDataPatch = async (file: File) => {
         );
       }
 
-      const {
-        models,
-        polygonBufferKey,
-        polygonFileName: currentPolygonFileName,
-        resourceAttribs: currentResourceAttribs,
-        textureDefs
-      } = getState().modelData;
+      const models = $models.value;
+      const polygonBufferKey = $polygonBufferKey.value;
+      const currentPolygonFileName = $polygonFileName.value;
+      const currentResourceAttribs = $resourceAttribs.value;
+      const textureDefs = $textureDefs.value;
 
       if (
         !currentPolygonFileName ||
@@ -127,11 +129,9 @@ const loadModelDataPatch = async (file: File) => {
         )
       );
 
-      const currentModelData = getState().modelData;
-
       if (
-        currentModelData.polygonBufferKey !== polygonBufferKey ||
-        currentModelData.textureDefs !== textureDefs
+        $polygonBufferKey.value !== polygonBufferKey ||
+        $textureDefs.value !== textureDefs
       ) {
         throw new Error(PATCH_RESOURCE_CHANGED_ERROR);
       }
@@ -207,16 +207,15 @@ const loadModelDataPatch = async (file: File) => {
         textureUpdates
       };
       batch(() => {
-        $modelData.value = produce($modelData.value, (state) => {
-          const payload = result;
-          payload?.vertexColorUpdates.forEach((vertexColorUpdate) => {
-            applySelectedVertexColorFulfilled(state, {
+        $models.value = produce($models.value, (models) => {
+          result.vertexColorUpdates.forEach((vertexColorUpdate) => {
+            applySelectedVertexColorFulfilled(models, {
               payload: vertexColorUpdate
             });
           });
-          payload?.textureUpdates.forEach((textureUpdate) => {
-            replaceTextureImageInState(state, textureUpdate);
-          });
+        });
+        result.textureUpdates.forEach((textureUpdate) => {
+          replaceTextureImage(textureUpdate);
         });
       });
       return result;

@@ -1,9 +1,19 @@
+import {
+  $hasEditedTextures,
+  $models,
+  $originalModels,
+  $polygonBufferKey,
+  $polygonFileName,
+  $resourceAttribs,
+  $textureDefs,
+  $textureHistory,
+  resetModelData
+} from '@/modules/model-data/modelDataStore';
 import O from '@/constants/StructOffsets';
 import {
   $modelIndex,
   $textureIndex
 } from '@/modules/object-viewer/objectViewerStore';
-import { getState, resetState } from '@/store';
 import type { ResourceAttribs } from '@/types';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { createTextureDef } from '@/utils/textures';
@@ -105,7 +115,7 @@ describe('modelDataPatch', () => {
       type: 'arraybuffer'
     });
     const file = new File([zipBuffer], 'stg01.psychadelic-dark.mnp.zip');
-    resetState();
+    resetModelData();
     const contentAddress = 16;
     const createVertex = (): NLVertex => ({
       address: contentAddress,
@@ -207,33 +217,27 @@ describe('modelDataPatch', () => {
       })
     ];
 
-    resetState({
-      modelData: {
-        ...getState().modelData,
-        models,
-        originalModels,
-        textureDefs,
-        polygonFileName: 'STG01POL.BIN',
-        polygonBufferKey,
-        resourceAttribs
-      }
-    });
+    $models.value = models;
+    $originalModels.value = originalModels;
+    $textureDefs.value = textureDefs;
+    $polygonFileName.value = 'STG01POL.BIN';
+    $polygonBufferKey.value = polygonBufferKey;
+    $resourceAttribs.value = resourceAttribs;
 
     $modelIndex.value = 0;
     $textureIndex.value = 0;
 
     const result = await loadModelDataPatch(file);
-    const state = getState().modelData;
     const colorOffset = contentAddress + O.Vertex.COLORS;
 
     expect(result).toBeDefined();
-    expect(state.models[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
+    expect($models.value[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
       1, 0.5, 0, 0.25
     ]);
-    expect(state.models[0].meshes[0].polygons[0].vertices[1].colors).toEqual([
+    expect($models.value[0].meshes[0].polygons[0].vertices[1].colors).toEqual([
       1, 0.5, 0, 0.25
     ]);
-    expect(state.originalModels).toEqual(originalModels);
+    expect($originalModels.value).toEqual(originalModels);
     expect(
       Array.from(
         globalBuffers.get(polygonBufferKey).slice(colorOffset, colorOffset + 4)
@@ -241,15 +245,15 @@ describe('modelDataPatch', () => {
     ).toEqual([0, 128, 255, 64]);
     expect(
       Array.from(
-        globalBuffers.get(state.textureDefs[0].bufferKeys.translucent ?? '')
+        globalBuffers.get($textureDefs.value[0].bufferKeys.translucent ?? '')
       )
     ).toEqual(Array.from(texturePixels));
     expect(
       Array.from(
-        globalBuffers.get(state.textureDefs[0].bufferKeys.opaque ?? '')
+        globalBuffers.get($textureDefs.value[0].bufferKeys.opaque ?? '')
       )
     ).toEqual([255, 128, 0, 255]);
-    expect(state.textureHistory[0]).toEqual([
+    expect($textureHistory.value[0]).toEqual([
       {
         bufferKeys: {
           translucent: originalTranslucentBufferKey,
@@ -257,6 +261,6 @@ describe('modelDataPatch', () => {
         }
       }
     ]);
-    expect(state.hasEditedTextures).toBe(true);
+    expect($hasEditedTextures.value).toBe(true);
   });
 });

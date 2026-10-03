@@ -11,15 +11,17 @@ import {
   $selectedObjectIds
 } from '@/modules/object-viewer/objectViewerStore';
 import {
+  $loadTexturesState,
+  $models,
+  $resourceAttribs,
+  $textureFileName
+} from '@/modules/model-data/modelDataStore';
+import {
   $canExportTextures,
   $contentViewMode,
   $hasLoadedTextureFile,
-  $loadTexturesState,
   $model,
-  $models,
-  $resourceAttribs,
   $selectedTexture,
-  $textureFileName,
   $updatedTextureDefs
 } from '@/selectors';
 import { mdiSquare, mdiSquareOpacity } from '@mdi/js';
