@@ -22,13 +22,11 @@ import {
   $textureFileName,
   $textureFileType,
   applySelectedVertexColor,
+  processPolygonFile,
+  processTextureFile,
   resetModelData
 } from './modelDataStore';
-import {
-  downloadTextureFile,
-  processPolygonFile,
-  processTextureFile
-} from './modelDataThunks';
+import { downloadTextureFile } from './modelDataThunks';
 
 globalThis.structuredClone ??= (value) => deserialize(serialize(value));
 

@@ -1,14 +1,17 @@
+import { loadPolygonFile } from '../modelDataStore';
 import loadModelDataPatch from '../loadModelDataPatch';
 import {
   loadCharacterPortraitsFile,
-  loadPolygonFile,
   loadTextureFile
 } from '../modelDataThunks';
 import { handleFileInput } from './useSupportedFilePicker';
 
+jest.mock('../modelDataStore', () => ({
+  ...jest.requireActual('../modelDataStore'),
+  loadPolygonFile: jest.fn()
+}));
 jest.mock('../modelDataThunks', () => ({
   loadTextureFile: jest.fn(),
-  loadPolygonFile: jest.fn(),
   loadCharacterPortraitsFile: jest.fn()
 }));
 jest.mock('../loadModelDataPatch', () => ({

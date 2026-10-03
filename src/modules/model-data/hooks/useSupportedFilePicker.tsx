@@ -1,3 +1,4 @@
+import { loadPolygonFile } from '../modelDataStore';
 import FilesSupportedButton from '@/components/FilesSupportedButton';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import { $polygonFileName } from '@/modules/model-data/modelDataStore';
@@ -8,7 +9,6 @@ import { useFilePicker } from 'use-file-picker';
 import loadModelDataPatch from '../loadModelDataPatch';
 import {
   loadCharacterPortraitsFile,
-  loadPolygonFile,
   loadTextureFile
 } from '../modelDataThunks';
 import { MODEL_DATA_PATCH_EXTENSION } from '../validateModelDataPatchCompatibility';

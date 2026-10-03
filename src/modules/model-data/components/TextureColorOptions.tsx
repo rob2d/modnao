@@ -31,7 +31,8 @@ import {
   useRef,
   useState
 } from 'react';
-import { adjustTextureHsl, getTextureHslScopeKey } from '../modelDataThunks';
+import { adjustTextureHsl } from '../modelDataStore';
+import { getTextureHslScopeKey } from '../modelDataUtils';
 
 const DEFAULT_HSL = {
   h: 0,
