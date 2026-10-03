@@ -98,6 +98,14 @@ const supportEntries: FileSupportEntry[] = [
   },
   {
     title: 'Marvel vs Capcom 2',
+    filenameFormat: 'DM08CAB.BIN',
+    filenameExample: 'DM08CAB.BIN',
+    fileType: 'Texture',
+    description: 'Arcade intro - Cable & Ruby Heart',
+    notes: 'Open this texture file by itself.'
+  },
+  {
+    title: 'Marvel vs Capcom 2',
     filenameFormat: 'SELSTG.BIN',
     filenameExample: 'SELSTG.BIN',
     fileType: 'Texture',

@@ -8,6 +8,7 @@ type TextureFileType =
   | 'mvc2-selection-vmu-us'
   | 'mvc2-end-file'
   | 'mvc2-special-effects'
+  | 'mvc2-intro-cable-ruby'
   | 'cvs2-console-menu'
   | 'vs2-stage-file'
   | 'vs2-demo-model';

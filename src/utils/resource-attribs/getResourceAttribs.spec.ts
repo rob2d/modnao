@@ -1,6 +1,27 @@
 import getResourceAttribs from './getResourceAttribs';
 
 describe('getResourceAttribs', () => {
+  it.each(['DM08CAB.BIN', 'dm08cab.bin', 'DM08CAB.mn.BIN'])(
+    'resolves %s as a standalone MVC2 intro texture resource',
+    (fileName) => {
+      expect(getResourceAttribs('unknown', fileName)).toMatchObject({
+        game: 'MVC2',
+        identifier: 'DM08CAB',
+        polygonMapped: false,
+        oobReferencable: false,
+        textureFileType: 'mvc2-intro-cable-ruby',
+        hasLzssTextureFile: false
+      });
+    }
+  );
+
+  it.each(['DM08CABXBIN', 'DM08CABxmn.BIN', 'DM08CAB.BIN.bak'])(
+    'does not recognize %s as an MVC2 intro texture file',
+    (fileName) => {
+      expect(getResourceAttribs('unknown', fileName)).toBeUndefined();
+    }
+  );
+
   const cvs1StageFiles = [
     ['6971c7f91ff9f0f83b771609451e49d7814b5388', 'STG00POL.BIN', 'STG00/STG0B'],
     ['6971c7f91ff9f0f83b771609451e49d7814b5388', 'STG0BPOL.BIN', 'STG00/STG0B'],

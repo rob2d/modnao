@@ -1,4 +1,5 @@
 import { handleFileInput } from './useSupportedFilePicker';
+import { loadTextureFile } from '../modelDataThunks';
 
 describe('handleFileInput', () => {
   const onError = jest.fn();
@@ -8,9 +9,62 @@ describe('handleFileInput', () => {
   const getMockFilesWithNames = (filenames: string[]) =>
     filenames.map((n) => new File(['data'], n, { type: 'text/plain' }));
 
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
   afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
     onError.mockClear();
     dispatch.mockClear();
+  });
+
+  it.each(['DM08CAB.BIN', 'dm08cab.bin', 'DM08CAB.mn.BIN'])(
+    'dispatches %s to the raw texture loader without a polygon file',
+    async (filename) => {
+      const files = getMockFilesWithNames([filename]);
+      const pendingActions: unknown[] = [];
+      const thunkDispatch = jest.fn((thunk) =>
+        thunk(
+          (action: unknown) => pendingActions.push(action),
+          () => ({
+            modelData: {}
+          })
+        )
+      );
+
+      await handleFileInput(files, onError, thunkDispatch, undefined);
+
+      expect(onError).not.toHaveBeenCalled();
+      expect(thunkDispatch).toHaveBeenCalledTimes(1);
+      expect(pendingActions[0]).toMatchObject({
+        type: loadTextureFile.pending.type,
+        meta: {
+          arg: {
+            file: files[0],
+            textureFileType: 'mvc2-intro-cable-ruby',
+            isLzssCompressed: false
+          }
+        }
+      });
+    }
+  );
+
+  it.each([
+    ['DM08CAB.BIN', 'STG01POL.BIN'],
+    ['STG01POL.BIN', 'DM08CAB.BIN'],
+    ['DM08CAB.BIN', 'FONT.BIN']
+  ])('rejects selecting %s with %s', async (...filenames) => {
+    await handleFileInput(
+      getMockFilesWithNames(filenames),
+      onError,
+      dispatch,
+      undefined
+    );
+
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(dispatch).not.toHaveBeenCalled();
   });
 
   it('should do nothing when no files are selected', async () => {
