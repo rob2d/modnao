@@ -34,7 +34,7 @@ export default function Contributors({ compact }: ContributorsProps) {
         </Typography>
         <Typography variant={'body2'}>
           VincentNL, egregiousguy, zocker-160, bankbank, TVIndustries,
-          mountainmanjed
+          mountainmanjed, tortita
         </Typography>
         <Typography variant={'subtitle1'}>
           User Testing & Useful Feedback
