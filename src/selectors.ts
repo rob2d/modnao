@@ -1,4 +1,4 @@
-import { $dialogs } from '@/modules/dialogs/dialogsStore';
+import { $dialogShown } from '@/modules/dialogs/dialogsStore';
 import {
   $editedTextures,
   $exportTextureFileState,
@@ -302,11 +302,11 @@ export const $replacementTextureIndex = computed(
 );
 
 export const $isAppInfoDialogShown = computed(
-  () => $dialogs.value.dialogShown === 'app-info'
+  () => $dialogShown.value === 'app-info'
 );
 
 export const $isFileSupportDialogShown = computed(
-  () => $dialogs.value.dialogShown === 'file-support-info'
+  () => $dialogShown.value === 'file-support-info'
 );
 
 export const $canExportTextures = computed(() => {

@@ -1,3 +1,4 @@
+import { closeDialog } from '@/modules/dialogs/dialogsStore';
 import { resetModelData } from '@/modules/model-data/modelDataStore';
 import type { ModelDataState } from '@/modules/model-data/modelDataTypes';
 import { resetObjectViewer } from '@/modules/object-viewer/objectViewerStore';
@@ -17,6 +18,7 @@ export default function renderTestWithProviders(
   const { modelData, ...state } = preloadedState ?? {};
 
   resetState(state);
+  closeDialog();
   resetModelData(modelData);
   resetObjectViewer();
   function Wrapper({ children }: PropsWithChildren) {

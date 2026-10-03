@@ -1,4 +1,5 @@
 import O from '@/constants/StructOffsets';
+import { $dialogShown, closeDialog } from '@/modules/dialogs/dialogsStore';
 import { effect } from '@preact-signals/safe-react';
 import { act, render, screen } from '@testing-library/react';
 import { deserialize, serialize } from 'node:v8';
@@ -65,6 +66,7 @@ const createModel = (polygonCount = 1) =>
 
 beforeEach(() => {
   resetState();
+  closeDialog();
   resetModelData();
   resetObjectViewer();
   globalBuffers.clear();
@@ -301,7 +303,7 @@ it('replaces a selected image, releases its previous buffer, and applies opaque 
   });
   const previousBufferKey =
     getState().replaceTexture.replacementImage!.bufferKey;
-  expect(getState().dialogs.dialogShown).toBe('replace-texture');
+  expect($dialogShown.value).toBe('replace-texture');
   await selectReplacementTexture({
     textureIndex: 0,
     imageFile: new SharedArrayBuffer(4)
@@ -312,7 +314,7 @@ it('replaces a selected image, releases its previous buffer, and applies opaque 
   expect(Array.from(globalBuffers.get(keys.translucent))).toEqual([1, 2, 3, 4]);
   expect(Array.from(globalBuffers.get(keys.opaque))).toEqual([1, 2, 3, 255]);
   expect($textureHistory.value[0]).toHaveLength(1);
-  expect(getState().dialogs.dialogShown).toBeUndefined();
+  expect($dialogShown.value).toBeUndefined();
 });
 
 it('ends export progress when no texture file type is available', async () => {

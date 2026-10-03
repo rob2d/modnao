@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material';
 import type { SystemStyleObject } from '@mui/system';
-import { signal } from '@preact-signals/safe-react';
+import { batch, signal } from '@preact-signals/safe-react';
 
 export type DialogType =
   | 'app-info'
@@ -13,24 +13,19 @@ export interface ShowDialogPayload {
   sx?: SystemStyleObject<Theme>;
 }
 
-export interface DialogsState {
-  dialogShown?: DialogType;
-  sx?: SystemStyleObject<Theme>;
-}
-
-export const initialDialogsState: DialogsState = {
-  dialogShown: undefined
-};
-
-export const $dialogs = signal<DialogsState>(initialDialogsState);
+export const $dialogShown = signal<DialogType | undefined>(undefined);
+export const $sx = signal<SystemStyleObject<Theme> | undefined>(undefined);
 
 export function showDialog(payload: DialogType | ShowDialogPayload) {
-  $dialogs.value =
-    typeof payload === 'string'
-      ? { dialogShown: payload, sx: undefined }
-      : { dialogShown: payload.type, sx: payload.sx };
+  batch(() => {
+    $dialogShown.value = typeof payload === 'string' ? payload : payload.type;
+    $sx.value = typeof payload === 'string' ? undefined : payload.sx;
+  });
 }
 
 export function closeDialog() {
-  $dialogs.value = { dialogShown: undefined, sx: undefined };
+  batch(() => {
+    $dialogShown.value = undefined;
+    $sx.value = undefined;
+  });
 }

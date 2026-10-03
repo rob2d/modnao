@@ -1,3 +1,4 @@
+import { closeDialog } from '@/modules/dialogs/dialogsStore';
 import { resetModelData } from '@/modules/model-data/modelDataStore';
 import { resetObjectViewer } from '@/modules/object-viewer/objectViewerStore';
 import { getState, resetState } from '@/store';
@@ -46,6 +47,7 @@ describe('ModNaoBrowserApiProvider', () => {
 
   it('owns one stable API object while capabilities change', async () => {
     resetState();
+    closeDialog();
     resetModelData();
     resetObjectViewer();
     const { rerender, unmount } = render(

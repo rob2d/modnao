@@ -1,5 +1,4 @@
-import { closeDialog, DialogType } from '@/modules/dialogs';
-import { $dialogs } from '@/modules/dialogs/dialogsStore';
+import { $dialogShown, $sx, closeDialog, DialogType } from '@/modules/dialogs';
 import { ModelDataPatchExportDialog } from '@/modules/model-data';
 import { ReplaceTexture } from '@/modules/replace-texture';
 import { Dialog, DialogContent } from '@mui/material';
@@ -17,7 +16,8 @@ const Dialogs: Record<DialogType, FC> = {
 export default function AppDialog() {
   'use no memo';
 
-  const { dialogShown, sx } = $dialogs.value;
+  const dialogShown = $dialogShown.value;
+  const sx = $sx.value;
   const DialogComponent = dialogShown ? Dialogs[dialogShown] : null;
   const appInfoDialogSx =
     dialogShown !== 'app-info'
