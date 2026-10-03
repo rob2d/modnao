@@ -6,7 +6,7 @@ import {
   $selectedObjectIds,
   $textureIndex
 } from '@/modules/object-viewer/objectViewerStore';
-import { $replaceTexture } from '@/modules/replace-texture/replaceTextureStore';
+import { $replacementImage } from '@/modules/replace-texture/replaceTextureStore';
 import {
   $selectedVertexGradientInputs,
   $updatedTextureDefs
@@ -592,7 +592,7 @@ export const loadTextureFile = async (payload: LoadTexturesPayload) => {
     const textureDefs = $textureDefs.value;
     const textureHistory = $textureHistory.value;
     const editedTextures = $editedTextures.value;
-    const replacementImage = $replaceTexture.value.replacementImage;
+    const replacementImage = $replacementImage.value;
     const resourceAttribs =
       payload.resourceAttribs ??
       resourceAttribMappings[payload.textureFileType];

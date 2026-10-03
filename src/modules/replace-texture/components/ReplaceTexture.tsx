@@ -1,11 +1,7 @@
 import ImageBufferCanvas from '@/components/ImageBufferCanvas';
 import { useDebouncedEffect } from '@/hooks';
 import { closeDialog } from '@/modules/dialogs';
-import {
-  $replacementImage,
-  $replacementTextureIndex,
-  $updatedTextureDefs
-} from '@/selectors';
+import { $updatedTextureDefs } from '@/selectors';
 import type { NLUITextureDef } from '@/types';
 import globalBuffers from '@/utils/data/globalBuffers';
 import cropImage from '@/utils/images/cropImage';
@@ -34,7 +30,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
 import { useFilePicker } from 'use-file-picker';
 import useTextureReplaceDropzone from '../hooks/useTextureReplaceDropzone';
-import { applyReplacedTextureImage } from '../replaceTextureStore';
+import {
+  $replacementImage,
+  $textureIndex,
+  applyReplacedTextureImage
+} from '../replaceTextureStore';
 
 const DEFAULT_FLIP_STATE = { horizontal: false, vertical: false };
 
@@ -107,7 +107,7 @@ export default function ReplaceTexture() {
   }, [processedRgba]);
 
   const textureDefs: NLUITextureDef[] = $updatedTextureDefs.value;
-  const textureIndex = $replacementTextureIndex.value;
+  const textureIndex = $textureIndex.value;
   const replacementImage = $replacementImage.value;
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;
   const originalHeight = textureDefs?.[textureIndex]?.height || 0;

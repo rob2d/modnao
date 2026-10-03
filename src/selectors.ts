@@ -16,7 +16,6 @@ import {
   $selectedObjectIds,
   $textureIndex
 } from '@/modules/object-viewer/objectViewerStore';
-import { $replaceTexture } from '@/modules/replace-texture/replaceTextureStore';
 import type { NLUITextureDef } from '@/types';
 import { computed } from '@preact-signals/safe-react';
 import type { SelectedVertexGradientInputs } from './modules/model-data/modelDataTypes';
@@ -292,14 +291,6 @@ export const $mesh = computed(() => {
   const meshIndex = $objectMeshIndex.value;
   return model?.meshes[meshIndex] || undefined;
 });
-
-export const $replacementImage = computed(
-  () => $replaceTexture.value.replacementImage
-);
-
-export const $replacementTextureIndex = computed(
-  () => $replaceTexture.value.textureIndex
-);
 
 export const $isAppInfoDialogShown = computed(
   () => $dialogShown.value === 'app-info'

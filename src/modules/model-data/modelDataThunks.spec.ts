@@ -1,0 +1,168 @@
+import O from '@/constants/StructOffsets';
+import { $messages, resetErrorMessages } from '@/modules/error-messages';
+import {
+  $modelIndex,
+  $textureIndex,
+  resetObjectViewer,
+  setObjectKeys
+} from '@/modules/object-viewer/objectViewerStore';
+import globalBuffers from '@/utils/data/globalBuffers';
+import { createTextureDef } from '@/utils/textures';
+import { ClientThread } from '@/utils/threads';
+import { deserialize, serialize } from 'node:v8';
+import {
+  $exportTextureFileState,
+  $loadTexturesState,
+  $models,
+  $originalModels,
+  $polygonBufferKey,
+  $polygonFileName,
+  $textureBufferKey,
+  $textureDefs,
+  $textureFileName,
+  $textureFileType,
+  resetModelData
+} from './modelDataStore';
+import {
+  applySelectedVertexColor,
+  downloadTextureFile,
+  processPolygonFile,
+  processTextureFile
+} from './modelDataThunks';
+
+globalThis.structuredClone ??= (value) => deserialize(serialize(value));
+
+jest.mock('@/utils/threads', () => ({ ClientThread: { run: jest.fn() } }));
+
+const createModel = (polygonCount = 1) =>
+  ({
+    meshes: [
+      {
+        hasColoredVertices: true,
+        polygons: Array.from({ length: polygonCount }, () => ({
+          vertices: [{}, {}]
+        }))
+      }
+    ]
+  }) as NLModel;
+
+beforeEach(() => {
+  resetErrorMessages();
+  resetModelData();
+  resetObjectViewer();
+  globalBuffers.clear();
+  jest.mocked(ClientThread.run).mockReset();
+});
+
+it('edits selected vertex colors without changing the original models', async () => {
+  const models = [createModel()];
+  models[0].meshes[0].polygons[0].vertices[0] = {
+    contentAddress: 16,
+    colors: [0, 0, 0, 0.25]
+  } as NLVertex;
+  const originalModels = structuredClone(models);
+
+  $models.value = models;
+  $originalModels.value = originalModels;
+  $modelIndex.value = 0;
+  $polygonBufferKey.value = globalBuffers.add(
+    new Uint8Array(16 + O.Vertex.COLORS + 4)
+  );
+  setObjectKeys(['0_0_0']);
+
+  await applySelectedVertexColor({ hexColor: '#ff8000' });
+
+  expect($models.value[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
+    1,
+    128 / 255,
+    0,
+    0.25
+  ]);
+  expect($originalModels.value).toBe(originalModels);
+  expect(originalModels[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
+    0, 0, 0, 0.25
+  ]);
+  expect(
+    Array.from(
+      globalBuffers.get($polygonBufferKey.value).slice(16 + O.Vertex.COLORS)
+    )
+  ).toEqual([0, 128, 255, 64]);
+});
+
+it('ends export progress when no texture file type is available', async () => {
+  await downloadTextureFile();
+  expect($exportTextureFileState.value).toBe('fulfilled');
+  expect($messages.value[0].title).toBe('Invalid file selected');
+});
+
+it('applies polygon worker results to data and viewer state together', async () => {
+  const models = [{ meshes: [] } as unknown as NLModel, createModel()];
+  jest.mocked(ClientThread.run).mockResolvedValue({
+    models,
+    textureDefs: [],
+    fileName: 'STG01POL.BIN',
+    polygonBuffer: new Uint8Array(4)
+  });
+  const file = {
+    name: 'STG01POL.BIN',
+    arrayBuffer: async () => new ArrayBuffer(4)
+  } as File;
+  const result = await processPolygonFile(file);
+  expect(result).toBeDefined();
+  expect($models.value).toEqual(models);
+  expect($originalModels.value).toEqual(models);
+  expect($originalModels.value).not.toBe(models);
+  expect($modelIndex.value).toBe(1);
+  expect($textureIndex.value).toBe(0);
+});
+
+it('loads a standalone texture file and clears the previous polygon state', async () => {
+  $models.value = [createModel()];
+  $polygonFileName.value = 'STG01POL.BIN';
+  jest.mocked(ClientThread.run).mockResolvedValue({
+    texturePixelBuffers: [new Uint8Array(4), new Uint8Array(4)],
+    decompressedTextureBuffer: new Uint8Array(4)
+  });
+  const file = {
+    name: 'FONT.BIN',
+    arrayBuffer: async () => new ArrayBuffer(4)
+  } as File;
+  const result = await processTextureFile({
+    file,
+    textureFileType: 'mvc2-font-file',
+    textureDefs: [createTextureDef({ width: 1, height: 1 })]
+  });
+  expect(result).toBeDefined();
+  expect($loadTexturesState.value).toBe('fulfilled');
+  expect($textureFileName.value).toBe('FONT.BIN');
+  expect($models.value).toEqual([]);
+  expect($polygonFileName.value).toBeUndefined();
+  expect($modelIndex.value).toBe(-1);
+});
+
+it('ends loading and export progress when operations fail', async () => {
+  jest.mocked(ClientThread.run).mockRejectedValue(new Error('worker failed'));
+  const file = {
+    name: 'FONT.BIN',
+    arrayBuffer: async () => new ArrayBuffer(4)
+  } as File;
+  const operation = processTextureFile({
+    file,
+    textureFileType: 'mvc2-font-file',
+    textureDefs: [createTextureDef({})]
+  });
+  expect($loadTexturesState.value).toBe('pending');
+  await operation;
+  expect($loadTexturesState.value).toBe('rejected');
+  $textureFileType.value = 'mvc2-font-file';
+  $textureDefs.value = [];
+  $textureBufferKey.value = globalBuffers.add(new Uint8Array(4));
+  const errorLog = jest
+    .spyOn(console, 'error')
+    .mockImplementation(() => undefined);
+  const exporting = downloadTextureFile();
+  await exporting;
+  expect($exportTextureFileState.value).toBe('fulfilled');
+  expect($messages.value[0].title).toBe('Error exporting texture');
+  errorLog.mockRestore();
+});

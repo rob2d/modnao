@@ -6,26 +6,16 @@ export interface ErrorMessage {
   message: JSX.Element | string;
 }
 
-export interface ErrorMessagesState {
-  messages: ErrorMessage[];
+export const $messages = signal<ErrorMessage[]>([]);
+
+export function resetErrorMessages() {
+  $messages.value = [];
 }
 
-export const initialErrorMessagesState: ErrorMessagesState = {
-  messages: []
-};
-
-export const $errorMessages = signal<ErrorMessagesState>(
-  initialErrorMessagesState
-);
-
 export function showError(payload: ErrorMessage) {
-  $errorMessages.value = {
-    messages: [...$errorMessages.value.messages, payload]
-  };
+  $messages.value = [...$messages.value, payload];
 }
 
 export function dismissError() {
-  $errorMessages.value = {
-    messages: $errorMessages.value.messages.slice(0, -1)
-  };
+  $messages.value = $messages.value.slice(0, -1);
 }

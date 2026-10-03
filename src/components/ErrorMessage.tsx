@@ -1,5 +1,4 @@
-import { dismissError } from '@/modules/error-messages';
-import { $errorMessages } from '@/modules/error-messages/errorMessagesStore';
+import { $messages, dismissError } from '@/modules/error-messages';
 import { Alert, AlertTitle, Slide, SlideProps, Snackbar } from '@mui/material';
 
 import { usePrevious } from '@uidotdev/usehooks';
@@ -12,9 +11,7 @@ const ErrorTransition = (props: SlideProps) => (
 export default function ErrorMessage() {
   'use no memo';
 
-  const error =
-    $errorMessages.value.messages[$errorMessages.value.messages.length - 1] ??
-    undefined;
+  const error = $messages.value[$messages.value.length - 1] ?? undefined;
   const prevError = usePrevious(error);
 
   // keep track of the error that was shown to avoid

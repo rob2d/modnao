@@ -1,23 +1,25 @@
 import { closeDialog } from '@/modules/dialogs/dialogsStore';
+import { resetErrorMessages } from '@/modules/error-messages';
 import { resetModelData } from '@/modules/model-data/modelDataStore';
 import type { ModelDataState } from '@/modules/model-data/modelDataTypes';
 import { resetObjectViewer } from '@/modules/object-viewer/objectViewerStore';
-import { type AppState, resetState } from '@/store';
+import { resetReplaceTexture } from '@/modules/replace-texture';
 import useUserTheme from '@/theming/useUserTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import { render, type RenderOptions } from '@testing-library/react';
 import React, { type PropsWithChildren } from 'react';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  preloadedState?: Partial<AppState> & { modelData?: ModelDataState };
+  preloadedState?: { modelData?: ModelDataState };
 }
 export default function renderTestWithProviders(
   ui: React.ReactElement,
   { preloadedState, ...renderOptions }: ExtendedRenderOptions = {}
 ) {
-  const { modelData, ...state } = preloadedState ?? {};
+  const { modelData } = preloadedState ?? {};
 
-  resetState(state);
+  resetErrorMessages();
+  resetReplaceTexture();
   closeDialog();
   resetModelData(modelData);
   resetObjectViewer();

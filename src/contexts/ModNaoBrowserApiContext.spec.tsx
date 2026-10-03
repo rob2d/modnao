@@ -1,7 +1,8 @@
 import { closeDialog } from '@/modules/dialogs/dialogsStore';
+import { $messages, resetErrorMessages } from '@/modules/error-messages';
 import { resetModelData } from '@/modules/model-data/modelDataStore';
 import { resetObjectViewer } from '@/modules/object-viewer/objectViewerStore';
-import { getState, resetState } from '@/store';
+import { resetReplaceTexture } from '@/modules/replace-texture';
 import { render, waitFor } from '@testing-library/react';
 import { useEffect } from 'react';
 import {
@@ -46,7 +47,8 @@ describe('ModNaoBrowserApiProvider', () => {
   });
 
   it('owns one stable API object while capabilities change', async () => {
-    resetState();
+    resetErrorMessages();
+    resetReplaceTexture();
     closeDialog();
     resetModelData();
     resetObjectViewer();
@@ -76,7 +78,7 @@ describe('ModNaoBrowserApiProvider', () => {
 
     await browserApi.files.load([new File([], 'stage.mnp.zip')]);
 
-    expect(getState().errorMessages.messages).toHaveLength(1);
+    expect($messages.value).toHaveLength(1);
 
     rerender(
       <>
