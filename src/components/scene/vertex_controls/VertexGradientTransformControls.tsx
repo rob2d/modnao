@@ -1,7 +1,8 @@
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 import { memo } from 'react';
-import type { Signal } from '@preact-signals/safe-react';
+import type { Observable } from '@legendapp/state';
+import { useValue } from '@legendapp/state/react';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import NumericSliderInput from '@/components/NumericSliderInput';
 import {
@@ -14,15 +15,13 @@ import {
 } from './GradientSelectionPreview';
 
 interface VertexGradientTransformControlsProps {
-  $gradientTransform: Signal<GradientTransform>;
+  $gradientTransform: Observable<GradientTransform>;
 }
 
 function VertexGradientTransformControls({
   $gradientTransform
 }: VertexGradientTransformControlsProps) {
-  'use no memo';
-
-  const { angle, tilt, pivotPoint } = $gradientTransform.value;
+  const { angle, tilt, pivotPoint } = useValue($gradientTransform);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', p: 0, gap: 1 }}>
@@ -35,10 +34,10 @@ function VertexGradientTransformControls({
         max={GRADIENT_MAX_ANGLE}
         value={angle}
         onChange={(nextAngle) => {
-          $gradientTransform.value = {
-            ...$gradientTransform.value,
+          $gradientTransform.set({
+            ...$gradientTransform.get(),
             angle: clamp(nextAngle, 0, GRADIENT_MAX_ANGLE)
-          };
+          });
         }}
         inputSx={{ width: 60 }}
         additionalControls={
@@ -48,10 +47,10 @@ function VertexGradientTransformControls({
                 size='small'
                 color='secondary'
                 onClick={() => {
-                  $gradientTransform.value = {
-                    ...$gradientTransform.value,
+                  $gradientTransform.set({
+                    ...$gradientTransform.get(),
                     angle: clamp(angle - 45, 0, GRADIENT_MAX_ANGLE)
-                  };
+                  });
                 }}
                 aria-label='Rotate angle left'
               >
@@ -63,10 +62,10 @@ function VertexGradientTransformControls({
                 size='small'
                 color='secondary'
                 onClick={() => {
-                  $gradientTransform.value = {
-                    ...$gradientTransform.value,
+                  $gradientTransform.set({
+                    ...$gradientTransform.get(),
                     angle: clamp(angle + 45, 0, GRADIENT_MAX_ANGLE)
-                  };
+                  });
                 }}
                 aria-label='Rotate angle right'
               >
@@ -85,10 +84,10 @@ function VertexGradientTransformControls({
         max={90}
         value={tilt}
         onChange={(nextTilt) => {
-          $gradientTransform.value = {
-            ...$gradientTransform.value,
+          $gradientTransform.set({
+            ...$gradientTransform.get(),
             tilt: clamp(nextTilt, -90, 90)
-          };
+          });
         }}
         inputSx={{ width: 60 }}
         sx={{ mt: -1 }}
@@ -99,10 +98,10 @@ function VertexGradientTransformControls({
                 size='small'
                 color='secondary'
                 onClick={() => {
-                  $gradientTransform.value = {
-                    ...$gradientTransform.value,
+                  $gradientTransform.set({
+                    ...$gradientTransform.get(),
                     tilt: clamp(tilt - 45, -90, 90)
-                  };
+                  });
                 }}
                 aria-label='Rotate tilt left'
               >
@@ -114,10 +113,10 @@ function VertexGradientTransformControls({
                 size='small'
                 color='secondary'
                 onClick={() => {
-                  $gradientTransform.value = {
-                    ...$gradientTransform.value,
+                  $gradientTransform.set({
+                    ...$gradientTransform.get(),
                     tilt: clamp(tilt + 45, -90, 90)
-                  };
+                  });
                 }}
                 aria-label='Rotate tilt right'
               >
@@ -137,10 +136,10 @@ function VertexGradientTransformControls({
         step={0.01}
         value={pivotPoint}
         onChange={(nextPivotPoint) => {
-          $gradientTransform.value = {
-            ...$gradientTransform.value,
+          $gradientTransform.set({
+            ...$gradientTransform.get(),
             pivotPoint: clamp(nextPivotPoint, 0, 1)
-          };
+          });
         }}
         inputSx={{ width: 60 }}
         sx={{ mt: -1 }}

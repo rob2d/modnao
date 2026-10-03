@@ -182,7 +182,7 @@ export interface ModelDataState {
    */
   textureHistory: {
     [textureIndex: number]: {
-      bufferKeys: TextureImageBufferKeys;
+      bufferKeys: NLUITextureDef['bufferKeys'];
     }[];
   };
   editedTextures: {

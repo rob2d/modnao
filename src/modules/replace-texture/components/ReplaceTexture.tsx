@@ -5,6 +5,7 @@ import { $updatedTextureDefs } from '@/derivedState';
 import type { NLUITextureDef } from '@/types';
 import globalBuffers from '@/utils/data/globalBuffers';
 import cropImage from '@/utils/images/cropImage';
+import { useValue } from '@legendapp/state/react';
 import CheckIcon from '@mui/icons-material/Check';
 import CropRotateIcon from '@mui/icons-material/CropRotate';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
@@ -43,8 +44,6 @@ const optionAppliedCheckmark = (
 );
 
 export default function ReplaceTexture() {
-  'use no memo';
-
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -106,9 +105,9 @@ export default function ReplaceTexture() {
     applyReplacedTextureImage(new Uint8Array(processedRgba));
   }, [processedRgba]);
 
-  const textureDefs: NLUITextureDef[] = $updatedTextureDefs.value;
-  const textureIndex = $textureIndex.value;
-  const replacementImage = $replacementImage.value;
+  const textureDefs: NLUITextureDef[] = useValue($updatedTextureDefs);
+  const textureIndex = useValue($textureIndex);
+  const replacementImage = useValue($replacementImage);
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;
   const originalHeight = textureDefs?.[textureIndex]?.height || 0;
   const textureFormat = textureDefs?.[textureIndex]?.colorFormat;

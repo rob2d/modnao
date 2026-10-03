@@ -1,5 +1,6 @@
 import AppInfoGuide from '@/components/dialogs/app-info/AppInfoGuide';
 import { $dialogShown, closeDialog } from '@/modules/dialogs';
+import { useValue } from '@legendapp/state/react';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { Box, Button, Tab, Tabs } from '@mui/material';
 import { type SyntheticEvent, useCallback, useState } from 'react';
@@ -19,8 +20,6 @@ const appInfoTabs = [
 type AppInfoTabValue = (typeof appInfoTabs)[number]['value'];
 
 export default function AppInfo() {
-  'use no memo';
-
   const [activeTab, setActiveTab] =
     useState<AppInfoTabValue>('getting-started');
 
@@ -35,7 +34,7 @@ export default function AppInfo() {
     []
   );
 
-  const isAppInfoDialogShown = $dialogShown.value === 'app-info';
+  const isAppInfoDialogShown = useValue($dialogShown) === 'app-info';
 
   return (
     <Box

@@ -23,6 +23,7 @@ import {
   $selectedTexture,
   $updatedTextureDefs
 } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import { mdiSquare, mdiSquareOpacity } from '@mdi/js';
 import {
   Box,
@@ -48,22 +49,20 @@ import GuiPanelSection from './GuiPanelSection';
 import GuiPanelTexture from './textures/GuiPanelTexture';
 
 export default function GuiPanelViewOptions() {
-  'use no memo';
-
   const { textureViewMode, setTextureViewMode } =
     useContext(SceneOptionsContext);
-  const model = $model.value;
-  const canExportTextures = $canExportTextures.value;
-  const textureDefs = $updatedTextureDefs.value;
-  const textureFileName = $textureFileName.value;
-  const selectedTexture = $selectedTexture.value;
-  const selectedObjectIds = $selectedObjectIds.value;
-  const meshSelectionType = $meshSelectionType.value;
-  const contentViewMode = $contentViewMode.value;
-  const loadTexturesState = $loadTexturesState.value;
+  const model = useValue($model);
+  const canExportTextures = useValue($canExportTextures);
+  const textureDefs = useValue($updatedTextureDefs);
+  const textureFileName = useValue($textureFileName);
+  const selectedTexture = useValue($selectedTexture);
+  const selectedObjectIds = useValue($selectedObjectIds);
+  const meshSelectionType = useValue($meshSelectionType);
+  const contentViewMode = useValue($contentViewMode);
+  const loadTexturesState = useValue($loadTexturesState);
   const hasLoadedTextureFile = Boolean(textureFileName);
-  const models = $models.value;
-  const resourceAttribs = $resourceAttribs.value;
+  const models = useValue($models);
+  const resourceAttribs = useValue($resourceAttribs);
 
   const selectedTextureReferences = useMemo(() => {
     const references = new Map<

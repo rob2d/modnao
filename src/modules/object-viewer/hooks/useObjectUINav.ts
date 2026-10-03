@@ -1,13 +1,12 @@
 import { useHeldRepetitionTimer } from '@/hooks';
 import { $canNavObjects, $objectIndex } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import { useCallback, useEffect, useMemo } from 'react';
-import { navToNextObject, navToPrevObject } from '../objectViewerStore';
+import { navToNextObject, navToPrevObject } from '../objectViewerThunks';
 
 export default function useObjectNavUIControls() {
-  'use no memo';
-
-  const objectIndex = $objectIndex.value;
-  const canNavObjects = $canNavObjects.value;
+  const objectIndex = useValue($objectIndex);
+  const canNavObjects = useValue($canNavObjects);
 
   const [onStartPrevObjectNav, onStopPrevObjectNav] = useHeldRepetitionTimer();
   const [onStartNextObjectNav, onStopNextObjectNav] = useHeldRepetitionTimer();

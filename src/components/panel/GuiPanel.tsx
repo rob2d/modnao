@@ -7,6 +7,7 @@ import {
   $polygonFileName
 } from '@/modules/model-data/modelDataStore';
 import { $contentViewMode } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
@@ -102,12 +103,10 @@ const usePanelDragState = (
 };
 
 export default function GuiPanel() {
-  'use no memo';
-
   const sceneOptions = useContext(SceneOptionsContext);
-  const contentViewMode = $contentViewMode.value;
-  const loadTexturesState = $loadTexturesState.value;
-  const hasLoadedPolygonFile = Boolean($polygonFileName.value);
+  const contentViewMode = useValue($contentViewMode);
+  const loadTexturesState = useValue($loadTexturesState);
+  const hasLoadedPolygonFile = Boolean(useValue($polygonFileName));
   const canResizePanel = contentViewMode !== 'welcome';
   const [resizeMouseDown, resizeHandle] = usePanelDragState(
     sceneOptions,

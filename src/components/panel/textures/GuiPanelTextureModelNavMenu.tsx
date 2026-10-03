@@ -2,6 +2,7 @@ import type { TextureModelReference } from '@/modules/model-data';
 import { useTextureModelReferences } from '@/modules/model-data';
 import { navToTextureModelUsage } from '@/modules/object-viewer';
 
+import { useValue } from '@legendapp/state/react';
 import LocationPinIcon from '@mui/icons-material/LocationPin';
 import { Box, ListSubheader } from '@mui/material';
 import Menu from '@mui/material/Menu';
@@ -25,9 +26,7 @@ export default function GuiPanelTextureModelNavMenu({
   open: boolean;
   onClose: () => void;
 }) {
-  'use no memo';
-
-  const currentModelIndex = $modelIndex.value;
+  const currentModelIndex = useValue($modelIndex);
 
   const handleClose = useCallback(() => {
     onModelReferenceHover(undefined);

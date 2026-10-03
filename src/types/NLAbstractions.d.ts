@@ -1,4 +1,8 @@
-import { TextureColorFormat, TextureSize } from '@/utils/textures';
+import {
+  TextureColorFormat,
+  TextureImageBufferKeys,
+  TextureSize
+} from '@/utils/textures';
 
 export {};
 
@@ -115,6 +119,8 @@ export type NLTextureDef = {
 
 export type NLUITextureDef = NLTextureDef & {
   disableEdits?: boolean;
-  bufferKeys: TextureImageBufferKeys;
+  bufferKeys:
+    | TextureImageBufferKeys
+    | { translucent?: undefined; opaque?: undefined };
   displayedAspectRatio?: number;
 };

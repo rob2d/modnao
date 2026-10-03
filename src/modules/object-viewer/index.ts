@@ -7,3 +7,4 @@ export {
   type SceneVertexInteractionMode
 } from './hooks/useVertexInteractionMode';
 export * from './objectViewerStore';
+export * from './objectViewerThunks';

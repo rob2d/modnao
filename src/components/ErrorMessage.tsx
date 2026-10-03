@@ -1,4 +1,5 @@
 import { $messages, dismissError } from '@/modules/error-messages';
+import { useValue } from '@legendapp/state/react';
 import { Alert, AlertTitle, Slide, SlideProps, Snackbar } from '@mui/material';
 
 import { usePrevious } from '@uidotdev/usehooks';
@@ -9,9 +10,9 @@ const ErrorTransition = (props: SlideProps) => (
 );
 
 export default function ErrorMessage() {
-  'use no memo';
-
-  const error = $messages.value[$messages.value.length - 1] ?? undefined;
+  const error = useValue(
+    () => $messages.get()[$messages.get().length - 1] ?? undefined
+  );
   const prevError = usePrevious(error);
 
   // keep track of the error that was shown to avoid

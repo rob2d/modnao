@@ -2,17 +2,16 @@ import gameNameMap from '@/constants/gameNameMap';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { $modelIndex } from '@/modules/object-viewer/objectViewerStore';
 import { $resourceAttribs } from '@/modules/model-data/modelDataStore';
+import { useValue } from '@legendapp/state/react';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Box, ButtonBase, Divider, Paper, Typography } from '@mui/material';
 import clsx from 'clsx';
 import { useContext } from 'react';
 
 export default function ModelResourceAttribs() {
-  'use no memo';
-
   const viewContext = useContext(SceneOptionsContext);
-  const resourceAttribs = $resourceAttribs.value;
-  const modelIndex = $modelIndex.value;
+  const resourceAttribs = useValue($resourceAttribs);
+  const modelIndex = useValue($modelIndex);
   if (!resourceAttribs) {
     return null;
   }

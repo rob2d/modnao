@@ -1,4 +1,5 @@
 import { $models, $resourceAttribs } from '@/modules/model-data/modelDataStore';
+import { useValue } from '@legendapp/state/react';
 import { useMemo } from 'react';
 
 export interface TextureModelReference {
@@ -11,10 +12,8 @@ export default function useTextureModelReferences(
   textureIndex: number,
   enabled: boolean
 ) {
-  'use no memo';
-
-  const models = $models.value;
-  const resourceAttribs = $resourceAttribs.value;
+  const models = useValue($models);
+  const resourceAttribs = useValue($resourceAttribs);
 
   return useMemo<TextureModelReference[]>(() => {
     if (!enabled) {

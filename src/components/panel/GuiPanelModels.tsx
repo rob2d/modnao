@@ -18,6 +18,7 @@ import {
   $resourceAttribs
 } from '@/modules/model-data/modelDataStore';
 import { $model, $modelCount, $realModelIndexes } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
@@ -69,20 +70,18 @@ const matchesFuzzySearch = (value: string, search: string) => {
 };
 
 export default function GuiPanelModels() {
-  'use no memo';
-
   const sceneOptions = useContext(SceneOptionsContext);
 
   const uiNav = useObjectUINav();
-  const selectedObjectIds = $selectedObjectIds.value;
-  const meshSelectionType = $meshSelectionType.value;
-  const polygonFileName = $polygonFileName.value;
-  const modelIndex = $modelIndex.value;
-  const modelCount = $modelCount.value;
-  const model = $model.value;
-  const models = $models.value;
-  const realModelIndexes = $realModelIndexes.value;
-  const resourceAttribs = $resourceAttribs.value;
+  const selectedObjectIds = useValue($selectedObjectIds);
+  const meshSelectionType = useValue($meshSelectionType);
+  const polygonFileName = useValue($polygonFileName);
+  const modelIndex = useValue($modelIndex);
+  const modelCount = useValue($modelCount);
+  const model = useValue($model);
+  const models = useValue($models);
+  const realModelIndexes = useValue($realModelIndexes);
+  const resourceAttribs = useValue($resourceAttribs);
   const [gltfExportAnchorEl, setGltfExportAnchorEl] =
     useState<HTMLElement | null>(null);
   const [gltfCustomAnchorEl, setGltfCustomAnchorEl] =

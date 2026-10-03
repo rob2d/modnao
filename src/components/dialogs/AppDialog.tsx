@@ -1,6 +1,7 @@
 import { $dialogShown, $sx, closeDialog, DialogType } from '@/modules/dialogs';
 import { ModelDataPatchExportDialog } from '@/modules/model-data';
 import { ReplaceTexture } from '@/modules/replace-texture';
+import { useValue } from '@legendapp/state/react';
 import { Dialog, DialogContent } from '@mui/material';
 import { FC, useCallback } from 'react';
 import AppInfo from './app-info/AppInfo';
@@ -14,10 +15,8 @@ const Dialogs: Record<DialogType, FC> = {
 };
 
 export default function AppDialog() {
-  'use no memo';
-
-  const dialogShown = $dialogShown.value;
-  const sx = $sx.value;
+  const dialogShown = useValue($dialogShown);
+  const sx = useValue($sx);
   const DialogComponent = dialogShown ? Dialogs[dialogShown] : null;
   const appInfoDialogSx =
     dialogShown !== 'app-info'

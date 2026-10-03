@@ -6,6 +6,7 @@ import { $models } from '@/modules/model-data/modelDataStore';
 import { $model } from '@/derivedState';
 import type { ContentViewMode, NLUITextureDef } from '@/types';
 import { createUvClipPaths, UvClipPath } from '@/utils/textures';
+import { useValue } from '@legendapp/state/react';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
@@ -157,8 +158,6 @@ const createMeshUvClipPaths = (
 };
 
 export default function GuiPanelTexture(props: GuiPanelTextureProps) {
-  'use no memo';
-
   const {
     selected,
     textureDef,
@@ -167,8 +166,8 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     contentViewMode = 'textures'
   } = props;
   const textureContainerRef = useRef<HTMLDivElement>(null);
-  const model = $model.value;
-  const models = $models.value;
+  const model = useValue($model);
+  const models = useValue($models);
   const [hoveredModelReference, setHoveredModelReference] =
     useState<TextureModelReference>();
   const [textureMenuAnchorEl, setTextureMenuAnchorEl] =

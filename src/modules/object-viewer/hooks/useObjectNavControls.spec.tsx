@@ -9,7 +9,7 @@ import useObjectNavControls from './useObjectNavControls';
 jest.mock('@react-typed-hooks/use-key-press', () => ({
   useKeyPress: jest.fn()
 }));
-jest.mock('@/modules/object-viewer/objectViewerStore', () => ({
+jest.mock('@/modules/object-viewer/objectViewerThunks', () => ({
   navToPrevObject: jest.fn(),
   navToNextObject: jest.fn()
 }));

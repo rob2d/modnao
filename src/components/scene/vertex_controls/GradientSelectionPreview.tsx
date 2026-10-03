@@ -1,7 +1,8 @@
 import type { PointerEvent } from 'react';
 import { memo, useCallback, useEffect, useRef } from 'react';
-import type { Signal } from '@preact-signals/safe-react';
-import { effect as signalEffect } from '@preact-signals/safe-react';
+import type { Observable } from '@legendapp/state';
+import { useValue } from '@legendapp/state/react';
+import { observe as signalEffect } from '@legendapp/state';
 import type { RGBColor } from 'react-color';
 import { Box } from '@mui/material';
 
@@ -45,9 +46,9 @@ interface GradientPreviewGeometry {
 }
 
 interface GradientSelectionPreviewProps {
-  $gradientTransform: Signal<GradientTransform>;
-  $gradientStartColor: Signal<RGBColor>;
-  $gradientEndColor: Signal<RGBColor>;
+  $gradientTransform: Observable<GradientTransform>;
+  $gradientStartColor: Observable<RGBColor>;
+  $gradientEndColor: Observable<RGBColor>;
   onOpenGradientColorPicker: (handle: GradientColorHandle) => void;
   onCloseGradientColorPicker: () => void;
 }
@@ -414,8 +415,6 @@ export default memo(function GradientSelectionPreview({
   onOpenGradientColorPicker,
   onCloseGradientColorPicker
 }: GradientSelectionPreviewProps) {
-  'use no memo';
-
   const previewRef = useRef<HTMLDivElement>(null);
   const meshLineRefs = useRef<Array<SVGLineElement | null>>([]);
   const previewFillGradientRef = useRef<SVGLinearGradientElement>(null);
@@ -427,9 +426,9 @@ export default memo(function GradientSelectionPreview({
   );
   const pendingGradientPreviewDragRef =
     useRef<PendingGradientPreviewDrag | null>(null);
-  const gradientStartColor = $gradientStartColor.value;
-  const gradientEndColor = $gradientEndColor.value;
-  const { angle, tilt, pivotPoint } = $gradientTransform.value;
+  const gradientStartColor = useValue($gradientStartColor);
+  const gradientEndColor = useValue($gradientEndColor);
+  const { angle, tilt, pivotPoint } = useValue($gradientTransform);
   const gradientStartCssColor = rgbColorToCss(gradientStartColor);
   const gradientEndCssColor = rgbColorToCss(gradientEndColor);
   const gradientMiddleCssColor = rgbColorToCss({
@@ -467,11 +466,11 @@ export default memo(function GradientSelectionPreview({
           ((clientY - pendingGradientDrag.startClientY) / bounds.height) * 180
       );
 
-      $gradientTransform.value = {
-        ...$gradientTransform.value,
+      $gradientTransform.set({
+        ...$gradientTransform.get(),
         angle: clamp(nextAngle, 0, GRADIENT_MAX_ANGLE),
         tilt: clamp(nextTilt, -90, 90)
-      };
+      });
     },
     [$gradientTransform]
   );
@@ -621,8 +620,8 @@ export default memo(function GradientSelectionPreview({
   useEffect(() => {
     const dispose = signalEffect(() => {
       const geometry = createGradientPreviewGeometry(
-        $gradientTransform.value.angle,
-        $gradientTransform.value.tilt
+        $gradientTransform.get().angle,
+        $gradientTransform.get().tilt
       );
       const previewElement = previewRef.current;
       const previewFillGradient = previewFillGradientRef.current;

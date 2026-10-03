@@ -1,7 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import { useSignal } from '@preact-signals/safe-react';
+import { useObservable, useValue } from '@legendapp/state/react';
 import { useThrottle } from '@uidotdev/usehooks';
 import type { ColorResult, RGBColor } from 'react-color';
 import { SketchPicker } from 'react-color';
@@ -47,25 +47,23 @@ export default function GradientVertexColorControls({
   defaultGradientVertexColors,
   onApplyGradient
 }: GradientVertexColorControlsProps) {
-  'use no memo';
-
-  const $gradientTransform = useSignal<GradientTransform>({
+  const $gradientTransform = useObservable<GradientTransform>({
     angle: DEFAULT_GRADIENT_ANGLE,
     tilt: DEFAULT_GRADIENT_TILT,
     pivotPoint: DEFAULT_GRADIENT_PIVOT_POINT
   });
 
-  const $gradientStartColor = useSignal(
+  const $gradientStartColor = useObservable(
     defaultGradientVertexColors?.startColor ?? DEFAULT_GRADIENT_START_COLOR
   );
-  const $gradientEndColor = useSignal(
+  const $gradientEndColor = useObservable(
     defaultGradientVertexColors?.endColor ?? DEFAULT_GRADIENT_END_COLOR
   );
   const [activeGradientColorHandle, setActiveGradientColorHandle] =
     useState<GradientColorHandle | null>(null);
-  const gradientStartColor = $gradientStartColor.value;
-  const gradientEndColor = $gradientEndColor.value;
-  const { angle, tilt, pivotPoint } = $gradientTransform.value;
+  const gradientStartColor = useValue($gradientStartColor);
+  const gradientEndColor = useValue($gradientEndColor);
+  const { angle, tilt, pivotPoint } = useValue($gradientTransform);
   const gradientAngleTilt = useMemo(() => ({ angle, tilt }), [angle, tilt]);
   const throttledGradientAngleTilt = useThrottle(
     gradientAngleTilt,
@@ -121,33 +119,33 @@ export default function GradientVertexColorControls({
   const onChangeGradientColor = useCallback(
     ({ rgb }: ColorResult) => {
       if (activeGradientColorHandle === 'start') {
-        $gradientStartColor.value = rgb;
+        $gradientStartColor.set(rgb);
 
         return;
       }
 
       if (activeGradientColorHandle === 'end') {
-        $gradientEndColor.value = rgb;
+        $gradientEndColor.set(rgb);
       }
     },
     [$gradientEndColor, $gradientStartColor, activeGradientColorHandle]
   );
 
   const onChangeGradientStartColor = useCallback(
-    ({ rgb }: ColorResult) => ($gradientStartColor.value = rgb),
+    ({ rgb }: ColorResult) => $gradientStartColor.set(rgb),
     [$gradientStartColor]
   );
 
   const onChangeGradientEndColor = useCallback(
-    ({ rgb }: ColorResult) => ($gradientEndColor.value = rgb),
+    ({ rgb }: ColorResult) => $gradientEndColor.set(rgb),
     [$gradientEndColor]
   );
 
   const onSwapGradientColors = useCallback(() => {
-    const nextStartColor = $gradientEndColor.value;
+    const nextStartColor = $gradientEndColor.get();
 
-    $gradientEndColor.value = $gradientStartColor.value;
-    $gradientStartColor.value = nextStartColor;
+    $gradientEndColor.set($gradientStartColor.get());
+    $gradientStartColor.set(nextStartColor);
   }, [$gradientEndColor, $gradientStartColor]);
 
   const activeGradientColor =

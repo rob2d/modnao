@@ -4,6 +4,7 @@ import {
 } from '@/modules/object-viewer';
 import { $selectedObjectIds } from '@/modules/object-viewer/objectViewerStore';
 import { $model } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import { mdiCameraControl, mdiLasso } from '@mdi/js';
 import ClearIcon from '@mui/icons-material/Clear';
 import SelectAllIcon from '@mui/icons-material/SelectAll';
@@ -26,10 +27,8 @@ export default function SceneVertexModeControls({
   value,
   onChange
 }: SceneVertexModeControlsProps) {
-  'use no memo';
-
-  const model = $model.value;
-  const selectedObjectIds = $selectedObjectIds.value;
+  const model = useValue($model);
+  const selectedObjectIds = useValue($selectedObjectIds);
   const allVertexObjectKeys = useMemo(() => {
     if (!model) {
       return [];

@@ -1,11 +1,11 @@
-import { signal } from '@preact-signals/safe-react';
+import { observable } from '@legendapp/state';
 
 export interface SceneCameraPosition {
   position: [number, number, number];
   target: [number, number, number];
 }
 
-export const $sceneCameraPositions = signal(
+export const $sceneCameraPositions = observable(
   new Map<string, SceneCameraPosition>()
 );
 
@@ -18,16 +18,16 @@ export const getSceneCameraPositionKey = (
     : `${polygonBufferKey}:${modelIndex}`;
 
 export const getSceneCameraPosition = (key: string | undefined) =>
-  !key ? undefined : $sceneCameraPositions.value.get(key);
+  !key ? undefined : $sceneCameraPositions.get().get(key);
 
 export const deleteSceneCameraPosition = (key: string | undefined) => {
   if (!key) {
     return;
   }
 
-  const nextSceneCameraPositions = new Map($sceneCameraPositions.value);
+  const nextSceneCameraPositions = new Map($sceneCameraPositions.get());
   nextSceneCameraPositions.delete(key);
-  $sceneCameraPositions.value = nextSceneCameraPositions;
+  $sceneCameraPositions.set(nextSceneCameraPositions);
 };
 
 export const setSceneCameraPosition = (
@@ -38,8 +38,7 @@ export const setSceneCameraPosition = (
     return;
   }
 
-  $sceneCameraPositions.value = new Map($sceneCameraPositions.value).set(
-    key,
-    cameraPosition
+  $sceneCameraPositions.set(
+    new Map($sceneCameraPositions.get()).set(key, cameraPosition)
   );
 };

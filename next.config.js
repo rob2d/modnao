@@ -3,16 +3,6 @@ const path = require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
-  experimental: {
-    swcPlugins: [
-      [
-        '@preact-signals/safe-react/swc',
-        {
-          mode: 'auto'
-        }
-      ]
-    ]
-  },
   async headers() {
     return [
       {
@@ -33,8 +23,6 @@ const nextConfig = {
   reactCompiler: true,
   reactStrictMode: true,
   transpilePackages: [
-    '@preact/signals-core',
-    '@preact-signals/safe-react',
     '@mui/material',
     '@mui/system',
     '@mui/icons-material',

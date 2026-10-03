@@ -78,7 +78,7 @@ describe('ModNaoBrowserApiProvider', () => {
 
     await browserApi.files.load([new File([], 'stage.mnp.zip')]);
 
-    expect($messages.value).toHaveLength(1);
+    expect($messages.get()).toHaveLength(1);
 
     rerender(
       <>

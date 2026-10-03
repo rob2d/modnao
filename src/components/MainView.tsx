@@ -2,6 +2,7 @@ import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { showDialog } from '@/modules/dialogs';
 import { $exportTextureFileState } from '@/modules/model-data/modelDataStore';
 import { $contentViewMode } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -20,8 +21,6 @@ import SceneView from './SceneView';
 import TextureView from './TextureView';
 
 export default function MainView() {
-  'use no memo';
-
   const {
     enableCinematicMode,
     guiPanelExpansionLevel,
@@ -46,8 +45,9 @@ export default function MainView() {
     setEnableCinematicMode(true);
   }, [setEnableCinematicMode]);
 
-  const contentViewMode = $contentViewMode.value;
-  const processingOverlayShown = $exportTextureFileState.value === 'pending';
+  const contentViewMode = useValue($contentViewMode);
+  const processingOverlayShown =
+    useValue($exportTextureFileState) === 'pending';
 
   let mainScene;
 

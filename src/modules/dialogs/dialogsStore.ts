@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material';
 import type { SystemStyleObject } from '@mui/system';
-import { batch, signal } from '@preact-signals/safe-react';
+import { batch, observable } from '@legendapp/state';
 
 export type DialogType =
   | 'app-info'
@@ -13,19 +13,19 @@ export interface ShowDialogPayload {
   sx?: SystemStyleObject<Theme>;
 }
 
-export const $dialogShown = signal<DialogType | undefined>(undefined);
-export const $sx = signal<SystemStyleObject<Theme> | undefined>(undefined);
+export const $dialogShown = observable<DialogType | undefined>(undefined);
+export const $sx = observable<SystemStyleObject<Theme> | undefined>(undefined);
 
 export function showDialog(payload: DialogType | ShowDialogPayload) {
   batch(() => {
-    $dialogShown.value = typeof payload === 'string' ? payload : payload.type;
-    $sx.value = typeof payload === 'string' ? undefined : payload.sx;
+    $dialogShown.set(typeof payload === 'string' ? payload : payload.type);
+    $sx.set(typeof payload === 'string' ? undefined : payload.sx);
   });
 }
 
 export function closeDialog() {
   batch(() => {
-    $dialogShown.value = undefined;
-    $sx.value = undefined;
+    $dialogShown.set(undefined);
+    $sx.set(undefined);
   });
 }

@@ -15,14 +15,14 @@ import {
   $textureIndex
 } from '@/modules/object-viewer/objectViewerStore';
 import type { NLUITextureDef } from '@/types';
-import { computed } from '@preact-signals/safe-react';
+import { computed } from '@legendapp/state';
 import type { SelectedVertexGradientInputs } from './modules/model-data/modelDataTypes';
 
 // selects the key of the currently selected object
 // NOTE: this is temporary as it is a bridge to single-select
 // before multi-select UX mechanisms exist
 export const $objectKey = computed(() => {
-  const selectedIds = $selectedObjectIds.value;
+  const selectedIds = $selectedObjectIds.get();
   for (const objectKey in selectedIds) {
     if (selectedIds[objectKey]) {
       return objectKey;
@@ -33,12 +33,12 @@ export const $objectKey = computed(() => {
 });
 
 export const $modelCount = computed(() => {
-  const models = $models.value;
+  const models = $models.get();
   return models.length;
 });
 
 export const $realModelIndexes = computed(() => {
-  const models = $models.value;
+  const models = $models.get();
   return models.reduce<number[]>((modelIndexes, model, modelIndex) => {
     if (model.meshes.length > 0) {
       modelIndexes.push(modelIndex);
@@ -49,7 +49,7 @@ export const $realModelIndexes = computed(() => {
 });
 
 export const $realModelIndexLookup = computed(() => {
-  const modelIndexes = $realModelIndexes.value;
+  const modelIndexes = $realModelIndexes.get();
   return modelIndexes.reduce<
     Map<
       number,
@@ -76,8 +76,8 @@ export const $realModelIndexLookup = computed(() => {
  * to detect presence in O(1)
  */
 export const $uneditedTextureUrls = computed(() => {
-  const defs = $textureDefs.value;
-  const history = $textureHistory.value;
+  const defs = $textureDefs.get();
+  const history = $textureHistory.get();
   const urlSet = new Set<string>();
   defs.forEach((d) => {
     if (d.bufferKeys.translucent) {
@@ -108,8 +108,8 @@ export const $uneditedTextureUrls = computed(() => {
  * to display on scene in real-time
  */
 export const $updatedTextureDefs = computed(() => {
-  const textureDefs = $textureDefs.value;
-  const bufferKeyEntriesEntries = $editedTextures.value;
+  const textureDefs = $textureDefs.get();
+  const bufferKeyEntriesEntries = $editedTextures.get();
   const returnTextures = [...textureDefs];
   Object.entries(bufferKeyEntriesEntries).forEach(([index, { bufferKeys }]) => {
     const i = Number.parseInt(index);
@@ -126,8 +126,8 @@ export const $updatedTextureDefs = computed(() => {
 });
 
 export const $model = computed(() => {
-  const modelIndex = $modelIndex.value;
-  const models = $models.value;
+  const modelIndex = $modelIndex.get();
+  const models = $models.get();
   return models?.[modelIndex];
 });
 
@@ -140,10 +140,10 @@ const createSelectedVertexGradientInputsSelector = () => {
   let cachedSelectionKey = '';
   let cachedInputs = EMPTY_SELECTED_VERTEX_GRADIENT_INPUTS;
   return computed(() => {
-    const selectedIds = $selectedObjectIds.value;
-    const model = $model.value;
-    const modelIndex = $modelIndex.value;
-    const polygonBufferKey = $polygonBufferKey.value;
+    const selectedIds = $selectedObjectIds.get();
+    const model = $model.get();
+    const modelIndex = $modelIndex.get();
+    const polygonBufferKey = $polygonBufferKey.get();
     const selectedVertexKeys = Object.keys(selectedIds)
       .filter((objectKey) => selectedIds[objectKey])
       .sort();
@@ -250,27 +250,27 @@ const getDisplayedMeshes = (model: NLModel, textureDefs: NLUITextureDef[]) =>
   }, []);
 
 export const $displayedMeshes = computed(() => {
-  const model = $model.value;
-  const textureDefs = $updatedTextureDefs.value;
+  const model = $model.get();
+  const textureDefs = $updatedTextureDefs.get();
   return getDisplayedMeshes(model, textureDefs);
 });
 
 export const $allDisplayedMeshes = computed(() => {
-  const models = $models.value;
-  const textureDef = $updatedTextureDefs.value;
+  const models = $models.get();
+  const textureDef = $updatedTextureDefs.get();
   return models.map((model) => getDisplayedMeshes(model, textureDef));
 });
 
 /** infers mesh selection from selected object key */
 export const $objectMeshIndex = computed(() => {
-  const objectKey = $objectKey.value;
+  const objectKey = $objectKey.get();
   return !objectKey ? -1 : Number(objectKey.split('_')[0]);
 });
 
 /** infers mesh selection from selected object key */
 export const $objectPolygonIndex = computed(() => {
-  const objectKey = $objectKey.value;
-  const type = $meshSelectionType.value;
+  const objectKey = $objectKey.get();
+  const type = $meshSelectionType.get();
   if (type === 'mesh' || !objectKey) {
     return -1;
   }
@@ -278,22 +278,22 @@ export const $objectPolygonIndex = computed(() => {
 });
 
 export const $mesh = computed(() => {
-  const model = $model.value;
-  const meshIndex = $objectMeshIndex.value;
+  const model = $model.get();
+  const meshIndex = $objectMeshIndex.get();
   return model?.meshes[meshIndex] || undefined;
 });
 
 export const $canExportTextures = computed(() => {
-  const textureFileName = $textureFileName.value;
-  const resourceAttribs = $resourceAttribs.value;
+  const textureFileName = $textureFileName.get();
+  const resourceAttribs = $resourceAttribs.get();
   return (
     Boolean(textureFileName) && resourceAttribs?.resourceType !== 'cvs2-menu'
   );
 });
 
 export const $contentViewMode = computed(() => {
-  const hasLoadedTextures = Boolean($textureFileName.value);
-  const hasLoadedPolygons = Boolean($polygonFileName.value);
+  const hasLoadedTextures = Boolean($textureFileName.get());
+  const hasLoadedPolygons = Boolean($polygonFileName.get());
   if (hasLoadedTextures && !hasLoadedPolygons) {
     return 'textures';
   } else if (hasLoadedPolygons) {
@@ -304,9 +304,9 @@ export const $contentViewMode = computed(() => {
 });
 
 export const $selectedTexture = computed(() => {
-  const contentViewMode = $contentViewMode.value;
-  const selectedObjectIds = $selectedObjectIds.value;
-  const textureIndex = $textureIndex.value;
+  const contentViewMode = $contentViewMode.get();
+  const selectedObjectIds = $selectedObjectIds.get();
+  const textureIndex = $textureIndex.get();
   switch (contentViewMode) {
     case 'textures': {
       return textureIndex;
@@ -328,9 +328,9 @@ export const $selectedTexture = computed(() => {
 });
 
 export const $objectIndex = computed(() => {
-  const viewMode = $contentViewMode.value;
-  const modelIndex = $modelIndex.value;
-  const textureIndex = $textureIndex.value;
+  const viewMode = $contentViewMode.get();
+  const modelIndex = $modelIndex.get();
+  const textureIndex = $textureIndex.get();
   switch (viewMode) {
     case 'polygons':
       return modelIndex;
@@ -342,9 +342,9 @@ export const $objectIndex = computed(() => {
 });
 
 export const $objectCount = computed(() => {
-  const viewMode = $contentViewMode.value;
-  const models = $models.value;
-  const textureDefs = $textureDefs.value;
+  const viewMode = $contentViewMode.get();
+  const models = $models.get();
+  const textureDefs = $textureDefs.get();
   switch (viewMode) {
     case 'polygons':
       return models.length;
@@ -356,9 +356,9 @@ export const $objectCount = computed(() => {
 });
 
 export const $canNavObjects = computed(() => {
-  const viewMode = $contentViewMode.value;
-  const objectCount = $objectCount.value;
-  const realModelIndexes = $realModelIndexes.value;
+  const viewMode = $contentViewMode.get();
+  const objectCount = $objectCount.get();
+  const realModelIndexes = $realModelIndexes.get();
   switch (viewMode) {
     case 'polygons':
       return realModelIndexes.length > 1;

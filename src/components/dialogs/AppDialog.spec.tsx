@@ -5,7 +5,7 @@ import {
   showDialog
 } from '@/modules/dialogs/dialogsStore';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
-import { effect } from '@preact-signals/safe-react';
+import { observe } from '@legendapp/state';
 import { act, screen, waitFor } from '@testing-library/react';
 import AppDialog from './AppDialog';
 
@@ -36,9 +36,12 @@ describe('AppDialog', () => {
     closeDialog();
 
     const sx = { '& .MuiDialog-paper': { width: '400px' } };
-    const states: [typeof $dialogShown.value, typeof $sx.value][] = [];
-    const dispose = effect(() => {
-      states.push([$dialogShown.value, $sx.value]);
+    const states: [
+      ReturnType<typeof $dialogShown.get>,
+      ReturnType<typeof $sx.get>
+    ][] = [];
+    const dispose = observe(() => {
+      states.push([$dialogShown.get(), $sx.get()]);
     });
 
     try {

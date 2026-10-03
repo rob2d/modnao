@@ -217,27 +217,27 @@ describe('modelDataPatch', () => {
       })
     ];
 
-    $models.value = models;
-    $originalModels.value = originalModels;
-    $textureDefs.value = textureDefs;
-    $polygonFileName.value = 'STG01POL.BIN';
-    $polygonBufferKey.value = polygonBufferKey;
-    $resourceAttribs.value = resourceAttribs;
+    $models.set(models);
+    $originalModels.set(originalModels);
+    $textureDefs.set(textureDefs);
+    $polygonFileName.set('STG01POL.BIN');
+    $polygonBufferKey.set(polygonBufferKey);
+    $resourceAttribs.set(resourceAttribs);
 
-    $modelIndex.value = 0;
-    $textureIndex.value = 0;
+    $modelIndex.set(0);
+    $textureIndex.set(0);
 
     const result = await loadModelDataPatch(file);
     const colorOffset = contentAddress + O.Vertex.COLORS;
 
     expect(result).toBeDefined();
-    expect($models.value[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
+    expect($models.get()[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
       1, 0.5, 0, 0.25
     ]);
-    expect($models.value[0].meshes[0].polygons[0].vertices[1].colors).toEqual([
+    expect($models.get()[0].meshes[0].polygons[0].vertices[1].colors).toEqual([
       1, 0.5, 0, 0.25
     ]);
-    expect($originalModels.value).toEqual(originalModels);
+    expect($originalModels.get()).toEqual(originalModels);
     expect(
       Array.from(
         globalBuffers.get(polygonBufferKey).slice(colorOffset, colorOffset + 4)
@@ -245,15 +245,15 @@ describe('modelDataPatch', () => {
     ).toEqual([0, 128, 255, 64]);
     expect(
       Array.from(
-        globalBuffers.get($textureDefs.value[0].bufferKeys.translucent ?? '')
+        globalBuffers.get($textureDefs.get()[0].bufferKeys.translucent ?? '')
       )
     ).toEqual(Array.from(texturePixels));
     expect(
       Array.from(
-        globalBuffers.get($textureDefs.value[0].bufferKeys.opaque ?? '')
+        globalBuffers.get($textureDefs.get()[0].bufferKeys.opaque ?? '')
       )
     ).toEqual([255, 128, 0, 255]);
-    expect($textureHistory.value[0]).toEqual([
+    expect($textureHistory.get()[0]).toEqual([
       {
         bufferKeys: {
           translucent: originalTranslucentBufferKey,
@@ -261,6 +261,6 @@ describe('modelDataPatch', () => {
         }
       }
     ]);
-    expect($hasEditedTextures.value).toBe(true);
+    expect($hasEditedTextures.get()).toBe(true);
   });
 });

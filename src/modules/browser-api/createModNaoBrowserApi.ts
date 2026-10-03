@@ -31,14 +31,14 @@ export default function createModNaoBrowserApi(): ModNaoBrowserApiController {
         handleFileInput(
           Array.from(files),
           (message) => showError({ title: 'Invalid file selection', message }),
-          $polygonFileName.value
+          $polygonFileName.get()
         )
     }),
     object: Object.freeze({
       get viewedIndex() {
-        return $contentViewMode.value === 'polygons'
-          ? $modelIndex.value
-          : $textureIndex.value;
+        return $contentViewMode.get() === 'polygons'
+          ? $modelIndex.get()
+          : $textureIndex.get();
       },
       set viewedIndex(index) {
         if (!Number.isInteger(index)) {
@@ -48,15 +48,15 @@ export default function createModNaoBrowserApi(): ModNaoBrowserApiController {
         void setObjectViewedIndex(index);
       },
       get selectedIndexes() {
-        if ($contentViewMode.value === 'polygons') {
-          return $models.value.reduce<number[]>(
-            (indexes, model, index) =>
-              model.meshes.length ? [...indexes, index] : indexes,
-            []
-          );
+        if ($contentViewMode.get() === 'polygons') {
+          return $models
+            .get()
+            .reduce<
+              number[]
+            >((indexes, model, index) => (model.meshes.length ? [...indexes, index] : indexes), []);
         }
 
-        return $textureDefs.value.map((_, index) => index);
+        return $textureDefs.get().map((_, index) => index);
       }
     }),
     get scene() {

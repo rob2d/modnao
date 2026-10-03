@@ -26,12 +26,12 @@ const downloadModelDataPatch = async ({
   onlyChangedVertexColors: boolean;
 }) => {
   try {
-    const models = $models.value;
-    const originalModels = $originalModels.value;
-    const polygonFileName = $polygonFileName.value;
-    const resourceAttribs = $resourceAttribs.value;
-    const textureDefs = $textureDefs.value;
-    const textureFileName = $textureFileName.value;
+    const models = $models.get();
+    const originalModels = $originalModels.get();
+    const polygonFileName = $polygonFileName.get();
+    const resourceAttribs = $resourceAttribs.get();
+    const textureDefs = $textureDefs.get();
+    const textureFileName = $textureFileName.get();
     const sourceFileName = polygonFileName ?? textureFileName;
 
     if (!resourceAttribs || !sourceFileName) {

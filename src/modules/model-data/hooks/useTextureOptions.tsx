@@ -6,11 +6,10 @@ import {
   revertTextureImage
 } from '@/modules/model-data/modelDataStore';
 import { $updatedTextureDefs } from '@/derivedState';
+import type { NLUITextureDef } from '@/types';
 import globalBuffers from '@/utils/data/globalBuffers';
-import {
-  createB64ImgFromTextureDef,
-  TextureImageBufferKeys
-} from '@/utils/textures';
+import { createB64ImgFromTextureDef } from '@/utils/textures';
+import { useValue } from '@legendapp/state/react';
 import CropFreeIcon from '@mui/icons-material/CropFree';
 import DownloadIcon from '@mui/icons-material/Download';
 import UndoIcon from '@mui/icons-material/Undo';
@@ -57,18 +56,16 @@ function useTextureReplacementPicker(onReplaceImageFile: (file: File) => void) {
 
 export default function useTextureOptions(
   textureIndex: number,
-  pixelBufferKeys: TextureImageBufferKeys,
+  pixelBufferKeys: NLUITextureDef['bufferKeys'],
   onReplaceImageFile: (file: File | SharedArrayBuffer) => void,
   handleClose: () => void,
   ignoreKeyboardFunctions = false,
   onSelectOption?: () => void
 ) {
-  'use no memo';
-
   const { textureViewMode } = useContext(SceneOptionsContext);
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
-  const textureFileName = $textureFileName.value;
-  const textureDefs = $updatedTextureDefs.value;
+  const textureFileName = useValue($textureFileName);
+  const textureDefs = useValue($updatedTextureDefs);
   const textureViewModeRef = useRef(textureViewMode);
 
   // when menu is open, toggle translucent download as hotkey is pressed
@@ -98,7 +95,7 @@ export default function useTextureOptions(
 
   const dlAsTranslucent = !ignoreKeyboardFunctions && wantsTranslucentDownload;
 
-  const textureHistory = $textureHistory.value[textureIndex];
+  const textureHistory = useValue($textureHistory)[textureIndex];
 
   const options = useMemo(
     (): TextureOption[] => [

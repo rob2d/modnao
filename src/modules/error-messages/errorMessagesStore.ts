@@ -1,4 +1,4 @@
-import { signal } from '@preact-signals/safe-react';
+import { observable } from '@legendapp/state';
 import { JSX } from 'react';
 
 export interface ErrorMessage {
@@ -6,16 +6,16 @@ export interface ErrorMessage {
   message: JSX.Element | string;
 }
 
-export const $messages = signal<ErrorMessage[]>([]);
+export const $messages = observable<ErrorMessage[]>([]);
 
 export function resetErrorMessages() {
-  $messages.value = [];
+  $messages.set([]);
 }
 
 export function showError(payload: ErrorMessage) {
-  $messages.value = [...$messages.value, payload];
+  $messages.set([...$messages.get(), payload]);
 }
 
 export function dismissError() {
-  $messages.value = $messages.value.slice(0, -1);
+  $messages.set($messages.get().slice(0, -1));
 }

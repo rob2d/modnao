@@ -27,7 +27,8 @@ import {
 import type { NodeSelectionMergeMode } from '@/types';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
-import { signal, effect as signalEffect } from '@preact-signals/safe-react';
+import { observable, observe as signalEffect } from '@legendapp/state';
+import { useValue } from '@legendapp/state/react';
 import { Canvas } from '@react-three/fiber';
 import {
   EffectComposer,
@@ -62,14 +63,12 @@ const canvasResizeParams = { debounce: 125 };
 const axesHelper = <axesHelper args={[50]} />;
 
 // temporary until introducing general icons for cursor variants
-const $selectionMergeIndicatorPosition = signal({
+const $selectionMergeIndicatorPosition = observable({
   pointerX: -100,
   pointerY: -100
 });
 
 export default function SceneView() {
-  'use no memo';
-
   useObjectNavControls();
 
   const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
@@ -99,8 +98,8 @@ export default function SceneView() {
     return registerScene(sceneApi);
   }, [registerScene]);
 
-  const selectedObjectIds = $selectedObjectIds.value;
-  const meshSelectionType = $meshSelectionType.value;
+  const selectedObjectIds = useValue($selectedObjectIds);
+  const meshSelectionType = useValue($meshSelectionType);
   const vertexModeEnabled = meshSelectionType === 'vertex';
   const { vertexInteractionMode, setVertexInteractionMode } =
     useVertexInteractionMode(vertexModeEnabled);
@@ -134,9 +133,9 @@ export default function SceneView() {
     setResetCameraPositionRevision((revision) => revision + 1);
   }, []);
 
-  const textureDefs = $updatedTextureDefs.value;
+  const textureDefs = useValue($updatedTextureDefs);
   const textureCacheMap = useSceneTextureMapCache(textureDefs);
-  const model = $model.value;
+  const model = useValue($model);
   const theme = useTheme();
   const selectionMergeMode = useSelectionMergeModeKeys(isScenePointerInsideRef);
 
@@ -167,7 +166,7 @@ export default function SceneView() {
           return;
         }
 
-        const { pointerX, pointerY } = $selectionMergeIndicatorPosition.value;
+        const { pointerX, pointerY } = $selectionMergeIndicatorPosition.get();
         indicator.style.transform = `translate(${pointerX + 6}px, ${pointerY + 4}px)`;
       }),
     []
@@ -180,7 +179,7 @@ export default function SceneView() {
       const pointerY = event.clientY - sceneBounds.top;
 
       sceneBoundsRef.current = sceneBounds;
-      $selectionMergeIndicatorPosition.value = { pointerX, pointerY };
+      $selectionMergeIndicatorPosition.set({ pointerX, pointerY });
 
       isScenePointerInsideRef.current = true;
       setIsScenePointerInside(true);
@@ -200,7 +199,7 @@ export default function SceneView() {
       const pointerX = event.clientX - sceneBounds.left;
       const pointerY = event.clientY - sceneBounds.top;
 
-      $selectionMergeIndicatorPosition.value = { pointerX, pointerY };
+      $selectionMergeIndicatorPosition.set({ pointerX, pointerY });
     },
     []
   );
@@ -270,10 +269,10 @@ export default function SceneView() {
     sceneOptions.sceneCursorVisible &&
     selectionMergeIndicatorText !== undefined;
 
-  const selectedMeshes = $displayedMeshes.value;
-  const meshes = $allDisplayedMeshes.value;
-  const modelIndex = $modelIndex.value;
-  const polygonBufferKey = $polygonBufferKey.value;
+  const selectedMeshes = useValue($displayedMeshes);
+  const meshes = useValue($allDisplayedMeshes);
+  const modelIndex = useValue($modelIndex);
+  const polygonBufferKey = useValue($polygonBufferKey);
   const renderModelIndexes = sceneOptions.renderModelIndexes;
   const isRenderingModelIndexes = renderModelIndexes !== undefined;
   const renderModelsStaggered = sceneOptions.renderModelsStaggered;

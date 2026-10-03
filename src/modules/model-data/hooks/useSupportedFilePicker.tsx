@@ -2,6 +2,7 @@ import FilesSupportedButton from '@/components/FilesSupportedButton';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import { $polygonFileName } from '@/modules/model-data/modelDataStore';
 import type { TextureFileType } from '@/types';
+import { useValue } from '@legendapp/state/react';
 import { JSX, useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import loadModelDataPatch from '../loadModelDataPatch';
@@ -214,9 +215,7 @@ export const handleFileInput = async (
 export default function useSupportedFilePicker(
   onError: (error: string | JSX.Element) => void
 ) {
-  'use no memo';
-
-  const polygonFilename = $polygonFileName.value;
+  const polygonFilename = useValue($polygonFileName);
   const { plainFiles, openFilePicker } = useFilePicker({
     multiple: true,
     readAs: 'ArrayBuffer',

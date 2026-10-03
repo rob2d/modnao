@@ -3,16 +3,15 @@ import {
   $modelIndex
 } from '@/modules/object-viewer/objectViewerStore';
 import { $model, $objectKey } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import exportFromJSON from 'export-from-json';
 import { useCallback, useMemo } from 'react';
 
 export default function useModelSelectionExport() {
-  'use no memo';
-
-  const model = $model.value;
-  const modelIndex = $modelIndex.value;
-  const objectKey = $objectKey.value;
-  const objectType = $meshSelectionType.value;
+  const model = useValue($model);
+  const modelIndex = useValue($modelIndex);
+  const objectKey = useValue($objectKey);
+  const objectType = useValue($meshSelectionType);
 
   const data = useMemo(() => {
     if (!model) {

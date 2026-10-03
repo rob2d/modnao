@@ -36,7 +36,7 @@ import {
   LoadTextureFileWorkerPayload,
   LoadTextureFileWorkerResult
 } from '@/workers/loadTextureFileWorker';
-import { batch } from '@preact-signals/safe-react';
+import { batch } from '@legendapp/state';
 import saveAs from 'file-saver';
 import { produce } from 'immer';
 import {
@@ -172,11 +172,11 @@ const decompressLzssSection = (
 // @TODO modularize image section definitions for declarative loading
 export const loadCharacterPortraitsFile = async (file: File) => {
   batch(() => {
-    $polygonBufferKey.value = undefined;
-    $textureBufferKey.value = undefined;
-    $textureDefs.value = [];
-    $textureHslSessions.value = {};
-    $textureHistory.value = {};
+    $polygonBufferKey.set(undefined);
+    $textureBufferKey.set(undefined);
+    $textureDefs.set([]);
+    $textureHslSessions.set({});
+    $textureHistory.set({});
   });
   try {
     const PTR_SIZE = 4;
@@ -283,7 +283,7 @@ export const loadPolygonFile = async (file: File) => {
 };
 
 export const processPolygonFile = async (file: File) => {
-  $loadTexturesState.value = 'idle';
+  $loadTexturesState.set('idle');
   try {
     const fBuffer = await file.arrayBuffer();
     const buffer = sharedBufferFrom(Buffer.from(fBuffer));
@@ -307,24 +307,24 @@ export const processPolygonFile = async (file: File) => {
         resourceAttribs
       } = result;
 
-      $models.value = models;
-      $originalModels.value = originalModels;
-      $textureDefs.value = textureDefs;
-      $resourceAttribs.value = resourceAttribs;
-      $editedTextures.value = {};
-      $textureHslSessions.value = {};
-      $textureHistory.value = {};
-      $textureFileType.value = undefined;
-      $polygonFileName.value = fileName;
-      $textureFileName.value = undefined;
-      $polygonBufferKey.value = polygonBufferKey;
-      $hasEditedTextures.value = false;
+      $models.set(models);
+      $originalModels.set(originalModels);
+      $textureDefs.set(textureDefs);
+      $resourceAttribs.set(resourceAttribs);
+      $editedTextures.set({});
+      $textureHslSessions.set({});
+      $textureHistory.set({});
+      $textureFileType.set(undefined);
+      $polygonFileName.set(fileName);
+      $textureFileName.set(undefined);
+      $polygonBufferKey.set(polygonBufferKey);
+      $hasEditedTextures.set(false);
 
-      $modelIndex.value = result.models.findIndex(
-        (model) => model.meshes.length > 0
+      $modelIndex.set(
+        result.models.findIndex((model) => model.meshes.length > 0)
       );
-      $textureIndex.value = 0;
-      $selectedObjectIds.value = {};
+      $textureIndex.set(0);
+      $selectedObjectIds.set({});
     });
     return result;
   } catch {
@@ -338,16 +338,18 @@ export const applySelectedVertexColor = async ({
   hexColor: string;
 }) => {
   try {
-    const modelIndex = $modelIndex.value;
-    const selectedIds = $selectedObjectIds.value;
-    const model = $models.value[modelIndex];
+    const modelIndex = $modelIndex.get();
+    const selectedIds = $selectedObjectIds.get();
+    const model = $models.get()[modelIndex];
     const color = hexToNormalizedColor(hexColor);
 
     if (!model || !color) {
       const result = { modelIndex, vertexColorUpdates: [] };
-      $models.value = produce($models.value, (models) => {
-        applySelectedVertexColorFulfilled(models, { payload: result });
-      });
+      $models.set(
+        produce($models.get(), (models) => {
+          applySelectedVertexColorFulfilled(models, { payload: result });
+        })
+      );
       return result;
     }
 
@@ -385,7 +387,7 @@ export const applySelectedVertexColor = async ({
       ]);
     });
 
-    const polygonBufferKey = $polygonBufferKey.value;
+    const polygonBufferKey = $polygonBufferKey.get();
 
     if (polygonBufferKey) {
       const polygonBuffer = globalBuffers.get(polygonBufferKey);
@@ -405,9 +407,11 @@ export const applySelectedVertexColor = async ({
         })
       )
     };
-    $models.value = produce($models.value, (models) => {
-      applySelectedVertexColorFulfilled(models, { payload: result });
-    });
+    $models.set(
+      produce($models.get(), (models) => {
+        applySelectedVertexColorFulfilled(models, { payload: result });
+      })
+    );
     return result;
   } catch {
     return undefined;
@@ -419,14 +423,14 @@ export const applySelectedVertexHsl = async ({
   hsl
 }: ApplySelectedVertexHslPayload) => {
   try {
-    const modelIndex = $modelIndex.value;
+    const modelIndex = $modelIndex.get();
     const vertexColorUpdates = baseVertexColors.map(
       ({ contentAddress, color }) => ({
         contentAddress,
         color: adjustNormalizedColorHsl(color, hsl)
       })
     );
-    const polygonBufferKey = $polygonBufferKey.value;
+    const polygonBufferKey = $polygonBufferKey.get();
 
     if (polygonBufferKey) {
       const polygonBuffer = globalBuffers.get(polygonBufferKey);
@@ -440,9 +444,11 @@ export const applySelectedVertexHsl = async ({
       modelIndex,
       vertexColorUpdates
     };
-    $models.value = produce($models.value, (models) => {
-      applySelectedVertexColorFulfilled(models, { payload: result });
-    });
+    $models.set(
+      produce($models.get(), (models) => {
+        applySelectedVertexColorFulfilled(models, { payload: result });
+      })
+    );
     return result;
   } catch {
     return undefined;
@@ -457,15 +463,17 @@ export const applySelectedVertexGradient = async ({
   pivotPoint
 }: ApplySelectedVertexGradientPayload) => {
   try {
-    const modelIndex = $modelIndex.value;
+    const modelIndex = $modelIndex.get();
 
-    const { selectedVertices } = $selectedVertexGradientInputs.value;
+    const { selectedVertices } = $selectedVertexGradientInputs.get();
 
     if (selectedVertices.length === 0) {
       const result = { modelIndex, vertexColorUpdates: [] };
-      $models.value = produce($models.value, (models) => {
-        applySelectedVertexColorFulfilled(models, { payload: result });
-      });
+      $models.set(
+        produce($models.get(), (models) => {
+          applySelectedVertexColorFulfilled(models, { payload: result });
+        })
+      );
       return result;
     }
 
@@ -506,7 +514,7 @@ export const applySelectedVertexGradient = async ({
       ]);
     });
 
-    const polygonBufferKey = $polygonBufferKey.value;
+    const polygonBufferKey = $polygonBufferKey.get();
 
     if (polygonBufferKey) {
       const polygonBuffer = globalBuffers.get(polygonBufferKey);
@@ -526,9 +534,11 @@ export const applySelectedVertexGradient = async ({
         })
       )
     };
-    $models.value = produce($models.value, (models) => {
-      applySelectedVertexColorFulfilled(models, { payload: result });
-    });
+    $models.set(
+      produce($models.get(), (models) => {
+        applySelectedVertexColorFulfilled(models, { payload: result });
+      })
+    );
     return result;
   } catch {
     return undefined;
@@ -537,8 +547,8 @@ export const applySelectedVertexGradient = async ({
 
 export const downloadPolygonFile = async () => {
   try {
-    const polygonBufferKey = $polygonBufferKey.value;
-    const polygonFileName = $polygonFileName.value;
+    const polygonBufferKey = $polygonBufferKey.get();
+    const polygonFileName = $polygonFileName.get();
 
     if (!polygonBufferKey || !polygonFileName) {
       showError({
@@ -589,16 +599,16 @@ export const downloadPolygonFile = async () => {
 /** called from UI to clean up and then process texture file */
 export const loadTextureFile = async (payload: LoadTexturesPayload) => {
   try {
-    const textureDefs = $textureDefs.value;
-    const textureHistory = $textureHistory.value;
-    const editedTextures = $editedTextures.value;
-    const replacementImage = $replacementImage.value;
+    const textureDefs = $textureDefs.get();
+    const textureHistory = $textureHistory.get();
+    const editedTextures = $editedTextures.get();
+    const replacementImage = $replacementImage.get();
     const resourceAttribs =
       payload.resourceAttribs ??
       resourceAttribMappings[payload.textureFileType];
 
-    const prevPolygonBufferKey = $polygonBufferKey.value;
-    const prevTextureBufferKey = $textureBufferKey.value;
+    const prevPolygonBufferKey = $polygonBufferKey.get();
+    const prevTextureBufferKey = $textureBufferKey.get();
 
     setTimeout(() => {
       processTextureFile({
@@ -615,7 +625,7 @@ export const loadTextureFile = async (payload: LoadTexturesPayload) => {
 
       const textureDefKeys: string[] = textureDefs
         .flatMap((d) => [d.bufferKeys.opaque, d.bufferKeys.translucent])
-        .filter(Boolean);
+        .filter(Boolean) as string[];
 
       const textureHistoryKeys: string[] = Object.values(textureHistory)
         .flatMap((textureSet) =>
@@ -656,7 +666,7 @@ export const processTextureFile = async ({
   textureDefs: providedTextureDefs,
   resourceAttribs
 }: LoadTexturesPayload) => {
-  $loadTexturesState.value = 'pending';
+  $loadTexturesState.set('pending');
   try {
     const resolvedResourceAttribs =
       resourceAttribs ?? resourceAttribMappings[textureFileType];
@@ -664,7 +674,7 @@ export const processTextureFile = async ({
     let textureDefs: NLUITextureDef[];
     const isPolyMapped = resolvedResourceAttribs.polygonMapped;
     const activeResourceAttribs = isPolyMapped
-      ? ($resourceAttribs.value ?? resolvedResourceAttribs)
+      ? ($resourceAttribs.get() ?? resolvedResourceAttribs)
       : resolvedResourceAttribs;
 
     if (!isPolyMapped) {
@@ -674,26 +684,26 @@ export const processTextureFile = async ({
           : activeResourceAttribs.textureShapesMap) ?? [];
 
       batch(() => {
-        $models.value = [];
-        $originalModels.value = [];
-        $textureDefs.value = textureDefs;
-        $resourceAttribs.value = activeResourceAttribs;
-        $editedTextures.value = {};
-        $textureHslSessions.value = {};
-        $textureHistory.value = {};
-        $textureFileType.value = undefined;
-        $polygonFileName.value = undefined;
-        $textureFileName.value = undefined;
-        $polygonBufferKey.value = undefined;
-        $hasEditedTextures.value = false;
+        $models.set([]);
+        $originalModels.set([]);
+        $textureDefs.set(textureDefs);
+        $resourceAttribs.set(activeResourceAttribs);
+        $editedTextures.set({});
+        $textureHslSessions.set({});
+        $textureHistory.set({});
+        $textureFileType.set(undefined);
+        $polygonFileName.set(undefined);
+        $textureFileName.set(undefined);
+        $polygonBufferKey.set(undefined);
+        $hasEditedTextures.set(false);
 
-        $modelIndex.value = -1;
-        $textureIndex.value = 0;
-        $selectedObjectIds.value = {};
+        $modelIndex.set(-1);
+        $textureIndex.set(0);
+        $selectedObjectIds.set({});
       });
     } else {
       textureDefs =
-        activeResourceAttribs.textureShapesMap ?? $textureDefs.value;
+        activeResourceAttribs.textureShapesMap ?? $textureDefs.get();
     }
 
     let buffer: Uint8Array = new Uint8Array(
@@ -765,23 +775,23 @@ export const processTextureFile = async ({
         resourceAttribs
       } = payload;
 
-      $loadTexturesState.value = 'fulfilled';
-      $textureDefs.value = textureDefs;
-      $editedTextures.value = {};
-      $textureHslSessions.value = {};
-      $hasEditedTextures.value = false;
-      $textureHistory.value = {};
-      $textureFileType.value = textureFileType;
-      $textureFileName.value = fileName;
-      $isLzssCompressed.value = Boolean(isLzssCompressed);
-      $textureBufferKey.value = textureBufferKey;
+      $loadTexturesState.set('fulfilled');
+      $textureDefs.set(textureDefs);
+      $editedTextures.set({});
+      $textureHslSessions.set({});
+      $hasEditedTextures.set(false);
+      $textureHistory.set({});
+      $textureFileType.set(textureFileType);
+      $textureFileName.set(fileName);
+      $isLzssCompressed.set(Boolean(isLzssCompressed));
+      $textureBufferKey.set(textureBufferKey);
       if (!resourceAttribs?.polygonMapped) {
-        $resourceAttribs.value = resourceAttribs;
+        $resourceAttribs.set(resourceAttribs);
       }
     });
     return result;
   } catch {
-    $loadTexturesState.value = 'rejected';
+    $loadTexturesState.set('rejected');
     return undefined;
   }
 };
@@ -790,7 +800,7 @@ export const adjustTextureHsl = async (
   payload: TextureHslAdjustmentPayload
 ) => {
   try {
-    const prevEditedTexture = $editedTextures.value[payload.textureIndex];
+    const prevEditedTexture = $editedTextures.get()[payload.textureIndex];
 
     const { hsl } = payload;
     const uvClipPathKey = getTextureHslScopeKey(
@@ -813,7 +823,7 @@ export const adjustTextureHsl = async (
       return;
     }
 
-    const textureHslSession = $textureHslSessions.value[payload.textureIndex];
+    const textureHslSession = $textureHslSessions.get()[payload.textureIndex];
     const isSameScope = textureHslSession?.scopeKey === uvClipPathKey;
 
     if (!isSameScope && payload.sourceBufferKeys) {
@@ -833,7 +843,7 @@ export const adjustTextureHsl = async (
     }
 
     setTimeout(() => {
-      const activeSession = $textureHslSessions.value[payload.textureIndex];
+      const activeSession = $textureHslSessions.get()[payload.textureIndex];
 
       if (
         prevEditedTexture?.bufferKeys.opaque &&
@@ -865,12 +875,12 @@ export const processAdjustedTextureHsl = async ({
   uvPixelByteIndexes
 }: TextureHslAdjustmentPayload) => {
   try {
-    const textureDef = $textureDefs.value[textureIndex];
+    const textureDef = $textureDefs.get()[textureIndex];
     const uvClipPathKey = getTextureHslScopeKey(
       textureIndex,
       uvPixelByteIndexes
     );
-    const textureHslSession = $textureHslSessions.value[textureIndex];
+    const textureHslSession = $textureHslSessions.get()[textureIndex];
     const bufferKeys =
       textureHslSession?.scopeKey === uvClipPathKey
         ? textureHslSession.sourceBufferKeys
@@ -884,7 +894,7 @@ export const processAdjustedTextureHsl = async ({
         >('adjustTextureHsl', {
           hsl,
           uvPixelByteIndexes,
-          buffer: globalBuffers.getShared(bufferKey)
+          buffer: globalBuffers.getShared(bufferKey!)
         })
       )
     );
@@ -900,11 +910,10 @@ export const processAdjustedTextureHsl = async ({
     };
     batch(() => {
       const { textureIndex, bufferKeys, hsl, uvClipPathKey } = result;
-      const { width, height } = $textureDefs.value[textureIndex];
+      const { width, height } = $textureDefs.get()[textureIndex];
 
-      $editedTextures.value = produce(
-        $editedTextures.value,
-        (editedTextures) => {
+      $editedTextures.set(
+        produce($editedTextures.get(), (editedTextures) => {
           editedTextures[textureIndex] = {
             width,
             height,
@@ -912,11 +921,12 @@ export const processAdjustedTextureHsl = async ({
             hsl,
             uvClipPathKey
           };
-        }
+        })
       );
-      $hasEditedTextures.value =
-        $hasEditedTextures.value ||
-        Object.keys($editedTextures.value).length > 0;
+      $hasEditedTextures.set(
+        $hasEditedTextures.get() ||
+          Object.keys($editedTextures.get()).length > 0
+      );
     });
     return result;
   } catch {
@@ -925,13 +935,13 @@ export const processAdjustedTextureHsl = async ({
 };
 
 export const downloadTextureFile = async () => {
-  $exportTextureFileState.value = 'pending';
+  $exportTextureFileState.set('pending');
   try {
-    const textureFileName = $textureFileName.value ?? '';
-    const textureBufferKey = $textureBufferKey.value ?? '';
-    const textureDefs = $updatedTextureDefs.value;
-    const textureFileType = $textureFileType.value;
-    const isLzssCompressed = $isLzssCompressed.value;
+    const textureFileName = $textureFileName.get() ?? '';
+    const textureBufferKey = $textureBufferKey.get() ?? '';
+    const textureDefs = $updatedTextureDefs.get();
+    const textureFileType = $textureFileType.get();
+    const isLzssCompressed = $isLzssCompressed.get();
 
     if (!textureFileType) {
       showError({
@@ -945,8 +955,8 @@ export const downloadTextureFile = async () => {
       const textureBuffer = globalBuffers.getShared(textureBufferKey);
 
       const changedTextureIndexes = new Set([
-        ...Object.keys($editedTextures.value).map(Number),
-        ...Object.entries($textureHistory.value)
+        ...Object.keys($editedTextures.get()).map(Number),
+        ...Object.entries($textureHistory.get())
           .filter(([, history]) => history.length > 0)
           .map(([textureIndex]) => Number(textureIndex))
       ]);
@@ -967,7 +977,7 @@ export const downloadTextureFile = async () => {
                 textureFileType,
                 textureBuffer,
                 pixelColors: globalBuffers.getShared(
-                  textureDef.bufferKeys.translucent
+                  textureDef.bufferKeys.translucent!
                 )
               }
             )
@@ -1022,11 +1032,11 @@ export const downloadTextureFile = async () => {
       });
     }
   } catch {
-    $exportTextureFileState.value = 'rejected';
+    $exportTextureFileState.set('rejected');
     return undefined;
   } finally {
-    if ($exportTextureFileState.value === 'pending') {
-      $exportTextureFileState.value = 'fulfilled';
+    if ($exportTextureFileState.get() === 'pending') {
+      $exportTextureFileState.set('fulfilled');
     }
   }
 };

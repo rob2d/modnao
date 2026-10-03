@@ -127,16 +127,16 @@ describe('SceneVertexModeControls', () => {
     );
 
     act(() => {
-      $models.value = [selectableVertexModel];
-      $modelIndex.value = 0;
-      $selectedObjectIds.value = { '0_0_0': true };
-      $meshSelectionType.value = 'vertex';
+      $models.set([selectableVertexModel]);
+      $modelIndex.set(0);
+      $selectedObjectIds.set({ '0_0_0': true });
+      $meshSelectionType.set('vertex');
     });
 
     await user.click(
       screen.getByRole('button', { name: 'Select all vertices' })
     );
-    expect($selectedObjectIds.value).toEqual({
+    expect($selectedObjectIds.get()).toEqual({
       '0_0_0': true,
       '0_0_1': true
     });
@@ -145,6 +145,6 @@ describe('SceneVertexModeControls', () => {
       screen.getByRole('button', { name: 'Clear vertex selection' })
     );
 
-    expect($selectedObjectIds.value).toEqual({});
+    expect($selectedObjectIds.get()).toEqual({});
   });
 });

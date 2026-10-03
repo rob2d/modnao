@@ -7,6 +7,7 @@ import {
 } from '@/modules/model-data/modelDataStore';
 import { $modelIndex } from '@/modules/object-viewer/objectViewerStore';
 import { $modelCount } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import saveAs from 'file-saver';
 import { useCallback, useContext } from 'react';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
@@ -33,8 +34,6 @@ export default function useSceneGLTFFileDownloader({
   modelIndexes,
   staggerModels
 }: SceneGLTFFileDownloaderOptions) {
-  'use no memo';
-
   const {
     renderModelIndexes,
     setRenderModelIndexes,
@@ -44,10 +43,10 @@ export default function useSceneGLTFFileDownloader({
     setMeshDisplayMode
   } = useContext(SceneOptionsContext);
   const { scene } = useSceneContext();
-  const modelIndex = $modelIndex.value;
-  const modelCount = $modelCount.value;
-  const hasLoadedTextureFile = Boolean($textureFileName.value);
-  const polygonFileName = $polygonFileName.value || '';
+  const modelIndex = useValue($modelIndex);
+  const modelCount = useValue($modelCount);
+  const hasLoadedTextureFile = Boolean(useValue($textureFileName));
+  const polygonFileName = useValue($polygonFileName) || '';
 
   const onDownloadSceneFile = useCallback(async () => {
     const prevMeshDisplayMode = meshDisplayMode;

@@ -5,18 +5,18 @@ import {
 } from '@/modules/model-data/modelDataStore';
 import globalBuffers from '@/utils/data/globalBuffers';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
-import { batch, signal } from '@preact-signals/safe-react';
+import { batch, observable } from '@legendapp/state';
 import type { ReplacementImage } from './replaceTextureTypes';
 
-export const $textureIndex = signal(-1);
-export const $replacementImage = signal<ReplacementImage | undefined>(
+export const $textureIndex = observable(-1);
+export const $replacementImage = observable<ReplacementImage | undefined>(
   undefined
 );
 
 export function resetReplaceTexture() {
   batch(() => {
-    $textureIndex.value = -1;
-    $replacementImage.value = undefined;
+    $textureIndex.set(-1);
+    $replacementImage.set(undefined);
   });
 }
 
@@ -33,8 +33,8 @@ export const selectReplacementTexture = async ({
     let height: number;
     if (imageFile instanceof SharedArrayBuffer) {
       buffer = new Uint8Array(imageFile);
-      width = $textureDefs.value[textureIndex].width;
-      height = $textureDefs.value[textureIndex].height;
+      width = $textureDefs.get()[textureIndex].width;
+      height = $textureDefs.get()[textureIndex].height;
     } else {
       const [_b, , _w, _h] = await loadRGBABuffersFromFile(imageFile);
 
@@ -52,12 +52,12 @@ export const selectReplacementTexture = async ({
       textureIndex
     };
     batch(() => {
-      if ($replacementImage.value?.bufferKey) {
-        globalBuffers.delete($replacementImage.value.bufferKey);
+      if ($replacementImage.get()?.bufferKey) {
+        globalBuffers.delete($replacementImage.get()!.bufferKey);
       }
 
-      $replacementImage.value = result.replacementImage;
-      $textureIndex.value = result.textureIndex;
+      $replacementImage.set(result.replacementImage);
+      $textureIndex.set(result.textureIndex);
       showDialog('replace-texture');
     });
     return result;
@@ -73,7 +73,7 @@ export const updateReplacementTexture = (_payload: { imageFile: File }) =>
 
 export const applyReplacedTextureImage = async (rgbaBuffer: Uint8Array) => {
   try {
-    const textureIndex = $textureIndex.value;
+    const textureIndex = $textureIndex.get();
     const translucentBuffer = rgbaBuffer;
     const opaqueBuffer = new Uint8Array(translucentBuffer.length);
 

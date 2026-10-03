@@ -6,6 +6,7 @@ import { $resourceAttribs } from '@/modules/model-data/modelDataStore';
 import { $updatedTextureDefs } from '@/derivedState';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { TextureImageBufferKeys } from '@/utils/textures';
+import { useValue } from '@legendapp/state/react';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -25,15 +26,13 @@ import useViewportSizes from 'use-viewport-sizes';
 import ImageBufferCanvas from './ImageBufferCanvas';
 
 export default function TextureView() {
-  'use no memo';
-
   useObjectNavControls();
   const uiControls = useObjectUINav();
   const [vpW, vpH] = useViewportSizes();
   const size = Math.min(Math.round((vpW - 222) * 0.5), Math.round(vpH - 96));
-  const textureIndex = $textureIndex.value;
-  const textureDefs = $updatedTextureDefs.value;
-  const resourceAttribs = $resourceAttribs.value;
+  const textureIndex = useValue($textureIndex);
+  const textureDefs = useValue($updatedTextureDefs);
+  const resourceAttribs = useValue($resourceAttribs);
   const hasAspectRatio =
     typeof resourceAttribs?.textureShapesMap?.[textureIndex]
       .displayedAspectRatio === 'number';

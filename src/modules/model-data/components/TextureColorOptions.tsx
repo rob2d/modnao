@@ -7,6 +7,7 @@ import {
   getUvClipPathPixelByteIndexes,
   UvClipPath
 } from '@/utils/textures';
+import { useValue } from '@legendapp/state/react';
 import {
   Box,
   Button,
@@ -85,11 +86,9 @@ export default function TextureColorOptions({
   variant: 'menu' | 'texture-view';
   selectedUvClipPaths?: UvClipPath[];
 }) {
-  'use no memo';
-
-  const textureDefs = $updatedTextureDefs.value;
+  const textureDefs = useValue($updatedTextureDefs);
   const textureDef = textureDefs[textureIndex];
-  const textureHslSession = $textureHslSessions.value[textureIndex];
+  const textureHslSession = useValue($textureHslSessions)[textureIndex];
 
   const hasTouchedHslInputRef = useRef(false);
   const [applyToWholeTexture, setApplyToWholeTexture] = useState(false);
@@ -221,9 +220,14 @@ export default function TextureColorOptions({
       return;
     }
 
+    const sourceBufferKeys = textureDef?.bufferKeys;
+
     adjustTextureHsl({
       hsl: processedHsl,
-      sourceBufferKeys: textureDef?.bufferKeys,
+      sourceBufferKeys:
+        sourceBufferKeys?.opaque || sourceBufferKeys?.translucent
+          ? sourceBufferKeys
+          : undefined,
       textureIndex,
       uvPixelByteIndexes: activeUvPixelByteIndexes
     });

@@ -62,37 +62,37 @@ it('edits selected vertex colors without changing the original models', async ()
   } as NLVertex;
   const originalModels = structuredClone(models);
 
-  $models.value = models;
-  $originalModels.value = originalModels;
-  $modelIndex.value = 0;
-  $polygonBufferKey.value = globalBuffers.add(
-    new Uint8Array(16 + O.Vertex.COLORS + 4)
+  $models.set(models);
+  $originalModels.set(originalModels);
+  $modelIndex.set(0);
+  $polygonBufferKey.set(
+    globalBuffers.add(new Uint8Array(16 + O.Vertex.COLORS + 4))
   );
   setObjectKeys(['0_0_0']);
 
   await applySelectedVertexColor({ hexColor: '#ff8000' });
 
-  expect($models.value[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
+  expect($models.get()[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
     1,
     128 / 255,
     0,
     0.25
   ]);
-  expect($originalModels.value).toBe(originalModels);
+  expect($originalModels.get()).toBe(originalModels);
   expect(originalModels[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
     0, 0, 0, 0.25
   ]);
   expect(
     Array.from(
-      globalBuffers.get($polygonBufferKey.value).slice(16 + O.Vertex.COLORS)
+      globalBuffers.get($polygonBufferKey.get()!).slice(16 + O.Vertex.COLORS)
     )
   ).toEqual([0, 128, 255, 64]);
 });
 
 it('ends export progress when no texture file type is available', async () => {
   await downloadTextureFile();
-  expect($exportTextureFileState.value).toBe('fulfilled');
-  expect($messages.value[0].title).toBe('Invalid file selected');
+  expect($exportTextureFileState.get()).toBe('fulfilled');
+  expect($messages.get()[0].title).toBe('Invalid file selected');
 });
 
 it('applies polygon worker results to data and viewer state together', async () => {
@@ -109,16 +109,16 @@ it('applies polygon worker results to data and viewer state together', async () 
   } as File;
   const result = await processPolygonFile(file);
   expect(result).toBeDefined();
-  expect($models.value).toEqual(models);
-  expect($originalModels.value).toEqual(models);
-  expect($originalModels.value).not.toBe(models);
-  expect($modelIndex.value).toBe(1);
-  expect($textureIndex.value).toBe(0);
+  expect($models.get()).toEqual(models);
+  expect($originalModels.get()).toEqual(models);
+  expect($originalModels.get()).not.toBe(models);
+  expect($modelIndex.get()).toBe(1);
+  expect($textureIndex.get()).toBe(0);
 });
 
 it('loads a standalone texture file and clears the previous polygon state', async () => {
-  $models.value = [createModel()];
-  $polygonFileName.value = 'STG01POL.BIN';
+  $models.set([createModel()]);
+  $polygonFileName.set('STG01POL.BIN');
   jest.mocked(ClientThread.run).mockResolvedValue({
     texturePixelBuffers: [new Uint8Array(4), new Uint8Array(4)],
     decompressedTextureBuffer: new Uint8Array(4)
@@ -133,11 +133,11 @@ it('loads a standalone texture file and clears the previous polygon state', asyn
     textureDefs: [createTextureDef({ width: 1, height: 1 })]
   });
   expect(result).toBeDefined();
-  expect($loadTexturesState.value).toBe('fulfilled');
-  expect($textureFileName.value).toBe('FONT.BIN');
-  expect($models.value).toEqual([]);
-  expect($polygonFileName.value).toBeUndefined();
-  expect($modelIndex.value).toBe(-1);
+  expect($loadTexturesState.get()).toBe('fulfilled');
+  expect($textureFileName.get()).toBe('FONT.BIN');
+  expect($models.get()).toEqual([]);
+  expect($polygonFileName.get()).toBeUndefined();
+  expect($modelIndex.get()).toBe(-1);
 });
 
 it('ends loading and export progress when operations fail', async () => {
@@ -151,18 +151,18 @@ it('ends loading and export progress when operations fail', async () => {
     textureFileType: 'mvc2-font-file',
     textureDefs: [createTextureDef({})]
   });
-  expect($loadTexturesState.value).toBe('pending');
+  expect($loadTexturesState.get()).toBe('pending');
   await operation;
-  expect($loadTexturesState.value).toBe('rejected');
-  $textureFileType.value = 'mvc2-font-file';
-  $textureDefs.value = [];
-  $textureBufferKey.value = globalBuffers.add(new Uint8Array(4));
+  expect($loadTexturesState.get()).toBe('rejected');
+  $textureFileType.set('mvc2-font-file');
+  $textureDefs.set([]);
+  $textureBufferKey.set(globalBuffers.add(new Uint8Array(4)));
   const errorLog = jest
     .spyOn(console, 'error')
     .mockImplementation(() => undefined);
   const exporting = downloadTextureFile();
   await exporting;
-  expect($exportTextureFileState.value).toBe('fulfilled');
-  expect($messages.value[0].title).toBe('Error exporting texture');
+  expect($exportTextureFileState.get()).toBe('fulfilled');
+  expect($messages.get()[0].title).toBe('Error exporting texture');
   errorLog.mockRestore();
 });

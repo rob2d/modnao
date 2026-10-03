@@ -2,7 +2,8 @@ import { KeyboardEvent, useCallback, useMemo } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Box, Divider, Tooltip } from '@mui/material';
-import { TextureImageBufferKeys, UvClipPath } from '@/utils/textures';
+import type { NLUITextureDef } from '@/types';
+import { UvClipPath } from '@/utils/textures';
 import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
 
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
@@ -18,7 +19,7 @@ export default function GuiPanelTextureMenu({
   onClose
 }: {
   textureIndex: number;
-  pixelBufferKeys: TextureImageBufferKeys;
+  pixelBufferKeys: NLUITextureDef['bufferKeys'];
   selectedUvClipPaths: UvClipPath[];
   onReplaceImageFile: (file: File | SharedArrayBuffer) => void;
   anchorEl: HTMLElement | null;

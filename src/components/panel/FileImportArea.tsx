@@ -6,6 +6,7 @@ import {
   $resourceAttribs
 } from '@/modules/model-data/modelDataStore';
 import { $contentViewMode } from '@/derivedState';
+import { useValue } from '@legendapp/state/react';
 import { Box } from '@mui/material';
 import { JSX, useCallback } from 'react';
 import FilesSupportedButton from '../FilesSupportedButton';
@@ -16,11 +17,9 @@ import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
 import GuiPanelButton from './GuiPanelButton';
 
 export default function FileImportArea() {
-  'use no memo';
-
-  const contentViewMode = $contentViewMode.value;
-  const hasLoadedPolygonFile = Boolean($polygonFileName.value);
-  const resourceAttribs = $resourceAttribs.value;
+  const contentViewMode = useValue($contentViewMode);
+  const hasLoadedPolygonFile = Boolean(useValue($polygonFileName));
+  const resourceAttribs = useValue($resourceAttribs);
   const onHandleError = useCallback((message: string | JSX.Element) => {
     showError({ title: 'Invalid file selection', message });
   }, []);

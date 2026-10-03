@@ -2,7 +2,7 @@ import O from '@/constants/StructOffsets';
 import { showError } from '@/modules/error-messages';
 import globalBuffers from '@/utils/data/globalBuffers';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
-import { batch } from '@preact-signals/safe-react';
+import { batch } from '@legendapp/state';
 import { produce } from 'immer';
 import JSZip from 'jszip';
 import { createElement } from 'react';
@@ -31,8 +31,8 @@ const PATCH_RESOURCE_CHANGED_ERROR =
 
 const loadModelDataPatch = async (file: File) => {
   try {
-    const polygonFileName = $polygonFileName.value;
-    const resourceAttribs = $resourceAttribs.value;
+    const polygonFileName = $polygonFileName.get();
+    const resourceAttribs = $resourceAttribs.get();
 
     if (!polygonFileName || !resourceAttribs) {
       showError({
@@ -80,11 +80,11 @@ const loadModelDataPatch = async (file: File) => {
         );
       }
 
-      const models = $models.value;
-      const polygonBufferKey = $polygonBufferKey.value;
-      const currentPolygonFileName = $polygonFileName.value;
-      const currentResourceAttribs = $resourceAttribs.value;
-      const textureDefs = $textureDefs.value;
+      const models = $models.get();
+      const polygonBufferKey = $polygonBufferKey.get();
+      const currentPolygonFileName = $polygonFileName.get();
+      const currentResourceAttribs = $resourceAttribs.get();
+      const textureDefs = $textureDefs.get();
 
       if (
         !currentPolygonFileName ||
@@ -130,8 +130,8 @@ const loadModelDataPatch = async (file: File) => {
       );
 
       if (
-        $polygonBufferKey.value !== polygonBufferKey ||
-        $textureDefs.value !== textureDefs
+        $polygonBufferKey.get() !== polygonBufferKey ||
+        $textureDefs.get() !== textureDefs
       ) {
         throw new Error(PATCH_RESOURCE_CHANGED_ERROR);
       }
@@ -207,13 +207,15 @@ const loadModelDataPatch = async (file: File) => {
         textureUpdates
       };
       batch(() => {
-        $models.value = produce($models.value, (models) => {
-          result.vertexColorUpdates.forEach((vertexColorUpdate) => {
-            applySelectedVertexColorFulfilled(models, {
-              payload: vertexColorUpdate
+        $models.set(
+          produce($models.get(), (models) => {
+            result.vertexColorUpdates.forEach((vertexColorUpdate) => {
+              applySelectedVertexColorFulfilled(models, {
+                payload: vertexColorUpdate
+              });
             });
-          });
-        });
+          })
+        );
         result.textureUpdates.forEach((textureUpdate) => {
           replaceTextureImage(textureUpdate);
         });

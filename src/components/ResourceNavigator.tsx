@@ -6,6 +6,7 @@ import {
   $textureFileName
 } from '@/modules/model-data/modelDataStore';
 import type { ResourceAttribs } from '@/types';
+import { useValue } from '@legendapp/state/react';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   Autocomplete,
@@ -274,10 +275,8 @@ export default function ResourceNavigator({
   scope,
   sx
 }: ResourceNavigatorProps) {
-  'use no memo';
-
-  const polygonFileName = $polygonFileName.value;
-  const textureFileName = $textureFileName.value;
+  const polygonFileName = useValue($polygonFileName);
+  const textureFileName = useValue($textureFileName);
   const resourceSearchInputResetKey = `${polygonFileName ?? ''}:${textureFileName ?? ''}`;
   const [isResourceSearchOpen, setIsResourceSearchOpen] = useState(false);
   const [resourceSearchInputState, setResourceSearchInputState] =

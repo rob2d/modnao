@@ -1,6 +1,6 @@
 import { $updatedTextureDefs } from '@/derivedState';
 import { createTextureDef } from '@/utils/textures';
-import { effect } from '@preact-signals/safe-react';
+import { observe } from '@legendapp/state';
 import {
   $hasEditedTextures,
   $loadTexturesState,
@@ -32,21 +32,21 @@ beforeEach(() => {
 it('keeps model data subscribers independent of loading progress', () => {
   const modelReads = jest.fn();
   const textureReads = jest.fn();
-  const disposeModels = effect(() => {
-    modelReads($models.value);
+  const disposeModels = observe(() => {
+    modelReads($models.get());
   });
-  const disposeTextures = effect(() => {
-    textureReads($textureDefs.value);
+  const disposeTextures = observe(() => {
+    textureReads($textureDefs.get());
   });
 
   try {
-    $loadTexturesState.value = 'pending';
-    $originalModels.value = [createModel()];
+    $loadTexturesState.set('pending');
+    $originalModels.set([createModel()]);
 
     expect(modelReads).toHaveBeenCalledTimes(1);
     expect(textureReads).toHaveBeenCalledTimes(1);
 
-    $models.value = [createModel()];
+    $models.set([createModel()]);
 
     expect(modelReads).toHaveBeenCalledTimes(2);
     expect(textureReads).toHaveBeenCalledTimes(1);
@@ -58,7 +58,7 @@ it('keeps model data subscribers independent of loading progress', () => {
 
 it('keeps texture replacement history and reverts one replacement at a time', () => {
   const original = { translucent: 'original', opaque: 'original-opaque' };
-  $textureDefs.value = [createTextureDef({ bufferKeys: original })];
+  $textureDefs.set([createTextureDef({ bufferKeys: original })]);
   replaceTextureImage({
     textureIndex: 0,
     bufferKeys: { translucent: 'first', opaque: 'first-opaque' }
@@ -67,11 +67,36 @@ it('keeps texture replacement history and reverts one replacement at a time', ()
     textureIndex: 0,
     bufferKeys: { translucent: 'second', opaque: 'second-opaque' }
   });
-  expect($updatedTextureDefs.value[0].bufferKeys.translucent).toBe('second');
+  expect($updatedTextureDefs.get()[0].bufferKeys.translucent).toBe('second');
   revertTextureImage({ textureIndex: 0 });
-  expect($updatedTextureDefs.value[0].bufferKeys.translucent).toBe('first');
+  expect($updatedTextureDefs.get()[0].bufferKeys.translucent).toBe('first');
   revertTextureImage({ textureIndex: 0 });
-  expect($updatedTextureDefs.value[0].bufferKeys).toEqual(original);
-  expect($textureHistory.value[0]).toEqual([]);
-  expect($hasEditedTextures.value).toBe(true);
+  expect($updatedTextureDefs.get()[0].bufferKeys).toEqual(original);
+  expect($textureHistory.get()[0]).toEqual([]);
+  expect($hasEditedTextures.get()).toBe(true);
+});
+
+it('restores an unloaded texture definition when its replacement is reverted', () => {
+  const original = createTextureDef({});
+  $textureDefs.set([original]);
+  replaceTextureImage({
+    textureIndex: 0,
+    bufferKeys: { translucent: 'replacement', opaque: 'replacement-opaque' }
+  });
+
+  expect($updatedTextureDefs.get()[0].bufferKeys).toEqual({
+    translucent: 'replacement',
+    opaque: 'replacement-opaque'
+  });
+  expect($textureHistory.get()[0]).toEqual([
+    { bufferKeys: original.bufferKeys }
+  ]);
+
+  revertTextureImage({ textureIndex: 0 });
+
+  expect($updatedTextureDefs.get()[0].bufferKeys).toEqual({
+    translucent: undefined,
+    opaque: undefined
+  });
+  expect($textureHistory.get()[0]).toEqual([]);
 });

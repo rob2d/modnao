@@ -2,7 +2,7 @@ import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { useHeldRepetitionTimer } from '@/hooks';
 import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import { useContext, useEffect, useRef } from 'react';
-import { navToNextObject, navToPrevObject } from '../objectViewerStore';
+import { navToNextObject, navToPrevObject } from '../objectViewerThunks';
 
 /** controls left/right object nav as well as the cinematic mode shortcut */
 export default function useObjectNavControls() {

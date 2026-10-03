@@ -3,6 +3,7 @@ import { useResizeObserverSize } from '@/hooks';
 import { closeDialog } from '@/modules/dialogs';
 import { $updatedTextureDefs } from '@/derivedState';
 import globalBuffers from '@/utils/data/globalBuffers';
+import { useValue } from '@legendapp/state/react';
 import {
   Box,
   Button,
@@ -20,11 +21,9 @@ const TEXTURE_TILE_SIZE = 136;
 const TEXTURE_TILE_GAP = 8;
 
 export default function ModelDataPatchExportDialog() {
-  'use no memo';
-
-  const models = $models.value;
-  const hasOriginalModels = $originalModels.value.length > 0;
-  const textureDefs = $updatedTextureDefs.value;
+  const models = useValue($models);
+  const hasOriginalModels = useValue($originalModels).length > 0;
+  const textureDefs = useValue($updatedTextureDefs);
   const textureOptions = useMemo(
     () =>
       textureDefs.flatMap(({ bufferKeys, width, height }, textureIndex) => {
