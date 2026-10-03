@@ -1,5 +1,4 @@
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
-import O from '@/constants/StructOffsets';
 import { showError } from '@/modules/error-messages';
 import {
   $modelIndex,
@@ -12,10 +11,10 @@ import {
   $updatedTextureDefs
 } from '@/derivedState';
 import type { NLUITextureDef, TextureDataUrlType } from '@/types';
-import { hslToRgb, rgbToHsl } from '@/utils/color-conversions';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
 import globalBuffers from '@/utils/data/globalBuffers';
+import writeVertexColorToBuffer from '@/utils/polygons/writeVertexColorToBuffer';
 import { HslValues, TextureImageBufferKeys } from '@/utils/textures';
 import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
 import { ClientThread } from '@/utils/threads';
@@ -61,7 +60,6 @@ import {
 } from './modelDataStore';
 import {
   ApplySelectedVertexGradientPayload,
-  ApplySelectedVertexHslPayload,
   LoadTexturesPayload
 } from './modelDataTypes';
 
@@ -83,57 +81,6 @@ export const getTextureHslScopeKey = (
   }
 
   return `${textureIndex}:uv:${uvPixelByteIndexes.join(',')}`;
-};
-
-const hexToNormalizedColor = (hexColor: string): NLColor | undefined => {
-  const hex = hexColor.replace(/^#/, '');
-
-  if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
-    return undefined;
-  }
-
-  return [
-    parseInt(hex.slice(0, 2), 16) / 0xff,
-    parseInt(hex.slice(2, 4), 16) / 0xff,
-    parseInt(hex.slice(4, 6), 16) / 0xff
-  ];
-};
-
-const normalizedColorChannelToByte = (channel: number) =>
-  Math.round(Math.min(Math.max(channel, 0), 1) * 0xff);
-
-export const writeVertexColorToBuffer = (
-  polygonBuffer: Uint8Array,
-  contentAddress: number,
-  color: NLColorRGBA
-) => {
-  const colorOffset = contentAddress + O.Vertex.COLORS;
-
-  if (colorOffset + 3 >= polygonBuffer.length) {
-    return;
-  }
-
-  polygonBuffer[colorOffset] = normalizedColorChannelToByte(color[2]);
-  polygonBuffer[colorOffset + 1] = normalizedColorChannelToByte(color[1]);
-  polygonBuffer[colorOffset + 2] = normalizedColorChannelToByte(color[0]);
-  polygonBuffer[colorOffset + 3] = normalizedColorChannelToByte(color[3]);
-};
-
-const adjustNormalizedColorHsl = (
-  color: NLColorRGBA,
-  hsl: HslValues
-): NLColorRGBA => {
-  const { h, s, l } = rgbToHsl(
-    normalizedColorChannelToByte(color[0]),
-    normalizedColorChannelToByte(color[1]),
-    normalizedColorChannelToByte(color[2])
-  );
-  const adjustedH = (h + hsl.h + 360) % 360;
-  const adjustedS = Math.max(0, Math.min(s + hsl.s, 100));
-  const adjustedL = Math.max(0, Math.min(l + hsl.l, 100));
-  const { r, g, b } = hslToRgb(adjustedH, adjustedS, adjustedL);
-
-  return [r / 0xff, g / 0xff, b / 0xff, color[3]];
 };
 
 const getGradientDirection = (angle: number, tilt: number) => {
@@ -326,129 +273,6 @@ export const processPolygonFile = async (file: File) => {
       $textureIndex.set(0);
       $selectedObjectIds.set({});
     });
-    return result;
-  } catch {
-    return undefined;
-  }
-};
-
-export const applySelectedVertexColor = async ({
-  hexColor
-}: {
-  hexColor: string;
-}) => {
-  try {
-    const modelIndex = $modelIndex.get();
-    const selectedIds = $selectedObjectIds.get();
-    const model = $models.get()[modelIndex];
-    const color = hexToNormalizedColor(hexColor);
-
-    if (!model || !color) {
-      const result = { modelIndex, vertexColorUpdates: [] };
-      $models.set(
-        produce($models.get(), (models) => {
-          applySelectedVertexColorFulfilled(models, { payload: result });
-        })
-      );
-      return result;
-    }
-
-    const vertexColorUpdatesByAddress = new Map<number, NLColorRGBA>();
-
-    Object.keys(selectedIds).forEach((objectKey) => {
-      if (!selectedIds[objectKey]) {
-        return;
-      }
-
-      const indexes = objectKey.split('_').map(Number);
-
-      if (indexes.length !== 3 || !indexes.every(Number.isInteger)) {
-        return;
-      }
-
-      const [meshIndex, polygonIndex, vertexIndex] = indexes;
-      const mesh = model.meshes[meshIndex];
-
-      if (!mesh?.hasColoredVertices) {
-        return;
-      }
-
-      const vertex = mesh.polygons[polygonIndex]?.vertices[vertexIndex];
-
-      if (!vertex) {
-        return;
-      }
-
-      vertexColorUpdatesByAddress.set(vertex.contentAddress, [
-        color[0],
-        color[1],
-        color[2],
-        vertex.colors?.[3] ?? 1
-      ]);
-    });
-
-    const polygonBufferKey = $polygonBufferKey.get();
-
-    if (polygonBufferKey) {
-      const polygonBuffer = globalBuffers.get(polygonBufferKey);
-
-      vertexColorUpdatesByAddress.forEach((vertexColor, contentAddress) => {
-        writeVertexColorToBuffer(polygonBuffer, contentAddress, vertexColor);
-      });
-    }
-
-    const result = {
-      modelIndex,
-      vertexColorUpdates: Array.from(
-        vertexColorUpdatesByAddress.entries(),
-        ([contentAddress, vertexColor]) => ({
-          contentAddress,
-          color: vertexColor
-        })
-      )
-    };
-    $models.set(
-      produce($models.get(), (models) => {
-        applySelectedVertexColorFulfilled(models, { payload: result });
-      })
-    );
-    return result;
-  } catch {
-    return undefined;
-  }
-};
-
-export const applySelectedVertexHsl = async ({
-  baseVertexColors,
-  hsl
-}: ApplySelectedVertexHslPayload) => {
-  try {
-    const modelIndex = $modelIndex.get();
-    const vertexColorUpdates = baseVertexColors.map(
-      ({ contentAddress, color }) => ({
-        contentAddress,
-        color: adjustNormalizedColorHsl(color, hsl)
-      })
-    );
-    const polygonBufferKey = $polygonBufferKey.get();
-
-    if (polygonBufferKey) {
-      const polygonBuffer = globalBuffers.get(polygonBufferKey);
-
-      vertexColorUpdates.forEach(({ contentAddress, color }) => {
-        writeVertexColorToBuffer(polygonBuffer, contentAddress, color);
-      });
-    }
-
-    const result = {
-      modelIndex,
-      vertexColorUpdates
-    };
-    $models.set(
-      produce($models.get(), (models) => {
-        applySelectedVertexColorFulfilled(models, { payload: result });
-      })
-    );
     return result;
   } catch {
     return undefined;

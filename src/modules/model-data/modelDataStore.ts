@@ -1,3 +1,13 @@
+import {
+  $modelIndex,
+  $selectedObjectIds
+} from '@/modules/object-viewer/objectViewerStore';
+import {
+  adjustNormalizedColorHsl,
+  hexToNormalizedColor
+} from '@/utils/color-conversions';
+import globalBuffers from '@/utils/data/globalBuffers';
+import writeVertexColorToBuffer from '@/utils/polygons/writeVertexColorToBuffer';
 import type {
   AsyncState,
   NLUITextureDef,
@@ -8,6 +18,7 @@ import { batch, observable } from '@legendapp/state';
 import { produce } from 'immer';
 import {
   ApplySelectedVertexColorResult,
+  ApplySelectedVertexHslPayload,
   ModelDataPatchTextureUpdate,
   ModelDataState,
   TextureHslSession
@@ -117,6 +128,129 @@ export const applySelectedVertexColorFulfilled = (
       });
     });
   });
+};
+
+export const applySelectedVertexColor = ({
+  hexColor
+}: {
+  hexColor: string;
+}) => {
+  try {
+    const modelIndex = $modelIndex.get();
+    const selectedIds = $selectedObjectIds.get();
+    const model = $models.get()[modelIndex];
+    const color = hexToNormalizedColor(hexColor);
+
+    if (!model || !color) {
+      const result = { modelIndex, vertexColorUpdates: [] };
+      $models.set(
+        produce($models.get(), (models) => {
+          applySelectedVertexColorFulfilled(models, { payload: result });
+        })
+      );
+      return result;
+    }
+
+    const vertexColorUpdatesByAddress = new Map<number, NLColorRGBA>();
+
+    Object.keys(selectedIds).forEach((objectKey) => {
+      if (!selectedIds[objectKey]) {
+        return;
+      }
+
+      const indexes = objectKey.split('_').map(Number);
+
+      if (indexes.length !== 3 || !indexes.every(Number.isInteger)) {
+        return;
+      }
+
+      const [meshIndex, polygonIndex, vertexIndex] = indexes;
+      const mesh = model.meshes[meshIndex];
+
+      if (!mesh?.hasColoredVertices) {
+        return;
+      }
+
+      const vertex = mesh.polygons[polygonIndex]?.vertices[vertexIndex];
+
+      if (!vertex) {
+        return;
+      }
+
+      vertexColorUpdatesByAddress.set(vertex.contentAddress, [
+        color[0],
+        color[1],
+        color[2],
+        vertex.colors?.[3] ?? 1
+      ]);
+    });
+
+    const polygonBufferKey = $polygonBufferKey.get();
+
+    if (polygonBufferKey) {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+
+      vertexColorUpdatesByAddress.forEach((vertexColor, contentAddress) => {
+        writeVertexColorToBuffer(polygonBuffer, contentAddress, vertexColor);
+      });
+    }
+
+    const result = {
+      modelIndex,
+      vertexColorUpdates: Array.from(
+        vertexColorUpdatesByAddress.entries(),
+        ([contentAddress, vertexColor]) => ({
+          contentAddress,
+          color: vertexColor
+        })
+      )
+    };
+    $models.set(
+      produce($models.get(), (models) => {
+        applySelectedVertexColorFulfilled(models, { payload: result });
+      })
+    );
+    return result;
+  } catch {
+    return undefined;
+  }
+};
+
+export const applySelectedVertexHsl = ({
+  baseVertexColors,
+  hsl
+}: ApplySelectedVertexHslPayload) => {
+  try {
+    const modelIndex = $modelIndex.get();
+    const vertexColorUpdates = baseVertexColors.map(
+      ({ contentAddress, color }) => ({
+        contentAddress,
+        color: adjustNormalizedColorHsl(color, hsl)
+      })
+    );
+    const polygonBufferKey = $polygonBufferKey.get();
+
+    if (polygonBufferKey) {
+      const polygonBuffer = globalBuffers.get(polygonBufferKey);
+
+      vertexColorUpdates.forEach(({ contentAddress, color }) => {
+        writeVertexColorToBuffer(polygonBuffer, contentAddress, color);
+      });
+    }
+
+    const result = {
+      modelIndex,
+      vertexColorUpdates
+    };
+    $models.set(
+      produce($models.get(), (models) => {
+        applySelectedVertexColorFulfilled(models, { payload: result });
+      })
+    );
+    return result;
+  } catch {
+    return undefined;
+  }
 };
 
 export function replaceTextureImage({

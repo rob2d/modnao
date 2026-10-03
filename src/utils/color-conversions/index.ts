@@ -7,3 +7,6 @@ export { default as rgbaToArgb1555 } from './rgbaToArgb1555';
 export { default as rgbaToArgb4444 } from './rgbaToArgb4444';
 export { default as rgbaToRgb565 } from './rgbaToRgb565';
 export { default as rgba8888TargetOps } from './rgba8888TargetOps';
+export { default as hexToNormalizedColor } from './hexToNormalizedColor';
+export { default as normalizedColorChannelToByte } from './normalizedColorChannelToByte';
+export { default as adjustNormalizedColorHsl } from './adjustNormalizedColorHsl';

@@ -1,6 +1,7 @@
 import O from '@/constants/StructOffsets';
 import { showError } from '@/modules/error-messages';
 import globalBuffers from '@/utils/data/globalBuffers';
+import writeVertexColorToBuffer from '@/utils/polygons/writeVertexColorToBuffer';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
 import { batch } from '@legendapp/state';
 import { produce } from 'immer';
@@ -15,7 +16,6 @@ import {
   applySelectedVertexColorFulfilled,
   replaceTextureImage
 } from './modelDataStore';
-import { writeVertexColorToBuffer } from './modelDataThunks';
 import parseModelDataPatchManifest from './parseModelDataPatchManifest';
 import validateModelDataPatchCompatibility, {
   getModelDataPatchPrefix,

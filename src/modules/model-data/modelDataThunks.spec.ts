@@ -21,10 +21,10 @@ import {
   $textureDefs,
   $textureFileName,
   $textureFileType,
+  applySelectedVertexColor,
   resetModelData
 } from './modelDataStore';
 import {
-  applySelectedVertexColor,
   downloadTextureFile,
   processPolygonFile,
   processTextureFile
