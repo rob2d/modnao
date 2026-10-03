@@ -1,33 +1,26 @@
-import {
-  JSX,
-  MouseEvent,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo
-} from 'react';
+import SceneOptionsContext, {
+  TextureViewMode
+} from '@/contexts/SceneOptionsContext';
+import { showDialog } from '@/modules/dialogs';
 import {
   downloadModelDataPatch,
   downloadTextureFile
 } from '@/modules/model-data';
-import { showDialog } from '@/modules/dialogs';
 import {
-  selectCanExportTextures,
-  selectContentViewMode,
-  selectHasLoadedTextureFile,
-  selectLoadTexturesState,
-  selectMeshSelectionType,
-  selectModel,
-  selectModels,
-  selectResourceAttribs,
-  selectSelectedObjectIds,
-  selectSelectedTexture,
-  selectTextureFileName,
-  selectUpdatedTextureDefs
+  $canExportTextures,
+  $contentViewMode,
+  $hasLoadedTextureFile,
+  $loadTexturesState,
+  $meshSelectionType,
+  $model,
+  $models,
+  $resourceAttribs,
+  $selectedObjectIds,
+  $selectedTexture,
+  $textureFileName,
+  $updatedTextureDefs
 } from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import GuiPanelButton from './GuiPanelButton';
-import GuiPanelTexture from './textures/GuiPanelTexture';
+import { mdiSquare, mdiSquareOpacity } from '@mdi/js';
 import {
   Box,
   Chip,
@@ -37,35 +30,45 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { mdiSquare, mdiSquareOpacity } from '@mdi/js';
-import GuiPanelSection from './GuiPanelSection';
-import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
+import {
+  JSX,
+  MouseEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo
+} from 'react';
 import MdiSvgIcon from '../MdiSvgIcon';
-import SceneOptionsContext, {
-  TextureViewMode
-} from '@/contexts/SceneOptionsContext';
+import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
+import GuiPanelButton from './GuiPanelButton';
+import GuiPanelSection from './GuiPanelSection';
+import GuiPanelTexture from './textures/GuiPanelTexture';
 
 export default function GuiPanelViewOptions() {
+  'use no memo';
+
   const { textureViewMode, setTextureViewMode } =
     useContext(SceneOptionsContext);
-  const dispatch = useAppDispatch();
-  const model = useAppSelector(selectModel);
-  const canExportTextures = useAppSelector(selectCanExportTextures);
-  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
-  const textureFileName = useAppSelector(selectTextureFileName);
-  const selectedTexture = useAppSelector(selectSelectedTexture);
-  const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
-  const meshSelectionType = useAppSelector(selectMeshSelectionType);
-  const contentViewMode = useAppSelector(selectContentViewMode);
-  const loadTexturesState = useAppSelector(selectLoadTexturesState);
-  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
-  const models = useAppSelector(selectModels);
-  const resourceAttribs = useAppSelector(selectResourceAttribs);
+  const model = $model.value;
+  const canExportTextures = $canExportTextures.value;
+  const textureDefs = $updatedTextureDefs.value;
+  const textureFileName = $textureFileName.value;
+  const selectedTexture = $selectedTexture.value;
+  const selectedObjectIds = $selectedObjectIds.value;
+  const meshSelectionType = $meshSelectionType.value;
+  const contentViewMode = $contentViewMode.value;
+  const loadTexturesState = $loadTexturesState.value;
+  const hasLoadedTextureFile = $hasLoadedTextureFile.value;
+  const models = $models.value;
+  const resourceAttribs = $resourceAttribs.value;
 
   const selectedTextureReferences = useMemo(() => {
     const references = new Map<
       number,
-      { meshIndex: number; polygonIndexes?: number[] }[]
+      {
+        meshIndex: number;
+        polygonIndexes?: number[];
+      }[]
     >();
 
     for (const objectKey in selectedObjectIds) {
@@ -116,22 +119,20 @@ export default function GuiPanelViewOptions() {
   }, [textureDefs && selectedTexture]);
 
   const onExportTextureFile = useCallback(() => {
-    dispatch(downloadTextureFile());
-  }, [dispatch]);
+    downloadTextureFile();
+  }, []);
 
   const onDownloadPatch = useCallback(() => {
     if (hasLoadedTextureFile) {
-      dispatch(showDialog('model-data-patch-export'));
+      showDialog('model-data-patch-export');
       return;
     }
 
-    dispatch(
-      downloadModelDataPatch({
-        textureIndexes: [],
-        onlyChangedVertexColors: false
-      })
-    );
-  }, [dispatch, hasLoadedTextureFile]);
+    downloadModelDataPatch({
+      textureIndexes: [],
+      onlyChangedVertexColors: false
+    });
+  }, [hasLoadedTextureFile]);
 
   const onSetTextureViewMode = useCallback(
     (_: MouseEvent<HTMLElement>, mode: TextureViewMode | null) => {
@@ -223,9 +224,7 @@ export default function GuiPanelViewOptions() {
 
   return (
     <GuiPanelSection
-      title={`Textures ${
-        hasLoadedTextureFile ? ` (${textureDefs.length})` : ''
-      }`}
+      title={`Textures ${hasLoadedTextureFile ? ` (${textureDefs.length})` : ''}`}
       subtitle={textureFileName}
       subtitleLoadingState={loadTexturesState}
       headerActions={

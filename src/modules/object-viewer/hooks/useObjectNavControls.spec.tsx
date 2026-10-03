@@ -1,23 +1,18 @@
-import React, { useContext } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { useKeyPress } from '@react-typed-hooks/use-key-press';
 import SceneOptionsContext, {
   SceneOptionsContextProvider
 } from '@/contexts/SceneOptionsContext';
+import { useKeyPress } from '@react-typed-hooks/use-key-press';
+import { render, screen, waitFor } from '@testing-library/react';
+import { useContext } from 'react';
 import useObjectNavControls from './useObjectNavControls';
 
 jest.mock('@react-typed-hooks/use-key-press', () => ({
   useKeyPress: jest.fn()
 }));
-
-jest.mock('@/storeTypings', () => {
-  const actualStoreTypings = jest.requireActual('@/storeTypings');
-
-  return {
-    ...actualStoreTypings,
-    useAppDispatch: jest.fn(() => jest.fn())
-  };
-});
+jest.mock('@/modules/object-viewer/objectViewerStore', () => ({
+  navToPrevObject: jest.fn(),
+  navToNextObject: jest.fn()
+}));
 
 interface UseKeyPressParams {
   targetKey: string;

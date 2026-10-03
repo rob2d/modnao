@@ -1,7 +1,7 @@
-import { screen } from '@testing-library/react';
+import { AppState } from '@/store';
 import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
+import { screen } from '@testing-library/react';
 import ErrorMessage from './ErrorMessage';
-import { AppState } from '@/storeTypings';
 
 describe('ErrorMessage', () => {
   it('renders a title with an error message when an error exists', async () => {

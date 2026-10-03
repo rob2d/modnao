@@ -1,13 +1,11 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { selectReplacementTexture } from '../replaceTextureSlice';
-import { useAppDispatch } from '@/storeTypings';
+import { selectReplacementTexture } from '../replaceTextureStore';
 
 export default function useTextureReplaceDropzone(textureIndex: number) {
-  const dispatch = useAppDispatch();
   const onSelectNewImageFile = useCallback(
     async (imageFile: File | SharedArrayBuffer) => {
-      dispatch(selectReplacementTexture({ imageFile, textureIndex }));
+      selectReplacementTexture({ imageFile, textureIndex });
     },
     [textureIndex]
   );

@@ -1,10 +1,10 @@
 import { closeDialog, DialogType } from '@/modules/dialogs';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { $dialogs } from '@/modules/dialogs/dialogsStore';
+import { ModelDataPatchExportDialog } from '@/modules/model-data';
+import { ReplaceTexture } from '@/modules/replace-texture';
 import { Dialog, DialogContent } from '@mui/material';
 import { FC, useCallback } from 'react';
 import AppInfo from './app-info/AppInfo';
-import { ReplaceTexture } from '@/modules/replace-texture';
-import { ModelDataPatchExportDialog } from '@/modules/model-data';
 import FileSupportInfo from './file-support-info/FileSupportInfo';
 
 const Dialogs: Record<DialogType, FC> = {
@@ -15,8 +15,9 @@ const Dialogs: Record<DialogType, FC> = {
 };
 
 export default function AppDialog() {
-  const dispatch = useAppDispatch();
-  const { dialogShown, sx } = useAppSelector((state) => state.dialogs);
+  'use no memo';
+
+  const { dialogShown, sx } = $dialogs.value;
   const DialogComponent = dialogShown ? Dialogs[dialogShown] : null;
   const appInfoDialogSx =
     dialogShown !== 'app-info'
@@ -43,7 +44,7 @@ export default function AppDialog() {
         break;
       }
       default: {
-        dispatch(closeDialog());
+        closeDialog();
         break;
       }
     }

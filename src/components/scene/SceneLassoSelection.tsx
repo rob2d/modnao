@@ -1,18 +1,17 @@
-import { type RefObject, useCallback, useEffect } from 'react';
-import { Box } from '@mui/material';
-import { useThree } from '@react-three/fiber';
-import { Vector3 } from 'three';
-import type { DisplayedMesh } from '@/selectors';
+import { useLassoPath } from '@/hooks';
+import type { SceneVertexInteractionMode } from '@/modules/object-viewer';
 import {
   type MeshSelectionType,
   selectObjectKeys
 } from '@/modules/object-viewer';
-import { useLassoPath } from '@/hooks';
-import { useAppDispatch } from '@/storeTypings';
+import type { DisplayedMesh } from '@/selectors';
 import type { NodeSelectionMergeMode } from '@/types';
-import { getInteractionBounds, isPointInLasso } from '@/utils/interaction';
 import type { InteractionPoint } from '@/utils/interaction';
-import type { SceneVertexInteractionMode } from '@/modules/object-viewer';
+import { getInteractionBounds, isPointInLasso } from '@/utils/interaction';
+import { Box } from '@mui/material';
+import { useThree } from '@react-three/fiber';
+import { type RefObject, useCallback, useEffect } from 'react';
+import { Vector3 } from 'three';
 
 const MIN_LASSO_BOUNDS_SIZE = 8;
 
@@ -45,7 +44,6 @@ export default function SceneLassoSelection({
   vertexInteractionMode
 }: SceneLassoSelectionProps) {
   const { camera, size } = useThree();
-  const dispatch = useAppDispatch();
   const lassoEnabled =
     meshSelectionType === 'vertex' && vertexInteractionMode === 'select';
   const onCompleteLasso = useCallback(
@@ -100,14 +98,12 @@ export default function SceneLassoSelection({
         });
       });
 
-      dispatch(
-        selectObjectKeys({
-          objectKeys: selectedVertexKeys,
-          selectionMergeMode
-        })
-      );
+      selectObjectKeys({
+        objectKeys: selectedVertexKeys,
+        selectionMergeMode
+      });
     },
-    [camera, dispatch, meshGroups, size]
+    [camera, meshGroups, size]
   );
   const { isLassoActive, lassoPoints, lassoViewportBounds } = useLassoPath(
     canvasRef,

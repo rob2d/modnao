@@ -1,12 +1,10 @@
-import clsx from 'clsx';
-import {
-  MouseEvent,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import type { TextureModelReference } from '@/modules/model-data';
+import { setObjectViewedIndex } from '@/modules/object-viewer';
+import { useTextureReplaceDropzone } from '@/modules/replace-texture';
+import { $model, $models } from '@/selectors';
+import type { ContentViewMode, NLUITextureDef } from '@/types';
+import { createUvClipPaths, UvClipPath } from '@/utils/textures';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
@@ -18,19 +16,20 @@ import {
   Typography
 } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material/styles';
-import type { ContentViewMode, NLUITextureDef } from '@/types';
+import clsx from 'clsx';
+import {
+  MouseEvent,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import GuiPanelTextureMenu from './GuiPanelTextureMenu';
 import GuiPanelTextureModelNavMenu from './GuiPanelTextureModelNavMenu';
 import GuiPanelTextureUvPreview, {
   type ClipPathGroup
 } from './GuiPanelTextureUvPreview';
-import type { TextureModelReference } from '@/modules/model-data';
-import { selectModel, selectModels } from '@/selectors';
-import { setObjectViewedIndex } from '@/modules/object-viewer';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import SceneOptionsContext from '@/contexts/SceneOptionsContext';
-import { useTextureReplaceDropzone } from '@/modules/replace-texture';
-import { createUvClipPaths, UvClipPath } from '@/utils/textures';
 
 const HOVERED_MODEL_UV_COLORS = [
   [255, 209, 102],
@@ -157,6 +156,8 @@ const createMeshUvClipPaths = (
 };
 
 export default function GuiPanelTexture(props: GuiPanelTextureProps) {
+  'use no memo';
+
   const {
     selected,
     textureDef,
@@ -164,10 +165,9 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     selectedTextureReferences = [],
     contentViewMode = 'textures'
   } = props;
-  const dispatch = useAppDispatch();
   const textureContainerRef = useRef<HTMLDivElement>(null);
-  const model = useAppSelector(selectModel);
-  const models = useAppSelector(selectModels);
+  const model = $model.value;
+  const models = $models.value;
   const [hoveredModelReference, setHoveredModelReference] =
     useState<TextureModelReference>();
   const [textureMenuAnchorEl, setTextureMenuAnchorEl] =
@@ -319,7 +319,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
       ...(!isSelectable
         ? {}
         : {
-            onClick: () => dispatch(setObjectViewedIndex(textureIndex)),
+            onClick: () => setObjectViewedIndex(textureIndex),
             tabIndex: 0
           })
     }),

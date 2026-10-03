@@ -1,7 +1,7 @@
+import { getState } from '@/store';
+import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { rootReducer } from '@/store';
-import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import SceneVertexModeControls from './SceneVertexModeControls';
 
 const createVertex = (index: number): NLVertex => ({
@@ -116,9 +116,9 @@ describe('SceneVertexModeControls', () => {
 
   it('renders vertex selection actions when vertices are selectable', async () => {
     const user = userEvent.setup();
-    const initialAppState = rootReducer(undefined, { type: 'test/init' });
+    const initialAppState = getState();
 
-    const { store } = renderTestWithProviders(
+    renderTestWithProviders(
       <SceneVertexModeControls value='select' onChange={jest.fn()} />,
       {
         preloadedState: {
@@ -140,7 +140,7 @@ describe('SceneVertexModeControls', () => {
     await user.click(
       screen.getByRole('button', { name: 'Select all vertices' })
     );
-    expect(store?.getState().objectViewer.selectedIds).toEqual({
+    expect(getState().objectViewer.selectedIds).toEqual({
       '0_0_0': true,
       '0_0_1': true
     });
@@ -149,6 +149,6 @@ describe('SceneVertexModeControls', () => {
       screen.getByRole('button', { name: 'Clear vertex selection' })
     );
 
-    expect(store?.getState().objectViewer.selectedIds).toEqual({});
+    expect(getState().objectViewer.selectedIds).toEqual({});
   });
 });

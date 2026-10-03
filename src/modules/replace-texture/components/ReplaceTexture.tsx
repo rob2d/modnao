@@ -1,7 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import Cropper, { Area } from 'react-easy-crop';
-import { Image } from 'image-js';
-import Img from 'next/image';
+import ImageBufferCanvas from '@/components/ImageBufferCanvas';
+import { useDebouncedEffect } from '@/hooks';
+import { closeDialog } from '@/modules/dialogs';
+import {
+  $replacementImage,
+  $replacementTextureIndex,
+  $updatedTextureDefs
+} from '@/selectors';
+import type { NLUITextureDef } from '@/types';
+import globalBuffers from '@/utils/data/globalBuffers';
+import cropImage from '@/utils/images/cropImage';
 import CheckIcon from '@mui/icons-material/Check';
 import CropRotateIcon from '@mui/icons-material/CropRotate';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
@@ -21,21 +28,13 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import {
-  selectReplacementImage,
-  selectReplacementTextureIndex,
-  selectUpdatedTextureDefs
-} from '@/selectors';
-import { closeDialog } from '@/modules/dialogs';
-import { applyReplacedTextureImage } from '../replaceTextureSlice';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import { useDebouncedEffect } from '@/hooks';
-import useTextureReplaceDropzone from '../hooks/useTextureReplaceDropzone';
-import cropImage from '@/utils/images/cropImage';
-import type { NLUITextureDef } from '@/types';
+import { Image } from 'image-js';
+import Img from 'next/image';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Cropper, { Area } from 'react-easy-crop';
 import { useFilePicker } from 'use-file-picker';
-import globalBuffers from '@/utils/data/globalBuffers';
-import ImageBufferCanvas from '@/components/ImageBufferCanvas';
+import useTextureReplaceDropzone from '../hooks/useTextureReplaceDropzone';
+import { applyReplacedTextureImage } from '../replaceTextureStore';
 
 const DEFAULT_FLIP_STATE = { horizontal: false, vertical: false };
 
@@ -44,7 +43,8 @@ const optionAppliedCheckmark = (
 );
 
 export default function ReplaceTexture() {
-  const dispatch = useAppDispatch();
+  'use no memo';
+
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -96,21 +96,19 @@ export default function ReplaceTexture() {
   }, [rotation]);
 
   const onCancelReplaceTexture = useCallback(() => {
-    dispatch(closeDialog());
-  }, [dispatch]);
+    closeDialog();
+  }, []);
 
   const onApplyReplaceTexture = useCallback(() => {
     if (!processedRgba) {
       return;
     }
-    dispatch(applyReplacedTextureImage(new Uint8Array(processedRgba)));
-  }, [processedRgba, dispatch]);
+    applyReplacedTextureImage(new Uint8Array(processedRgba));
+  }, [processedRgba]);
 
-  const textureDefs: NLUITextureDef[] = useAppSelector(
-    selectUpdatedTextureDefs
-  );
-  const textureIndex = useAppSelector(selectReplacementTextureIndex);
-  const replacementImage = useAppSelector(selectReplacementImage);
+  const textureDefs: NLUITextureDef[] = $updatedTextureDefs.value;
+  const textureIndex = $replacementTextureIndex.value;
+  const replacementImage = $replacementImage.value;
   const originalWidth = textureDefs?.[textureIndex]?.width || 0;
   const originalHeight = textureDefs?.[textureIndex]?.height || 0;
   const textureFormat = textureDefs?.[textureIndex]?.colorFormat;

@@ -1,14 +1,17 @@
-import CropFreeIcon from '@mui/icons-material/CropFree';
-import DownloadIcon from '@mui/icons-material/Download';
-import UndoIcon from '@mui/icons-material/Undo';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { revertTextureImage } from '../modelDataSlice';
-import { selectTextureFileName, selectUpdatedTextureDefs } from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import { useKeyPressEffect } from '@/hooks';
+import { $modelData } from '@/modules/model-data/modelDataStore';
+import { $textureFileName, $updatedTextureDefs } from '@/selectors';
+import globalBuffers from '@/utils/data/globalBuffers';
 import {
   createB64ImgFromTextureDef,
   TextureImageBufferKeys
 } from '@/utils/textures';
+import CropFreeIcon from '@mui/icons-material/CropFree';
+import DownloadIcon from '@mui/icons-material/Download';
+import UndoIcon from '@mui/icons-material/Undo';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import saveAs from 'file-saver';
 import {
   ReactNode,
   useContext,
@@ -18,10 +21,7 @@ import {
   useState
 } from 'react';
 import { useFilePicker } from 'use-file-picker';
-import saveAs from 'file-saver';
-import globalBuffers from '@/utils/data/globalBuffers';
-import { useKeyPressEffect } from '@/hooks';
-import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import { revertTextureImage } from '../modelDataStore';
 
 interface TextureOption {
   label: string;
@@ -60,11 +60,12 @@ export default function useTextureOptions(
   ignoreKeyboardFunctions = false,
   onSelectOption?: () => void
 ) {
-  const dispatch = useAppDispatch();
+  'use no memo';
+
   const { textureViewMode } = useContext(SceneOptionsContext);
   const openFileSelector = useTextureReplacementPicker(onReplaceImageFile);
-  const textureFileName = useAppSelector(selectTextureFileName);
-  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+  const textureFileName = $textureFileName.value;
+  const textureDefs = $updatedTextureDefs.value;
   const textureViewModeRef = useRef(textureViewMode);
 
   // when menu is open, toggle translucent download as hotkey is pressed
@@ -94,9 +95,7 @@ export default function useTextureOptions(
 
   const dlAsTranslucent = !ignoreKeyboardFunctions && wantsTranslucentDownload;
 
-  const textureHistory = useAppSelector(
-    (s) => s.modelData.textureHistory[textureIndex]
-  );
+  const textureHistory = $modelData.value.textureHistory[textureIndex];
 
   const options = useMemo(
     (): TextureOption[] => [
@@ -108,7 +107,7 @@ export default function useTextureOptions(
         disabled: !textureHistory?.length,
         onClick() {
           if (textureHistory?.length) {
-            dispatch(revertTextureImage({ textureIndex }));
+            revertTextureImage({ textureIndex });
           }
           onSelectOption?.();
         }

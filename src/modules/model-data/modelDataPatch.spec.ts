@@ -1,12 +1,11 @@
-import JSZip from 'jszip';
-import { Image } from 'image-js';
 import O from '@/constants/StructOffsets';
-import { setupStore } from '@/store';
+import { getState, resetState } from '@/store';
 import type { ResourceAttribs } from '@/types';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { createTextureDef } from '@/utils/textures';
+import { Image } from 'image-js';
+import JSZip from 'jszip';
 import loadModelDataPatch from './loadModelDataPatch';
-import { processPolygonFile } from './modelDataThunks';
 import {
   createModelDataPatchManifest,
   default as parseModelDataPatchManifest
@@ -102,7 +101,7 @@ describe('modelDataPatch', () => {
       type: 'arraybuffer'
     });
     const file = new File([zipBuffer], 'stg01.psychadelic-dark.mnp.zip');
-    const store = setupStore();
+    resetState();
     const contentAddress = 16;
     const createVertex = (): NLVertex => ({
       address: contentAddress,
@@ -204,23 +203,28 @@ describe('modelDataPatch', () => {
       })
     ];
 
-    store.dispatch({
-      type: processPolygonFile.fulfilled.type,
-      payload: {
+    resetState({
+      modelData: {
+        ...getState().modelData,
         models,
         originalModels,
         textureDefs,
-        fileName: 'STG01POL.BIN',
+        polygonFileName: 'STG01POL.BIN',
         polygonBufferKey,
         resourceAttribs
+      },
+      objectViewer: {
+        ...getState().objectViewer,
+        modelIndex: 0,
+        textureIndex: 0
       }
     });
 
-    const result = await store.dispatch(loadModelDataPatch(file));
-    const state = store.getState().modelData;
+    const result = await loadModelDataPatch(file);
+    const state = getState().modelData;
     const colorOffset = contentAddress + O.Vertex.COLORS;
 
-    expect(loadModelDataPatch.fulfilled.match(result)).toBe(true);
+    expect(result).toBeDefined();
     expect(state.models[0].meshes[0].polygons[0].vertices[0].colors).toEqual([
       1, 0.5, 0, 0.25
     ]);

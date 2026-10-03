@@ -20,6 +20,8 @@ interface VertexGradientTransformControlsProps {
 function VertexGradientTransformControls({
   $gradientTransform
 }: VertexGradientTransformControlsProps) {
+  'use no memo';
+
   const { angle, tilt, pivotPoint } = $gradientTransform.value;
 
   return (

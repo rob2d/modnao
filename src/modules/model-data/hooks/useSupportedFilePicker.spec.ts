@@ -1,9 +1,24 @@
+import loadModelDataPatch from '../loadModelDataPatch';
+import {
+  loadCharacterPortraitsFile,
+  loadPolygonFile,
+  loadTextureFile
+} from '../modelDataThunks';
 import { handleFileInput } from './useSupportedFilePicker';
-import { loadTextureFile } from '../modelDataThunks';
+
+jest.mock('../modelDataThunks', () => ({
+  loadTextureFile: jest.fn(),
+  loadPolygonFile: jest.fn(),
+  loadCharacterPortraitsFile: jest.fn()
+}));
+jest.mock('../loadModelDataPatch', () => ({
+  __esModule: true,
+  default: jest.fn()
+}));
 
 describe('handleFileInput', () => {
   const onError = jest.fn();
-  const dispatch = jest.fn();
+
   const polygonFilename = 'examplePolygonFileName';
 
   const getMockFilesWithNames = (filenames: string[]) =>
@@ -17,36 +32,20 @@ describe('handleFileInput', () => {
     jest.clearAllTimers();
     jest.useRealTimers();
     onError.mockClear();
-    dispatch.mockClear();
+    jest.clearAllMocks();
   });
 
   it.each(['DM08CAB.BIN', 'dm08cab.bin', 'DM08CAB.mn.BIN'])(
     'dispatches %s to the raw texture loader without a polygon file',
     async (filename) => {
       const files = getMockFilesWithNames([filename]);
-      const pendingActions: unknown[] = [];
-      const thunkDispatch = jest.fn((thunk) =>
-        thunk(
-          (action: unknown) => pendingActions.push(action),
-          () => ({
-            modelData: {}
-          })
-        )
-      );
-
-      await handleFileInput(files, onError, thunkDispatch, undefined);
+      await handleFileInput(files, onError, undefined);
 
       expect(onError).not.toHaveBeenCalled();
-      expect(thunkDispatch).toHaveBeenCalledTimes(1);
-      expect(pendingActions[0]).toMatchObject({
-        type: loadTextureFile.pending.type,
-        meta: {
-          arg: {
-            file: files[0],
-            textureFileType: 'mvc2-intro-cable-ruby',
-            isLzssCompressed: false
-          }
-        }
+      expect(loadTextureFile).toHaveBeenCalledWith({
+        file: files[0],
+        textureFileType: 'mvc2-intro-cable-ruby',
+        isLzssCompressed: false
       });
     }
   );
@@ -56,22 +55,23 @@ describe('handleFileInput', () => {
     ['STG01POL.BIN', 'DM08CAB.BIN'],
     ['DM08CAB.BIN', 'FONT.BIN']
   ])('rejects selecting %s with %s', async (...filenames) => {
-    await handleFileInput(
-      getMockFilesWithNames(filenames),
-      onError,
-      dispatch,
-      undefined
-    );
+    await handleFileInput(getMockFilesWithNames(filenames), onError, undefined);
 
     expect(onError).toHaveBeenCalledTimes(1);
-    expect(dispatch).not.toHaveBeenCalled();
+    expect(loadTextureFile).not.toHaveBeenCalled();
+    expect(loadPolygonFile).not.toHaveBeenCalled();
+    expect(loadCharacterPortraitsFile).not.toHaveBeenCalled();
+    expect(loadModelDataPatch).not.toHaveBeenCalled();
   });
 
   it('should do nothing when no files are selected', async () => {
     const files: File[] = [];
-    await handleFileInput(files, onError, dispatch, polygonFilename);
+    await handleFileInput(files, onError, polygonFilename);
 
-    expect(dispatch).not.toHaveBeenCalled();
+    expect(loadTextureFile).not.toHaveBeenCalled();
+    expect(loadPolygonFile).not.toHaveBeenCalled();
+    expect(loadCharacterPortraitsFile).not.toHaveBeenCalled();
+    expect(loadModelDataPatch).not.toHaveBeenCalled();
     expect(onError).not.toHaveBeenCalled();
   });
 
@@ -80,54 +80,60 @@ describe('handleFileInput', () => {
       new File(['data'], 'invalid.txt', { type: 'text/plain' })
     ];
 
-    await handleFileInput(files, onError, dispatch, polygonFilename);
+    await handleFileInput(files, onError, polygonFilename);
 
     expect(onError).toHaveBeenCalledTimes(1);
-    expect(dispatch).not.toHaveBeenCalled();
+    expect(loadTextureFile).not.toHaveBeenCalled();
+    expect(loadPolygonFile).not.toHaveBeenCalled();
+    expect(loadCharacterPortraitsFile).not.toHaveBeenCalled();
+    expect(loadModelDataPatch).not.toHaveBeenCalled();
   });
 
   it('should accept a patch when a polygon file is loaded', async () => {
     await handleFileInput(
       getMockFilesWithNames(['stg01.mnp.zip']),
       onError,
-      dispatch,
       polygonFilename
     );
 
     expect(onError).not.toHaveBeenCalled();
-    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(loadModelDataPatch).toHaveBeenCalledTimes(1);
   });
 
   it('should reject a patch when no polygon file is loaded', async () => {
     await handleFileInput(
       getMockFilesWithNames(['stg01.mnp.zip']),
       onError,
-      dispatch,
       undefined
     );
 
     expect(onError).toHaveBeenCalledWith(
       'Open the POL.BIN model you want to update before importing a patch.'
     );
-    expect(dispatch).not.toHaveBeenCalled();
+    expect(loadTextureFile).not.toHaveBeenCalled();
+    expect(loadPolygonFile).not.toHaveBeenCalled();
+    expect(loadCharacterPortraitsFile).not.toHaveBeenCalled();
+    expect(loadModelDataPatch).not.toHaveBeenCalled();
   });
 
   it('should reject a patch selected with another file', async () => {
     await handleFileInput(
       getMockFilesWithNames(['stg01.mnp.zip', 'STG01POL.BIN']),
       onError,
-      dispatch,
       polygonFilename
     );
 
     expect(onError).toHaveBeenCalledWith(
       'Choose the patch file by itself. POL.BIN and TEX.BIN files must be loaded first.'
     );
-    expect(dispatch).not.toHaveBeenCalled();
+    expect(loadTextureFile).not.toHaveBeenCalled();
+    expect(loadPolygonFile).not.toHaveBeenCalled();
+    expect(loadCharacterPortraitsFile).not.toHaveBeenCalled();
+    expect(loadModelDataPatch).not.toHaveBeenCalled();
   });
 
   it('should handle supported sets of files without an error', async () => {
-    const restParams = [onError, dispatch, polygonFilename] as const;
+    const restParams = [onError, polygonFilename] as const;
 
     await handleFileInput(
       getMockFilesWithNames(['STG01POL.BIN', 'STG01TEX.BIN']),
@@ -177,7 +183,6 @@ describe('handleFileInput', () => {
     await handleFileInput(
       getMockFilesWithNames(['STG01POL.BIN', 'STG02POL.BIN']),
       onError,
-      dispatch,
       polygonFilename
     );
 
@@ -188,7 +193,6 @@ describe('handleFileInput', () => {
     await handleFileInput(
       getMockFilesWithNames(['STG01TEX.BIN', 'STG02TEX.BIN']),
       onError,
-      dispatch,
       polygonFilename
     );
 
@@ -199,7 +203,6 @@ describe('handleFileInput', () => {
     await handleFileInput(
       getMockFilesWithNames(['STG01POL.BIN', 'STG01TEX.BIN', 'STG02POL.BIN']),
       onError,
-      dispatch,
       polygonFilename
     );
 
@@ -210,7 +213,6 @@ describe('handleFileInput', () => {
     await handleFileInput(
       getMockFilesWithNames(['PL01_FAC.BIN', 'PL02_FAC.BIN']),
       onError,
-      dispatch,
       polygonFilename
     );
 
@@ -221,7 +223,6 @@ describe('handleFileInput', () => {
     await handleFileInput(
       getMockFilesWithNames(['STG01TEX.BIN']),
       onError,
-      dispatch,
       undefined
     );
 
@@ -229,14 +230,12 @@ describe('handleFileInput', () => {
   });
 
   it('should not error or dispatch if no files were selected', async () => {
-    await handleFileInput(
-      getMockFilesWithNames([]),
-      onError,
-      dispatch,
-      polygonFilename
-    );
+    await handleFileInput(getMockFilesWithNames([]), onError, polygonFilename);
 
     expect(onError).not.toHaveBeenCalled();
-    expect(dispatch).not.toHaveBeenCalled();
+    expect(loadTextureFile).not.toHaveBeenCalled();
+    expect(loadPolygonFile).not.toHaveBeenCalled();
+    expect(loadCharacterPortraitsFile).not.toHaveBeenCalled();
+    expect(loadModelDataPatch).not.toHaveBeenCalled();
   });
 });

@@ -1,14 +1,13 @@
-import { type SyntheticEvent, useCallback, useState } from 'react';
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import { Box, Button, Tab, Tabs } from '@mui/material';
-import Contributors from './sections/Contributors';
-import DevLog from './sections/DevLog';
-import OtherProjects from './sections/OtherProjects';
-import GettingStarted from './sections/GettingStarted';
 import AppInfoGuide from '@/components/dialogs/app-info/AppInfoGuide';
 import { closeDialog } from '@/modules/dialogs';
-import { selectIsAppInfoDialogShown } from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { $isAppInfoDialogShown } from '@/selectors';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import { Box, Button, Tab, Tabs } from '@mui/material';
+import { type SyntheticEvent, useCallback, useState } from 'react';
+import Contributors from './sections/Contributors';
+import DevLog from './sections/DevLog';
+import GettingStarted from './sections/GettingStarted';
+import OtherProjects from './sections/OtherProjects';
 
 const appInfoTabs = [
   { label: 'Getting Started', value: 'getting-started' },
@@ -21,12 +20,13 @@ const appInfoTabs = [
 type AppInfoTabValue = (typeof appInfoTabs)[number]['value'];
 
 export default function AppInfo() {
-  const dispatch = useAppDispatch();
+  'use no memo';
+
   const [activeTab, setActiveTab] =
     useState<AppInfoTabValue>('getting-started');
 
   const onClose = useCallback(() => {
-    dispatch(closeDialog());
+    closeDialog();
   }, []);
 
   const onTabChange = useCallback(
@@ -36,7 +36,7 @@ export default function AppInfo() {
     []
   );
 
-  const isAppInfoDialogShown = useAppSelector(selectIsAppInfoDialogShown);
+  const isAppInfoDialogShown = $isAppInfoDialogShown.value;
 
   return (
     <Box

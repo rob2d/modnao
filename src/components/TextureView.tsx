@@ -1,4 +1,13 @@
-import clsx from 'clsx';
+import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
+import { useObjectNavControls, useObjectUINav } from '@/modules/object-viewer';
+import { useTextureReplaceDropzone } from '@/modules/replace-texture';
+import {
+  $resourceAttribs,
+  $textureIndex,
+  $updatedTextureDefs
+} from '@/selectors';
+import globalBuffers from '@/utils/data/globalBuffers';
+import { TextureImageBufferKeys } from '@/utils/textures';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -12,30 +21,21 @@ import {
   Skeleton,
   Typography
 } from '@mui/material';
+import clsx from 'clsx';
+import { useMemo, useState } from 'react';
 import useViewportSizes from 'use-viewport-sizes';
-import { useObjectNavControls, useObjectUINav } from '@/modules/object-viewer';
-import { TextureColorOptions, useTextureOptions } from '@/modules/model-data';
-import { useTextureReplaceDropzone } from '@/modules/replace-texture';
-import {
-  selectResourceAttribs,
-  selectTextureIndex,
-  selectUpdatedTextureDefs
-} from '@/selectors';
-import { useAppSelector } from '@/storeTypings';
-import { TextureImageBufferKeys } from '@/utils/textures';
-import { ReactNode, useMemo, useState } from 'react';
-import globalBuffers from '@/utils/data/globalBuffers';
 import ImageBufferCanvas from './ImageBufferCanvas';
-import { useSelector } from 'react-redux';
 
 export default function TextureView() {
+  'use no memo';
+
   useObjectNavControls();
   const uiControls = useObjectUINav();
   const [vpW, vpH] = useViewportSizes();
   const size = Math.min(Math.round((vpW - 222) * 0.5), Math.round(vpH - 96));
-  const textureIndex = useAppSelector(selectTextureIndex);
-  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
-  const resourceAttribs = useSelector(selectResourceAttribs);
+  const textureIndex = $textureIndex.value;
+  const textureDefs = $updatedTextureDefs.value;
+  const resourceAttribs = $resourceAttribs.value;
   const hasAspectRatio =
     typeof resourceAttribs?.textureShapesMap?.[textureIndex]
       .displayedAspectRatio === 'number';

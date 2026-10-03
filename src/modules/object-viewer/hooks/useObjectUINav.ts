@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo } from 'react';
 import { useHeldRepetitionTimer } from '@/hooks';
-import { navToNextObject, navToPrevObject } from '../objectViewerSlice';
-import { selectCanNavObjects, selectObjectIndex } from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { $canNavObjects, $objectIndex } from '@/selectors';
+import { useCallback, useEffect, useMemo } from 'react';
+import { navToNextObject, navToPrevObject } from '../objectViewerStore';
 
 export default function useObjectNavUIControls() {
-  const dispatch = useAppDispatch();
-  const objectIndex = useAppSelector(selectObjectIndex);
-  const canNavObjects = useAppSelector(selectCanNavObjects);
+  'use no memo';
+
+  const objectIndex = $objectIndex.value;
+  const canNavObjects = $canNavObjects.value;
 
   const [onStartPrevObjectNav, onStopPrevObjectNav] = useHeldRepetitionTimer();
   const [onStartNextObjectNav, onStopNextObjectNav] = useHeldRepetitionTimer();
@@ -23,13 +23,13 @@ export default function useObjectNavUIControls() {
 
   const onStartPrevObjectClick = useCallback(() => {
     onStartPrevObjectNav(() => {
-      dispatch(navToPrevObject());
+      navToPrevObject();
     });
   }, [objectIndex]);
 
   const onStartNextObjectClick = useCallback(() => {
     onStartNextObjectNav(() => {
-      dispatch(navToNextObject());
+      navToNextObject();
     });
   }, [objectIndex]);
 

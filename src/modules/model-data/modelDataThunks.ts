@@ -1,52 +1,55 @@
+import resourceAttribMappings from '@/constants/resourceAttribMappings';
+import O from '@/constants/StructOffsets';
+import { showError } from '@/modules/error-messages';
+import { $modelData } from '@/modules/model-data/modelDataStore';
+import { $objectViewer } from '@/modules/object-viewer/objectViewerStore';
+import {
+  $hasCompressedTextures,
+  $selectedVertexGradientInputs,
+  $textureFileType,
+  $updatedTextureDefs
+} from '@/selectors';
+import { getState } from '@/store';
 import type { NLUITextureDef, TextureDataUrlType } from '@/types';
+import { hslToRgb, rgbToHsl } from '@/utils/color-conversions';
 import { decompressLzssBuffer, sharedBufferFrom } from '@/utils/data';
 import decompressVqBuffer from '@/utils/data/decompressVqBuffer';
+import globalBuffers from '@/utils/data/globalBuffers';
 import { HslValues, TextureImageBufferKeys } from '@/utils/textures';
 import { VQ_TEXTURE_ENCODE_TYPE } from '@/utils/textures/VqFormatConstants';
 import { ClientThread } from '@/utils/threads';
-import globalBuffers from '@/utils/data/globalBuffers';
-import O from '@/constants/StructOffsets';
 import {
-  LoadTextureFileWorkerPayload,
-  LoadTextureFileWorkerResult
-} from '@/workers/loadTextureFileWorker';
-import { hslToRgb, rgbToHsl } from '@/utils/color-conversions';
+  AdjustTextureHslWorkerPayload,
+  AdjustTextureHslWorkerResult
+} from '@/workers/adjustTextureHslWorker';
+import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefRegionWorker';
+import {
+  ExportTextureFileWorkerPayload,
+  ExportTextureFileWorkerResult
+} from '@/workers/exportTextureFileWorker';
 import {
   LoadPolygonFileWorkerPayload,
   LoadPolygonFileWorkerResult
 } from '@/workers/loadPolygonFileWorker';
 import {
-  AdjustTextureHslWorkerPayload,
-  AdjustTextureHslWorkerResult
-} from '@/workers/adjustTextureHslWorker';
-import { showError } from '@/modules/error-messages';
-import {
-  selectHasCompressedTextures,
-  selectSelectedVertexGradientInputs,
-  selectTextureFileType,
-  selectUpdatedTextureDefs
-} from '@/selectors';
-import { createAppAsyncThunk } from '@/storeTypings';
+  LoadTextureFileWorkerPayload,
+  LoadTextureFileWorkerResult
+} from '@/workers/loadTextureFileWorker';
+import { batch } from '@preact-signals/safe-react';
 import saveAs from 'file-saver';
+import { produce } from 'immer';
 import {
-  ExportTextureFileWorkerPayload,
-  ExportTextureFileWorkerResult
-} from '@/workers/exportTextureFileWorker';
-import { ExportTextureDefRegionWorkerPayload } from '@/workers/exportTextureDefRegionWorker';
-import resourceAttribMappings from '@/constants/resourceAttribMappings';
+  applySelectedVertexColorFulfilled,
+  setTextureHslSession
+} from './modelDataStore';
+import type { ModelDataState } from './modelDataTypes';
 import {
-  ApplySelectedVertexColorResult,
   ApplySelectedVertexGradientPayload,
   ApplySelectedVertexHslPayload,
-  LoadPolygonsPayload,
-  LoadTexturesPayload,
-  LoadTexturesResultPayload
+  LoadTexturesPayload
 } from './modelDataTypes';
-import { setTextureHslSession } from './modelDataSlice';
 
 const imgTypes = ['opaque', 'translucent'] as TextureDataUrlType[];
-
-export const sliceName = 'modelData';
 
 interface TextureHslAdjustmentPayload {
   textureIndex: number;
@@ -151,9 +154,17 @@ const decompressLzssSection = (
 };
 
 // @TODO modularize image section definitions for declarative loading
-export const loadCharacterPortraitsFile = createAppAsyncThunk(
-  `${sliceName}/loadCharacterPortraitWsFile`,
-  async (file: File, { dispatch }) => {
+export const loadCharacterPortraitsFile = async (file: File) => {
+  batch(() => {
+    $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+      state.polygonBufferKey = undefined;
+      state.textureBufferKey = undefined;
+      state.textureDefs = [];
+      state.textureHslSessions = {};
+      state.textureHistory = {};
+    });
+  });
+  try {
     const PTR_SIZE = 4;
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -236,57 +247,109 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
         baseLocation: pointerBuffer.readUInt32LE(i * PTR_SIZE)
       }));
 
-    await dispatch(
-      loadTextureFile({
-        file,
-        textureFileType,
-        textureDefs,
-        textureBuffer: sharedBuffer,
-        isLzssCompressed: false
-      })
-    );
+    await loadTextureFile({
+      file,
+      textureFileType,
+      textureDefs,
+      textureBuffer: sharedBuffer,
+      isLzssCompressed: false
+    });
+  } catch {
+    return undefined;
   }
-);
+};
 
-export const loadPolygonFile = createAppAsyncThunk(
-  `${sliceName}/loadPolygonFile`,
-  async (file: File, { dispatch }) => {
+export const loadPolygonFile = async (file: File) => {
+  try {
     globalBuffers.clear();
-    await dispatch(processPolygonFile(file));
+    await processPolygonFile(file);
+  } catch {
+    return undefined;
   }
-);
+};
 
-export const processPolygonFile = createAppAsyncThunk(
-  `${sliceName}/processPolygonFile`,
-  async (file: File): Promise<LoadPolygonsPayload> => {
+export const processPolygonFile = async (file: File) => {
+  batch(() => {
+    $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+      state.loadTexturesState = 'idle';
+    });
+  });
+  try {
     const fBuffer = await file.arrayBuffer();
     const buffer = sharedBufferFrom(Buffer.from(fBuffer));
-    const { polygonBuffer, ...result } = await ClientThread.run<
+    const { polygonBuffer, ...polygonResult } = await ClientThread.run<
       LoadPolygonFileWorkerPayload,
       LoadPolygonFileWorkerResult
     >('loadPolygonFile', { buffer, fileName: file.name });
 
-    return {
-      ...result,
-      originalModels: structuredClone(result.models),
+    const result = {
+      ...polygonResult,
+      originalModels: structuredClone(polygonResult.models),
       polygonBufferKey: globalBuffers.add(polygonBuffer)
     };
+    batch(() => {
+      $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+        const {
+          models,
+          originalModels,
+          textureDefs,
+          fileName,
+          polygonBufferKey,
+          resourceAttribs
+        } = result;
+        state.models = models;
+        state.originalModels = originalModels;
+        state.textureDefs = textureDefs;
+        state.resourceAttribs = resourceAttribs;
+        state.editedTextures = {};
+        state.textureHslSessions = {};
+        state.textureHistory = {};
+        state.textureFileType = undefined;
+        state.polygonFileName = fileName;
+        state.textureFileName = undefined;
+        state.polygonBufferKey = polygonBufferKey;
+        state.hasEditedTextures = false;
+      });
+      $objectViewer.value = produce($objectViewer.value, (state) => {
+        const payload = result;
+        const firstRealModelIndex = payload.models.findIndex(
+          (model) => model.meshes.length > 0
+        );
+        Object.assign(state, {
+          modelIndex: firstRealModelIndex,
+          textureIndex: 0,
+          selectedIds: {}
+        });
+      });
+    });
+    return result;
+  } catch {
+    return undefined;
   }
-);
+};
 
-export const applySelectedVertexColor = createAppAsyncThunk(
-  `${sliceName}/applySelectedVertexColor`,
-  async (
-    { hexColor }: { hexColor: string },
-    { getState }
-  ): Promise<ApplySelectedVertexColorResult> => {
+export const applySelectedVertexColor = async ({
+  hexColor
+}: {
+  hexColor: string;
+}) => {
+  try {
     const state = getState();
     const { modelIndex, selectedIds } = state.objectViewer;
     const model = state.modelData.models[modelIndex];
     const color = hexToNormalizedColor(hexColor);
 
     if (!model || !color) {
-      return { modelIndex, vertexColorUpdates: [] };
+      const result = { modelIndex, vertexColorUpdates: [] };
+      batch(() => {
+        $modelData.value = produce(
+          $modelData.value,
+          (state: ModelDataState) => {
+            applySelectedVertexColorFulfilled(state, { payload: result });
+          }
+        );
+      });
+      return result;
     }
 
     const vertexColorUpdatesByAddress = new Map<number, NLColorRGBA>();
@@ -333,7 +396,7 @@ export const applySelectedVertexColor = createAppAsyncThunk(
       });
     }
 
-    return {
+    const result = {
       modelIndex,
       vertexColorUpdates: Array.from(
         vertexColorUpdatesByAddress.entries(),
@@ -343,15 +406,22 @@ export const applySelectedVertexColor = createAppAsyncThunk(
         })
       )
     };
+    batch(() => {
+      $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+        applySelectedVertexColorFulfilled(state, { payload: result });
+      });
+    });
+    return result;
+  } catch {
+    return undefined;
   }
-);
+};
 
-export const applySelectedVertexHsl = createAppAsyncThunk(
-  `${sliceName}/applySelectedVertexHsl`,
-  async (
-    { baseVertexColors, hsl }: ApplySelectedVertexHslPayload,
-    { getState }
-  ): Promise<ApplySelectedVertexColorResult> => {
+export const applySelectedVertexHsl = async ({
+  baseVertexColors,
+  hsl
+}: ApplySelectedVertexHslPayload) => {
+  try {
     const state = getState();
     const { modelIndex } = state.objectViewer;
     const vertexColorUpdates = baseVertexColors.map(
@@ -370,32 +440,45 @@ export const applySelectedVertexHsl = createAppAsyncThunk(
       });
     }
 
-    return {
+    const result = {
       modelIndex,
       vertexColorUpdates
     };
+    batch(() => {
+      $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+        applySelectedVertexColorFulfilled(state, { payload: result });
+      });
+    });
+    return result;
+  } catch {
+    return undefined;
   }
-);
+};
 
-export const applySelectedVertexGradient = createAppAsyncThunk(
-  `${sliceName}/applySelectedVertexGradient`,
-  async (
-    {
-      startColor,
-      endColor,
-      angle,
-      tilt,
-      pivotPoint
-    }: ApplySelectedVertexGradientPayload,
-    { getState }
-  ): Promise<ApplySelectedVertexColorResult> => {
+export const applySelectedVertexGradient = async ({
+  startColor,
+  endColor,
+  angle,
+  tilt,
+  pivotPoint
+}: ApplySelectedVertexGradientPayload) => {
+  try {
     const state = getState();
     const { modelIndex } = state.objectViewer;
 
-    const { selectedVertices } = selectSelectedVertexGradientInputs(state);
+    const { selectedVertices } = $selectedVertexGradientInputs.value;
 
     if (selectedVertices.length === 0) {
-      return { modelIndex, vertexColorUpdates: [] };
+      const result = { modelIndex, vertexColorUpdates: [] };
+      batch(() => {
+        $modelData.value = produce(
+          $modelData.value,
+          (state: ModelDataState) => {
+            applySelectedVertexColorFulfilled(state, { payload: result });
+          }
+        );
+      });
+      return result;
     }
 
     const direction = getGradientDirection(angle, tilt);
@@ -445,7 +528,7 @@ export const applySelectedVertexGradient = createAppAsyncThunk(
       });
     }
 
-    return {
+    const result = {
       modelIndex,
       vertexColorUpdates: Array.from(
         vertexColorUpdatesByAddress.entries(),
@@ -455,22 +538,27 @@ export const applySelectedVertexGradient = createAppAsyncThunk(
         })
       )
     };
+    batch(() => {
+      $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+        applySelectedVertexColorFulfilled(state, { payload: result });
+      });
+    });
+    return result;
+  } catch {
+    return undefined;
   }
-);
+};
 
-export const downloadPolygonFile = createAppAsyncThunk(
-  `${sliceName}/downloadPolygonFile`,
-  async (_, { getState, dispatch }) => {
+export const downloadPolygonFile = async () => {
+  try {
     const state = getState();
     const { polygonBufferKey, polygonFileName } = state.modelData;
 
     if (!polygonBufferKey || !polygonFileName) {
-      dispatch(
-        showError({
-          title: 'Invalid file selected',
-          message: 'No valid polygon file was loaded.'
-        })
-      );
+      showError({
+        title: 'Invalid file selected',
+        message: 'No valid polygon file was loaded.'
+      });
       return;
     }
 
@@ -502,37 +590,32 @@ export const downloadPolygonFile = createAppAsyncThunk(
         message = 'Unknown error occurred';
       }
 
-      dispatch(
-        showError({
-          title: 'Error exporting polygon file',
-          message
-        })
-      );
+      showError({
+        title: 'Error exporting polygon file',
+        message
+      });
     }
+  } catch {
+    return undefined;
   }
-);
+};
 
 /** called from UI to clean up and then process texture file */
-export const loadTextureFile = createAppAsyncThunk(
-  `${sliceName}/loadTextureFile`,
-  async (payload: LoadTexturesPayload, { getState, dispatch }) => {
+export const loadTextureFile = async (payload: LoadTexturesPayload) => {
+  try {
     const state = getState();
     const resourceAttribs =
       payload.resourceAttribs ??
       resourceAttribMappings[payload.textureFileType];
 
-    // cleanup buffer if no polygon needed
     const prevPolygonBufferKey = state.modelData.polygonBufferKey;
     const prevTextureBufferKey = state.modelData.textureBufferKey;
 
-    // cleanup texture related buffers
     setTimeout(() => {
-      dispatch(
-        processTextureFile({
-          ...payload,
-          resourceAttribs
-        })
-      );
+      processTextureFile({
+        ...payload,
+        resourceAttribs
+      });
       if (prevTextureBufferKey) {
         globalBuffers.delete(prevTextureBufferKey);
       }
@@ -576,23 +659,26 @@ export const loadTextureFile = createAppAsyncThunk(
         globalBuffers.delete(key);
       });
     }, 250);
+  } catch {
+    return undefined;
   }
-);
+};
 
-/** handled in reducer */
-export const processTextureFile = createAppAsyncThunk(
-  `${sliceName}/processTextureFile`,
-  async (
-    {
-      file,
-      textureFileType,
-      isLzssCompressed = false,
-      textureBuffer,
-      textureDefs: providedTextureDefs,
-      resourceAttribs
-    }: LoadTexturesPayload,
-    { getState, dispatch }
-  ): Promise<LoadTexturesResultPayload> => {
+/** Processes worker results and updates the model data signals. */
+export const processTextureFile = async ({
+  file,
+  textureFileType,
+  isLzssCompressed = false,
+  textureBuffer,
+  textureDefs: providedTextureDefs,
+  resourceAttribs
+}: LoadTexturesPayload) => {
+  batch(() => {
+    $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+      state.loadTexturesState = 'pending';
+    });
+  });
+  try {
     const state = getState();
     const resolvedResourceAttribs =
       resourceAttribs ?? resourceAttribMappings[textureFileType];
@@ -609,10 +695,8 @@ export const processTextureFile = createAppAsyncThunk(
           ? providedTextureDefs
           : activeResourceAttribs.textureShapesMap) ?? [];
 
-      // clear polygons if texture headers aren't from poly file
-      dispatch({
-        type: processPolygonFile.fulfilled.type,
-        payload: {
+      batch(() => {
+        const payload = {
           models: [],
           originalModels: [],
           fileName: undefined,
@@ -620,7 +704,40 @@ export const processTextureFile = createAppAsyncThunk(
           textureDefs,
           textureFileType,
           resourceAttribs: activeResourceAttribs
-        }
+        };
+        $modelData.value = produce(
+          $modelData.value,
+          (state: ModelDataState) => {
+            const {
+              models,
+              originalModels,
+              textureDefs,
+              fileName,
+              polygonBufferKey,
+              resourceAttribs
+            } = payload;
+            state.models = models;
+            state.originalModels = originalModels;
+            state.textureDefs = textureDefs;
+            state.resourceAttribs = resourceAttribs;
+            state.editedTextures = {};
+            state.textureHslSessions = {};
+            state.textureHistory = {};
+            state.textureFileType = undefined;
+            state.polygonFileName = fileName;
+            state.textureFileName = undefined;
+            state.polygonBufferKey = polygonBufferKey;
+            state.hasEditedTextures = false;
+          }
+        );
+        $objectViewer.value = produce($objectViewer.value, (state) => {
+          const firstRealModelIndex = -1;
+          Object.assign(state, {
+            modelIndex: firstRealModelIndex,
+            textureIndex: 0,
+            selectedIds: {}
+          });
+        });
       });
     } else {
       textureDefs =
@@ -664,7 +781,6 @@ export const processTextureFile = createAppAsyncThunk(
             imgType === 'opaque' ? i * 2 : i * 2 + 1
           ];
 
-        // serialize buffers before returning result to state
         const bufferKey = globalBuffers.add(pixelBuffer);
         updatedTextureDefs[i].bufferKeys = {
           ...(updatedTextureDefs[i]?.bufferKeys ?? {}),
@@ -677,7 +793,7 @@ export const processTextureFile = createAppAsyncThunk(
       threadResult.decompressedTextureBuffer
     );
 
-    return {
+    const result = {
       textureBufferKey,
       textureDefs: updatedTextureDefs,
       textureFileType,
@@ -686,18 +802,52 @@ export const processTextureFile = createAppAsyncThunk(
         usesLzssTextureFile || Boolean(threadResult.isLzssCompressed),
       resourceAttribs: activeResourceAttribs
     };
+    batch(() => {
+      $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+        const payload = result;
+        const {
+          textureDefs,
+          fileName,
+          isLzssCompressed,
+          textureBufferKey,
+          textureFileType,
+          resourceAttribs
+        } = payload;
+        state.loadTexturesState = 'fulfilled';
+        state.textureDefs = textureDefs;
+        state.editedTextures = {};
+        state.textureHslSessions = {};
+        state.hasEditedTextures = false;
+        state.textureHistory = {};
+        state.textureFileType = textureFileType;
+        state.textureFileName = fileName;
+        state.isLzssCompressed = Boolean(isLzssCompressed);
+        state.textureBufferKey = textureBufferKey;
+        if (!resourceAttribs?.polygonMapped) {
+          state.resourceAttribs = resourceAttribs;
+        }
+      });
+    });
+    return result;
+  } catch {
+    batch(() => {
+      $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+        state.loadTexturesState = 'rejected';
+      });
+    });
+    return undefined;
   }
-);
+};
 
-export const adjustTextureHsl = createAppAsyncThunk(
-  `${sliceName}/adjustTextureHsl`,
-  async (payload: TextureHslAdjustmentPayload, { getState, dispatch }) => {
+export const adjustTextureHsl = async (
+  payload: TextureHslAdjustmentPayload
+) => {
+  try {
     const state = getState();
 
     const prevEditedTexture =
       state.modelData.editedTextures[payload.textureIndex];
 
-    // abort processing in reducer if no hsl change & edited
     const { hsl } = payload;
     const uvClipPathKey = getTextureHslScopeKey(
       payload.textureIndex,
@@ -715,7 +865,6 @@ export const adjustTextureHsl = createAppAsyncThunk(
       }
     }
 
-    // if no concrete changes and first edit, abort
     if (!prevEditedTexture && hsl.h === 0 && hsl.l === 0 && hsl.s === 0) {
       return;
     }
@@ -725,23 +874,19 @@ export const adjustTextureHsl = createAppAsyncThunk(
     const isSameScope = textureHslSession?.scopeKey === uvClipPathKey;
 
     if (!isSameScope && payload.sourceBufferKeys) {
-      dispatch(
-        setTextureHslSession({
-          textureIndex: payload.textureIndex,
-          session: {
-            scopeKey: uvClipPathKey,
-            sourceBufferKeys: payload.sourceBufferKeys,
-            hsl
-          }
-        })
-      );
+      setTextureHslSession({
+        textureIndex: payload.textureIndex,
+        session: {
+          scopeKey: uvClipPathKey,
+          sourceBufferKeys: payload.sourceBufferKeys,
+          hsl
+        }
+      });
     } else if (textureHslSession) {
-      dispatch(
-        setTextureHslSession({
-          textureIndex: payload.textureIndex,
-          session: { ...textureHslSession, hsl }
-        })
-      );
+      setTextureHslSession({
+        textureIndex: payload.textureIndex,
+        session: { ...textureHslSession, hsl }
+      });
     }
 
     setTimeout(() => {
@@ -765,21 +910,19 @@ export const adjustTextureHsl = createAppAsyncThunk(
       }
     }, 250);
 
-    await dispatch(processAdjustedTextureHsl(payload));
+    await processAdjustedTextureHsl(payload);
+  } catch {
+    return undefined;
   }
-);
+};
 
-export const processAdjustedTextureHsl = createAppAsyncThunk(
-  `${sliceName}/processAdjustedTextureHsl`,
-  async (
-    {
-      textureIndex,
-      hsl,
-      sourceBufferKeys,
-      uvPixelByteIndexes
-    }: TextureHslAdjustmentPayload,
-    { getState }
-  ) => {
+export const processAdjustedTextureHsl = async ({
+  textureIndex,
+  hsl,
+  sourceBufferKeys,
+  uvPixelByteIndexes
+}: TextureHslAdjustmentPayload) => {
+  try {
     const state = getState();
     const textureDef = state.modelData.textureDefs[textureIndex];
     const uvClipPathKey = getTextureHslScopeKey(
@@ -805,7 +948,7 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
       )
     );
 
-    return {
+    const result = {
       bufferKeys: {
         opaque: globalBuffers.add(opaqueRgbaBuffer),
         translucent: globalBuffers.add(translucentRgbaBuffer)
@@ -814,32 +957,52 @@ export const processAdjustedTextureHsl = createAppAsyncThunk(
       hsl,
       uvClipPathKey
     };
+    batch(() => {
+      $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+        const { textureIndex, bufferKeys, hsl, uvClipPathKey } = result;
+        const { width, height } = state.textureDefs[textureIndex];
+        state.editedTextures[textureIndex] = {
+          width,
+          height,
+          bufferKeys,
+          hsl,
+          uvClipPathKey
+        };
+        state.hasEditedTextures =
+          state.hasEditedTextures ||
+          Object.keys(state.editedTextures).length > 0;
+      });
+    });
+    return result;
+  } catch {
+    return undefined;
   }
-);
+};
 
-export const downloadTextureFile = createAppAsyncThunk(
-  `${sliceName}/downloadTextureFile`,
-  async (_, { getState, dispatch }) => {
+export const downloadTextureFile = async () => {
+  batch(() => {
+    $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+      state.exportTextureFileState = 'pending';
+    });
+  });
+  try {
     const state = getState();
     const { textureFileName = '', textureBufferKey = '' } = state.modelData;
-    const textureDefs = selectUpdatedTextureDefs(state);
-    const textureFileType = selectTextureFileType(state);
-    const isLzssCompressed = selectHasCompressedTextures(state);
+    const textureDefs = $updatedTextureDefs.value;
+    const textureFileType = $textureFileType.value;
+    const isLzssCompressed = $hasCompressedTextures.value;
 
     if (!textureFileType) {
-      dispatch(
-        showError({
-          title: 'Invalid file selected',
-          message: 'No valid texture filetype was loaded.'
-        })
-      );
+      showError({
+        title: 'Invalid file selected',
+        message: 'No valid texture filetype was loaded.'
+      });
       return;
     }
 
     try {
       const textureBuffer = globalBuffers.getShared(textureBufferKey);
 
-      // preserve unchanged VQ regions
       const changedTextureIndexes = new Set([
         ...Object.keys(state.modelData.editedTextures).map(Number),
         ...Object.entries(state.modelData.textureHistory)
@@ -882,8 +1045,8 @@ export const downloadTextureFile = createAppAsyncThunk(
       const arrayBuffer =
         outputBuffer instanceof SharedArrayBuffer
           ? (() => {
-              const copy = new ArrayBuffer(outputBuffer.byteLength); // Allocate a new ArrayBuffer
-              new Uint8Array(copy).set(new Uint8Array(outputBuffer)); // Copy data
+              const copy = new ArrayBuffer(outputBuffer.byteLength);
+              new Uint8Array(copy).set(new Uint8Array(outputBuffer));
               return copy;
             })()
           : outputBuffer;
@@ -912,12 +1075,23 @@ export const downloadTextureFile = createAppAsyncThunk(
         error = 'Unknown error occurred';
       }
 
-      const errorAction = showError({
+      showError({
         title: 'Error exporting texture',
         message
       });
-
-      dispatch(errorAction);
+    }
+  } catch {
+    batch(() => {
+      $modelData.value = produce($modelData.value, (state: ModelDataState) => {
+        state.exportTextureFileState = 'rejected';
+      });
+    });
+    return undefined;
+  } finally {
+    if ($modelData.value.exportTextureFileState === 'pending') {
+      $modelData.value = produce($modelData.value, (state) => {
+        state.exportTextureFileState = 'fulfilled';
+      });
     }
   }
-);
+};

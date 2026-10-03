@@ -1,58 +1,21 @@
-import React, { JSX, PropsWithChildren } from 'react';
-import { Provider } from 'react-redux';
-import { render } from '@testing-library/react';
-import type { RenderOptions } from '@testing-library/react';
-import { ThemeProvider } from '@mui/material/styles';
-
+import { type AppState, resetState } from '@/store';
 import useUserTheme from '@/theming/useUserTheme';
-import { setupStore } from '@/store';
-import type { AppState, AppStore } from '@/storeTypings';
+import { ThemeProvider } from '@mui/material/styles';
+import { render, type RenderOptions } from '@testing-library/react';
+import React, { type PropsWithChildren } from 'react';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  preloadedState?: AppState;
-  store?: AppStore;
+  preloadedState?: Partial<AppState>;
 }
-
-const defaultAppState = {};
-
-export default function renderTestWIthProviders(
+export default function renderTestWithProviders(
   ui: React.ReactElement,
-  {
-    preloadedState = defaultAppState as AppState,
-    ...renderOptions
-  }: ExtendedRenderOptions = {}
+  { preloadedState, ...renderOptions }: ExtendedRenderOptions = {}
 ) {
-  function ThemedContent({
-    children
-  }: PropsWithChildren<unknown>): JSX.Element {
+  resetState(preloadedState);
+  function Wrapper({ children }: PropsWithChildren) {
     const theme = useUserTheme();
     return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
   }
-
-  let store: ReturnType<typeof setupStore> | undefined;
-
-  if (preloadedState) {
-    store = setupStore(preloadedState);
-  }
-
-  function AppStateWrapper({
-    children
-  }: PropsWithChildren<unknown>): JSX.Element {
-    return (
-      <Provider store={store as ReturnType<typeof setupStore>}>
-        <ThemedContent>{children}</ThemedContent>
-      </Provider>
-    );
-  }
-
-  function Wrapper({ children }: PropsWithChildren<unknown>): JSX.Element {
-    return <ThemedContent>{children}</ThemedContent>;
-  }
-
-  const wrapper = store ? AppStateWrapper : Wrapper;
-
-  const renderResult = render(ui, { wrapper, ...renderOptions });
-
-  // Return an object with the store and all of RTL's query functions
-  return { store, renderResult };
+  const renderResult = render(ui, { wrapper: Wrapper, ...renderOptions });
+  return { renderResult };
 }

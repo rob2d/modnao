@@ -1,16 +1,17 @@
-import clsx from 'clsx';
-import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import gameNameMap from '@/constants/gameNameMap';
-import { selectModelIndex, selectResourceAttribs } from '@/selectors';
-import { useAppSelector } from '@/storeTypings';
-import { Box, ButtonBase, Divider, Paper, Typography } from '@mui/material';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import { $modelIndex, $resourceAttribs } from '@/selectors';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { Box, ButtonBase, Divider, Paper, Typography } from '@mui/material';
+import clsx from 'clsx';
 import { useContext } from 'react';
 
 export default function ModelResourceAttribs() {
+  'use no memo';
+
   const viewContext = useContext(SceneOptionsContext);
-  const resourceAttribs = useAppSelector(selectResourceAttribs);
-  const modelIndex = useAppSelector(selectModelIndex);
+  const resourceAttribs = $resourceAttribs.value;
+  const modelIndex = $modelIndex.value;
   if (!resourceAttribs) {
     return null;
   }

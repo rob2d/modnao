@@ -1,3 +1,6 @@
+import createModNaoBrowserApi, {
+  type ModNaoBrowserApiController
+} from '@/modules/browser-api/createModNaoBrowserApi';
 import {
   createContext,
   type PropsWithChildren,
@@ -5,13 +8,6 @@ import {
   useEffect,
   useState
 } from 'react';
-import { useStore } from 'react-redux';
-import createModNaoBrowserApi, {
-  type ModNaoBrowserApiController
-} from '@/modules/browser-api/createModNaoBrowserApi';
-import type { AppStore } from '@/storeTypings';
-
-const useAppStore = useStore.withTypes<AppStore>();
 
 const ModNaoBrowserApiContext = createContext<ModNaoBrowserApiController>({
   mount: () => () => undefined,
@@ -20,8 +16,7 @@ const ModNaoBrowserApiContext = createContext<ModNaoBrowserApiController>({
 });
 
 export function ModNaoBrowserApiProvider({ children }: PropsWithChildren) {
-  const store = useAppStore();
-  const [controller] = useState(() => createModNaoBrowserApi(store));
+  const [controller] = useState(() => createModNaoBrowserApi());
 
   useEffect(() => controller.mount(), [controller]);
 

@@ -1,10 +1,9 @@
-import SearchIcon from '@mui/icons-material/Search';
 import gameNameMap from '@/constants/gameNameMap';
 import resourceAttribMappings from '@/constants/resourceAttribMappings';
 import resourceTypeNameMap from '@/constants/resourceTypeNameMap';
-import { selectPolygonFileName, selectTextureFileName } from '@/selectors';
-import { useAppSelector } from '@/storeTypings';
+import { $polygonFileName, $textureFileName } from '@/selectors';
 import type { ResourceAttribs } from '@/types';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Autocomplete,
   AutocompleteRenderInputParams,
@@ -194,7 +193,9 @@ const resourceSearchOptions = Object.entries(resourceAttribMappings)
 
 const filterResourceSearchOptions = (
   options: ResourceSearchOption[],
-  state: { inputValue: string }
+  state: {
+    inputValue: string;
+  }
 ) => {
   const searchValue = state.inputValue.trim().toLowerCase();
 
@@ -270,8 +271,10 @@ export default function ResourceNavigator({
   scope,
   sx
 }: ResourceNavigatorProps) {
-  const polygonFileName = useAppSelector(selectPolygonFileName);
-  const textureFileName = useAppSelector(selectTextureFileName);
+  'use no memo';
+
+  const polygonFileName = $polygonFileName.value;
+  const textureFileName = $textureFileName.value;
   const resourceSearchInputResetKey = `${polygonFileName ?? ''}:${textureFileName ?? ''}`;
   const [isResourceSearchOpen, setIsResourceSearchOpen] = useState(false);
   const [resourceSearchInputState, setResourceSearchInputState] =

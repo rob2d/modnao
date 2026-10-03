@@ -1,16 +1,16 @@
+import FilesSupportedButton from '@/components/FilesSupportedButton';
+import resourceAttribMappings from '@/constants/resourceAttribMappings';
+import { $modelData } from '@/modules/model-data/modelDataStore';
+import type { TextureFileType } from '@/types';
 import { JSX, useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
+import loadModelDataPatch from '../loadModelDataPatch';
 import {
   loadCharacterPortraitsFile,
   loadPolygonFile,
   loadTextureFile
 } from '../modelDataThunks';
-import loadModelDataPatch from '../loadModelDataPatch';
 import { MODEL_DATA_PATCH_EXTENSION } from '../validateModelDataPatchCompatibility';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import FilesSupportedButton from '@/components/FilesSupportedButton';
-import resourceAttribMappings from '@/constants/resourceAttribMappings';
-import type { TextureFileType } from '@/types';
 
 /** polygon files which may be associated to textures */
 export const POLYGON_FILE = /^(((STG|DM|DC)[0-9A-Z]{2})|EFKY)POL.BIN$/i;
@@ -31,7 +31,6 @@ const dedicatedTextureEntries = textureFileEntries.filter(
 export const handleFileInput = async (
   files: File[],
   onError: (error: string | JSX.Element) => void,
-  dispatch: ReturnType<typeof useAppDispatch>,
   polygonFilename: string | undefined
 ) => {
   if (!files[0]) {
@@ -57,7 +56,7 @@ export const handleFileInput = async (
       return;
     }
 
-    dispatch(loadModelDataPatch(patchFile));
+    loadModelDataPatch(patchFile);
     return;
   }
 
@@ -142,7 +141,7 @@ export const handleFileInput = async (
   }
 
   if (selectedPolygonFile) {
-    await dispatch(loadPolygonFile(selectedPolygonFile));
+    await loadPolygonFile(selectedPolygonFile);
   }
 
   if (
@@ -151,12 +150,10 @@ export const handleFileInput = async (
     resourceAttribMappings[textureFileType].polygonMapped
   ) {
     if (polygonFilename || selectedPolygonFile) {
-      dispatch(
-        loadTextureFile({
-          file: selectedTextureFile,
-          textureFileType
-        })
-      );
+      loadTextureFile({
+        file: selectedTextureFile,
+        textureFileType
+      });
     } else {
       handleError(
         <>
@@ -177,32 +174,28 @@ export const handleFileInput = async (
 
   switch (textureFileType) {
     case 'mvc2-character-portraits': {
-      dispatch(loadCharacterPortraitsFile(selectedTextureFile));
+      loadCharacterPortraitsFile(selectedTextureFile);
       break;
     }
     case 'mvc2-font-file':
     case 'mvc2-selection-vmu-jp':
     case 'mvc2-selection-vmu-us':
     case 'mvc2-intro-cable-ruby':
-      dispatch(
-        loadTextureFile({
-          file: selectedTextureFile,
-          textureFileType,
-          isLzssCompressed: false
-        })
-      );
+      loadTextureFile({
+        file: selectedTextureFile,
+        textureFileType,
+        isLzssCompressed: false
+      });
       break;
     case 'mvc2-character-win':
     case 'mvc2-stage-preview':
     case 'mvc2-selection-textures':
     case 'mvc2-end-file': {
-      dispatch(
-        loadTextureFile({
-          file: selectedTextureFile,
-          textureFileType,
-          isLzssCompressed: true
-        })
-      );
+      loadTextureFile({
+        file: selectedTextureFile,
+        textureFileType,
+        isLzssCompressed: true
+      });
       break;
     }
     default: {
@@ -221,8 +214,9 @@ export const handleFileInput = async (
 export default function useSupportedFilePicker(
   onError: (error: string | JSX.Element) => void
 ) {
-  const polygonFilename = useAppSelector((s) => s.modelData.polygonFileName);
-  const dispatch = useAppDispatch();
+  'use no memo';
+
+  const polygonFilename = $modelData.value.polygonFileName;
   const { plainFiles, openFilePicker } = useFilePicker({
     multiple: true,
     readAs: 'ArrayBuffer',
@@ -231,7 +225,7 @@ export default function useSupportedFilePicker(
 
   useEffect(() => {
     if (plainFiles.length) {
-      handleFileInput(plainFiles, onError, dispatch, polygonFilename);
+      handleFileInput(plainFiles, onError, polygonFilename);
     }
   }, [plainFiles]);
 

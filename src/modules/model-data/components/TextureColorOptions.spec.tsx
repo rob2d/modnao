@@ -1,10 +1,10 @@
-import { fireEvent, screen } from '@testing-library/react';
-import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
-import TextureColorOptions from './TextureColorOptions';
+import { AppState } from '@/store';
 import type { NLUITextureDef } from '@/types';
-import { EditedTexture } from '../modelDataTypes';
-import { AppState } from '@/storeTypings';
+import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import { TextureImageBufferKeys } from '@/utils/textures';
+import { fireEvent, screen } from '@testing-library/react';
+import { EditedTexture } from '../modelDataTypes';
+import TextureColorOptions from './TextureColorOptions';
 
 const mockTextureState = {
   modelData: {

@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
+import { getState, resetState } from '@/store';
 import { render, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { setupStore } from '@/store';
+import { useEffect } from 'react';
 import {
   ModNaoBrowserApiProvider,
   useModNaoBrowserApiRegistration
@@ -44,13 +43,13 @@ describe('ModNaoBrowserApiProvider', () => {
   });
 
   it('owns one stable API object while capabilities change', async () => {
-    const store = setupStore();
+    resetState();
     const { rerender, unmount } = render(
-      <Provider store={store}>
+      <>
         <ModNaoBrowserApiProvider>
           <TestCapabilities enabled={false} />
         </ModNaoBrowserApiProvider>
-      </Provider>
+      </>
     );
 
     await waitFor(() => expect(window.modNao).toBeDefined());
@@ -71,14 +70,14 @@ describe('ModNaoBrowserApiProvider', () => {
 
     await browserApi.files.load([new File([], 'stage.mnp.zip')]);
 
-    expect(store.getState().errorMessages.messages).toHaveLength(1);
+    expect(getState().errorMessages.messages).toHaveLength(1);
 
     rerender(
-      <Provider store={store}>
+      <>
         <ModNaoBrowserApiProvider>
           <TestCapabilities enabled />
         </ModNaoBrowserApiProvider>
-      </Provider>
+      </>
     );
 
     expect(window.modNao).toBe(browserApi);
@@ -86,11 +85,11 @@ describe('ModNaoBrowserApiProvider', () => {
     expect(browserApi.scene).toBe(scene);
 
     rerender(
-      <Provider store={store}>
+      <>
         <ModNaoBrowserApiProvider>
           <TestCapabilities enabled={false} />
         </ModNaoBrowserApiProvider>
-      </Provider>
+      </>
     );
 
     expect(window.modNao).toBe(browserApi);

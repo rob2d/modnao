@@ -1,6 +1,5 @@
+import { $models, $resourceAttribs } from '@/selectors';
 import { useMemo } from 'react';
-import { selectModels, selectResourceAttribs } from '@/selectors';
-import { useAppSelector } from '@/storeTypings';
 
 export interface TextureModelReference {
   modelIndex: number;
@@ -12,8 +11,10 @@ export default function useTextureModelReferences(
   textureIndex: number,
   enabled: boolean
 ) {
-  const models = useAppSelector(selectModels);
-  const resourceAttribs = useAppSelector(selectResourceAttribs);
+  'use no memo';
+
+  const models = $models.value;
+  const resourceAttribs = $resourceAttribs.value;
 
   return useMemo<TextureModelReference[]>(() => {
     if (!enabled) {

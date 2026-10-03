@@ -1,22 +1,3 @@
-import type { ReactNode } from 'react';
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import {
-  Box,
-  Divider,
-  Paper,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
-import { useThrottle } from '@uidotdev/usehooks';
 import {
   default as SceneOptionsContext,
   type VertexColorEditMode
@@ -29,9 +10,27 @@ import {
   type ApplySelectedVertexHslPayload,
   type VertexColorUpdate
 } from '@/modules/model-data';
-import { useAppDispatch } from '@/storeTypings';
 import { rgbToHsl } from '@/utils/color-conversions';
 import type { HslValues } from '@/utils/textures';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import {
+  Box,
+  Divider,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography
+} from '@mui/material';
+import { useThrottle } from '@uidotdev/usehooks';
+import type { ReactNode } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import type { RGBColor } from 'react-color';
 import {
   GradientVertexColorControls,
@@ -142,7 +141,6 @@ export default function VertexControlPanel({
   selectedVertexColors,
   selectedVertexCount
 }: VertexControlPanelProps) {
-  const dispatch = useAppDispatch();
   const { vertexColorEditMode, setVertexColorEditMode } =
     useContext(SceneOptionsContext);
   const [hsl, setHsl] = useState<HslValues>(DEFAULT_HSL);
@@ -184,9 +182,9 @@ export default function VertexControlPanel({
         return;
       }
 
-      dispatch(applySelectedVertexColor({ hexColor }));
+      applySelectedVertexColor({ hexColor });
     },
-    [dispatch, vertexColorInteractionScope]
+    [vertexColorInteractionScope]
   );
 
   const onAdjustHsl = useCallback(
@@ -197,9 +195,9 @@ export default function VertexControlPanel({
         return;
       }
 
-      dispatch(applySelectedVertexHsl(payload));
+      applySelectedVertexHsl(payload);
     },
-    [dispatch, vertexColorInteractionScope]
+    [vertexColorInteractionScope]
   );
 
   const onApplyGradient = useCallback(
@@ -210,9 +208,9 @@ export default function VertexControlPanel({
         return;
       }
 
-      dispatch(applySelectedVertexGradient(payload));
+      applySelectedVertexGradient(payload);
     },
-    [dispatch, vertexColorInteractionScope]
+    [vertexColorInteractionScope]
   );
 
   const onInteractWithVertexColorControl = useCallback(() => {

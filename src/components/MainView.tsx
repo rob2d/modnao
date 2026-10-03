@@ -1,6 +1,9 @@
-import { useCallback, useContext } from 'react';
-import GuiPanel from './panel/GuiPanel';
-import SceneView from './SceneView';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import { showDialog } from '@/modules/dialogs';
+import { $contentViewMode, $processingOverlayShown } from '@/selectors';
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import VideocamIcon from '@mui/icons-material/Videocam';
 import {
   Backdrop,
   Box,
@@ -8,21 +11,16 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
-import HelpCenterIcon from '@mui/icons-material/HelpCenter';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import VideocamIcon from '@mui/icons-material/Videocam';
-import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import { useCallback, useContext } from 'react';
 import { AppDialog, AppInfo } from './dialogs';
-import { showDialog } from '@/modules/dialogs';
-import {
-  selectContentViewMode,
-  selectProcessingOverlayShown
-} from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import TextureView from './TextureView';
 import ErrorMessage from './ErrorMessage';
+import GuiPanel from './panel/GuiPanel';
+import SceneView from './SceneView';
+import TextureView from './TextureView';
 
 export default function MainView() {
+  'use no memo';
+
   const {
     enableCinematicMode,
     guiPanelExpansionLevel,
@@ -31,11 +29,9 @@ export default function MainView() {
     showBrowsedObjectHints
   } = useContext(SceneOptionsContext);
 
-  const dispatch = useAppDispatch();
-
   const onShowAppInfoDialog = useCallback(() => {
-    dispatch(showDialog('app-info'));
-  }, [dispatch]);
+    showDialog('app-info');
+  }, []);
 
   const onShowBrowsedObjectHints = useCallback(() => {
     setShowBrowsedObjectHints(true);
@@ -49,8 +45,8 @@ export default function MainView() {
     setEnableCinematicMode(true);
   }, [setEnableCinematicMode]);
 
-  const contentViewMode = useAppSelector(selectContentViewMode);
-  const processingOverlayShown = useAppSelector(selectProcessingOverlayShown);
+  const contentViewMode = $contentViewMode.value;
+  const processingOverlayShown = $processingOverlayShown.value;
 
   let mainScene;
 

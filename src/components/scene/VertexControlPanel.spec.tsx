@@ -1,11 +1,20 @@
+import { SceneOptionsContextProvider } from '@/contexts/SceneOptionsContext';
+import type { VertexColorUpdate } from '@/modules/model-data';
+import { applySelectedVertexGradient } from '@/modules/model-data/modelDataThunks';
+import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SceneOptionsContextProvider } from '@/contexts/SceneOptionsContext';
 import VertexControlPanel, {
   getDefaultGradientVertexColors
 } from './VertexControlPanel';
-import type { VertexColorUpdate } from '@/modules/model-data';
-import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
+
+jest.mock('@/modules/model-data/modelDataThunks', () => {
+  const actual = jest.requireActual('@/modules/model-data/modelDataThunks');
+  return {
+    ...actual,
+    applySelectedVertexGradient: jest.fn(actual.applySelectedVertexGradient)
+  };
+});
 
 const vertexColorUpdate: VertexColorUpdate = {
   contentAddress: 1,
@@ -90,10 +99,11 @@ describe('VertexControlPanel', () => {
         />
       </SceneOptionsContextProvider>
     );
-    const { renderResult, store } = renderTestWithProviders(
+    const { renderResult } = renderTestWithProviders(
       panel([vertexColorUpdate])
     );
-    const dispatchSpy = jest.spyOn(store!, 'dispatch');
+    const gradientSpy = jest.mocked(applySelectedVertexGradient);
+    gradientSpy.mockClear();
 
     renderResult.rerender(
       panel([
@@ -108,7 +118,7 @@ describe('VertexControlPanel', () => {
       jest.advanceTimersByTime(200);
     });
 
-    expect(dispatchSpy).not.toHaveBeenCalled();
+    expect(gradientSpy).not.toHaveBeenCalled();
   });
 
   it('defaults gradient handles to the same color when the selection has one color', () => {

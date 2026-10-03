@@ -1,12 +1,18 @@
-import JSZip from 'jszip';
-import { createElement } from 'react';
 import O from '@/constants/StructOffsets';
 import { showError } from '@/modules/error-messages';
-import { createAppAsyncThunk } from '@/storeTypings';
+import { $modelData } from '@/modules/model-data/modelDataStore';
+import { getState } from '@/store';
 import globalBuffers from '@/utils/data/globalBuffers';
 import loadRGBABuffersFromFile from '@/utils/images/loadRGBABuffersFromFile';
+import { batch } from '@preact-signals/safe-react';
+import { produce } from 'immer';
+import JSZip from 'jszip';
+import { createElement } from 'react';
+import {
+  applySelectedVertexColorFulfilled,
+  replaceTextureImageInState
+} from './modelDataStore';
 import { writeVertexColorToBuffer } from './modelDataThunks';
-import type { LoadModelDataPatchResult } from './modelDataTypes';
 import parseModelDataPatchManifest from './parseModelDataPatchManifest';
 import validateModelDataPatchCompatibility, {
   getModelDataPatchPrefix,
@@ -20,22 +26,16 @@ const PATCH_TEXTURE_CHANGES_ERROR =
 const PATCH_RESOURCE_CHANGED_ERROR =
   'The open model changed while the patch was loading. Open the model and import the patch again.';
 
-const loadModelDataPatch = createAppAsyncThunk(
-  'modelData/loadModelDataPatch',
-  async (
-    file: File,
-    { dispatch, getState }
-  ): Promise<LoadModelDataPatchResult | undefined> => {
+const loadModelDataPatch = async (file: File) => {
+  try {
     const { polygonFileName, resourceAttribs } = getState().modelData;
 
     if (!polygonFileName || !resourceAttribs) {
-      dispatch(
-        showError({
-          title: 'Patch could not be imported',
-          message:
-            'Open the POL.BIN model you want to update before importing a patch.'
-        })
-      );
+      showError({
+        title: 'Patch could not be imported',
+        message:
+          'Open the POL.BIN model you want to update before importing a patch.'
+      });
       return;
     }
 
@@ -193,7 +193,7 @@ const loadModelDataPatch = createAppAsyncThunk(
         })
       );
 
-      return {
+      const result = {
         vertexColorUpdates: Array.from(
           vertexColorUpdatesByModel.entries(),
           ([modelIndex, modelUpdates]) => ({
@@ -206,28 +206,42 @@ const loadModelDataPatch = createAppAsyncThunk(
         ),
         textureUpdates
       };
+      batch(() => {
+        $modelData.value = produce($modelData.value, (state) => {
+          const payload = result;
+          payload?.vertexColorUpdates.forEach((vertexColorUpdate) => {
+            applySelectedVertexColorFulfilled(state, {
+              payload: vertexColorUpdate
+            });
+          });
+          payload?.textureUpdates.forEach((textureUpdate) => {
+            replaceTextureImageInState(state, textureUpdate);
+          });
+        });
+      });
+      return result;
     } catch (error) {
-      dispatch(
-        showError({
-          title: 'Patch could not be imported',
-          message:
-            error instanceof ModelDataPatchCompatibilityError
-              ? createElement(
-                  'span',
-                  null,
-                  'This patch is for ',
-                  createElement('b', null, error.patchResource),
-                  ', but ',
-                  createElement('b', null, error.loadedResource),
-                  ' is currently open. Open the matching model and retry.'
-                )
-              : error instanceof Error
-                ? error.message
-                : 'This patch could not be read. Create or download it again and retry.'
-        })
-      );
+      showError({
+        title: 'Patch could not be imported',
+        message:
+          error instanceof ModelDataPatchCompatibilityError
+            ? createElement(
+                'span',
+                null,
+                'This patch is for ',
+                createElement('b', null, error.patchResource),
+                ', but ',
+                createElement('b', null, error.loadedResource),
+                ' is currently open. Open the matching model and retry.'
+              )
+            : error instanceof Error
+              ? error.message
+              : 'This patch could not be read. Create or download it again and retry.'
+      });
     }
+  } catch {
+    return undefined;
   }
-);
+};
 
 export default loadModelDataPatch;

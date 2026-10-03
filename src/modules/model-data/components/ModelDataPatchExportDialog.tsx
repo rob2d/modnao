@@ -1,4 +1,8 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import ImageBufferCanvas from '@/components/ImageBufferCanvas';
+import { useResizeObserverSize } from '@/hooks';
+import { closeDialog } from '@/modules/dialogs';
+import { $models, $updatedTextureDefs } from '@/selectors';
+import globalBuffers from '@/utils/data/globalBuffers';
 import {
   Box,
   Button,
@@ -8,24 +12,19 @@ import {
   FormControlLabel,
   Typography
 } from '@mui/material';
-import ImageBufferCanvas from '@/components/ImageBufferCanvas';
-import { useResizeObserverSize } from '@/hooks';
-import { closeDialog } from '@/modules/dialogs';
-import { selectModels, selectUpdatedTextureDefs } from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import globalBuffers from '@/utils/data/globalBuffers';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import downloadModelDataPatch from '../downloadModelDataPatch';
+import { $modelData } from '../modelDataStore';
 
 const TEXTURE_TILE_SIZE = 136;
 const TEXTURE_TILE_GAP = 8;
 
 export default function ModelDataPatchExportDialog() {
-  const dispatch = useAppDispatch();
-  const models = useAppSelector(selectModels);
-  const hasOriginalModels = useAppSelector(
-    ({ modelData }) => modelData.originalModels.length > 0
-  );
-  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+  'use no memo';
+
+  const models = $models.value;
+  const hasOriginalModels = $modelData.value.originalModels.length > 0;
+  const textureDefs = $updatedTextureDefs.value;
   const textureOptions = useMemo(
     () =>
       textureDefs.flatMap(({ bufferKeys, width, height }, textureIndex) => {
@@ -74,8 +73,8 @@ export default function ModelDataPatchExportDialog() {
   );
 
   const onClose = useCallback(() => {
-    dispatch(closeDialog());
-  }, [dispatch]);
+    closeDialog();
+  }, []);
 
   const onSelectAll = useCallback(() => {
     setSelectedTextureIndexes(
@@ -96,14 +95,12 @@ export default function ModelDataPatchExportDialog() {
   }, []);
 
   const onDownload = useCallback(() => {
-    dispatch(
-      downloadModelDataPatch({
-        textureIndexes: selectedTextureIndexes,
-        onlyChangedVertexColors
-      })
-    );
-    dispatch(closeDialog());
-  }, [dispatch, onlyChangedVertexColors, selectedTextureIndexes]);
+    downloadModelDataPatch({
+      textureIndexes: selectedTextureIndexes,
+      onlyChangedVertexColors
+    });
+    closeDialog();
+  }, [onlyChangedVertexColors, selectedTextureIndexes]);
 
   return (
     <Box

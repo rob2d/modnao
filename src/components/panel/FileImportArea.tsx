@@ -1,28 +1,28 @@
-import {
-  selectContentViewMode,
-  selectHasLoadedPolygonFile,
-  selectResourceAttribs
-} from '@/selectors';
-import { useSupportedFilePicker } from '@/modules/model-data';
 import { showError } from '@/modules/error-messages';
+import { useSupportedFilePicker } from '@/modules/model-data';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import {
+  $contentViewMode,
+  $hasLoadedPolygonFile,
+  $resourceAttribs
+} from '@/selectors';
 import { Box } from '@mui/material';
 import { JSX, useCallback } from 'react';
-import GuiPanelButton from './GuiPanelButton';
 import FilesSupportedButton from '../FilesSupportedButton';
 import ResourceNavigator, {
   type ResourceNavigatorOption
 } from '../ResourceNavigator';
 import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
+import GuiPanelButton from './GuiPanelButton';
 
 export default function FileImportArea() {
-  const dispatch = useAppDispatch();
-  const contentViewMode = useAppSelector(selectContentViewMode);
-  const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
-  const resourceAttribs = useAppSelector(selectResourceAttribs);
+  'use no memo';
+
+  const contentViewMode = $contentViewMode.value;
+  const hasLoadedPolygonFile = $hasLoadedPolygonFile.value;
+  const resourceAttribs = $resourceAttribs.value;
   const onHandleError = useCallback((message: string | JSX.Element) => {
-    dispatch(showError({ title: 'Invalid file selection', message }));
+    showError({ title: 'Invalid file selection', message });
   }, []);
   const openFileSelector = useSupportedFilePicker(onHandleError);
 
@@ -32,11 +32,11 @@ export default function FileImportArea() {
         return false;
       }
 
-      dispatch(setObjectViewedIndex(Number(option.modelIndex)));
+      setObjectViewedIndex(Number(option.modelIndex));
 
       return true;
     },
-    [contentViewMode, dispatch]
+    [contentViewMode]
   );
 
   return (

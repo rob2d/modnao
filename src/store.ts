@@ -1,31 +1,43 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { createWrapper } from 'next-redux-wrapper';
-import { dialogsSlice } from '@/modules/dialogs';
-import objectViewerListenerMiddleware from '@/modules/object-viewer/objectViewerListeners';
-import objectViewerSlice from '@/modules/object-viewer/objectViewerSlice';
-import { modelDataSlice } from '@/modules/model-data';
-import { replaceTextureSlice } from '@/modules/replace-texture';
-import { errorMessagesSlice } from '@/modules/error-messages';
-import { AppState, AppStore } from './storeTypings';
+import { $dialogs, initialDialogsState } from '@/modules/dialogs/dialogsStore';
+import {
+  $errorMessages,
+  initialErrorMessagesState
+} from '@/modules/error-messages/errorMessagesStore';
+import {
+  $modelData,
+  initialModelDataState
+} from '@/modules/model-data/modelDataStore';
+import {
+  $objectViewer,
+  initialObjectViewerState
+} from '@/modules/object-viewer/objectViewerStore';
+import {
+  $replaceTexture,
+  initialReplaceTextureState
+} from '@/modules/replace-texture/replaceTextureStore';
+import { batch } from '@preact-signals/safe-react';
 
-export const rootReducer = combineReducers({
-  [dialogsSlice.name]: dialogsSlice.reducer,
-  [objectViewerSlice.name]: objectViewerSlice.reducer,
-  [modelDataSlice.name]: modelDataSlice.reducer,
-  [replaceTextureSlice.name]: replaceTextureSlice.reducer,
-  [errorMessagesSlice.name]: errorMessagesSlice.reducer
+export const getState = () => ({
+  dialogs: $dialogs.value,
+  errorMessages: $errorMessages.value,
+  modelData: $modelData.value,
+  objectViewer: $objectViewer.value,
+  replaceTexture: $replaceTexture.value
 });
-
-export const setupStore = (preloadedState?: AppState) =>
-  configureStore({
-    preloadedState,
-    reducer: rootReducer,
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().prepend(objectViewerListenerMiddleware.middleware),
-    devTools: process.env.NODE_ENV === 'development'
+export type AppState = ReturnType<typeof getState>;
+/** Reset client state for a fresh session or an isolated test. Never call during SSR. */
+export function resetState(preloadedState: Partial<AppState> = {}) {
+  batch(() => {
+    $dialogs.value = preloadedState.dialogs ?? { ...initialDialogsState };
+    $errorMessages.value = preloadedState.errorMessages ?? {
+      ...initialErrorMessagesState
+    };
+    $modelData.value = preloadedState.modelData ?? { ...initialModelDataState };
+    $objectViewer.value = preloadedState.objectViewer ?? {
+      ...initialObjectViewerState
+    };
+    $replaceTexture.value = preloadedState.replaceTexture ?? {
+      ...initialReplaceTextureState
+    };
   });
-
-export const store = setupStore();
-export const wrapper = createWrapper<AppStore>(
-  setupStore as () => typeof store
-);
+}

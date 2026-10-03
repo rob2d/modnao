@@ -1,21 +1,11 @@
-import { createListenerMiddleware } from '@reduxjs/toolkit';
-import type { ModelDataState } from '@/modules/model-data';
-import {
-  type MeshSelectionType,
-  type ObjectViewerState,
-  setObjectKeys,
-  setObjectType
-} from './objectViewerSlice';
+import type { ModelDataState } from '@/modules/model-data/modelDataTypes';
+import type { MeshSelectionType, ObjectViewerState } from './objectViewerStore';
 
 interface ObjectSelectionConversionState {
   modelData: ModelDataState;
   objectViewer: ObjectViewerState;
 }
 
-const objectViewerListenerMiddleware =
-  createListenerMiddleware<ObjectSelectionConversionState>();
-
-/** converts selected mesh keys to polygon or vertex keys. */
 const getMeshSelectionConvertedKeys = (
   model: NLModel | undefined,
   selectedKeys: string[],
@@ -47,7 +37,6 @@ const getMeshSelectionConvertedKeys = (
   });
 };
 
-/** converts selected polygon keys upon conversion to another type */
 const getPolygonSelectionConvertedKeys = (
   model: NLModel | undefined,
   selectedKeys: string[],
@@ -110,7 +99,6 @@ const getPolygonSelectionConvertedKeys = (
   });
 };
 
-/** routes selection conversion by previous and next selection type. */
 const getConvertedObjectKeys = (
   state: ObjectSelectionConversionState,
   selectedKeys: string[],
@@ -129,38 +117,4 @@ const getConvertedObjectKeys = (
 
   return [];
 };
-
-/** preserves compatible selections after setObjectType clears the reducer state. */
-objectViewerListenerMiddleware.startListening({
-  actionCreator: setObjectType,
-  effect: (action, listenerApi) => {
-    const previousState = listenerApi.getOriginalState();
-    const previousType = previousState.objectViewer.meshSelectionType;
-    const nextType = action.payload;
-
-    if (previousType === nextType) {
-      return;
-    }
-
-    const selectedKeys = Object.keys(previousState.objectViewer.selectedIds);
-
-    if (!selectedKeys.length) {
-      return;
-    }
-
-    const convertedObjectKeys = getConvertedObjectKeys(
-      previousState,
-      selectedKeys,
-      previousType,
-      nextType
-    );
-
-    if (!convertedObjectKeys.length) {
-      return;
-    }
-
-    listenerApi.dispatch(setObjectKeys(convertedObjectKeys));
-  }
-});
-
-export default objectViewerListenerMiddleware;
+export default getConvertedObjectKeys;

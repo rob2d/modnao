@@ -1,9 +1,9 @@
-import saveAs from 'file-saver';
-import JSZip from 'jszip';
 import { showError } from '@/modules/error-messages';
-import { createAppAsyncThunk } from '@/storeTypings';
+import { getState } from '@/store';
 import globalBuffers from '@/utils/data/globalBuffers';
 import { createB64ImgFromTextureDef } from '@/utils/textures';
+import saveAs from 'file-saver';
+import JSZip from 'jszip';
 import type { ModelDataPatchEntry } from './modelDataTypes';
 import { createModelDataPatchManifest } from './parseModelDataPatchManifest';
 import {
@@ -11,18 +11,14 @@ import {
   normalizeModelDataResourcePrefix
 } from './validateModelDataPatchCompatibility';
 
-const downloadModelDataPatch = createAppAsyncThunk(
-  'modelData/downloadModelDataPatch',
-  async (
-    {
-      textureIndexes,
-      onlyChangedVertexColors
-    }: {
-      textureIndexes: number[];
-      onlyChangedVertexColors: boolean;
-    },
-    { dispatch, getState }
-  ) => {
+const downloadModelDataPatch = async ({
+  textureIndexes,
+  onlyChangedVertexColors
+}: {
+  textureIndexes: number[];
+  onlyChangedVertexColors: boolean;
+}) => {
+  try {
     const {
       models,
       originalModels,
@@ -34,12 +30,10 @@ const downloadModelDataPatch = createAppAsyncThunk(
     const sourceFileName = polygonFileName ?? textureFileName;
 
     if (!resourceAttribs || !sourceFileName) {
-      dispatch(
-        showError({
-          title: 'Error exporting patch',
-          message: 'No supported resource is loaded.'
-        })
-      );
+      showError({
+        title: 'Error exporting patch',
+        message: 'No supported resource is loaded.'
+      });
       return;
     }
 
@@ -62,8 +56,8 @@ const downloadModelDataPatch = createAppAsyncThunk(
                     originalColor &&
                     vertex.colors?.every(
                       (channel, channelIndex) =>
-                        Math.round(channel * 0xff) ===
-                        Math.round(originalColor[channelIndex] * 0xff)
+                        Math.round(channel * 255) ===
+                        Math.round(originalColor[channelIndex] * 255)
                     );
 
                   return !vertex.colors ||
@@ -139,17 +133,17 @@ const downloadModelDataPatch = createAppAsyncThunk(
       );
     } catch (error) {
       console.error(error);
-      dispatch(
-        showError({
-          title: 'Error exporting patch',
-          message:
-            error instanceof Error
-              ? error.message
-              : 'Unknown error occurred while exporting the patch.'
-        })
-      );
+      showError({
+        title: 'Error exporting patch',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Unknown error occurred while exporting the patch.'
+      });
     }
+  } catch {
+    return undefined;
   }
-);
+};
 
 export default downloadModelDataPatch;

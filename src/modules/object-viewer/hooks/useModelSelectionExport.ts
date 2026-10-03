@@ -1,18 +1,19 @@
-import { useCallback, useMemo } from 'react';
-import exportFromJSON from 'export-from-json';
 import {
-  selectMeshSelectionType,
-  selectModel,
-  selectModelIndex,
-  selectObjectKey
+  $meshSelectionType,
+  $model,
+  $modelIndex,
+  $objectKey
 } from '@/selectors';
-import { useAppSelector } from '@/storeTypings';
+import exportFromJSON from 'export-from-json';
+import { useCallback, useMemo } from 'react';
 
 export default function useModelSelectionExport() {
-  const model = useAppSelector(selectModel);
-  const modelIndex = useAppSelector(selectModelIndex);
-  const objectKey = useAppSelector(selectObjectKey);
-  const objectType = useAppSelector(selectMeshSelectionType);
+  'use no memo';
+
+  const model = $model.value;
+  const modelIndex = $modelIndex.value;
+  const objectKey = $objectKey.value;
+  const objectType = $meshSelectionType.value;
 
   const data = useMemo(() => {
     if (!model) {

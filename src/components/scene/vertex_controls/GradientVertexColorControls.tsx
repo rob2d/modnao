@@ -47,6 +47,8 @@ export default function GradientVertexColorControls({
   defaultGradientVertexColors,
   onApplyGradient
 }: GradientVertexColorControlsProps) {
+  'use no memo';
+
   const $gradientTransform = useSignal<GradientTransform>({
     angle: DEFAULT_GRADIENT_ANGLE,
     tilt: DEFAULT_GRADIENT_TILT,

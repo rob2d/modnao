@@ -1,5 +1,5 @@
 import { dismissError } from '@/modules/error-messages';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { $errorMessages } from '@/modules/error-messages/errorMessagesStore';
 import { Alert, AlertTitle, Slide, SlideProps, Snackbar } from '@mui/material';
 
 import { usePrevious } from '@uidotdev/usehooks';
@@ -10,11 +10,11 @@ const ErrorTransition = (props: SlideProps) => (
 );
 
 export default function ErrorMessage() {
-  const dispatch = useAppDispatch();
-  const error = useAppSelector(
-    (s) =>
-      s.errorMessages.messages[s.errorMessages.messages.length - 1] ?? undefined
-  );
+  'use no memo';
+
+  const error =
+    $errorMessages.value.messages[$errorMessages.value.messages.length - 1] ??
+    undefined;
   const prevError = usePrevious(error);
 
   // keep track of the error that was shown to avoid
@@ -22,8 +22,8 @@ export default function ErrorMessage() {
   const errorShown = error ? error : prevError;
 
   const onDismissError = useCallback(() => {
-    dispatch(dismissError());
-  }, [dispatch]);
+    dismissError();
+  }, []);
 
   return (
     <Snackbar

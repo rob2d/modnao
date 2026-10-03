@@ -1,13 +1,12 @@
-import { useCallback } from 'react';
+import type { TextureModelReference } from '@/modules/model-data';
+import { useTextureModelReferences } from '@/modules/model-data';
+import { navToTextureModelUsage } from '@/modules/object-viewer';
+import { $modelIndex } from '@/selectors';
 import LocationPinIcon from '@mui/icons-material/LocationPin';
+import { Box, ListSubheader } from '@mui/material';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Box, ListSubheader } from '@mui/material';
-import { useTextureModelReferences } from '@/modules/model-data';
-import type { TextureModelReference } from '@/modules/model-data';
-import { navToTextureModelUsage } from '@/modules/object-viewer';
-import { selectModelIndex } from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { useCallback } from 'react';
 
 const MENU_ANCHOR_ORIGIN = { vertical: 'top', horizontal: 'left' } as const;
 const MENU_TRANSFORM_ORIGIN = { vertical: 'top', horizontal: 'right' } as const;
@@ -25,8 +24,9 @@ export default function GuiPanelTextureModelNavMenu({
   open: boolean;
   onClose: () => void;
 }) {
-  const dispatch = useAppDispatch();
-  const currentModelIndex = useAppSelector(selectModelIndex);
+  'use no memo';
+
+  const currentModelIndex = $modelIndex.value;
 
   const handleClose = useCallback(() => {
     onModelReferenceHover(undefined);
@@ -39,13 +39,11 @@ export default function GuiPanelTextureModelNavMenu({
     modelIndex,
     meshIndexes
   }: TextureModelReference) {
-    dispatch(
-      navToTextureModelUsage({
-        modelIndex,
-        meshIndexes,
-        textureIndex
-      })
-    );
+    navToTextureModelUsage({
+      modelIndex,
+      meshIndexes,
+      textureIndex
+    });
     handleClose();
   }
 

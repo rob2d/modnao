@@ -1,23 +1,22 @@
-import Img from 'next/image';
+import SceneOptionsContext, {
+  SceneOptions
+} from '@/contexts/SceneOptionsContext';
+import { useDragMouseOnEl } from '@/hooks';
+import {
+  $contentViewMode,
+  $hasLoadedPolygonFile,
+  $loadTexturesState
+} from '@/selectors';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { Box, Divider, Paper } from '@mui/material';
-import { RefObject, useCallback, useContext, useEffect, useRef } from 'react';
 import clsx from 'clsx';
-import SceneOptionsContext, {
-  SceneOptions
-} from '@/contexts/SceneOptionsContext';
+import Img from 'next/image';
+import { RefObject, useCallback, useContext, useEffect, useRef } from 'react';
+import GuiPanelModels from './GuiPanelModels';
 import GuiPanelViewOptions from './GuiPanelSceneOptions';
 import GuiPanelTextures from './GuiPanelTextures';
-import GuiPanelModels from './GuiPanelModels';
-import {
-  selectContentViewMode,
-  selectHasLoadedPolygonFile,
-  selectLoadTexturesState
-} from '@/selectors';
-import { useAppSelector } from '@/storeTypings';
-import { useDragMouseOnEl } from '@/hooks';
 
 const TRANSITION_TIME = `0.32s`;
 
@@ -103,10 +102,12 @@ const usePanelDragState = (
 };
 
 export default function GuiPanel() {
+  'use no memo';
+
   const sceneOptions = useContext(SceneOptionsContext);
-  const contentViewMode = useAppSelector(selectContentViewMode);
-  const loadTexturesState = useAppSelector(selectLoadTexturesState);
-  const hasLoadedPolygonFile = useAppSelector(selectHasLoadedPolygonFile);
+  const contentViewMode = $contentViewMode.value;
+  const loadTexturesState = $loadTexturesState.value;
+  const hasLoadedPolygonFile = $hasLoadedPolygonFile.value;
   const canResizePanel = contentViewMode !== 'welcome';
   const [resizeMouseDown, resizeHandle] = usePanelDragState(
     sceneOptions,

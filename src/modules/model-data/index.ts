@@ -1,12 +1,11 @@
-export { default as modelDataSlice } from './modelDataSlice';
-export * from './modelDataSlice';
-export * from './modelDataThunks';
-export * from './modelDataTypes';
-export { default as downloadModelDataPatch } from './downloadModelDataPatch';
-export { default as loadModelDataPatch } from './loadModelDataPatch';
 export { default as ModelDataPatchExportDialog } from './components/ModelDataPatchExportDialog';
 export { default as TextureColorOptions } from './components/TextureColorOptions';
+export { default as downloadModelDataPatch } from './downloadModelDataPatch';
 export { default as useSupportedFilePicker } from './hooks/useSupportedFilePicker';
 export { default as useTextureModelReferences } from './hooks/useTextureModelReferences';
 export type { TextureModelReference } from './hooks/useTextureModelReferences';
 export { default as useTextureOptions } from './hooks/useTextureOptions';
+export { default as loadModelDataPatch } from './loadModelDataPatch';
+export * from './modelDataStore';
+export * from './modelDataThunks';
+export * from './modelDataTypes';

@@ -1,8 +1,8 @@
 import { showError } from '@/modules/error-messages';
 import { handleFileInput } from '@/modules/model-data/hooks/useSupportedFilePicker';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
-import { selectContentViewMode } from '@/selectors';
-import type { AppStore } from '@/storeTypings';
+import { $contentViewMode } from '@/selectors';
+import { getState } from '@/store';
 
 export interface ModNaoBrowserApiController {
   mount: () => () => void;
@@ -10,9 +10,7 @@ export interface ModNaoBrowserApiController {
   registerScene: (scene: ModNaoSceneApi) => () => void;
 }
 
-export default function createModNaoBrowserApi(
-  store: AppStore
-): ModNaoBrowserApiController {
+export default function createModNaoBrowserApi(): ModNaoBrowserApiController {
   let camera: ModNaoCameraApi | undefined;
   let scene: ModNaoSceneApi | undefined;
 
@@ -24,19 +22,15 @@ export default function createModNaoBrowserApi(
       load: (files: File[] | FileList) =>
         handleFileInput(
           Array.from(files),
-          (message) =>
-            store.dispatch(
-              showError({ title: 'Invalid file selection', message })
-            ),
-          store.dispatch,
-          store.getState().modelData.polygonFileName
+          (message) => showError({ title: 'Invalid file selection', message }),
+          getState().modelData.polygonFileName
         )
     }),
     object: Object.freeze({
       get viewedIndex() {
-        const state = store.getState();
+        const state = getState();
 
-        return selectContentViewMode(state) === 'polygons'
+        return $contentViewMode.value === 'polygons'
           ? state.objectViewer.modelIndex
           : state.objectViewer.textureIndex;
       },
@@ -45,12 +39,12 @@ export default function createModNaoBrowserApi(
           throw new TypeError('Object index must be an integer');
         }
 
-        void store.dispatch(setObjectViewedIndex(index));
+        void setObjectViewedIndex(index);
       },
       get selectedIndexes() {
-        const state = store.getState();
+        const state = getState();
 
-        if (selectContentViewMode(state) === 'polygons') {
+        if ($contentViewMode.value === 'polygons') {
           return state.modelData.models.reduce<number[]>(
             (indexes, model, index) =>
               model.meshes.length ? [...indexes, index] : indexes,

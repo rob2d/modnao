@@ -1,5 +1,11 @@
+import {
+  type SceneVertexInteractionMode,
+  setObjectKeys
+} from '@/modules/object-viewer';
+import { $model, $selectedObjectIds } from '@/selectors';
 import { mdiCameraControl, mdiLasso } from '@mdi/js';
-import { useCallback, useMemo } from 'react';
+import ClearIcon from '@mui/icons-material/Clear';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
 import {
   Box,
   IconButton,
@@ -7,14 +13,7 @@ import {
   ToggleButtonGroup,
   Tooltip
 } from '@mui/material';
-import ClearIcon from '@mui/icons-material/Clear';
-import SelectAllIcon from '@mui/icons-material/SelectAll';
-import {
-  type SceneVertexInteractionMode,
-  setObjectKeys
-} from '@/modules/object-viewer';
-import { selectModel, selectSelectedObjectIds } from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
+import { useCallback, useMemo } from 'react';
 import MdiSvgIcon from '../MdiSvgIcon';
 
 interface SceneVertexModeControlsProps {
@@ -26,9 +25,10 @@ export default function SceneVertexModeControls({
   value,
   onChange
 }: SceneVertexModeControlsProps) {
-  const dispatch = useAppDispatch();
-  const model = useAppSelector(selectModel);
-  const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
+  'use no memo';
+
+  const model = $model.value;
+  const selectedObjectIds = $selectedObjectIds.value;
   const allVertexObjectKeys = useMemo(() => {
     if (!model) {
       return [];
@@ -48,12 +48,12 @@ export default function SceneVertexModeControls({
     allVertexObjectKeys.every((objectKey) => selectedObjectIds[objectKey]);
 
   const onSelectAllVertices = useCallback(() => {
-    dispatch(setObjectKeys(allVertexObjectKeys));
-  }, [allVertexObjectKeys, dispatch]);
+    setObjectKeys(allVertexObjectKeys);
+  }, [allVertexObjectKeys]);
 
   const onClearSelection = useCallback(() => {
-    dispatch(setObjectKeys([]));
-  }, [dispatch]);
+    setObjectKeys([]);
+  }, []);
 
   return (
     <Box

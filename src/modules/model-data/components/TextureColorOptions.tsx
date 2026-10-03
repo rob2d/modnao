@@ -1,13 +1,12 @@
+import NumericSliderInput from '@/components/NumericSliderInput';
+import { useDebouncedEffect } from '@/hooks';
+import { $modelData } from '@/modules/model-data/modelDataStore';
+import { $updatedTextureDefs } from '@/selectors';
 import {
-  ChangeEvent,
-  JSX,
-  KeyboardEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+  getUvClipPathBounds,
+  getUvClipPathPixelByteIndexes,
+  UvClipPath
+} from '@/utils/textures';
 import {
   Box,
   Button,
@@ -22,15 +21,16 @@ import {
 } from '@mui/material';
 import { useThrottle } from '@uidotdev/usehooks';
 import {
-  getUvClipPathBounds,
-  getUvClipPathPixelByteIndexes,
-  UvClipPath
-} from '@/utils/textures';
+  ChangeEvent,
+  JSX,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { adjustTextureHsl, getTextureHslScopeKey } from '../modelDataThunks';
-import { selectUpdatedTextureDefs } from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import NumericSliderInput from '@/components/NumericSliderInput';
-import { useDebouncedEffect } from '@/hooks';
 
 const DEFAULT_HSL = {
   h: 0,
@@ -85,12 +85,11 @@ export default function TextureColorOptions({
   variant: 'menu' | 'texture-view';
   selectedUvClipPaths?: UvClipPath[];
 }) {
-  const dispatch = useAppDispatch();
-  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+  'use no memo';
+
+  const textureDefs = $updatedTextureDefs.value;
   const textureDef = textureDefs[textureIndex];
-  const textureHslSession = useAppSelector(
-    (state) => state.modelData.textureHslSessions[textureIndex]
-  );
+  const textureHslSession = $modelData.value.textureHslSessions[textureIndex];
 
   const hasTouchedHslInputRef = useRef(false);
   const [applyToWholeTexture, setApplyToWholeTexture] = useState(false);
@@ -222,17 +221,14 @@ export default function TextureColorOptions({
       return;
     }
 
-    dispatch(
-      adjustTextureHsl({
-        hsl: processedHsl,
-        sourceBufferKeys: textureDef?.bufferKeys,
-        textureIndex,
-        uvPixelByteIndexes: activeUvPixelByteIndexes
-      })
-    );
+    adjustTextureHsl({
+      hsl: processedHsl,
+      sourceBufferKeys: textureDef?.bufferKeys,
+      textureIndex,
+      uvPixelByteIndexes: activeUvPixelByteIndexes
+    });
   }, [
     activeUvPixelByteIndexes,
-    dispatch,
     processedHsl,
     textureDef?.bufferKeys,
     textureIndex
@@ -244,9 +240,9 @@ export default function TextureColorOptions({
       textureIndex < textureDefs.length;
       textureIndex++
     ) {
-      dispatch(adjustTextureHsl({ hsl, textureIndex }));
+      adjustTextureHsl({ hsl, textureIndex });
     }
-  }, [dispatch, hsl, textureDefs]);
+  }, [hsl, textureDefs]);
 
   const hslSliders = (
     <>

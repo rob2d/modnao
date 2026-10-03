@@ -1,14 +1,11 @@
-import { useContext, useEffect, useRef } from 'react';
-import { useKeyPress } from '@react-typed-hooks/use-key-press';
-import { navToNextObject, navToPrevObject } from '../objectViewerSlice';
-import { useAppDispatch } from '@/storeTypings';
-import { UnknownAction } from '@reduxjs/toolkit';
-import { useHeldRepetitionTimer } from '@/hooks';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import { useHeldRepetitionTimer } from '@/hooks';
+import { useKeyPress } from '@react-typed-hooks/use-key-press';
+import { useContext, useEffect, useRef } from 'react';
+import { navToNextObject, navToPrevObject } from '../objectViewerStore';
 
 /** controls left/right object nav as well as the cinematic mode shortcut */
 export default function useObjectNavControls() {
-  const dispatch = useAppDispatch();
   const { enableCinematicMode, setEnableCinematicMode } =
     useContext(SceneOptionsContext);
   const isLeftPressed = useKeyPress({ targetKey: 'ArrowLeft' });
@@ -23,7 +20,7 @@ export default function useObjectNavControls() {
   useEffect(() => {
     if (isLeftPressed) {
       onStartPrevObjectNav(() => {
-        dispatch(navToPrevObject() as unknown as UnknownAction);
+        navToPrevObject();
       });
     } else {
       onStopPrevObjectNav();
@@ -33,7 +30,7 @@ export default function useObjectNavControls() {
   useEffect(() => {
     if (isRightPressed) {
       onStartNextObjectNav(() => {
-        dispatch(navToNextObject() as unknown as UnknownAction);
+        navToNextObject();
       });
     } else {
       onStopNextObjectNav();

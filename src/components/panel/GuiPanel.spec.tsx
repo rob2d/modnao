@@ -1,12 +1,12 @@
-import { fireEvent, screen } from '@testing-library/react';
-import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
-import GuiPanel from './GuiPanel';
-import type { NLUITextureDef } from '@/types';
-import { initialModelDataState, ModelDataState } from '@/modules/model-data';
-import { AppState } from '@/storeTypings';
 import SceneOptionsContext, {
   defaultValues
 } from '@/contexts/SceneOptionsContext';
+import { initialModelDataState, ModelDataState } from '@/modules/model-data';
+import { AppState } from '@/store';
+import type { NLUITextureDef } from '@/types';
+import renderTestWithProviders from '@/utils/tests/renderTestWithProviders';
+import { fireEvent, screen } from '@testing-library/react';
+import GuiPanel from './GuiPanel';
 
 const mockState = {
   modelData: {

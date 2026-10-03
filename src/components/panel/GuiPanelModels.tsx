@@ -1,3 +1,25 @@
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import { downloadPolygonFile } from '@/modules/model-data';
+import type { MeshSelectionType } from '@/modules/object-viewer';
+import {
+  setObjectType,
+  useModelSelectionExport,
+  useObjectUINav,
+  useSceneGLTFFileDownloader
+} from '@/modules/object-viewer';
+import {
+  $meshSelectionType,
+  $model,
+  $modelCount,
+  $modelIndex,
+  $models,
+  $polygonFileName,
+  $realModelIndexes,
+  $resourceAttribs,
+  $selectedObjectIds
+} from '@/selectors';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
   Box,
   Button,
@@ -14,35 +36,12 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import Grid from '@mui/material/Grid';
-import GuiPanelButton from './GuiPanelButton';
-import GuiPanelSection from './GuiPanelSection';
 import { useCallback, useContext, useMemo, useState } from 'react';
-import {
-  selectMeshSelectionType,
-  selectModel,
-  selectModelCount,
-  selectModelIndex,
-  selectModels,
-  selectPolygonFileName,
-  selectRealModelIndexes,
-  selectResourceAttribs,
-  selectSelectedObjectIds
-} from '@/selectors';
-import { setObjectType } from '@/modules/object-viewer';
-import type { MeshSelectionType } from '@/modules/object-viewer';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import {
-  useModelSelectionExport,
-  useObjectUINav,
-  useSceneGLTFFileDownloader
-} from '@/modules/object-viewer';
-import { downloadPolygonFile } from '@/modules/model-data';
-import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import FileImportArea from './FileImportArea';
 import GuiPanelActionButtonRow from './GuiPanelActionButtonRow';
+import GuiPanelButton from './GuiPanelButton';
+import GuiPanelSection from './GuiPanelSection';
 
 const matchesFuzzySearch = (value: string, search: string) => {
   const normalizedValue = value.toLocaleLowerCase();
@@ -70,19 +69,20 @@ const matchesFuzzySearch = (value: string, search: string) => {
 };
 
 export default function GuiPanelModels() {
+  'use no memo';
+
   const sceneOptions = useContext(SceneOptionsContext);
-  const dispatch = useAppDispatch();
 
   const uiNav = useObjectUINav();
-  const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
-  const meshSelectionType = useAppSelector(selectMeshSelectionType);
-  const polygonFileName = useAppSelector(selectPolygonFileName);
-  const modelIndex = useAppSelector(selectModelIndex);
-  const modelCount = useAppSelector(selectModelCount);
-  const model = useAppSelector(selectModel);
-  const models = useAppSelector(selectModels);
-  const realModelIndexes = useAppSelector(selectRealModelIndexes);
-  const resourceAttribs = useAppSelector(selectResourceAttribs);
+  const selectedObjectIds = $selectedObjectIds.value;
+  const meshSelectionType = $meshSelectionType.value;
+  const polygonFileName = $polygonFileName.value;
+  const modelIndex = $modelIndex.value;
+  const modelCount = $modelCount.value;
+  const model = $model.value;
+  const models = $models.value;
+  const realModelIndexes = $realModelIndexes.value;
+  const resourceAttribs = $resourceAttribs.value;
   const [gltfExportAnchorEl, setGltfExportAnchorEl] =
     useState<HTMLElement | null>(null);
   const [gltfCustomAnchorEl, setGltfCustomAnchorEl] =
@@ -223,8 +223,8 @@ export default function GuiPanelModels() {
   }, [onExportAllModelsToGLTF]);
 
   const onDownloadPolygonFile = useCallback(() => {
-    dispatch(downloadPolygonFile());
-  }, [dispatch]);
+    downloadPolygonFile();
+  }, []);
 
   const onSetMeshSelectionType = useCallback(
     (_: React.MouseEvent<HTMLElement>, type: MeshSelectionType | null) => {
@@ -232,9 +232,9 @@ export default function GuiPanelModels() {
         return;
       }
 
-      dispatch(setObjectType(type));
+      setObjectType(type);
     },
-    [dispatch]
+    []
   );
 
   const customGltfModelOptions = useMemo(
@@ -586,9 +586,7 @@ export default function GuiPanelModels() {
                 const checked = customGltfModelIndexes.includes(
                   option.modelIndex
                 );
-                const meshCountLabel = `${option.meshCount} mesh${
-                  option.meshCount === 1 ? '' : 'es'
-                }`;
+                const meshCountLabel = `${option.meshCount} mesh${option.meshCount === 1 ? '' : 'es'}`;
 
                 return (
                   <MenuItem

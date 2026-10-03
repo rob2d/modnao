@@ -1,3 +1,38 @@
+import { useModNaoBrowserApiRegistration } from '@/contexts/ModNaoBrowserApiContext';
+import { SceneContextSetup } from '@/contexts/SceneContext';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
+import { useSceneTextureMapCache, useSelectionMergeModeKeys } from '@/hooks';
+import { type VertexColorUpdate } from '@/modules/model-data';
+import {
+  addObjectKeys,
+  removeObjectKeys,
+  setObjectKeys,
+  setSelectedTextureIndex,
+  useObjectNavControls,
+  useVertexInteractionMode
+} from '@/modules/object-viewer';
+import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
+import {
+  $allDisplayedMeshes,
+  $displayedMeshes,
+  $meshSelectionType,
+  $model,
+  $modelIndex,
+  $polygonBufferKey,
+  $selectedObjectIds,
+  $updatedTextureDefs
+} from '@/selectors';
+import type { NodeSelectionMergeMode } from '@/types';
+import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
+import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
+import { signal, effect as signalEffect } from '@preact-signals/safe-react';
+import { Canvas } from '@react-three/fiber';
+import {
+  EffectComposer,
+  Outline,
+  Selection
+} from '@react-three/postprocessing';
+import { BlendFunction } from 'postprocessing';
 import {
   type PointerEvent as ReactPointerEvent,
   useCallback,
@@ -7,51 +42,15 @@ import {
   useRef,
   useState
 } from 'react';
-import { signal, effect as signalEffect } from '@preact-signals/safe-react';
-import { Canvas } from '@react-three/fiber';
-import {
-  selectAllDisplayedMeshes,
-  selectDisplayedMeshes,
-  selectMeshSelectionType,
-  selectModel,
-  selectModelIndex,
-  selectPolygonBufferKey,
-  selectSelectedObjectIds,
-  selectUpdatedTextureDefs
-} from '@/selectors';
-import {
-  addObjectKeys,
-  removeObjectKeys,
-  setObjectKeys,
-  setSelectedTextureIndex
-} from '@/modules/object-viewer';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
-import { useObjectNavControls } from '@/modules/object-viewer';
-import SceneOptionsContext from '@/contexts/SceneOptionsContext';
-import { Box, IconButton, Tooltip, useTheme } from '@mui/material';
-import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
-import { SceneContextSetup } from '@/contexts/SceneContext';
-import { useSceneTextureMapCache, useSelectionMergeModeKeys } from '@/hooks';
-import {
-  EffectComposer,
-  Outline,
-  Selection
-} from '@react-three/postprocessing';
-import { BlendFunction } from 'postprocessing';
 import { ColorManagement, SRGBColorSpace, WebGLRenderer } from 'three';
 import RenderedPolygon from './scene/RenderedPolygon';
+import SceneCameraControls from './scene/SceneCameraControls';
 import SceneLassoSelection, {
   SceneLassoOverlay,
   type SceneLassoOverlayState
 } from './scene/SceneLassoSelection';
-import SceneCameraControls from './scene/SceneCameraControls';
 import SceneVertexModeControls from './scene/SceneVertexModeControls';
 import VertexControlPanel from './scene/VertexControlPanel';
-import { type VertexColorUpdate } from '@/modules/model-data';
-import { useVertexInteractionMode } from '@/modules/object-viewer';
-import ModelResourceAttribs from '@/modules/object-viewer/components/ModelResourceAttribs';
-import type { NodeSelectionMergeMode } from '@/types';
-import { useModNaoBrowserApiRegistration } from '@/contexts/ModNaoBrowserApiContext';
 
 ColorManagement.enabled = true;
 
@@ -67,6 +66,8 @@ const $selectionMergeIndicatorPosition = signal({
 });
 
 export default function SceneView() {
+  'use no memo';
+
   useObjectNavControls();
 
   const [cameraPositionMoved, setCameraPositionMoved] = useState(false);
@@ -96,9 +97,8 @@ export default function SceneView() {
     return registerScene(sceneApi);
   }, [registerScene]);
 
-  const dispatch = useAppDispatch();
-  const selectedObjectIds = useAppSelector(selectSelectedObjectIds);
-  const meshSelectionType = useAppSelector(selectMeshSelectionType);
+  const selectedObjectIds = $selectedObjectIds.value;
+  const meshSelectionType = $meshSelectionType.value;
   const vertexModeEnabled = meshSelectionType === 'vertex';
   const { vertexInteractionMode, setVertexInteractionMode } =
     useVertexInteractionMode(vertexModeEnabled);
@@ -114,27 +114,27 @@ export default function SceneView() {
         selectedObjectCount === 1 && selectedObjectIds[key] === true;
 
       if (selectionMergeMode === 'remove') {
-        dispatch(removeObjectKeys([key]));
+        removeObjectKeys([key]);
       } else if (selectionMergeMode === 'add') {
-        dispatch(addObjectKeys([key]));
+        addObjectKeys([key]);
       } else {
-        dispatch(setObjectKeys(isOnlySelectedObject ? [] : [key]));
+        setObjectKeys(isOnlySelectedObject ? [] : [key]);
       }
 
       if (selectionMergeMode !== 'remove') {
-        dispatch(setSelectedTextureIndex(textureIndex));
+        setSelectedTextureIndex(textureIndex);
       }
     },
-    [dispatch, selectedObjectIds]
+    [selectedObjectIds]
   );
 
   const onResetCameraPosition = useCallback(() => {
     setResetCameraPositionRevision((revision) => revision + 1);
   }, []);
 
-  const textureDefs = useAppSelector(selectUpdatedTextureDefs);
+  const textureDefs = $updatedTextureDefs.value;
   const textureCacheMap = useSceneTextureMapCache(textureDefs);
-  const model = useAppSelector(selectModel);
+  const model = $model.value;
   const theme = useTheme();
   const selectionMergeMode = useSelectionMergeModeKeys(isScenePointerInsideRef);
 
@@ -268,10 +268,10 @@ export default function SceneView() {
     sceneOptions.sceneCursorVisible &&
     selectionMergeIndicatorText !== undefined;
 
-  const selectedMeshes = useAppSelector(selectDisplayedMeshes);
-  const meshes = useAppSelector(selectAllDisplayedMeshes);
-  const modelIndex = useAppSelector(selectModelIndex);
-  const polygonBufferKey = useAppSelector(selectPolygonBufferKey);
+  const selectedMeshes = $displayedMeshes.value;
+  const meshes = $allDisplayedMeshes.value;
+  const modelIndex = $modelIndex.value;
+  const polygonBufferKey = $polygonBufferKey.value;
   const renderModelIndexes = sceneOptions.renderModelIndexes;
   const isRenderingModelIndexes = renderModelIndexes !== undefined;
   const renderModelsStaggered = sceneOptions.renderModelsStaggered;

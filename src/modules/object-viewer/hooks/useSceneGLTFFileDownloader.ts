@@ -1,15 +1,11 @@
-import { useCallback, useContext } from 'react';
-import saveAs from 'file-saver';
-import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { useSceneContext } from '@/contexts/SceneContext';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
-import {
-  selectHasLoadedTextureFile,
-  selectModelCount,
-  selectModelIndex
-} from '@/selectors';
-import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import { showError } from '@/modules/error-messages';
+import { $modelData } from '@/modules/model-data/modelDataStore';
+import { $hasLoadedTextureFile, $modelCount, $modelIndex } from '@/selectors';
+import saveAs from 'file-saver';
+import { useCallback, useContext } from 'react';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 
 const exporter = new GLTFExporter();
 
@@ -33,7 +29,8 @@ export default function useSceneGLTFFileDownloader({
   modelIndexes,
   staggerModels
 }: SceneGLTFFileDownloaderOptions) {
-  const dispatch = useAppDispatch();
+  'use no memo';
+
   const {
     renderModelIndexes,
     setRenderModelIndexes,
@@ -43,11 +40,10 @@ export default function useSceneGLTFFileDownloader({
     setMeshDisplayMode
   } = useContext(SceneOptionsContext);
   const { scene } = useSceneContext();
-  const modelIndex = useAppSelector(selectModelIndex);
-  const modelCount = useAppSelector(selectModelCount);
-  const hasLoadedTextureFile = useAppSelector(selectHasLoadedTextureFile);
-  const polygonFileName =
-    useAppSelector((s) => s.modelData.polygonFileName) || '';
+  const modelIndex = $modelIndex.value;
+  const modelCount = $modelCount.value;
+  const hasLoadedTextureFile = $hasLoadedTextureFile.value;
+  const polygonFileName = $modelData.value.polygonFileName || '';
 
   const onDownloadSceneFile = useCallback(async () => {
     const prevMeshDisplayMode = meshDisplayMode;
@@ -57,32 +53,26 @@ export default function useSceneGLTFFileDownloader({
     // must be rendering in mesh display mode for GLTF to render textures
 
     if (!scene) {
-      dispatch(
-        showError({
-          title: 'Cannot export GLTF',
-          message: 'no scene instantiated to get GLTF file'
-        })
-      );
+      showError({
+        title: 'Cannot export GLTF',
+        message: 'no scene instantiated to get GLTF file'
+      });
       return;
     }
 
     if (!hasLoadedTextureFile) {
-      dispatch(
-        showError({
-          title: 'Cannot export GLTF',
-          message: 'no texture file loaded to export GLTF'
-        })
-      );
+      showError({
+        title: 'Cannot export GLTF',
+        message: 'no texture file loaded to export GLTF'
+      });
       return;
     }
 
     if (!exportedModelIndexes.length) {
-      dispatch(
-        showError({
-          title: 'Cannot export GLTF',
-          message: 'no models selected to export GLTF'
-        })
-      );
+      showError({
+        title: 'Cannot export GLTF',
+        message: 'no models selected to export GLTF'
+      });
       return;
     }
 
@@ -104,10 +94,7 @@ export default function useSceneGLTFFileDownloader({
           : exportedModelIndexes.length === 1
             ? `-${exportedModelIndexes[0]}`
             : '-custom';
-      const name = `${polygonFileName.substring(
-        0,
-        polygonFileName.lastIndexOf('.')
-      )}${modelNameSuffix}`;
+      const name = `${polygonFileName.substring(0, polygonFileName.lastIndexOf('.'))}${modelNameSuffix}`;
 
       saveAs(file, `${name}.mn.gltf`);
     } finally {
@@ -118,7 +105,6 @@ export default function useSceneGLTFFileDownloader({
     }
   }, [
     scene,
-    dispatch,
     hasLoadedTextureFile,
     modelCount,
     modelIndexes,

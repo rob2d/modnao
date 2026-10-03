@@ -414,6 +414,8 @@ export default memo(function GradientSelectionPreview({
   onOpenGradientColorPicker,
   onCloseGradientColorPicker
 }: GradientSelectionPreviewProps) {
+  'use no memo';
+
   const previewRef = useRef<HTMLDivElement>(null);
   const meshLineRefs = useRef<Array<SVGLineElement | null>>([]);
   const previewFillGradientRef = useRef<SVGLinearGradientElement>(null);
