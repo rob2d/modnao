@@ -1,8 +1,11 @@
 import { showError } from '@/modules/error-messages';
 import { useSupportedFilePicker } from '@/modules/model-data';
 import { setObjectViewedIndex } from '@/modules/object-viewer';
-import { $resourceAttribs } from '@/modules/model-data/modelDataStore';
-import { $contentViewMode, $hasLoadedPolygonFile } from '@/selectors';
+import {
+  $polygonFileName,
+  $resourceAttribs
+} from '@/modules/model-data/modelDataStore';
+import { $contentViewMode } from '@/selectors';
 import { Box } from '@mui/material';
 import { JSX, useCallback } from 'react';
 import FilesSupportedButton from '../FilesSupportedButton';
@@ -16,7 +19,7 @@ export default function FileImportArea() {
   'use no memo';
 
   const contentViewMode = $contentViewMode.value;
-  const hasLoadedPolygonFile = $hasLoadedPolygonFile.value;
+  const hasLoadedPolygonFile = Boolean($polygonFileName.value);
   const resourceAttribs = $resourceAttribs.value;
   const onHandleError = useCallback((message: string | JSX.Element) => {
     showError({ title: 'Invalid file selection', message });

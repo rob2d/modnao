@@ -19,7 +19,6 @@ import {
 import {
   $canExportTextures,
   $contentViewMode,
-  $hasLoadedTextureFile,
   $model,
   $selectedTexture,
   $updatedTextureDefs
@@ -62,7 +61,7 @@ export default function GuiPanelViewOptions() {
   const meshSelectionType = $meshSelectionType.value;
   const contentViewMode = $contentViewMode.value;
   const loadTexturesState = $loadTexturesState.value;
-  const hasLoadedTextureFile = $hasLoadedTextureFile.value;
+  const hasLoadedTextureFile = Boolean(textureFileName);
   const models = $models.value;
   const resourceAttribs = $resourceAttribs.value;
 

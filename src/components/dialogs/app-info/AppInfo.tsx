@@ -1,6 +1,5 @@
 import AppInfoGuide from '@/components/dialogs/app-info/AppInfoGuide';
-import { closeDialog } from '@/modules/dialogs';
-import { $isAppInfoDialogShown } from '@/selectors';
+import { $dialogShown, closeDialog } from '@/modules/dialogs';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { Box, Button, Tab, Tabs } from '@mui/material';
 import { type SyntheticEvent, useCallback, useState } from 'react';
@@ -36,7 +35,7 @@ export default function AppInfo() {
     []
   );
 
-  const isAppInfoDialogShown = $isAppInfoDialogShown.value;
+  const isAppInfoDialogShown = $dialogShown.value === 'app-info';
 
   return (
     <Box

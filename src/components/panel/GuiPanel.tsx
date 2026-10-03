@@ -2,8 +2,11 @@ import SceneOptionsContext, {
   SceneOptions
 } from '@/contexts/SceneOptionsContext';
 import { useDragMouseOnEl } from '@/hooks';
-import { $loadTexturesState } from '@/modules/model-data/modelDataStore';
-import { $contentViewMode, $hasLoadedPolygonFile } from '@/selectors';
+import {
+  $loadTexturesState,
+  $polygonFileName
+} from '@/modules/model-data/modelDataStore';
+import { $contentViewMode } from '@/selectors';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
@@ -104,7 +107,7 @@ export default function GuiPanel() {
   const sceneOptions = useContext(SceneOptionsContext);
   const contentViewMode = $contentViewMode.value;
   const loadTexturesState = $loadTexturesState.value;
-  const hasLoadedPolygonFile = $hasLoadedPolygonFile.value;
+  const hasLoadedPolygonFile = Boolean($polygonFileName.value);
   const canResizePanel = contentViewMode !== 'welcome';
   const [resizeMouseDown, resizeHandle] = usePanelDragState(
     sceneOptions,

@@ -1,9 +1,12 @@
 import { useSceneContext } from '@/contexts/SceneContext';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { showError } from '@/modules/error-messages';
-import { $polygonFileName } from '@/modules/model-data/modelDataStore';
+import {
+  $polygonFileName,
+  $textureFileName
+} from '@/modules/model-data/modelDataStore';
 import { $modelIndex } from '@/modules/object-viewer/objectViewerStore';
-import { $hasLoadedTextureFile, $modelCount } from '@/selectors';
+import { $modelCount } from '@/selectors';
 import saveAs from 'file-saver';
 import { useCallback, useContext } from 'react';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
@@ -43,7 +46,7 @@ export default function useSceneGLTFFileDownloader({
   const { scene } = useSceneContext();
   const modelIndex = $modelIndex.value;
   const modelCount = $modelCount.value;
-  const hasLoadedTextureFile = $hasLoadedTextureFile.value;
+  const hasLoadedTextureFile = Boolean($textureFileName.value);
   const polygonFileName = $polygonFileName.value || '';
 
   const onDownloadSceneFile = useCallback(async () => {

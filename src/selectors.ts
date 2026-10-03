@@ -1,7 +1,5 @@
-import { $dialogShown } from '@/modules/dialogs/dialogsStore';
 import {
   $editedTextures,
-  $exportTextureFileState,
   $models,
   $polygonBufferKey,
   $polygonFileName,
@@ -33,13 +31,6 @@ export const $objectKey = computed(() => {
 
   return undefined;
 });
-
-export const $hasLoadedPolygonFile = computed(() =>
-  Boolean($polygonFileName.value)
-);
-export const $hasLoadedTextureFile = computed(() =>
-  Boolean($textureFileName.value)
-);
 
 export const $modelCount = computed(() => {
   const models = $models.value;
@@ -292,14 +283,6 @@ export const $mesh = computed(() => {
   return model?.meshes[meshIndex] || undefined;
 });
 
-export const $isAppInfoDialogShown = computed(
-  () => $dialogShown.value === 'app-info'
-);
-
-export const $isFileSupportDialogShown = computed(
-  () => $dialogShown.value === 'file-support-info'
-);
-
 export const $canExportTextures = computed(() => {
   const textureFileName = $textureFileName.value;
   const resourceAttribs = $resourceAttribs.value;
@@ -309,8 +292,8 @@ export const $canExportTextures = computed(() => {
 });
 
 export const $contentViewMode = computed(() => {
-  const hasLoadedTextures = $hasLoadedTextureFile.value;
-  const hasLoadedPolygons = $hasLoadedPolygonFile.value;
+  const hasLoadedTextures = Boolean($textureFileName.value);
+  const hasLoadedPolygons = Boolean($polygonFileName.value);
   if (hasLoadedTextures && !hasLoadedPolygons) {
     return 'textures';
   } else if (hasLoadedPolygons) {
@@ -385,7 +368,3 @@ export const $canNavObjects = computed(() => {
       return false;
   }
 });
-
-export const $processingOverlayShown = computed(
-  () => $exportTextureFileState.value === 'pending'
-);
