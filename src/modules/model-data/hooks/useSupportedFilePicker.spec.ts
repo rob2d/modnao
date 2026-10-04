@@ -1,5 +1,5 @@
 import { handleFileInput } from './useSupportedFilePicker';
-import { loadTextureFile } from '../modelDataThunks';
+import { loadIntroCharactersFile, loadTextureFile } from '../modelDataThunks';
 
 describe('handleFileInput', () => {
   const onError = jest.fn();
@@ -51,10 +51,39 @@ describe('handleFileInput', () => {
     }
   );
 
+  it.each(['DM08CHR.BIN', 'dm08chr.bin', 'DM08CHR.mn.BIN'])(
+    'dispatches %s to the section-aware texture loader without a polygon file',
+    async (filename) => {
+      const files = getMockFilesWithNames([filename]);
+      files[0].arrayBuffer = jest.fn().mockReturnValue(new Promise(() => {}));
+      const pendingActions: unknown[] = [];
+      const thunkDispatch = jest.fn((thunk) =>
+        thunk(
+          (action: unknown) => pendingActions.push(action),
+          () => ({ modelData: {} })
+        )
+      );
+
+      await handleFileInput(files, onError, thunkDispatch, undefined);
+
+      expect(onError).not.toHaveBeenCalled();
+      expect(thunkDispatch).toHaveBeenCalledTimes(1);
+      expect(pendingActions[0]).toMatchObject({
+        type: loadIntroCharactersFile.pending.type,
+        meta: {
+          arg: files[0]
+        }
+      });
+    }
+  );
+
   it.each([
     ['DM08CAB.BIN', 'STG01POL.BIN'],
     ['STG01POL.BIN', 'DM08CAB.BIN'],
-    ['DM08CAB.BIN', 'FONT.BIN']
+    ['DM08CAB.BIN', 'FONT.BIN'],
+    ['DM08CHR.BIN', 'DM08CAB.BIN'],
+    ['DM08CHR.BIN', 'DM08POL.BIN'],
+    ['DM08POL.BIN', 'DM08CHR.BIN']
   ])('rejects selecting %s with %s', async (...filenames) => {
     await handleFileInput(
       getMockFilesWithNames(filenames),

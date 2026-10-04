@@ -273,6 +273,27 @@ const resourceAttribMappings: Record<ResourceHashKey, ResourceAttribs> = {
       })
     )
   },
+  'mvc2-intro-characters': {
+    game: 'MVC2',
+    name: 'Arcade Intro - Character Artwork',
+    identifier: 'DM08CHR',
+    resourceType: 'mvc2-menu',
+    filenamePattern: '^DM08CHR(\\.mn)?\\.BIN$',
+    polygonMapped: false,
+    oobReferencable: false,
+    textureFileType: 'mvc2-intro-characters',
+    hasLzssTextureFile: false,
+    textureShapesMap: Array.from({ length: 56 }, (_, i) =>
+      createTextureDef({
+        width: 256,
+        height: 256,
+        colorFormat: 'ARGB4444',
+        colorFormatValue: 2,
+        type: 1,
+        baseLocation: 0xe0 + i * 256 * 256 * 2
+      })
+    )
+  },
   'mvc2-font-file': {
     game: 'MVC2',
     name: 'Font Textures',

@@ -2,6 +2,7 @@ import { JSX, useEffect } from 'react';
 import { useFilePicker } from 'use-file-picker';
 import {
   loadCharacterPortraitsFile,
+  loadIntroCharactersFile,
   loadPolygonFile,
   loadTextureFile
 } from '../modelDataThunks';
@@ -178,6 +179,10 @@ export const handleFileInput = async (
   switch (textureFileType) {
     case 'mvc2-character-portraits': {
       dispatch(loadCharacterPortraitsFile(selectedTextureFile));
+      break;
+    }
+    case 'mvc2-intro-characters': {
+      dispatch(loadIntroCharactersFile(selectedTextureFile));
       break;
     }
     case 'mvc2-font-file':

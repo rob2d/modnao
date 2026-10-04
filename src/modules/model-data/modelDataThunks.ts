@@ -248,6 +248,63 @@ export const loadCharacterPortraitsFile = createAppAsyncThunk(
   }
 );
 
+export const loadIntroCharactersFile = createAppAsyncThunk(
+  `${sliceName}/loadIntroCharactersFile`,
+  async (file: File, { dispatch }) => {
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const startPointer = buffer.readUInt32LE(0);
+      const pointers = Array.from({ length: startPointer / 4 }, (_, i) =>
+        buffer.readUInt32LE(i * 4)
+      );
+
+      const pointerBuffer = Buffer.alloc(startPointer);
+      let position = startPointer;
+
+      const sections = pointers.map((start, index) => {
+        const [section] = decompressLzssSection(
+          buffer,
+          start,
+          pointers[index + 1]
+        );
+
+        if (section.length !== 256 * 256 * 2) {
+          throw new Error('Invalid DM08CHR.BIN texture size');
+        }
+
+        pointerBuffer.writeUInt32LE(position, index * 4);
+        position += section.length;
+
+        return section;
+      });
+
+      const textureBuffer = sharedBufferFrom(
+        Buffer.concat([pointerBuffer, ...sections])
+      );
+
+      await dispatch(
+        loadTextureFile({
+          file,
+          textureFileType: 'mvc2-intro-characters',
+          textureBuffer,
+          isLzssCompressed: false
+        })
+      );
+    } catch (error: unknown) {
+      console.error(error);
+
+      dispatch(
+        showError({
+          title: 'Error loading texture file',
+          message: error instanceof Error ? error.message : String(error)
+        })
+      );
+
+      throw error;
+    }
+  }
+);
+
 export const loadPolygonFile = createAppAsyncThunk(
   `${sliceName}/loadPolygonFile`,
   async (file: File, { dispatch }) => {

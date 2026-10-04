@@ -1,6 +1,27 @@
 import getResourceAttribs from './getResourceAttribs';
 
 describe('getResourceAttribs', () => {
+  it.each(['DM08CHR.BIN', 'dm08chr.bin', 'DM08CHR.mn.BIN'])(
+    'resolves %s as a standalone MVC2 character-art archive',
+    (fileName) => {
+      expect(getResourceAttribs('unknown', fileName)).toMatchObject({
+        game: 'MVC2',
+        identifier: 'DM08CHR',
+        polygonMapped: false,
+        oobReferencable: false,
+        textureFileType: 'mvc2-intro-characters',
+        hasLzssTextureFile: false
+      });
+    }
+  );
+
+  it.each(['DM08CHRXBIN', 'DM08CHRxmn.BIN', 'DM08CHR.BIN.bak'])(
+    'does not recognize %s as an MVC2 character-art archive',
+    (fileName) => {
+      expect(getResourceAttribs('unknown', fileName)).toBeUndefined();
+    }
+  );
+
   it.each(['DM08CAB.BIN', 'dm08cab.bin', 'DM08CAB.mn.BIN'])(
     'resolves %s as a standalone MVC2 intro texture resource',
     (fileName) => {

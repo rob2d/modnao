@@ -29,6 +29,32 @@ export default async function exportTextureFileWorker({
   const textureBufferView = Buffer.from(new Uint8Array(textureBuffer));
 
   switch (textureFileType) {
+    case 'mvc2-intro-characters': {
+      const startPointer = textureBufferView.readUInt32LE(0);
+      const sectionCount = startPointer / 4;
+      const pointerBuffer = Buffer.alloc(startPointer);
+      let position = startPointer;
+
+      const sections = Array.from({ length: sectionCount }, (_, index) => {
+        const section = readSection(
+          textureBufferView,
+          textureBufferView.readUInt32LE(index * 4),
+          index + 1 < sectionCount
+            ? textureBufferView.readUInt32LE((index + 1) * 4)
+            : textureBufferView.length
+        );
+        const compressedSection = Buffer.from(
+          compressLzssSection(section, 0, position)
+        );
+
+        pointerBuffer.writeUInt32LE(position, index * 4);
+        position += compressedSection.length;
+        return compressedSection;
+      });
+
+      const outputBuffer = Buffer.concat([pointerBuffer, ...sections]);
+      return sharedBufferFrom(outputBuffer);
+    }
     // character portraits are an interesting niche case
     // where compression exists but not applied to the entire file;
     // the file is also split into 3 (or 4 separate) sections
