@@ -8,7 +8,7 @@ const COMPRESSION_FLAG = 0b1000_0000_0000_0000;
 /** in 16 bit mode, can look back a max of 11 bits */
 const W16_MAX_LOOKBACK = 0b111_1111_1111;
 
-/** @param buffer decompressed buffer to compress */
+/** Compresses word-based LZSS with a compressed zero-token terminator. */
 export default function compressLzssBuffer(buffer: Uint8Array) {
   let i = 0;
 
@@ -152,6 +152,12 @@ export default function compressLzssBuffer(buffer: Uint8Array) {
 
     chunk += 1;
     chunk %= 16;
+  }
+
+  // A full token group needs a new control word for the terminator.
+  if (chunk === 0) {
+    outputBuffer.writeUInt16LE(COMPRESSION_FLAG, byteOffset);
+    byteOffset += 2;
   }
 
   let escapeWordCount = 2;

@@ -21,7 +21,7 @@ describe('MVC2 intro - Cable & Ruby Heart', () => {
     return source;
   };
 
-  it('loads and exports both raw textures without changing any bytes', async () => {
+  it('loads and exports both raw textures without rewriting their regions', async () => {
     const source = createSource();
     const textureBuffer = sharedBufferFrom(source);
     const result = loadTextureFileWorker({
@@ -37,15 +37,6 @@ describe('MVC2 intro - Cable & Ruby Heart', () => {
       result.texturePixelBuffers.map((buffer) => buffer.byteLength)
     ).toEqual([512 * 512 * 4, 512 * 512 * 4, 512 * 512 * 4, 512 * 512 * 4]);
 
-    for (const [index, textureDef] of textureDefs.entries()) {
-      await exportTextureDefRegionWorker({
-        textureDef,
-        textureFileType,
-        textureBuffer,
-        pixelColors: result.texturePixelBuffers[index * 2 + 1]
-      });
-    }
-
     const exported = await exportTextureFileWorker({
       textureFileType,
       textureBuffer,
@@ -53,6 +44,63 @@ describe('MVC2 intro - Cable & Ruby Heart', () => {
     });
 
     expect(Buffer.from(new Uint8Array(exported)).equals(source)).toBe(true);
+  });
+
+  it('quantizes a rewritten texture without changing its layout or other regions', async () => {
+    const source = createSource();
+    const textureBuffer = sharedBufferFrom(source);
+    const loaded = loadTextureFileWorker({
+      fileName: 'DM08CAB.BIN',
+      textureFileBuffer: textureBuffer,
+      textureDefs,
+      oobReferenceable: resource.oobReferencable,
+      isLzssCompressed: false
+    });
+
+    await exportTextureDefRegionWorker({
+      textureDef: textureDefs[1],
+      textureFileType,
+      textureBuffer,
+      pixelColors: loaded.texturePixelBuffers[3]
+    });
+
+    const exported = Buffer.from(
+      await exportTextureFileWorker({
+        textureFileType,
+        textureBuffer,
+        isLzssCompressed: false
+      })
+    );
+    expect(exported.length).toBe(source.length);
+    expect(exported.subarray(0, textureByteLength)).toEqual(
+      source.subarray(0, textureByteLength)
+    );
+    expect(exported.subarray(textureByteLength * 2)).toEqual(
+      source.subarray(textureByteLength * 2)
+    );
+    expect(
+      exported
+        .subarray(textureByteLength, textureByteLength * 2)
+        .equals(source.subarray(textureByteLength, textureByteLength * 2))
+    ).toBe(false);
+    const colors = new Set<number>();
+    for (
+      let offset = textureByteLength;
+      offset < textureByteLength * 2;
+      offset += 2
+    ) {
+      colors.add(exported.readUInt16LE(offset));
+    }
+    expect(colors.size).toBeGreaterThan(256);
+    expect(colors.size).toBeLessThanOrEqual(512);
+    const reloaded = loadTextureFileWorker({
+      fileName: 'DM08CAB.mn.BIN',
+      textureFileBuffer: sharedBufferFrom(exported),
+      textureDefs,
+      oobReferenceable: resource.oobReferencable,
+      isLzssCompressed: false
+    });
+    expect(reloaded.texturePixelBuffers).toHaveLength(4);
   });
 
   it('edits the second texture while preserving the first and trailing bytes', async () => {
