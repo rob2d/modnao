@@ -3,6 +3,8 @@ import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
+import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 import {
   Box,
   Button,
@@ -10,7 +12,9 @@ import {
   Divider,
   IconButton,
   Skeleton,
-  Typography
+  Tooltip,
+  Typography,
+  useTheme
 } from '@mui/material';
 import useViewportSizes from 'use-viewport-sizes';
 import { useObjectNavControls, useObjectUINav } from '@/modules/object-viewer';
@@ -23,12 +27,19 @@ import {
 } from '@/selectors';
 import { useAppSelector } from '@/storeTypings';
 import { TextureImageBufferKeys } from '@/utils/textures';
-import { ReactNode, useMemo, useState } from 'react';
+import getTexturePreviewBufferKey from '@/utils/textures/getTexturePreviewBufferKey';
+import { ReactNode, useContext, useMemo, useState } from 'react';
+import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import globalBuffers from '@/utils/data/globalBuffers';
 import ImageBufferCanvas from './ImageBufferCanvas';
 import { useSelector } from 'react-redux';
 
 export default function TextureView() {
+  const { toggleLightDarkTheme, textureViewMode } =
+    useContext(SceneOptionsContext);
+  const theme = useTheme();
+  const isDarkTheme = theme.palette.mode === 'dark';
+  const themeToggleLabel = `Switch to ${isDarkTheme ? 'light' : 'dark'} mode`;
   useObjectNavControls();
   const uiControls = useObjectUINav();
   const [vpW, vpH] = useViewportSizes();
@@ -57,7 +68,10 @@ export default function TextureView() {
     false
   );
 
-  const textureBufferKey = textureDefs?.[textureIndex]?.bufferKeys?.opaque;
+  const textureBufferKey = getTexturePreviewBufferKey(
+    bufferKeys,
+    textureViewMode
+  );
   const textureBuffer = useMemo(
     () =>
       textureBufferKey
@@ -76,7 +90,7 @@ export default function TextureView() {
         sx={{
           position: 'absolute',
           top: 'var(--mui-spacing)',
-          right: 'calc(var(--mui-spacing) * 2)'
+          right: 'calc(var(--mui-spacing) * 7)'
         }}
       >
         <ButtonGroup>
@@ -102,6 +116,7 @@ export default function TextureView() {
   return (
     <Box
       sx={{
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
@@ -243,6 +258,26 @@ export default function TextureView() {
         </div>
       </div>
       <div className='controls-panel'></div>
+      <Tooltip title={themeToggleLabel} placement='left'>
+        <IconButton
+          aria-label={themeToggleLabel}
+          onClick={toggleLightDarkTheme}
+          sx={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            mr: 1,
+            mt: 1,
+            zIndex: 1
+          }}
+        >
+          {isDarkTheme ? (
+            <LightModeOutlinedIcon fontSize='medium' />
+          ) : (
+            <DarkModeOutlinedIcon fontSize='medium' />
+          )}
+        </IconButton>
+      </Tooltip>
     </Box>
   );
 }

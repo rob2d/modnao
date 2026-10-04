@@ -31,6 +31,7 @@ import { useAppDispatch, useAppSelector } from '@/storeTypings';
 import SceneOptionsContext from '@/contexts/SceneOptionsContext';
 import { useTextureReplaceDropzone } from '@/modules/replace-texture';
 import { createUvClipPaths, UvClipPath } from '@/utils/textures';
+import getTexturePreviewBufferKey from '@/utils/textures/getTexturePreviewBufferKey';
 
 const HOVERED_MODEL_UV_COLORS = [
   [255, 209, 102],
@@ -289,10 +290,7 @@ export default function GuiPanelTexture(props: GuiPanelTextureProps) {
     useTextureReplaceDropzone(textureIndex);
 
   const imageBufferKey =
-    (textureViewMode === 'opaque'
-      ? textureDef?.bufferKeys?.opaque || textureDef?.bufferKeys?.translucent
-      : textureDef?.bufferKeys?.translucent ||
-        textureDef?.bufferKeys?.opaque) || '';
+    getTexturePreviewBufferKey(textureDef?.bufferKeys, textureViewMode) || '';
 
   const showUvHighlight = Boolean(
     hasUvClipPaths &&
